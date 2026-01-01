@@ -1,0 +1,61 @@
+<p>signup works!</p>
+<form [formGroup]="form" novalidate>
+  <!-- Name -->
+  <div>
+    <label for="name">Name</label>
+    <input id="name" type="text" formControlName="name" />
+    @if (form.controls.name.touched && form.controls.name.invalid) {
+      <small>Name is required (min 2 characters)</small>
+    }
+  </div>
+
+  <!-- Email -->
+  <div>
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" />
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <small>Enter a valid email</small>
+    }
+  </div>
+
+  <!-- Phone -->
+  <div>
+    <label for="phone">Phone (Optional)</label>
+    <input id="phone" type="tel" formControlName="phone" />
+    @if (form.controls.phone.touched && form.controls.phone.invalid) {
+      <small>Phone must be 10 digits</small>
+    }
+  </div>
+
+  <!-- Gender -->
+  <div>
+    <label for="gender">Gender</label>
+    <select id="gender" formControlName="gender">
+      <option value="" disabled>Select gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="other">Other</option>
+    </select>
+    @if (form.controls.gender.touched && form.controls.gender.invalid) {
+      <small>Gender is required</small>
+    }
+  </div>
+
+  <!-- Date of Birth -->
+  <div>
+    <label for="dob">Date of Birth</label>
+    <input id="dob" type="date" formControlName="dateOfBirth" />
+    @if (form.controls.dateOfBirth.touched && form.controls.dateOfBirth.invalid) {
+      <small>Date of birth is required</small>
+    }
+  </div>
+
+  <!-- Submit -->
+  <button
+    type="button"
+    (click)="submit()"
+    [disabled]="form.invalid || submitting()"
+  >
+    Sign Up
+  </button>
+</form>
