@@ -1,0 +1,64 @@
+<div class="health-container">
+  <div class="auth-card-wrapper">
+    <header class="brand-header">
+      <h1>Create Account</h1>
+      <p class="brand-subtitle">Join the HealthHub Practitioner Network</p>
+    </header>
+
+    <main class="white-card">
+      <form #signupForm="ngForm" (ngSubmit)="onSubmit()">
+        
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" [(ngModel)]="userData.name" class="input-field" placeholder="Dr. Jane Smith" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Professional Email</label>
+          <input type="email" name="email" [(ngModel)]="userData.email" class="input-field" placeholder="jane.smith@clinic.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" [(ngModel)]="userData.password" class="input-field" placeholder="••••••••" required>
+          
+          <div class="validation-box" *ngIf="userData.password">
+            <div class="strength-header">
+              <span>Security Level:</span>
+              <span [style.color]="getStrength().color">{{ getStrength().label }}</span>
+            </div>
+            
+            <div class="check-item" [ngClass]="userData.password.length >= 12 ? 'valid' : 'invalid'">
+              {{ userData.password.length >= 12 ? '✓' : '○' }} At least 12 characters
+            </div>
+            <div class="check-item" [ngClass]="hasUpper ? 'valid' : 'invalid'">
+              {{ hasUpper ? '✓' : '○' }} One uppercase letter
+            </div>
+            <div class="check-item" [ngClass]="hasNumber ? 'valid' : 'invalid'">
+              {{ hasNumber ? '✓' : '○' }} One number
+            </div>
+            <div class="check-item" [ngClass]="hasSpecial ? 'valid' : 'invalid'">
+              {{ hasSpecial ? '✓' : '○' }} One special character
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" name="confirmPassword" [(ngModel)]="userData.confirmPassword" 
+                 class="input-field" 
+                 [style.borderColor]="passwordsMatch() ? '' : '#ef4444'"
+                 placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="!signupForm.valid || !passwordsMatch()">
+          Create account
+        </button>
+
+        <div class="footer-text">
+          Already have an account? <a routerLink="/login" class="link-teal">Sign in</a>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
