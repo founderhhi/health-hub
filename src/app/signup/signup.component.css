@@ -1,4 +1,46 @@
 /* =========================
+    Dynamic Theme Variables
+   ========================= */
+:host {
+    /* Default: Light Mode (Professional Teal) */
+    --primary: rgb(15, 118, 110);
+    --primary-hover: rgb(11, 91, 85);
+    --bg-surface: rgb(240, 253, 251);
+    --card-bg: #ffffff;
+    --text-bold: rgb(11, 91, 85);
+    --text-main: rgb(55, 65, 81);
+    --text-muted: rgb(75, 85, 99);
+    --input-bg: #ffffff;
+    --border: rgb(229, 231, 235);
+    --validation-bg: #f8fafc;
+    --shadow: rgba(15, 118, 110, 0.08);
+}
+
+/* Dark Mode Logic - Activated via [data-theme='dark'] */
+[data-theme='dark'] {
+    --primary: #2dd4bf;
+    --primary-hover: #5eead4;
+    --bg-surface: #0f172a;
+    --card-bg: #1e293b;
+    --text-bold: #5eead4;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --input-bg: #0f172a;
+    --border: #334155;
+    --validation-bg: #0f172a;
+    --shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Accessibility Mode - High Contrast for Color Blindness */
+[data-theme='accessible'] {
+    --primary: #000000;
+    --primary-hover: #333333;
+    --bg-surface: #ffffff;
+    --border: #000000;
+    --text-bold: #000000;
+}
+
+/* =========================
    Main Layout & Reset
 ========================= */
 .health-container {
@@ -7,10 +49,11 @@
     display: flex;
     align-items: center; 
     justify-content: center;
-    background-color: rgb(240, 253, 251);
+    background-color: var(--bg-surface);
     padding: 20px;
     box-sizing: border-box;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.4s ease;
 }
 
 .auth-card-wrapper {
@@ -25,29 +68,52 @@
    Branding & Card
 ========================= */
 .brand-header { text-align: center; }
-.brand-header h1 { color: rgb(11, 91, 85); font-weight: 800; font-size: 32px; margin: 0; }
-.brand-subtitle { color: rgb(75, 85, 99); font-size: 14px; margin: 8px 0 0; }
+.brand-header h1 { 
+    color: var(--text-bold); 
+    font-weight: 800; 
+    font-size: 32px; 
+    margin: 0; 
+}
+.brand-subtitle { 
+    color: var(--text-muted); 
+    font-size: 14px; 
+    margin: 8px 0 0; 
+}
 
 .white-card {
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(15, 118, 110, 0.08);
-    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 25px var(--shadow);
+    border: 1px solid var(--border);
     box-sizing: border-box;
+    transition: transform 0.3s ease, background-color 0.4s ease;
+}
+
+/* Impressive interactive hover */
+.white-card:hover {
+    transform: translateY(-4px);
 }
 
 /* =========================
    Form Elements
 ========================= */
 .form-group { margin-bottom: 20px; }
-.form-label { color: rgb(55, 65, 81); font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; }
+.form-label { 
+    color: var(--text-main); 
+    font-weight: 600; 
+    font-size: 13px; 
+    display: block; 
+    margin-bottom: 6px; 
+}
 
 .input-field {
     width: 100%;
     font-size: 15px;
     padding: 11px 16px;
-    border: 1.5px solid rgb(229, 231, 235);
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    border: 1.5px solid var(--border);
     border-radius: 12px;
     box-sizing: border-box;
     transition: all 0.2s ease;
@@ -55,7 +121,7 @@
 }
 
 .input-field:focus {
-    border-color: rgb(15, 118, 110);
+    border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1);
 }
 
@@ -63,15 +129,17 @@
    Password Validation UI
 ========================= */
 .validation-box {
-    background-color: #f8fafc;
+    background-color: var(--validation-bg);
     padding: 16px;
     border-radius: 12px;
     margin-top: 12px;
+    border: 1px solid var(--border);
 }
 
 .strength-header {
     display: flex;
     justify-content: space-between;
+    color: var(--text-main);
     font-size: 12px;
     margin-bottom: 10px;
 }
@@ -87,14 +155,14 @@
 
 /* States for Checklist */
 .valid { color: rgb(22, 163, 74); font-weight: 600; }
-.invalid { color: rgb(148, 163, 184); }
+.invalid { color: var(--text-muted); }
 
 /* =========================
    Buttons & Links
 ========================= */
 .btn-primary {
     width: 100%;
-    background-color: rgb(15, 118, 110);
+    background-color: var(--primary);
     color: #ffffff;
     font-weight: 700;
     font-size: 15px;
@@ -103,19 +171,41 @@
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
+
+/* Soft pulse animation to draw attention */
+@keyframes soft-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:active { transform: scale(0.98); }
 
 .btn-primary:disabled {
     background-color: #cbd5e1;
     cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .footer-text {
     text-align: center;
     margin-top: 24px;
     font-size: 14px;
-    color: rgb(75, 85, 99);
+    color: var(--text-muted);
 }
 
-.link-teal { color: rgb(15, 118, 110); font-weight: 600; text-decoration: none; }
+.link-teal { 
+    color: var(--primary); 
+    font-weight: 600; 
+    text-decoration: none; 
+}
+
 .link-teal:hover { text-decoration: underline; }
