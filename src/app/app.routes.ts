@@ -20,5 +20,17 @@ export const routes: Routes = [
     {
         path: 'heal-well',
         loadChildren: () => import('./features/heal-well/heal-well.route').then(m => m.HEAL_WELL_ROUTES)
+    },
+    {
+        path: 'provider/specialist',
+        loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES)
+    },
+    {
+        path: 'provider/pharmacy',
+        loadChildren: () => import('./features/pharmacy/pharmacy.routes').then(m => m.PHARMACY_ROUTES)
+    },
+    {
+        path: 'provider/diagnostics',
+        loadChildren: () => import('./features/diagnostics/diagnostics.routes').then(m => m.DIAGNOSTICS_ROUTES)
     }
 ];

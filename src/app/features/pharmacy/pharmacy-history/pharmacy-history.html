@@ -1,0 +1,36 @@
+<section class="min-h-screen bg-white p-6">
+  <div class="mx-auto max-w-5xl space-y-6">
+    <header>
+      <h1 class="text-2xl font-semibold text-slate-900">Prescription History</h1>
+      <p class="mt-1 text-sm text-slate-600">Review previously dispensed prescriptions.</p>
+    </header>
+
+    <section class="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 class="text-lg font-medium text-slate-900">Filters</h2>
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        <input
+          type="text"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700"
+          placeholder="Patient name"
+        />
+        <input
+          type="text"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700"
+          placeholder="Prescription ID"
+        />
+        <select class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700">
+          <option value="">Status</option>
+        </select>
+      </div>
+      <!-- TODO: Wire filters to prescription history query -->
+    </section>
+
+    <section class="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 class="text-lg font-medium text-slate-900">History</h2>
+      <div class="mt-4 rounded-md border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+        No prescriptions loaded.
+      </div>
+      <!-- TODO: Bind prescription history list/table -->
+    </section>
+  </div>
+</section>

@@ -1,0 +1,31 @@
+<section class="min-h-screen bg-white p-6">
+  <div class="mx-auto max-w-4xl space-y-6">
+    <header>
+      <h1 class="text-2xl font-semibold text-slate-900">Scan Prescription</h1>
+      <p class="mt-1 text-sm text-slate-600">Use the scanner or enter a code manually.</p>
+    </header>
+
+    <section class="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 class="text-lg font-medium text-slate-900">Scanner</h2>
+      <div class="mt-4 rounded-md border border-dashed border-slate-200 p-10 text-center text-sm text-slate-500">
+        Camera/QR placeholder
+      </div>
+      <!-- TODO: Integrate camera/QR scanning -->
+    </section>
+
+    <section class="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 class="text-lg font-medium text-slate-900">Enter Code Manually</h2>
+      <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          type="text"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700"
+          placeholder="Prescription code"
+        />
+        <button type="button" class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">
+          Lookup
+        </button>
+      </div>
+      <!-- TODO: Wire manual lookup action -->
+    </section>
+  </div>
+</section>

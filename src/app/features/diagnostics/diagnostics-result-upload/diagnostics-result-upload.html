@@ -1,0 +1,33 @@
+<section class="min-h-screen bg-white p-6">
+  <div class="mx-auto max-w-4xl space-y-6">
+    <header>
+      <h1 class="text-2xl font-semibold text-slate-900">Upload Results</h1>
+      <p class="mt-1 text-sm text-slate-600">Attach diagnostic results and notes.</p>
+    </header>
+
+    <section class="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 class="text-lg font-medium text-slate-900">Upload</h2>
+      <div class="mt-4 rounded-md border border-dashed border-slate-200 p-10 text-center text-sm text-slate-500">
+        Drop files here or click to upload
+      </div>
+      <!-- TODO: Wire file upload dropzone -->
+    </section>
+
+    <section class="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 class="text-lg font-medium text-slate-900">Notes</h2>
+      <textarea
+        rows="4"
+        class="mt-4 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700"
+        placeholder="Add notes about the results"
+      ></textarea>
+      <!-- TODO: Bind notes to upload payload -->
+    </section>
+
+    <div class="flex justify-end">
+      <button type="button" class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">
+        Submit Results
+      </button>
+    </div>
+    <!-- TODO: Wire submit results action -->
+  </div>
+</section>
