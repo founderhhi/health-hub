@@ -1,0 +1,105 @@
+<div class="health-container" [attr.data-theme]="currentTheme">
+  
+  <div class="auth-card-wrapper">
+    
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: -10px;">
+        <button (click)="toggleTheme()" type="button" 
+                style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--shadow);">
+            {{ currentTheme === 'dark' ? '☀️' : '🌙' }}
+        </button>
+        <button (click)="setTheme('accessible')" type="button"
+                style="background: var(--card-bg); border: 1px solid var(--border); padding: 0 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-main); box-shadow: 0 4px 12px var(--shadow);">
+            👁️ Contrast
+        </button>
+    </div>
+
+    <header class="brand-header">
+      <h1>Create Account</h1>
+      <p class="brand-subtitle">Join the HealthHub Practitioner Network</p>
+    </header>
+
+    <main class="white-card">
+      <form #signupForm="ngForm" (ngSubmit)="onSubmit()">
+        
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input 
+            type="text" 
+            name="name" 
+            [(ngModel)]="userData.name" 
+            class="input-field" 
+            placeholder="Dr. Jane Smith" 
+            required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Professional Email</label>
+          <input 
+            type="email" 
+            name="email" 
+            [(ngModel)]="userData.email" 
+            class="input-field" 
+            placeholder="jane.smith@clinic.com" 
+            required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input 
+            type="password" 
+            name="password" 
+            [(ngModel)]="userData.password" 
+            class="input-field" 
+            placeholder="••••••••" 
+            required>
+          
+          <div class="validation-box" *ngIf="userData.password">
+            <div class="strength-header">
+              <span>Security Level:</span>
+              <span [style.color]="getStrength().color" style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                {{ getStrength().label }}
+              </span>
+            </div>
+            
+            <div class="check-item" [ngClass]="userData.password.length >= 12 ? 'valid' : 'invalid'">
+              <span class="status-icon">{{ userData.password.length >= 12 ? '✓' : '○' }}</span> At least 12 characters
+            </div>
+            <div class="check-item" [ngClass]="hasUpper ? 'valid' : 'invalid'">
+              <span class="status-icon">{{ hasUpper ? '✓' : '○' }}</span> One uppercase letter
+            </div>
+            <div class="check-item" [ngClass]="hasNumber ? 'valid' : 'invalid'">
+              <span class="status-icon">{{ hasNumber ? '✓' : '○' }}</span> One number
+            </div>
+            <div class="check-item" [ngClass]="hasSpecial ? 'valid' : 'invalid'">
+              <span class="status-icon">{{ hasSpecial ? '✓' : '○' }}</span> One special character
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input 
+            type="password" 
+            name="confirmPassword" 
+            [(ngModel)]="userData.confirmPassword" 
+            class="input-field" 
+            [style.borderColor]="(userData.confirmPassword && !passwordsMatch()) ? '#ef4444' : ''"
+            placeholder="••••••••" 
+            required>
+          <small *ngIf="userData.confirmPassword && !passwordsMatch()" style="color: #ef4444; font-size: 11px; margin-top: 4px; display: block;">
+            Passwords do not match.
+          </small>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="!signupForm.valid || !passwordsMatch() || getStrength().label === 'Weak'">
+          Create account
+        </button>
+
+        <div class="footer-text">
+          Already have an account? 
+          <a routerLink="/login" class="link-teal">Sign in</a>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>

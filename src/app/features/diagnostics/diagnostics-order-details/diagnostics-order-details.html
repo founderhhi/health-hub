@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <section class="hhi-provider-page">
   <div class="hhi-provider-container">
     <header class="hhi-page-header">
@@ -48,3 +49,36 @@
     </div>
   </div>
 </section>
+=======
+<app-header></app-header>
+<main class="p-6 bg-gray-50 min-h-screen">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-semibold mb-4">Order Details</h1>
+
+    <section class="mb-4">
+      <h3 class="font-medium mb-2">Order Summary</h3>
+      <!-- TODO: bind order summary -->
+      <div class="text-gray-600">No data yet — connect backend to load.</div>
+    </section>
+
+    <section class="mb-4">
+      <h3 class="font-medium mb-2">Tests List</h3>
+      <!-- TODO: render tests list -->
+      <div class="text-gray-600">No tests listed.</div>
+    </section>
+
+    <section class="mb-4">
+      <h3 class="font-medium mb-2">Patient Info</h3>
+      <!-- TODO: bind patient info -->
+      <div class="text-gray-600">No data yet — connect backend to load.</div>
+    </section>
+
+    <div class="flex gap-3">
+      <button class="px-4 py-2 bg-green-600 text-white rounded" (click)="acceptOrder()">Accept Order</button>
+      <button class="px-4 py-2 bg-red-600 text-white rounded" (click)="rejectOrder()">Reject</button>
+      <button class="px-4 py-2 bg-gray-700 text-white rounded" (click)="printLabel()">Print Label</button>
+    </div>
+  </div>
+</main>
+<app-footer></app-footer>
+>>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <section class="hhi-provider-page">
   <div class="hhi-provider-container">
     <header class="hhi-page-header">
@@ -51,3 +52,37 @@
     </div>
   </div>
 </section>
+=======
+<app-header></app-header>
+<main class="p-6 bg-gray-50 min-h-screen">
+  <div class="max-w-4xl mx-auto grid grid-cols-3 gap-6">
+    <!-- Left: Patient Summary -->
+    <div class="col-span-1 bg-white p-4 rounded shadow">
+      <h3 class="font-semibold mb-2">Patient Summary</h3>
+      <!-- TODO: bind patient name, age, identifiers -->
+      <div class="text-gray-600">No data yet — connect backend to load.</div>
+    </div>
+
+    <!-- Middle: Referral Info & Notes -->
+    <div class="col-span-1 bg-white p-4 rounded shadow">
+      <h3 class="font-semibold mb-2">Referral Info</h3>
+      <!-- TODO: bind referral metadata -->
+      <div class="text-gray-600 mb-4">No data yet — connect backend to load.</div>
+
+      <h3 class="font-semibold mb-2">Notes</h3>
+      <!-- TODO: bind notes list -->
+      <div class="text-gray-600">No data yet — connect backend to load.</div>
+    </div>
+
+    <!-- Right: Actions Panel -->
+    <aside class="col-span-1 bg-white p-4 rounded shadow flex flex-col">
+      <h3 class="font-semibold mb-4">Actions</h3>
+      <button class="mb-2 px-4 py-2 bg-green-600 text-white rounded" (click)="startConsultation()">Start Consultation</button>
+      <button class="mb-2 px-4 py-2 bg-red-600 text-white rounded" (click)="endConsultation()">End Consultation</button>
+      <button class="mb-2 px-4 py-2 bg-yellow-500 text-white rounded" (click)="requestLabs()">Request Labs</button>
+      <button class="mb-2 px-4 py-2 bg-blue-600 text-white rounded mt-auto" (click)="prescribe()">Prescribe</button>
+    </aside>
+  </div>
+</main>
+<app-footer></app-footer>
+>>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

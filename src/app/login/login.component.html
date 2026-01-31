@@ -1,0 +1,62 @@
+<div class="health-container">
+  <div class="auth-card-wrapper">
+
+    <header class="brand-header">
+      <h1>HealthHub</h1>
+      <p class="brand-subtitle">Specialist & Practitioner Portal</p>
+    </header>
+
+    <main class="white-card">
+      <form #loginForm="ngForm">
+
+        <div class="form-group">
+          <label for="email" class="form-label">Professional Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            required
+            class="input-field"
+            placeholder="dr.name@healthhub.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            required
+            class="input-field"
+            placeholder="••••••••"
+            [(ngModel)]="password"
+          />
+
+          <ng-container *ngIf="password">
+            <div class="meter-container">
+              <div
+                class="meter-bar"
+                [style.width]="getStrength().width"
+                [style.backgroundColor]="getStrength().color">
+              </div>
+            </div>
+            <span class="strength-text" [style.color]="getStrength().color">
+              {{ getStrength().label }}
+            </span>
+          </ng-container>
+        </div>
+
+        <button type="submit" class="btn-primary">
+          Sign In to Dashboard
+        </button>
+      </form>
+
+      <div class="footer-text">
+        New to HealthHub?
+        <a routerLink="/signup" class="link-teal">Create an account</a>
+      </div>
+    </main>
+
+  </div>
+</div>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <section class="hhi-provider-page">
   <div class="hhi-provider-container">
     <header class="hhi-page-header">
@@ -48,3 +49,36 @@
     </div>
   </div>
 </section>
+=======
+<app-header></app-header>
+<main class="p-6 bg-gray-50 min-h-screen">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-semibold mb-4">Referral Details</h1>
+
+    <section class="mb-6">
+      <h3 class="font-medium mb-2">Referral Summary</h3>
+      <!-- TODO: bind referral summary fields here -->
+      <div class="text-gray-600">No data yet — connect backend to load.</div>
+    </section>
+
+    <section class="mb-6">
+      <h3 class="font-medium mb-2">Attachments</h3>
+      <!-- TODO: render attachments when available -->
+      <div class="text-gray-600">No attachments — connect backend to load.</div>
+    </section>
+
+    <section class="mb-6">
+      <h3 class="font-medium mb-2">Previous Notes</h3>
+      <!-- TODO: render previous notes here -->
+      <div class="text-gray-600">No previous notes — connect backend to load.</div>
+    </section>
+
+    <div class="flex gap-3">
+      <button class="px-4 py-2 bg-green-600 text-white rounded" (click)="accept()">Accept</button>
+      <button class="px-4 py-2 bg-yellow-500 text-white rounded" (click)="requestMoreInfo()">Request More Info</button>
+      <button class="px-4 py-2 bg-red-600 text-white rounded" (click)="decline()">Decline</button>
+    </div>
+  </div>
+</main>
+<app-footer></app-footer>
+>>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94
