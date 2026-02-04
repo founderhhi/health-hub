@@ -1,3 +1,768 @@
-.hhi-actions {
-  justify-content: flex-start;
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+/* ============================================
+   Active Consultation Styles
+   ============================================ */
+
+.active-consultation {
+  min-height: 100vh;
+  background: v.$color-dark-bg;
+  padding-top: 56px; /* Space for timer */
+  padding-bottom: 160px; /* Space for quick actions + end call */
+  position: relative;
+}
+
+/* Session Timer */
+.session-timer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: v.$color-card-bg;
+  border-bottom: 1px solid v.$color-border-dark;
+  z-index: v.$z-fixed;
+}
+
+.timer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-sm;
+  padding: v.$space-sm v.$space-md;
+}
+
+.timer-icon {
+  width: 18px;
+  height: 18px;
+  color: v.$color-emerald;
+}
+
+.timer-time {
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-bold;
+  color: v.$color-white;
+  font-family: v.$font-family-mono;
+}
+
+.timer-total {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-light;
+}
+
+.timer-progress {
+  height: 3px;
+  background: v.$color-border-dark;
+
+  &__bar {
+    height: 100%;
+    background: linear-gradient(90deg, v.$color-emerald, v.$color-bio-lime);
+    transition: width 1s linear;
+  }
+}
+
+/* Consultation Layout */
+.consultation-layout {
+  display: flex;
+  gap: v.$space-lg;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: v.$space-lg;
+  height: calc(100vh - 56px - 160px);
+}
+
+/* Patient Panel (Left - 40%) */
+.patient-panel {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+  overflow-y: auto;
+  @include m.scrollbar-thin;
+}
+
+.panel-card {
+  background: v.$color-card-bg;
+  border: 1px solid v.$color-border-dark;
+  border-radius: v.$radius-lg;
+  padding: v.$space-md;
+
+  &--flex {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.patient-summary {
+  .patient-header {
+    display: flex;
+    align-items: center;
+    gap: v.$space-md;
+  }
+}
+
+.patient-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: v.$radius-full;
+  background: linear-gradient(135deg, v.$color-emerald, v.$color-emerald-dark);
+  color: v.$color-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-bold;
+  flex-shrink: 0;
+}
+
+.patient-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.patient-name {
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-white;
+  margin: 0;
+}
+
+.patient-subtitle {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-light;
+  margin: 0;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-light;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 v.$space-md 0;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.complaint-text {
+  font-size: v.$font-size-base;
+  color: v.$color-white;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: v.$space-md;
+}
+
+.vital-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.vital-label {
+  font-size: v.$font-size-xs;
+  color: v.$color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vital-value {
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-bold;
+  color: v.$color-white;
+}
+
+.vital-unit {
+  font-size: v.$font-size-xs;
+  color: v.$color-text-muted;
+}
+
+.notes-textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 120px;
+  background: v.$color-dark-bg;
+  border: 1px solid v.$color-border-dark;
+  border-radius: v.$radius-md;
+  padding: v.$space-md;
+  color: v.$color-white;
+  font-size: v.$font-size-base;
+  font-family: v.$font-family-primary;
+  resize: none;
+  margin-bottom: v.$space-md;
+
+  &::placeholder {
+    color: v.$color-text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: v.$color-emerald;
+  }
+}
+
+.notes-actions {
+  display: flex;
+  gap: v.$space-sm;
+  justify-content: flex-end;
+}
+
+.btn {
+  @include m.button-base;
+
+  &--primary {
+    @include m.button-primary;
+  }
+
+  &--secondary {
+    background: v.$color-surface-elevated;
+    border-color: v.$color-border-dark;
+    color: v.$color-white;
+
+    &:hover {
+      background: v.$color-border-dark;
+    }
+  }
+
+  &--sm {
+    min-height: 36px;
+    padding: 0 v.$space-md;
+    font-size: v.$font-size-sm;
+  }
+}
+
+/* Video & Chat Panel (Right - 60%) */
+.video-chat-panel {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.video-container {
+  flex: 1;
+  position: relative;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+  background: v.$color-card-bg;
+}
+
+.video-main {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-placeholder {
+  @include m.flex-column-center;
+  gap: v.$space-md;
+  color: v.$color-text-muted;
+
+  svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.5;
+  }
+
+  span {
+    font-size: v.$font-size-base;
+  }
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: v.$space-md;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.participant-name {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-white;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: v.$font-size-sm;
+  color: v.$color-emerald;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: v.$color-emerald;
+  border-radius: v.$radius-full;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* PIP Self View */
+.video-pip {
+  position: absolute;
+  bottom: v.$space-md;
+  right: v.$space-md;
+  width: 160px;
+  height: 120px;
+  border-radius: v.$radius-md;
+  overflow: hidden;
+  border: 2px solid v.$color-border-dark;
+  background: v.$color-dark-bg;
+
+  &__content {
+    width: 100%;
+    height: 100%;
+    @include m.flex-center;
+    color: v.$color-text-muted;
+
+    svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+.pip-toggle {
+  position: absolute;
+  top: v.$space-xs;
+  right: v.$space-xs;
+  width: 28px;
+  height: 28px;
+  border-radius: v.$radius-sm;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: v.$color-white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity v.$transition-fast;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .video-pip:hover & {
+    opacity: 1;
+  }
+}
+
+/* Chat Container */
+.chat-container {
+  background: v.$color-card-bg;
+  border: 1px solid v.$color-border-dark;
+  border-radius: v.$radius-lg;
+  display: flex;
+  flex-direction: column;
+  height: 280px;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: v.$space-sm v.$space-md;
+  border-bottom: 1px solid v.$color-border-dark;
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-light;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.chat-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: v.$font-size-sm;
+  color: v.$color-emerald;
+}
+
+.chat-thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: v.$space-md;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+  @include m.scrollbar-thin;
+}
+
+.chat-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 80%;
+
+  &--patient {
+    align-self: flex-start;
+
+    .bubble-content {
+      background: v.$color-surface-elevated;
+      border-radius: v.$radius-md v.$radius-md v.$radius-md 0;
+    }
+
+    .bubble-time {
+      align-self: flex-start;
+    }
+  }
+
+  &--me {
+    align-self: flex-end;
+
+    .bubble-content {
+      background: v.$color-emerald;
+      color: v.$color-text-primary;
+      border-radius: v.$radius-md v.$radius-md 0 v.$radius-md;
+    }
+
+    .bubble-time {
+      align-self: flex-end;
+    }
+  }
+}
+
+.bubble-content {
+  padding: v.$space-sm v.$space-md;
+
+  p {
+    margin: 0;
+    font-size: v.$font-size-base;
+    line-height: 1.5;
+  }
+}
+
+.bubble-time {
+  font-size: 11px;
+  color: v.$color-text-muted;
+}
+
+/* Chat Input */
+.chat-input {
+  display: flex;
+  align-items: center;
+  gap: v.$space-xs;
+  padding: v.$space-sm;
+  border-top: 1px solid v.$color-border-dark;
+}
+
+.input-action {
+  width: 36px;
+  height: 36px;
+  border-radius: v.$radius-full;
+  background: transparent;
+  border: none;
+  color: v.$color-text-light;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all v.$transition-fast;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: v.$color-surface-elevated;
+    color: v.$color-white;
+  }
+
+  &--send {
+    background: v.$color-emerald;
+    color: v.$color-text-primary;
+
+    &:hover {
+      background: v.$color-emerald-hover;
+    }
+  }
+}
+
+.message-input {
+  flex: 1;
+  min-height: 36px;
+  background: v.$color-dark-bg;
+  border: 1px solid v.$color-border-dark;
+  border-radius: v.$radius-full;
+  padding: 0 v.$space-md;
+  color: v.$color-white;
+  font-size: v.$font-size-base;
+
+  &::placeholder {
+    color: v.$color-text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: v.$color-emerald;
+  }
+}
+
+/* Quick Actions */
+.quick-actions {
+  position: fixed;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: v.$space-md;
+  padding: v.$space-md;
+  background: v.$color-card-bg;
+  border-top: 1px solid v.$color-border-dark;
+  z-index: v.$z-fixed;
+}
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: v.$space-sm;
+  background: transparent;
+  border: none;
+  color: v.$color-text-light;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  min-width: 60px;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: v.$radius-full;
+    background: v.$color-surface-elevated;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all v.$transition-fast;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: v.$font-weight-medium;
+  }
+
+  &:hover {
+    color: v.$color-white;
+
+    .quick-action__icon {
+      background: v.$color-emerald;
+      color: v.$color-text-primary;
+    }
+  }
+}
+
+/* End Call Button */
+.end-call-btn {
+  position: fixed;
+  bottom: 160px;
+  right: v.$space-xl;
+  background: v.$color-danger;
+  color: v.$color-white;
+  border: none;
+  border-radius: v.$radius-full;
+  padding: v.$space-sm v.$space-lg;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  cursor: pointer;
+  box-shadow: v.$shadow-lg;
+  z-index: v.$z-fixed + 10;
+  transition: all v.$transition-fast;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: v.$color-danger-dark;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+  }
+}
+
+/* Desktop Responsive */
+@include m.desktop {
+  .active-consultation {
+    padding-bottom: 100px;
+  }
+
+  .quick-actions {
+    bottom: 0;
+    padding: v.$space-md v.$space-lg;
+  }
+
+  .end-call-btn {
+    bottom: 100px;
+  }
+}
+
+/* Tablet & Mobile Responsive */
+@media (max-width: 1024px) {
+  .consultation-layout {
+    flex-direction: column;
+    height: auto;
+    padding: v.$space-md;
+  }
+
+  .patient-panel {
+    width: 100%;
+    order: 2;
+    max-height: 400px;
+  }
+
+  .video-chat-panel {
+    width: 100%;
+    order: 1;
+    min-height: 500px;
+  }
+
+  .video-container {
+    min-height: 300px;
+  }
+
+  .vitals-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@include m.mobile {
+  .active-consultation {
+    padding-top: 48px;
+    padding-bottom: 140px;
+  }
+
+  .consultation-layout {
+    padding: v.$space-sm;
+    gap: v.$space-md;
+  }
+
+  .patient-panel {
+    gap: v.$space-sm;
+  }
+
+  .panel-card {
+    padding: v.$space-sm;
+  }
+
+  .patient-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: v.$font-size-base;
+  }
+
+  .patient-name {
+    font-size: v.$font-size-base;
+  }
+
+  .vitals-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: v.$space-sm;
+  }
+
+  .vital-value {
+    font-size: v.$font-size-lg;
+  }
+
+  .video-container {
+    min-height: 240px;
+  }
+
+  .video-pip {
+    width: 100px;
+    height: 75px;
+  }
+
+  .quick-actions {
+    bottom: 64px;
+    padding: v.$space-sm;
+    gap: v.$space-xs;
+    overflow-x: auto;
+    justify-content: flex-start;
+    @include m.scrollbar-hide;
+  }
+
+  .quick-action {
+    min-width: 56px;
+    padding: v.$space-xs;
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__label {
+      font-size: 10px;
+    }
+  }
+
+  .end-call-btn {
+    bottom: 130px;
+    right: v.$space-md;
+    padding: 8px v.$space-md;
+    font-size: v.$font-size-sm;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .chat-container {
+    height: 220px;
+  }
 }

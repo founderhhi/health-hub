@@ -1,5 +1,82 @@
-<p>landing-page works!</p>
+<section class="landing-page">
+  <div class="landing-container">
+    <!-- Background Pattern -->
+    <div class="bg-pattern"></div>
+    
+    <!-- Content -->
+    <div class="landing-content">
+      <!-- Logo -->
+      <div class="logo-container">
+        <svg class="logo-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="30" stroke="#2ECC71" stroke-width="3"/>
+          <path d="M32 16V48M16 32H48" stroke="#2ECC71" stroke-width="4" stroke-linecap="round"/>
+          <path d="M32 8C20 8 12 20 12 32C12 44 20 56 32 56C44 56 52 44 52 32" stroke="#AEEA00" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
 
-<button (click)="navigate('login')">LOGIN</button>
+      <!-- Welcome Text -->
+      <div class="welcome-text">
+        <p class="welcome-subtitle">Welcome to</p>
+        <h1 class="brand-name">Health Hub</h1>
+        <p class="tagline">Trusted Care, Anywhere</p>
+      </div>
 
-<button (click)="navigate('signup')">Signup</button>
+      <!-- Login Buttons -->
+      <div class="button-group">
+        <button 
+          class="btn btn-primary" 
+          (click)="navigate('patient-login')"
+          type="button"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Patient Login
+        </button>
+
+        <button 
+          class="btn btn-outline" 
+          (click)="navigate('provider-login')"
+          type="button"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          Provider Login
+        </button>
+      </div>
+
+      <!-- Sign Up Link -->
+      <div class="signup-prompt">
+        <span>New User? </span>
+        <a class="signup-link" (click)="navigate('signup')">Sign Up</a>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div class="trust-badges">
+        <div class="badge-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span>Secure</span>
+        </div>
+        <div class="badge-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          <span>24/7</span>
+        </div>
+        <div class="badge-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span>Trusted</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

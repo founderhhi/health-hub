@@ -4,7 +4,6 @@ import { DiagnosticsOrderDetailsComponent } from './diagnostics-order-details/di
 import { DiagnosticsResultUploadComponent } from './diagnostics-result-upload/diagnostics-result-upload';
 
 export const DIAGNOSTICS_ROUTES: Routes = [
-<<<<<<< HEAD
   {
     path: '',
     component: DiagnosticsOrdersComponent
@@ -17,9 +16,4 @@ export const DIAGNOSTICS_ROUTES: Routes = [
     path: 'upload/:id',
     component: DiagnosticsResultUploadComponent
   }
-=======
-  { path: '', component: DiagnosticsOrdersComponent },
-  { path: 'order/:id', component: DiagnosticsOrderDetailsComponent },
-  { path: 'upload/:id', component: DiagnosticsResultUploadComponent }
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94
 ];

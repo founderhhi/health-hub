@@ -1,0 +1,188 @@
+<section class="appointments-page">
+  <!-- Header -->
+  <header class="page-header">
+    <button class="back-btn" (click)="router.navigate(['/patient/dashboard'])">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <h1 class="page-title">My Appointments</h1>
+    <div class="spacer"></div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'upcoming'"
+      (click)="setTab('upcoming')"
+    >
+      Upcoming
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'past'"
+      (click)="setTab('past')"
+    >
+      Past
+    </button>
+  </div>
+
+  <!-- Appointments List -->
+  <div class="appointments-list">
+    @if (activeTab === 'upcoming') {
+      @for (apt of upcomingAppointments; track apt.id) {
+        <div class="appointment-card">
+          <div class="appointment-header">
+            <div class="doctor-info">
+              <div class="doctor-avatar">{{ apt.avatar }}</div>
+              <div class="doctor-details">
+                <h3 class="doctor-name">{{ apt.doctorName }}</h3>
+                <p class="doctor-specialty">{{ apt.specialty }}</p>
+              </div>
+            </div>
+            <span class="status-badge" [class]="getStatusClass(apt.status)">
+              {{ apt.status | titlecase }}
+            </span>
+          </div>
+
+          <div class="appointment-details">
+            <div class="detail-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span>{{ apt.date }} • {{ apt.time }}</span>
+            </div>
+            <div class="detail-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                @if (apt.mode === 'video') {
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                } @else {
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                }
+              </svg>
+              <span class="mode-badge">{{ apt.mode === 'video' ? 'Video Call' : 'In-Person' }}</span>
+            </div>
+          </div>
+
+          <div class="appointment-actions">
+            @if (apt.mode === 'video' && apt.status === 'confirmed') {
+              <button class="btn btn-primary" (click)="joinCall(apt.id)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+                Join Call
+              </button>
+            }
+            <button class="btn btn-secondary" (click)="reschedule(apt.id)">
+              Reschedule
+            </button>
+            @if (apt.status !== 'cancelled') {
+              <button class="btn btn-ghost" (click)="cancel(apt.id)">
+                Cancel
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Book New Button -->
+      <button class="btn btn-primary btn-full btn-book" (click)="bookNew()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Book New Appointment
+      </button>
+    } @else {
+      @for (apt of pastAppointments; track apt.id) {
+        <div class="appointment-card">
+          <div class="appointment-header">
+            <div class="doctor-info">
+              <div class="doctor-avatar">{{ apt.avatar }}</div>
+              <div class="doctor-details">
+                <h3 class="doctor-name">{{ apt.doctorName }}</h3>
+                <p class="doctor-specialty">{{ apt.specialty }}</p>
+              </div>
+            </div>
+            <span class="status-badge" [class]="getStatusClass(apt.status)">
+              {{ apt.status | titlecase }}
+            </span>
+          </div>
+
+          <div class="appointment-details">
+            <div class="detail-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span>{{ apt.date }} • {{ apt.time }}</span>
+            </div>
+            <div class="detail-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                @if (apt.mode === 'video') {
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                } @else {
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                }
+              </svg>
+              <span class="mode-badge">{{ apt.mode === 'video' ? 'Video Call' : 'In-Person' }}</span>
+            </div>
+          </div>
+
+          <div class="appointment-actions">
+            <button class="btn btn-secondary" (click)="bookNew()">
+              Book Again
+            </button>
+            <button class="btn btn-ghost">
+              View Summary
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a class="nav-item active" routerLink="/patient/appointments">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="nav-label">Visits</span>
+    </a>
+    <a class="nav-item" routerLink="/patient/dashboard">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span class="nav-label">Home</span>
+    </a>
+    <a class="nav-item" routerLink="/patient/records">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span class="nav-label">Records</span>
+    </a>
+    <a class="nav-item" routerLink="/patient/profile">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="nav-label">Profile</span>
+    </a>
+  </nav>
+</section>

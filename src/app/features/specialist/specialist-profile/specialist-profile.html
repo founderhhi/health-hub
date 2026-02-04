@@ -1,81 +1,256 @@
-<section class="hhi-provider-page">
+<section class="hhi-provider-page my-patients">
   <div class="hhi-provider-container">
-    <header class="hhi-page-header">
-      <h1 class="hhi-page-title">Profile</h1>
-      <p class="hhi-page-subtitle">View your professional profile and credentials.</p>
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-title">My Patients</h1>
+      <p class="page-subtitle">Manage your patient list and view their records.</p>
     </header>
 
-    <div class="hhi-section-grid profile-grid">
-      <!-- Doctor Profile Card -->
-      <section class="hhi-card profile-card">
-        <div class="profile-header">
-          <div class="hhi-avatar profile-avatar">DS</div>
-          <div class="profile-info">
-            <h2 class="profile-name">Dr. Specialist</h2>
-            <p class="profile-specialty">Cardiology</p>
-          </div>
-        </div>
-        <div class="profile-details">
-          <div class="profile-detail-row">
-            <span class="hhi-badge">8+ years experience</span>
-          </div>
-          <div class="profile-detail-row">
-            <span class="profile-label">Location</span>
-            <span class="profile-value">City Hospital, Main Campus</span>
-          </div>
-        </div>
-        <!-- TODO: Bind profile data from backend -->
-      </section>
+    <!-- Search & Filter Sticky Header -->
+    <div class="filter-bar">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search patients by name..."
+        />
+      </div>
+      <button class="filter-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        Filter
+      </button>
+    </div>
 
-      <!-- Certifications & Licenses Card -->
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Certifications & Licenses</h2>
-        <div class="license-info">
-          <div class="license-row">
-            <span class="profile-label">License ID</span>
-            <span class="profile-value">MED-2024-XXXXX</span>
-          </div>
-          <div class="license-row">
-            <span class="profile-label">Valid Until</span>
-            <span class="profile-value">December 2025</span>
-          </div>
-        </div>
-        <!-- TODO: Bind license data from backend -->
-      </section>
+    <!-- Stats Summary -->
+    <div class="stats-summary">
+      <span class="stats-text"><strong>24</strong> total patients</span>
+      <div class="sort-dropdown">
+        <span>Sort by:</span>
+        <select>
+          <option>Most Recent</option>
+          <option>Name (A-Z)</option>
+          <option>Next Appointment</option>
+          <option>Visit Count</option>
+        </select>
+      </div>
+    </div>
 
-      <!-- This Month's Stats Card -->
-      <section class="hhi-card stats-card">
-        <h2 class="hhi-card-title">This Month's Stats</h2>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value">--</span>
-            <span class="stat-label">Consultations</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">--</span>
-            <span class="stat-label">Avg Rating</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">--</span>
-            <span class="stat-label">Lab Orders</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">--</span>
-            <span class="stat-label">Referrals Out</span>
+    <!-- Patient List -->
+    <div class="patients-list">
+      <!-- Patient Item 1 -->
+      <div class="patient-item">
+        <div class="patient-avatar">SJ</div>
+        <div class="patient-info">
+          <h3 class="patient-name">Sarah Johnson</h3>
+          <div class="patient-meta">
+            <span class="appointment-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Today, 2:30 PM
+            </span>
           </div>
         </div>
-        <!-- TODO: Bind stats data from backend -->
-      </section>
+        <div class="patient-badges">
+          <span class="visit-badge">5 visits</span>
+        </div>
+        <button class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
 
-      <!-- Sign Out Action -->
-      <section class="hhi-card">
-        <div class="hhi-actions">
-          <button type="button" class="hhi-button hhi-button-secondary">
-            Sign Out
-          </button>
+      <!-- Patient Item 2 -->
+      <div class="patient-item">
+        <div class="patient-avatar patient-avatar--secondary">MC</div>
+        <div class="patient-info">
+          <h3 class="patient-name">Michael Chen</h3>
+          <div class="patient-meta">
+            <span class="appointment-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Tomorrow, 10:00 AM
+            </span>
+          </div>
         </div>
-        <!-- TODO: Wire sign out action -->
-      </section>
+        <div class="patient-badges">
+          <span class="visit-badge">3 visits</span>
+        </div>
+        <button class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Patient Item 3 -->
+      <div class="patient-item">
+        <div class="patient-avatar patient-avatar--tertiary">EW</div>
+        <div class="patient-info">
+          <h3 class="patient-name">Emma Williams</h3>
+          <div class="patient-meta">
+            <span class="appointment-info appointment-info--none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              No upcoming appointments
+            </span>
+          </div>
+        </div>
+        <div class="patient-badges">
+          <span class="visit-badge">12 visits</span>
+        </div>
+        <button class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Patient Item 4 -->
+      <div class="patient-item">
+        <div class="patient-avatar">JD</div>
+        <div class="patient-info">
+          <h3 class="patient-name">James Davis</h3>
+          <div class="patient-meta">
+            <span class="appointment-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Jan 18, 3:15 PM
+            </span>
+          </div>
+        </div>
+        <div class="patient-badges">
+          <span class="visit-badge">8 visits</span>
+        </div>
+        <button class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Patient Item 5 -->
+      <div class="patient-item">
+        <div class="patient-avatar patient-avatar--secondary">OP</div>
+        <div class="patient-info">
+          <h3 class="patient-name">Olivia Parker</h3>
+          <div class="patient-meta">
+            <span class="appointment-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Jan 19, 11:30 AM
+            </span>
+          </div>
+        </div>
+        <div class="patient-badges">
+          <span class="visit-badge">2 visits</span>
+        </div>
+        <button class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Patient Item 6 -->
+      <div class="patient-item">
+        <div class="patient-avatar patient-avatar--tertiary">RL</div>
+        <div class="patient-info">
+          <h3 class="patient-name">Robert Lee</h3>
+          <div class="patient-meta">
+            <span class="appointment-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Jan 20, 9:00 AM
+            </span>
+          </div>
+        </div>
+        <div class="patient-badges">
+          <span class="visit-badge">6 visits</span>
+        </div>
+        <button class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="false">
+      <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <p class="empty-state__title">No patients found</p>
+      <p class="empty-state__subtitle">Try adjusting your search or filters</p>
+    </div>
+
+    <!-- Load More -->
+    <div class="load-more">
+      <button class="load-more-btn">Load More Patients</button>
     </div>
   </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="hhi-bottom-nav">
+    <a class="hhi-bottom-nav__item" routerLink="/specialist">
+      <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span class="hhi-bottom-nav__label">Dashboard</span>
+    </a>
+    <a class="hhi-bottom-nav__item hhi-bottom-nav__item--active" routerLink="/specialist/patients">
+      <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span class="hhi-bottom-nav__label">Patients</span>
+    </a>
+    <a class="hhi-bottom-nav__item" routerLink="/specialist">
+      <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+      </svg>
+      <span class="hhi-bottom-nav__label">Consult</span>
+    </a>
+    <a class="hhi-bottom-nav__item" routerLink="/specialist/profile">
+      <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      <span class="hhi-bottom-nav__label">Profile</span>
+    </a>
+  </nav>
 </section>

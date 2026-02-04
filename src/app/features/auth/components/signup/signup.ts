@@ -1,124 +1,72 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import {
-  Validators,
-  FormControl,
-  ReactiveFormsModule,
-  FormGroup
-} from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
-import { SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
-
-type Gender = 'male' | 'female' | 'other';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthApiService } from '../../../../core/api/auth.service';
 
 @Component({
   selector: 'app-signup',
-  imports: [ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
 })
 export class SignupComponent {
+  form: FormGroup;
+  submitting = signal(false);
+  showPassword = false;
+  errorMessage = '';
 
-  private readonly router = inject(Router);
-  private readonly cognito = inject(AuthService).instance;
-
-  
-  readonly form = new FormGroup({
-    name: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(2)]
-    }),
-
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email]
-    }),
-
-    phone: new FormControl<string | null>(null, {
-      validators: [Validators.pattern(/^[0-9]{10}$/)]
-    }),
-
-    gender: new FormControl<Gender | null>(null, {
-      validators: [Validators.required]
-    }),
-
-    dateOfBirth: new FormControl<string | null>(null, {
-      validators: [Validators.required]
-    }),
-
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(8)]
-    }),
-
-    confirmPassword: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(8)]
-    })
-  });
-
-  /** Signal for submit state (enterprise-friendly) */
-  readonly submitting = signal(false);
-
-  async submit(): Promise<void> {
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authApi: AuthApiService
+  ) {
+    this.form = this.fb.group({
+      countryCode: ['+1', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+      password: ['', [Validators.required, Validators.minLength(8)]]
+    });
   }
 
-  this.submitting.set(true);
-
-  const {
-    name,
-    email,
-    phone,
-    gender,
-    dateOfBirth,
-    password
-  } = this.form.getRawValue();
-
-  try {
-    await this.cognito.send(
-      new SignUpCommand({
-        ClientId: '7o70kqbrb50qa52o391uhrslop',
-        Username: email,
-        Password: password,
-        UserAttributes: [
-          { Name: 'name', Value: name },
-          { Name: 'email', Value: email },
-
-          ...(phone
-            ? [{ Name: 'phone_number', Value: `+91${phone}` }]
-            : []),
-
-          ...(gender
-            ? [{ Name: 'gender', Value: String(gender) }]
-            : []),
-
-          ...(dateOfBirth
-            ? [{ Name: 'birthdate', Value: dateOfBirth }]
-            : [])
-        ]
-      })
-    );
-
-    this.onSignupSuccess(email);
-
-  } catch (error: unknown) {
-    this.handleSignupError(error);
-  } finally {
-    this.submitting.set(false);
+  /**
+   * Toggle password visibility
+   */
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
-  this.router.navigate(['/login']);
-}
+  /**
+   * Handle form submission
+   */
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
+    this.submitting.set(true);
+    this.errorMessage = '';
 
-  onSignupSuccess(email: string) {
+    const phone = `${this.form.get('countryCode')?.value}${this.form.get('phone')?.value}`;
+    const password = this.form.get('password')?.value;
 
+    this.authApi.signup(phone, password).subscribe({
+      next: () => {
+        this.submitting.set(false);
+        this.router.navigate(['/patient/dashboard']);
+      },
+      error: () => {
+        this.submitting.set(false);
+        this.errorMessage = 'Unable to create account. Try a different phone number.';
+      }
+    });
   }
 
-  handleSignupError(error: any) {
-
+  /**
+   * Navigate to login
+   */
+  goToLogin(): void {
+    this.router.navigate(['/auth/login']);
   }
 }

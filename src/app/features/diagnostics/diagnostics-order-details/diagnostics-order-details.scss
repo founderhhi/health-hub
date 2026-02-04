@@ -1,1 +1,419 @@
-/* Diagnostics order details - minimal overrides if needed */
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+/* ============================================
+   Diagnostics Order Details Styles
+   ============================================ */
+
+.order-details {
+  min-height: 100vh;
+  background: v.$color-surface;
+  font-family: v.$font-family-primary;
+  padding-bottom: calc(v.$bottom-nav-height + v.$safe-area-bottom);
+}
+
+.details-container {
+  @include m.container-narrow;
+  margin: 0 auto;
+  padding: v.$space-lg;
+}
+
+/* Header with Back Button */
+.details-header {
+  margin-bottom: v.$space-sm;
+}
+
+.back-button {
+  @include m.button-ghost;
+  padding-left: 0;
+}
+
+/* Order Title Section */
+.order-title-section {
+  margin-bottom: v.$space-lg;
+}
+
+.order-title-row {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-xs;
+  flex-wrap: wrap;
+}
+
+.order-id {
+  font-size: v.$font-size-2xl;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+  margin: 0;
+}
+
+.order-received {
+  font-size: v.$font-size-base;
+  color: v.$color-text-secondary;
+  margin: 0;
+}
+
+/* Badge Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: v.$space-xs v.$space-sm;
+  border-radius: v.$radius-full;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: v.$letter-spacing-wide;
+}
+
+.badge-urgent {
+  background: v.$color-warning-light;
+  color: v.$color-warning-dark;
+  border: 1px solid v.$color-warning-border;
+}
+
+.badge-emergency {
+  background: v.$color-danger-light;
+  color: v.$color-danger-dark;
+  border: 1px solid v.$color-danger-border;
+}
+
+.badge-routine {
+  background: v.$color-surface-elevated;
+  color: v.$color-text-secondary;
+  border: 1px solid v.$color-border;
+}
+
+/* Card Component */
+.card {
+  @include m.card;
+  margin-bottom: v.$space-lg;
+}
+
+/* Patient Card */
+.patient-card {
+  background: v.$color-surface-elevated;
+}
+
+.patient-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: v.$radius-full;
+  background: v.$color-emerald;
+  color: v.$color-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.patient-name {
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+  margin: 0 0 v.$space-xs 0;
+}
+
+.patient-meta {
+  font-size: v.$font-size-base;
+  color: v.$color-text-secondary;
+  margin: 0;
+}
+
+/* Section */
+.section {
+  margin-bottom: v.$space-lg;
+}
+
+.section-title {
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+  margin: 0 0 v.$space-md 0;
+}
+
+/* Info Box */
+.info-box {
+  padding: v.$space-md;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-base;
+  line-height: v.$line-height-relaxed;
+
+  p {
+    margin: 0;
+  }
+}
+
+.info-box-clinical {
+  background: v.$color-info-light;
+  border: 1px solid v.$color-info-border;
+  color: v.$color-info-dark;
+}
+
+/* Sample Types */
+.sample-types {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+}
+
+.sample-item {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  font-size: v.$font-size-base;
+  color: v.$color-text-secondary;
+
+  .sample-icon {
+    color: v.$color-emerald;
+    flex-shrink: 0;
+  }
+}
+
+/* Checklist */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+}
+
+.checklist-item {
+  background: v.$color-white;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  padding: v.$space-md;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    border-color: v.$color-emerald;
+  }
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  cursor: pointer;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-mark {
+  width: 24px;
+  height: 24px;
+  border: 2px solid v.$color-border-input;
+  border-radius: v.$radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all v.$transition-fast;
+
+  &::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: v.$color-emerald;
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity v.$transition-fast;
+  }
+}
+
+.checkbox-input:checked ~ .checkbox-mark {
+  border-color: v.$color-emerald;
+}
+
+.checkbox-input:checked ~ .checkbox-mark::after {
+  opacity: 1;
+}
+
+.test-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.test-name {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-text-primary;
+}
+
+.test-code {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+/* Instructions Card */
+.instructions-card {
+  background: v.$color-warning-light;
+  border-color: v.$color-warning-border;
+}
+
+.instructions-list {
+  margin: 0;
+  padding-left: v.$space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+
+  li {
+    font-size: v.$font-size-base;
+    color: v.$color-text-secondary;
+    line-height: v.$line-height-normal;
+  }
+}
+
+/* Actions Section */
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+  margin-top: v.$space-xl;
+  padding-top: v.$space-lg;
+  border-top: 1px solid v.$color-border;
+}
+
+.secondary-actions {
+  display: flex;
+  gap: v.$space-md;
+}
+
+/* Buttons */
+.btn {
+  @include m.button-base;
+
+  &.btn-primary {
+    @include m.button-primary;
+  }
+
+  &.btn-secondary {
+    @include m.button-secondary;
+    flex: 1;
+  }
+
+  &.btn-danger {
+    @include m.button-danger;
+    flex: 1;
+  }
+
+  &.btn-ghost {
+    @include m.button-ghost;
+  }
+
+  &.btn-full {
+    width: 100%;
+  }
+}
+
+/* Mobile Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(v.$bottom-nav-height + v.$safe-area-bottom);
+  background: v.$color-white;
+  border-top: 1px solid v.$color-border;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: v.$space-sm;
+  padding-bottom: v.$safe-area-bottom;
+  z-index: v.$z-fixed;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: v.$space-xs v.$space-md;
+  text-decoration: none;
+  color: v.$color-text-light;
+  transition: color v.$transition-fast;
+
+  &.active {
+    color: v.$color-emerald;
+  }
+
+  &:hover:not(.active) {
+    color: v.$color-text-secondary;
+  }
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-label {
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-medium;
+}
+
+/* ============================================
+   Desktop Styles
+   ============================================ */
+
+@include m.md {
+  .details-container {
+    padding: v.$space-xl;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  .order-details {
+    padding-bottom: 0;
+  }
+}
+
+/* ============================================
+   Mobile Styles
+   ============================================ */
+
+@include m.mobile {
+  .details-container {
+    padding: v.$space-md;
+  }
+
+  .patient-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .order-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .secondary-actions {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  .actions-section {
+    margin-bottom: v.$space-lg;
+  }
+}

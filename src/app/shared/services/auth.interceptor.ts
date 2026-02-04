@@ -15,7 +15,7 @@ export const authInterceptor: (
 ) => Observable<HttpEvent<unknown>> = (req, next) => {
 
   const authService = inject(AuthService);
-  const token = authService.accessToken;
+  const token = authService.accessToken || localStorage.getItem('hhi_auth_token');
 
   if (!token) {
     return next(req);

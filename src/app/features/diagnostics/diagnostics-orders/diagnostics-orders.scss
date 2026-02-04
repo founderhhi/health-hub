@@ -1,1 +1,409 @@
-/* Diagnostics orders - minimal overrides if needed */
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+/* ============================================
+   Diagnostics Orders Styles
+   ============================================ */
+
+.diagnostics-orders {
+  min-height: 100vh;
+  background: v.$color-surface;
+  font-family: v.$font-family-primary;
+  padding-bottom: calc(v.$bottom-nav-height + v.$safe-area-bottom);
+}
+
+.orders-container {
+  @include m.container;
+  max-width: v.$max-width-lg;
+  padding-top: v.$space-lg;
+  padding-bottom: v.$space-lg;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: v.$space-lg;
+
+  .page-title {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-semibold;
+    color: v.$color-text-primary;
+    margin: 0 0 v.$space-xs 0;
+  }
+
+  .page-subtitle {
+    font-size: v.$font-size-base;
+    color: v.$color-text-secondary;
+    margin: 0;
+  }
+}
+
+/* Filter Section */
+.filters-section {
+  background: v.$color-white;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  margin-bottom: v.$space-lg;
+  overflow: hidden;
+}
+
+.filter-toggle {
+  width: 100%;
+  padding: v.$space-md;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-sm;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-text-primary;
+  cursor: pointer;
+  transition: background v.$transition-fast;
+
+  &:hover {
+    background: v.$color-surface;
+  }
+
+  .filter-icon {
+    color: v.$color-emerald;
+  }
+
+  .toggle-icon {
+    transition: transform v.$transition-base;
+
+    &.expanded {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.filters-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height v.$transition-base;
+
+  &.expanded {
+    max-height: 300px;
+  }
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: v.$space-sm;
+  padding: 0 v.$space-md v.$space-md;
+}
+
+.filter-input,
+.filter-select {
+  @include m.input-base;
+  font-size: v.$font-size-base;
+}
+
+/* Orders List */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Order Card */
+.order-card {
+  position: relative;
+  background: v.$color-white;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  padding: v.$space-md;
+  box-shadow: v.$shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    border-color: v.$color-emerald;
+    box-shadow: v.$shadow-md;
+  }
+
+  &.order-in-progress {
+    border-left: 4px solid v.$color-emerald;
+  }
+}
+
+/* Badge Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: v.$space-xs v.$space-sm;
+  border-radius: v.$radius-full;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: v.$letter-spacing-wide;
+}
+
+.badge-new {
+  position: absolute;
+  top: v.$space-md;
+  right: v.$space-md;
+  background: v.$color-emerald;
+  color: v.$color-white;
+}
+
+.badge-urgent {
+  background: v.$color-warning-light;
+  color: v.$color-warning-dark;
+  border: 1px solid v.$color-warning-border;
+}
+
+.badge-emergency {
+  background: v.$color-danger-light;
+  color: v.$color-danger-dark;
+  border: 1px solid v.$color-danger-border;
+}
+
+.badge-routine {
+  background: v.$color-surface-elevated;
+  color: v.$color-text-secondary;
+  border: 1px solid v.$color-border;
+}
+
+/* Order Card Header */
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: v.$space-sm;
+  padding-right: 60px; /* Space for NEW badge */
+}
+
+.order-id {
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-emerald;
+}
+
+/* Patient Info */
+.order-patient {
+  display: flex;
+  align-items: center;
+  gap: v.$space-xs;
+  font-size: v.$font-size-base;
+
+  .patient-label {
+    color: v.$color-text-muted;
+  }
+
+  .patient-name {
+    color: v.$color-text-primary;
+    font-weight: v.$font-weight-medium;
+  }
+}
+
+/* Tests Preview */
+.order-tests {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: v.$space-sm 0;
+  border-top: 1px solid v.$color-border;
+  border-bottom: 1px solid v.$color-border;
+}
+
+.test-item {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  position: relative;
+  padding-left: v.$space-md;
+
+  &::before {
+    content: '•';
+    position: absolute;
+    left: v.$space-xs;
+    color: v.$color-emerald;
+  }
+}
+
+/* Progress Bar */
+.progress-bar {
+  height: 4px;
+  background: v.$color-border;
+  border-radius: v.$radius-full;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: v.$color-emerald;
+  border-radius: v.$radius-full;
+  transition: width v.$transition-base;
+}
+
+/* Order Footer */
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: v.$space-sm;
+  margin-top: v.$space-xs;
+}
+
+.order-date {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+/* Buttons */
+.btn {
+  @include m.button-base;
+  
+  &.btn-primary {
+    @include m.button-primary;
+    padding: v.$space-sm v.$space-md;
+    min-height: 36px;
+    font-size: v.$font-size-sm;
+  }
+
+  &.btn-secondary {
+    @include m.button-secondary;
+    padding: v.$space-sm v.$space-md;
+    min-height: 36px;
+    font-size: v.$font-size-sm;
+  }
+}
+
+/* Pull to Refresh */
+.pull-refresh {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$space-xs;
+  padding: v.$space-xl;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+/* Mobile Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(v.$bottom-nav-height + v.$safe-area-bottom);
+  background: v.$color-white;
+  border-top: 1px solid v.$color-border;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: v.$space-sm;
+  padding-bottom: v.$safe-area-bottom;
+  z-index: v.$z-fixed;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: v.$space-xs v.$space-md;
+  text-decoration: none;
+  color: v.$color-text-light;
+  transition: color v.$transition-fast;
+
+  &.active {
+    color: v.$color-emerald;
+  }
+
+  &:hover:not(.active) {
+    color: v.$color-text-secondary;
+  }
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-label {
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-medium;
+}
+
+/* ============================================
+   Desktop Styles
+   ============================================ */
+
+@include m.md {
+  .orders-container {
+    padding-top: v.$space-xl;
+  }
+
+  .filter-toggle {
+    display: none;
+  }
+
+  .filters-content {
+    max-height: none;
+  }
+
+  .filters-grid {
+    grid-template-columns: repeat(4, 1fr);
+    padding: v.$space-md;
+  }
+
+  .orders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: v.$space-md;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  .diagnostics-orders {
+    padding-bottom: 0;
+  }
+}
+
+/* ============================================
+   Tablet Styles
+   ============================================ */
+
+@include m.tablet {
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .orders-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: v.$space-md;
+  }
+}
+
+/* ============================================
+   Mobile Styles
+   ============================================ */
+
+@include m.mobile {
+  .page-header {
+    .page-title {
+      font-size: v.$font-size-xl;
+    }
+  }
+
+  .order-card-header {
+    flex-wrap: wrap;
+  }
+
+  .order-footer {
+    flex-direction: column;
+    align-items: stretch;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}

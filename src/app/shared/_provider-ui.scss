@@ -1,0 +1,1423 @@
+/* ============================================
+   Health Hub Provider UI - Shared Styles
+   ============================================
+   
+   This file contains all shared component styles for the Health Hub application.
+   It uses the design tokens from _variables.scss and _mixins.scss.
+   
+   Import in global styles.scss:
+   @use './app/shared/provider-ui' as *;
+   ============================================ */
+
+@use 'styles/variables' as v;
+@use 'styles/mixins' as m;
+
+/* ============================================
+   CSS Variables (Design Tokens) - CSS Custom Properties
+   These provide runtime theming and dark mode support
+   ============================================ */
+:root {
+  /* Colors */
+  --hhi-emerald: #{v.$color-emerald};
+  --hhi-emerald-light: #{v.$color-emerald-light};
+  --hhi-emerald-dark: #{v.$color-emerald-dark};
+  --hhi-bio-lime: #{v.$color-bio-lime};
+  --hbi-soft-charcoal: #{v.$color-soft-charcoal};
+  --hhi-dark-bg: #{v.$color-dark-bg};
+  --hhi-card-bg: #{v.$color-card-bg};
+  --hhi-border: #{v.$color-border};
+  --hhi-border-dark: #{v.$color-border-dark};
+  --hhi-surface: #{v.$color-surface};
+  --hhi-white: #{v.$color-white};
+  --hhi-text-primary: #{v.$color-text-primary};
+  --hhi-text-secondary: #{v.$color-text-secondary};
+  --hhi-text-muted: #{v.$color-text-muted};
+  --hhi-text-light: #{v.$color-text-light};
+  --hhi-link: #{v.$color-info};
+  --hhi-danger: #{v.$color-danger};
+  --hhi-danger-light: #{v.$color-danger-light};
+  --hhi-danger-dark: #{v.$color-danger-dark};
+  --hhi-warning: #{v.$color-warning};
+  --hhi-warning-light: #{v.$color-warning-light};
+  --hhi-warning-dark: #{v.$color-warning-dark};
+  
+  /* Spacing (8px base) */
+  --hhi-space-xs: #{v.$space-xs};
+  --hhi-space-sm: #{v.$space-sm};
+  --hhi-space-md: #{v.$space-md};
+  --hhi-space-lg: #{v.$space-lg};
+  --hhi-space-xl: #{v.$space-xl};
+  --hhi-space-2xl: #{v.$space-2xl};
+  
+  /* Border Radius */
+  --hhi-radius-sm: #{v.$radius-sm};
+  --hhi-radius-md: #{v.$radius-md};
+  --hhi-radius-lg: #{v.$radius-lg};
+  --hhi-radius-xl: #{v.$radius-xl};
+  --hhi-radius-full: #{v.$radius-full};
+  
+  /* Typography */
+  --hhi-font-family: #{v.$font-family-primary};
+  --hhi-font-xs: #{v.$font-size-xs};
+  --hhi-font-sm: #{v.$font-size-sm};
+  --hhi-font-base: #{v.$font-size-base};
+  --hhi-font-md: #{v.$font-size-md};
+  --hhi-font-lg: #{v.$font-size-lg};
+  --hhi-font-xl: #{v.$font-size-xl};
+  --hhi-font-2xl: #{v.$font-size-2xl};
+  --hhi-font-3xl: #{v.$font-size-3xl};
+  
+  /* Shadows */
+  --hhi-shadow-sm: #{v.$shadow-sm};
+  --hhi-shadow-md: #{v.$shadow-md};
+  --hhi-shadow-lg: #{v.$shadow-lg};
+  
+  /* Transitions */
+  --hhi-transition-fast: #{v.$transition-fast};
+  --hhi-transition-base: #{v.$transition-base};
+}
+
+/* ============================================
+   Base Page Layout
+   ============================================ */
+.hhi-provider-page {
+  font-family: var(--hhi-font-family);
+  background: var(--hhi-surface);
+  color: var(--hhi-text-primary);
+  min-height: 100vh;
+  padding: var(--hhi-space-lg);
+  padding-bottom: calc(var(--hhi-space-lg) + 64px);
+}
+
+.hhi-provider-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-lg);
+}
+
+/* ============================================
+   Page Header & Typography
+   ============================================ */
+.hhi-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-xs);
+}
+
+.hhi-page-title {
+  font-size: var(--hhi-font-2xl);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--hhi-text-primary);
+}
+
+.hhi-page-subtitle {
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-text-secondary);
+  font-weight: 400;
+}
+
+.hhi-section-header {
+  font-size: var(--hhi-font-sm);
+  font-weight: 700;
+  color: var(--hhi-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--hhi-space-sm);
+}
+
+.hhi-section-title {
+  font-size: var(--hhi-font-base);
+  font-weight: 600;
+  color: var(--hhi-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================
+   Section Grid
+   ============================================ */
+.hhi-section-grid {
+  display: grid;
+  gap: var(--hhi-space-lg);
+}
+
+.hhi-section-grid--2col {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.hhi-section-grid--stats {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--hhi-space-md);
+}
+
+/* ============================================
+   Cards
+   ============================================ */
+.hhi-card {
+  @include m.card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-md);
+}
+
+.hhi-card-title {
+  font-size: var(--hhi-font-lg);
+  font-weight: 600;
+  color: var(--hhi-text-primary);
+}
+
+.hhi-card-subtitle {
+  font-size: 13px;
+  color: var(--hhi-text-secondary);
+}
+
+.hhi-card--no-padding {
+  padding: 0;
+}
+
+/* ============================================
+   Stats Cards
+   ============================================ */
+.hhi-stats-card {
+  @include m.card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-xs);
+}
+
+.hhi-stats-value {
+  font-size: var(--hhi-font-3xl);
+  font-weight: 700;
+  color: var(--hhi-emerald);
+  line-height: 1.2;
+}
+
+.hhi-stats-label {
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-text-secondary);
+  font-weight: 400;
+}
+
+/* ============================================
+   Referral Cards
+   ============================================ */
+.hhi-referral-card {
+  background: var(--hhi-white);
+  border: 1px solid var(--hhi-border);
+  border-left: 4px solid var(--hhi-emerald);
+  border-radius: var(--hhi-radius-md);
+  padding: var(--hhi-space-md);
+  box-shadow: var(--hhi-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-sm);
+  position: relative;
+}
+
+.hhi-referral-card--urgent {
+  border-left-color: var(--hhi-danger);
+}
+
+.hhi-referral-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--hhi-space-sm);
+}
+
+.hhi-referral-card__patient {
+  font-size: var(--hhi-font-md);
+  font-weight: 600;
+  color: var(--hhi-text-primary);
+}
+
+.hhi-referral-card__date {
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-text-secondary);
+}
+
+/* ============================================
+   Patient List Items
+   ============================================ */
+.hhi-patient-item {
+  background: var(--hhi-white);
+  border: 1px solid var(--hhi-border);
+  border-radius: var(--hhi-radius-md);
+  padding: var(--hhi-space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--hhi-space-md);
+}
+
+.hhi-patient-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-xs);
+}
+
+.hhi-patient-item__name {
+  font-size: var(--hhi-font-md);
+  font-weight: 600;
+  color: var(--hhi-text-primary);
+}
+
+.hhi-patient-item__meta {
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-emerald);
+}
+
+/* ============================================
+   Badges
+   ============================================ */
+.hhi-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 var(--hhi-space-sm);
+  border-radius: var(--hhi-radius-full);
+  font-size: var(--hhi-font-sm);
+  font-weight: 600;
+  background: var(--hhi-border);
+  color: var(--hhi-text-primary);
+}
+
+.hhi-badge--new {
+  background: var(--hhi-bio-lime);
+  color: var(--hhi-text-primary);
+}
+
+.hhi-badge--routine {
+  background: var(--hhi-border);
+  color: var(--hhi-text-secondary);
+}
+
+.hhi-badge--urgent {
+  background: var(--hhi-warning-light);
+  color: var(--hhi-warning-dark);
+}
+
+.hhi-badge--emergency {
+  background: var(--hhi-danger-light);
+  color: var(--hhi-danger-dark);
+}
+
+.hhi-badge--visit {
+  background: var(--hhi-bio-lime);
+  color: var(--hhi-text-primary);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.hhi-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hhi-space-md);
+}
+
+.hhi-button {
+  @include m.button-base;
+}
+
+.hhi-button-primary {
+  @include m.button-primary;
+}
+
+.hhi-button-secondary {
+  @include m.button-secondary;
+}
+
+.hhi-button-ghost {
+  @include m.button-ghost;
+}
+
+.hhi-button-danger {
+  @include m.button-danger;
+}
+
+.hhi-icon-button {
+  min-height: 36px;
+  padding: 0 var(--hhi-space-md);
+  border-radius: var(--hhi-radius-full);
+  border: 1px solid var(--hhi-border);
+  background: var(--hhi-white);
+  color: var(--hhi-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* ============================================
+   Forms & Inputs
+   ============================================ */
+.hhi-form-grid {
+  display: grid;
+  gap: var(--hhi-space-md);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.hhi-input,
+.hhi-select,
+.hhi-textarea {
+  @include m.input-base;
+}
+
+.hhi-textarea {
+  @include m.textarea-base;
+}
+
+.hhi-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hhi-space-md);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+.hhi-empty {
+  border: 1px dashed #{v.$color-border-input};
+  border-radius: var(--hhi-radius-md);
+  padding: var(--hhi-space-lg);
+  color: var(--hhi-text-secondary);
+  background: var(--hhi-surface);
+  font-size: var(--hhi-font-base);
+  text-align: center;
+}
+
+/* ============================================
+   Links
+   ============================================ */
+.hhi-link {
+  color: var(--hhi-link);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:focus-visible,
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ============================================
+   App Header
+   ============================================ */
+.hhi-app-header {
+  background: var(--hhi-white);
+  border-bottom: 1px solid var(--hhi-border);
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.hhi-app-header__container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--hhi-space-md) var(--hhi-space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hhi-space-md);
+  height: 100%;
+}
+
+.hhi-app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--hhi-space-md);
+}
+
+.hhi-app-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--hhi-link);
+  color: var(--hhi-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--hhi-font-base);
+  font-weight: 700;
+}
+
+.hhi-app-title {
+  font-size: var(--hhi-font-md);
+  font-weight: 600;
+  color: var(--hhi-text-primary);
+}
+
+.hhi-app-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hhi-header-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--hhi-text-secondary);
+  cursor: pointer;
+}
+
+/* ============================================
+   Bottom Tab Navigation (Mobile)
+   ============================================ */
+.hhi-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--hhi-white);
+  border-top: 1px solid var(--hhi-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.hhi-bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hhi-space-xs);
+  flex: 1;
+  height: 100%;
+  color: var(--hhi-text-light);
+  text-decoration: none;
+  transition: all var(--hhi-transition-fast);
+
+  &:hover,
+  &--active {
+    color: var(--hhi-emerald);
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.hhi-bottom-nav__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.hhi-bottom-nav__label {
+  font-size: var(--hhi-font-sm);
+  font-weight: 500;
+}
+
+/* ============================================
+   Avatar
+   ============================================ */
+.hhi-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--hhi-radius-full);
+  background: var(--hhi-emerald);
+  color: var(--hhi-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--hhi-font-base);
+  flex-shrink: 0;
+}
+
+.hhi-avatar--lg {
+  width: 48px;
+  height: 48px;
+  font-size: var(--hhi-font-md);
+}
+
+.hhi-avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: var(--hhi-font-sm);
+}
+
+/* ============================================
+   Tabs
+   ============================================ */
+.hhi-tabs {
+  display: flex;
+  gap: var(--hhi-space-lg);
+  border-bottom: 1px solid var(--hhi-border);
+}
+
+.hhi-tab {
+  padding: var(--hhi-space-sm) 0;
+  font-size: var(--hhi-font-base);
+  font-weight: 400;
+  color: var(--hhi-text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: all var(--hhi-transition-fast);
+
+  &--active,
+  &:hover {
+    color: var(--hhi-emerald);
+    border-bottom-color: var(--hhi-emerald);
+    font-weight: 600;
+  }
+}
+
+/* ============================================
+   Modal/Dialog
+   ============================================ */
+.hhi-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  padding: var(--hhi-space-md);
+}
+
+.hhi-modal {
+  background: var(--hhi-white);
+  border-radius: var(--hhi-radius-lg);
+  box-shadow: var(--hhi-shadow-lg);
+  padding: var(--hhi-space-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.hhi-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hhi-space-md);
+  margin-bottom: var(--hhi-space-md);
+}
+
+.hhi-modal__title {
+  font-size: var(--hhi-font-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.hhi-modal__close {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--hhi-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   Toast Notifications
+   ============================================ */
+.hhi-toast-container {
+  position: fixed;
+  top: var(--hhi-space-lg);
+  right: var(--hhi-space-lg);
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-md);
+}
+
+.hhi-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--hhi-space-md);
+  padding: var(--hhi-space-sm) var(--hhi-space-md);
+  border-radius: 10px;
+  border: 1px solid var(--hhi-border);
+  background: var(--hhi-white);
+  font-size: var(--hhi-font-base);
+  box-shadow: var(--hhi-shadow-md);
+  min-width: 300px;
+}
+
+.hhi-toast__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.hhi-toast--success {
+  border-color: #{v.$color-success-border};
+  background: #{v.$color-success-light};
+  color: #{v.$color-success-dark};
+
+  .hhi-toast__icon {
+    color: var(--hhi-emerald);
+  }
+}
+
+.hhi-toast--error {
+  border-color: #{v.$color-danger-border};
+  background: var(--hhi-danger-light);
+  color: var(--hhi-danger-dark);
+
+  .hhi-toast__icon {
+    color: var(--hhi-danger);
+  }
+}
+
+/* ============================================
+   Chat Thread
+   ============================================ */
+.hhi-chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hhi-space-md);
+  padding: var(--hhi-space-md);
+}
+
+.hhi-chat-bubble {
+  max-width: 70%;
+  padding: var(--hhi-space-sm) var(--hhi-space-md);
+  border-radius: var(--hhi-radius-lg);
+  background: #F1F5F9;
+  color: var(--hhi-text-primary);
+  font-size: var(--hhi-font-base);
+  line-height: 1.5;
+}
+
+.hhi-chat-bubble--patient {
+  border-bottom-left-radius: var(--hhi-space-xs);
+  align-self: flex-start;
+}
+
+.hhi-chat-bubble--me {
+  background: #DBEAFE;
+  border-bottom-right-radius: var(--hhi-space-xs);
+  align-self: flex-end;
+}
+
+.hhi-chat-bubble__time {
+  font-size: var(--hhi-font-xs);
+  color: var(--hhi-text-muted);
+  margin-top: var(--hhi-space-xs);
+  display: block;
+}
+
+.hhi-chat-input {
+  display: flex;
+  align-items: center;
+  gap: var(--hhi-space-sm);
+  border: 1px solid var(--hhi-border);
+  border-radius: 10px;
+  padding: var(--hhi-space-sm) var(--hhi-space-md);
+  background: var(--hhi-white);
+  margin: var(--hhi-space-md);
+}
+
+/* ============================================
+   Video Call
+   ============================================ */
+.hhi-video-container {
+  background: var(--hhi-dark-bg);
+  border-radius: var(--hhi-radius-lg);
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hhi-video-pip {
+  position: absolute;
+  bottom: var(--hhi-space-md);
+  right: var(--hhi-space-md);
+  width: 120px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--hhi-radius-md);
+  border: 2px solid var(--hhi-emerald);
+  background: #1a1a1a;
+  overflow: hidden;
+}
+
+.hhi-video-placeholder {
+  color: var(--hhi-text-light);
+  font-size: var(--hhi-font-base);
+}
+
+.hhi-session-timer {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--hhi-dark-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hhi-space-md);
+  z-index: 99;
+}
+
+.hhi-session-timer__time {
+  font-size: var(--hhi-font-md);
+  font-weight: 600;
+  color: var(--hhi-white);
+}
+
+.hhi-session-timer__bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--hhi-emerald);
+  transition: width 1s linear;
+}
+
+.hhi-session-timer__bar--warning {
+  background: var(--hhi-warning);
+}
+
+.hhi-session-timer__bar--danger {
+  background: #EF4444;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.hhi-session-timer--pulse {
+  animation: pulse-warning 1s infinite;
+}
+
+/* ============================================
+   QR Scanner
+   ============================================ */
+.hhi-scanner-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 var(--hhi-space-lg);
+}
+
+.hhi-scanner-frame {
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+  border: 2px dashed var(--hhi-emerald);
+  border-radius: var(--hhi-radius-xl);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hhi-scanner-frame__corner {
+  position: absolute;
+  width: 20px;
+  height: 4px;
+  background: var(--hhi-emerald);
+
+  &--tl { top: -2px; left: -2px; width: 4px; height: 20px; }
+  &--tr { top: -2px; right: -2px; width: 4px; height: 20px; }
+  &--bl { bottom: -2px; left: -2px; width: 4px; height: 20px; }
+  &--br { bottom: -2px; right: -2px; width: 4px; height: 20px; }
+}
+
+.hhi-scanner-line {
+  position: absolute;
+  width: 90%;
+  height: 2px;
+  background: var(--hhi-bio-lime);
+  top: 10%;
+  animation: scan 2s ease-in-out infinite;
+}
+
+@keyframes scan {
+  0%, 100% { top: 10%; opacity: 1; }
+  50% { top: 90%; opacity: 0.5; }
+}
+
+.hhi-scanner-placeholder {
+  background: var(--hhi-dark-bg);
+  border-radius: var(--hhi-radius-md);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hhi-space-md);
+  color: var(--hhi-text-muted);
+}
+
+.hhi-scanner-placeholder__icon {
+  width: 48px;
+  height: 48px;
+  color: var(--hhi-text-secondary);
+}
+
+/* ============================================
+   Dropzone
+   ============================================ */
+.hhi-dropzone {
+  border: 2px dashed #{v.$color-border-input};
+  border-radius: var(--hhi-radius-lg);
+  background: var(--hhi-surface);
+  padding: var(--hhi-space-2xl) var(--hhi-space-lg);
+  text-align: center;
+  transition: all var(--hhi-transition-fast);
+  cursor: pointer;
+
+  &:hover,
+  &--dragover {
+    border-color: var(--hhi-emerald);
+    border-style: solid;
+    background: var(--hhi-emerald-light);
+  }
+}
+
+.hhi-dropzone__icon {
+  width: 48px;
+  height: 48px;
+  color: var(--hhi-emerald);
+  margin-bottom: var(--hhi-space-md);
+}
+
+.hhi-dropzone__title {
+  font-size: var(--hhi-font-md);
+  font-weight: 500;
+  color: var(--hhi-text-primary);
+  margin-bottom: var(--hhi-space-xs);
+}
+
+.hhi-dropzone__text {
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-text-muted);
+}
+
+/* ============================================
+   File Preview
+   ============================================ */
+.hhi-file-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--hhi-space-md);
+  padding: var(--hhi-space-md);
+  background: var(--hhi-surface);
+  border-radius: var(--hhi-radius-md);
+  border: 1px solid var(--hhi-border);
+}
+
+.hhi-file-preview__thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--hhi-radius-md);
+  object-fit: cover;
+  background: var(--hhi-border);
+}
+
+.hhi-file-preview__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hhi-file-preview__name {
+  font-size: var(--hhi-font-base);
+  font-weight: 500;
+  color: var(--hhi-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hhi-file-preview__remove {
+  width: 20px;
+  height: 20px;
+  color: #EF4444;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Progress Indicator
+   ============================================ */
+.hhi-progress {
+  width: 100%;
+}
+
+.hhi-progress__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-text-secondary);
+  margin-bottom: var(--hhi-space-sm);
+}
+
+.hhi-progress__bar {
+  height: 8px;
+  background: var(--hhi-border);
+  border-radius: var(--hhi-radius-full);
+  overflow: hidden;
+}
+
+.hhi-progress__fill {
+  height: 100%;
+  background: var(--hhi-emerald);
+  border-radius: var(--hhi-radius-full);
+  transition: width var(--hhi-transition-base);
+}
+
+/* ============================================
+   Medication Cards
+   ============================================ */
+.hhi-medication-card {
+  background: var(--hhi-white);
+  border: 1px solid var(--hhi-border);
+  border-radius: var(--hhi-radius-md);
+  padding: var(--hhi-space-md);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hhi-space-md);
+}
+
+.hhi-medication-card__checkbox {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--hhi-emerald);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.hhi-medication-card__info {
+  flex: 1;
+}
+
+.hhi-medication-card__name {
+  font-size: var(--hhi-font-md);
+  font-weight: 600;
+  color: var(--hhi-text-primary);
+}
+
+.hhi-medication-card__dosage {
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-text-secondary);
+  margin-top: var(--hhi-space-xs);
+}
+
+/* ============================================
+   History List Items
+   ============================================ */
+.hhi-history-list {
+  background: var(--hhi-surface);
+  border-radius: var(--hhi-radius-md);
+  overflow: hidden;
+}
+
+.hhi-history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--hhi-space-md);
+  padding: 0 var(--hhi-space-md);
+  height: 56px;
+  border-bottom: 1px solid var(--hhi-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.hhi-history-item__icon {
+  width: 20px;
+  height: 20px;
+  color: var(--hhi-emerald);
+  flex-shrink: 0;
+}
+
+.hhi-history-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hhi-history-item__title {
+  font-size: var(--hhi-font-base);
+  font-weight: 500;
+  color: var(--hhi-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hhi-history-item__time {
+  font-size: var(--hhi-font-sm);
+  color: var(--hhi-text-muted);
+  flex-shrink: 0;
+}
+
+.hhi-date-header {
+  font-size: var(--hhi-font-base);
+  font-weight: 600;
+  color: var(--hhi-text-secondary);
+  padding: var(--hhi-space-sm) var(--hhi-space-md);
+  background: var(--hhi-surface);
+}
+
+/* ============================================
+   Clinical Info Boxes
+   ============================================ */
+.hhi-info-box {
+  background: var(--hhi-surface);
+  border-radius: var(--hhi-radius-md);
+  padding: var(--hhi-space-md);
+}
+
+.hhi-info-box--clinical {
+  border-left: 4px solid var(--hhi-emerald);
+  border-radius: 0 var(--hhi-radius-md) var(--hhi-radius-md) 0;
+}
+
+.hhi-info-box__text {
+  font-size: var(--hhi-font-base);
+  color: var(--hhi-text-secondary);
+  line-height: 1.6;
+}
+
+/* ============================================
+   Attachment Items
+   ============================================ */
+.hhi-attachment {
+  display: flex;
+  align-items: center;
+  gap: var(--hhi-space-md);
+  padding: var(--hhi-space-sm) 0;
+}
+
+.hhi-attachment__icon {
+  width: 24px;
+  height: 24px;
+  color: var(--hhi-emerald);
+  flex-shrink: 0;
+}
+
+.hhi-attachment__name {
+  font-size: var(--hhi-font-base);
+  font-weight: 500;
+  color: var(--hhi-link);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ============================================
+   Quick Actions Panel
+   ============================================ */
+.hhi-quick-actions {
+  background: var(--hhi-white);
+  border-top: 1px solid var(--hhi-border);
+  padding: var(--hhi-space-md);
+  display: flex;
+  justify-content: space-around;
+  gap: var(--hhi-space-sm);
+}
+
+.hhi-quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hhi-space-xs);
+  padding: var(--hhi-space-sm);
+  background: transparent;
+  border: none;
+  color: var(--hhi-text-secondary);
+  cursor: pointer;
+  transition: color var(--hhi-transition-fast);
+
+  &:hover {
+    color: var(--hhi-emerald);
+  }
+}
+
+.hhi-quick-action__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.hhi-quick-action__label {
+  font-size: var(--hhi-font-sm);
+  font-weight: 500;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.hhi-app-footer {
+  border-top: 1px solid var(--hhi-border);
+  background: var(--hhi-white);
+}
+
+.hhi-app-footer__container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--hhi-space-md) var(--hhi-space-lg);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hhi-space-md);
+}
+
+.hhi-app-footer__text {
+  font-size: var(--hhi-font-sm);
+  color: var(--hhi-text-muted);
+  margin: 0;
+}
+
+.hhi-app-footer__links {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hhi-space-md);
+}
+
+/* ============================================
+   Auth Card
+   ============================================ */
+.hhi-auth-card {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--hhi-space-lg);
+  border-radius: var(--hhi-radius-lg);
+  border: 1px solid var(--hhi-border);
+  background: var(--hhi-white);
+  box-shadow: var(--hhi-shadow-sm);
+}
+
+.hhi-auth-card__title {
+  font-size: var(--hhi-font-xl);
+  font-weight: 600;
+  margin: 0 0 var(--hhi-space-md) 0;
+}
+
+.hhi-auth-card__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--hhi-radius-lg);
+  background: var(--hhi-link);
+  color: var(--hhi-white);
+  font-weight: 700;
+  margin-bottom: var(--hhi-space-md);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.hhi-divider {
+  height: 1px;
+  background: var(--hhi-border);
+  width: 100%;
+}
+
+.hhi-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hhi-text-center {
+  text-align: center;
+}
+
+.hhi-full-width {
+  width: 100%;
+}
+
+.hhi-mt-auto {
+  margin-top: auto;
+}
+
+.hhi-mb-0 {
+  margin-bottom: 0;
+}
+
+.hhi-sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--hhi-white);
+  padding: var(--hhi-space-md);
+  border-top: 1px solid var(--hhi-border);
+  margin: var(--hhi-space-md) calc(-1 * var(--hhi-space-md)) calc(-1 * var(--hhi-space-md));
+}
+
+/* ============================================
+   Mobile Responsive
+   ============================================ */
+@include m.mobile {
+  .hhi-provider-page {
+    padding: var(--hhi-space-md);
+    padding-bottom: calc(var(--hhi-space-md) + 80px);
+  }
+
+  .hhi-provider-container {
+    gap: var(--hhi-space-md);
+  }
+
+  .hhi-page-title {
+    font-size: var(--hhi-font-xl);
+  }
+
+  .hhi-section-grid--stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--hhi-space-sm);
+  }
+
+  .hhi-stats-value {
+    font-size: var(--hhi-font-2xl);
+  }
+
+  .hhi-app-header__container,
+  .hhi-app-footer__container {
+    padding: var(--hhi-space-sm) var(--hhi-space-md);
+  }
+
+  .hhi-modal {
+    max-width: 100%;
+    margin: var(--hhi-space-sm);
+    max-height: calc(100vh - var(--hhi-space-lg));
+  }
+
+  .hhi-toast-container {
+    left: var(--hhi-space-md);
+    right: var(--hhi-space-md);
+    top: var(--hhi-space-md);
+  }
+
+  .hhi-toast {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .hhi-video-pip {
+    width: 100px;
+  }
+
+  .hhi-scanner-frame {
+    width: 240px;
+    height: 240px;
+  }
+
+  .hhi-actions {
+    flex-direction: column;
+  }
+
+  .hhi-button {
+    width: 100%;
+  }
+}
+
+/* Hide mobile-only elements on desktop */
+@include m.desktop {
+  .hhi-bottom-nav {
+    display: none;
+  }
+
+  .hhi-session-timer {
+    position: static;
+    border-radius: var(--hhi-radius-md);
+    margin-bottom: var(--hhi-space-md);
+  }
+}
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hhi-surface: var(--hhi-dark-bg);
+    --hhi-white: var(--hhi-card-bg);
+    --hhi-text-primary: #F8FAFC;
+    --hhi-text-secondary: #94A3B8;
+    --hhi-border: var(--hhi-border-dark);
+  }
+
+  .hhi-bottom-nav {
+    background: var(--hhi-card-bg);
+    border-color: var(--hhi-border-dark);
+  }
+
+  .hhi-app-header {
+    background: var(--hhi-card-bg);
+    border-color: var(--hhi-border-dark);
+  }
+
+  .hhi-chat-bubble--patient {
+    background: #1E293B;
+    color: var(--hhi-text-primary);
+  }
+
+  .hhi-chat-bubble--me {
+    background: #1E3A5F;
+    color: var(--hhi-text-primary);
+  }
+
+  .hhi-dropzone {
+    background: #1E293B;
+    border-color: var(--hhi-border-dark);
+  }
+
+  .hhi-dropzone:hover,
+  .hhi-dropzone--dragover {
+    background: #064E3B;
+  }
+
+  .hhi-info-box,
+  .hhi-empty,
+  .hhi-history-list {
+    background: #1E293B;
+    border-color: var(--hhi-border-dark);
+  }
+
+  .hhi-input,
+  .hhi-select,
+  .hhi-textarea {
+    background: #1E293B;
+    border-color: var(--hhi-border-dark);
+    color: var(--hhi-text-primary);
+  }
+
+  .hhi-button-secondary {
+    background: var(--hhi-card-bg);
+    border-color: var(--hhi-border-dark);
+    color: var(--hhi-text-primary);
+  }
+
+  .hhi-sticky-footer {
+    background: var(--hhi-card-bg);
+    border-color: var(--hhi-border-dark);
+  }
+}

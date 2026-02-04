@@ -1,3 +1,545 @@
-.submit-actions {
-  justify-content: flex-end;
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+/* ============================================
+   Diagnostics Result Upload Styles
+   ============================================ */
+
+.result-upload {
+  min-height: 100vh;
+  background: v.$color-surface;
+  font-family: v.$font-family-primary;
+  padding-bottom: calc(v.$bottom-nav-height + v.$safe-area-bottom);
+}
+
+.upload-container {
+  @include m.container-narrow;
+  margin: 0 auto;
+  padding: v.$space-lg;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: v.$space-lg;
+
+  .page-title {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-semibold;
+    color: v.$color-text-primary;
+    margin: 0 0 v.$space-xs 0;
+  }
+
+  .page-subtitle {
+    font-size: v.$font-size-base;
+    color: v.$color-text-secondary;
+    margin: 0;
+  }
+}
+
+/* Card Component */
+.card {
+  @include m.card;
+  margin-bottom: v.$space-lg;
+}
+
+/* Badge Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: v.$space-xs v.$space-sm;
+  border-radius: v.$radius-full;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: v.$letter-spacing-wide;
+}
+
+.badge-urgent {
+  background: v.$color-warning-light;
+  color: v.$color-warning-dark;
+  border: 1px solid v.$color-warning-border;
+}
+
+.badge-emergency {
+  background: v.$color-danger-light;
+  color: v.$color-danger-dark;
+  border: 1px solid v.$color-danger-border;
+}
+
+.badge-routine {
+  background: v.$color-surface-elevated;
+  color: v.$color-text-secondary;
+  border: 1px solid v.$color-border;
+}
+
+/* Avatar */
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: v.$radius-full;
+  background: v.$color-emerald;
+  color: v.$color-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  flex-shrink: 0;
+
+  &.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: v.$font-size-sm;
+  }
+}
+
+/* Order Reference Card */
+.order-ref-card {
+  background: v.$color-surface-elevated;
+}
+
+.order-ref-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: v.$space-sm;
+}
+
+.order-ref-id {
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-emerald;
+}
+
+.order-ref-patient {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+
+  .patient-name {
+    font-size: v.$font-size-base;
+    color: v.$color-text-secondary;
+  }
+}
+
+/* Section */
+.section {
+  margin-bottom: v.$space-lg;
+}
+
+.section-title {
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+  margin: 0 0 v.$space-md 0;
+}
+
+/* Dropzone */
+.dropzone {
+  border: 2px dashed v.$color-border;
+  border-radius: v.$radius-lg;
+  padding: v.$space-2xl;
+  text-align: center;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  background: v.$color-white;
+
+  &:hover {
+    border-color: v.$color-emerald;
+    background: v.$color-emerald-light;
+  }
+
+  &.dragover {
+    border-color: v.$color-emerald;
+    background: v.$color-emerald-light;
+    transform: scale(1.02);
+  }
+
+  .file-input {
+    display: none;
+  }
+}
+
+.dropzone-icon {
+  width: 48px;
+  height: 48px;
+  color: v.$color-emerald;
+  margin-bottom: v.$space-md;
+}
+
+.dropzone-title {
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-text-primary;
+  margin: 0 0 v.$space-xs 0;
+}
+
+.dropzone-text {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  margin: v.$space-xs 0 0 0;
+}
+
+/* File Preview List */
+.file-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  padding: v.$space-md;
+  background: v.$color-surface-elevated;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    border-color: v.$color-emerald;
+  }
+}
+
+.file-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: v.$radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.file-thumb-pdf {
+    background: v.$color-info-light;
+    color: v.$color-info-dark;
+  }
+
+  &.file-thumb-image {
+    background: #FCE7F3;
+    color: #BE185D;
+  }
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-xs;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-text-primary;
+  @include m.text-truncate;
+}
+
+.file-size {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.file-remove {
+  width: 36px;
+  height: 36px;
+  border-radius: v.$radius-md;
+  border: none;
+  background: transparent;
+  color: v.$color-text-muted;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all v.$transition-fast;
+  flex-shrink: 0;
+
+  &:hover {
+    background: v.$color-danger-light;
+    color: v.$color-danger;
+  }
+}
+
+/* Upload Progress */
+.upload-progress {
+  background: v.$color-white;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  padding: v.$space-md;
+}
+
+.progress-filename {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-secondary;
+  display: block;
+  margin-bottom: v.$space-sm;
+}
+
+.progress-bar {
+  height: 8px;
+  background: v.$color-border;
+  border-radius: v.$radius-full;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: v.$color-emerald;
+  border-radius: v.$radius-full;
+  transition: width v.$transition-base;
+}
+
+.progress-percent {
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-emerald;
+  display: block;
+  text-align: right;
+  margin-top: v.$space-xs;
+}
+
+/* Form Styles */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$space-md;
+  margin-bottom: v.$space-md;
+}
+
+.form-group {
+  margin-bottom: v.$space-md;
+}
+
+.form-label {
+  display: block;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-text-secondary;
+  margin-bottom: v.$space-xs;
+}
+
+.form-input {
+  @include m.input-base;
+}
+
+.input-wrapper {
+  position: relative;
+
+  .input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: v.$color-text-muted;
+    pointer-events: none;
+  }
+
+  .form-input {
+    padding-right: 40px;
+  }
+}
+
+.form-textarea {
+  @include m.textarea-base;
+  min-height: 120px;
+}
+
+/* Verification Checklist */
+.verification-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.verification-item {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  cursor: pointer;
+  padding: v.$space-sm;
+  border-radius: v.$radius-md;
+  transition: background v.$transition-fast;
+
+  &:hover {
+    background: v.$color-white;
+  }
+}
+
+.verification-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.verification-checkmark {
+  width: 24px;
+  height: 24px;
+  border: 2px solid v.$color-border-input;
+  border-radius: v.$radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all v.$transition-fast;
+
+  &::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: v.$color-emerald;
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity v.$transition-fast;
+  }
+}
+
+.verification-checkbox:checked ~ .verification-checkmark {
+  border-color: v.$color-emerald;
+}
+
+.verification-checkbox:checked ~ .verification-checkmark::after {
+  opacity: 1;
+}
+
+.verification-text {
+  font-size: v.$font-size-base;
+  color: v.$color-text-primary;
+}
+
+/* Actions Section */
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+  margin-top: v.$space-xl;
+  padding-top: v.$space-lg;
+  border-top: 1px solid v.$color-border;
+}
+
+/* Buttons */
+.btn {
+  @include m.button-base;
+
+  &.btn-primary {
+    @include m.button-primary;
+  }
+
+  &.btn-secondary {
+    @include m.button-secondary;
+  }
+
+  &.btn-full {
+    width: 100%;
+  }
+}
+
+/* Mobile Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(v.$bottom-nav-height + v.$safe-area-bottom);
+  background: v.$color-white;
+  border-top: 1px solid v.$color-border;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: v.$space-sm;
+  padding-bottom: v.$safe-area-bottom;
+  z-index: v.$z-fixed;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: v.$space-xs v.$space-md;
+  text-decoration: none;
+  color: v.$color-text-light;
+  transition: color v.$transition-fast;
+
+  &.active {
+    color: v.$color-emerald;
+  }
+
+  &:hover:not(.active) {
+    color: v.$color-text-secondary;
+  }
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-label {
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-medium;
+}
+
+/* ============================================
+   Desktop Styles
+   ============================================ */
+
+@include m.md {
+  .upload-container {
+    padding: v.$space-xl;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  .result-upload {
+    padding-bottom: 0;
+  }
+}
+
+/* ============================================
+   Mobile Styles
+   ============================================ */
+
+@include m.mobile {
+  .upload-container {
+    padding: v.$space-md;
+  }
+
+  .page-header {
+    .page-title {
+      font-size: v.$font-size-xl;
+    }
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .file-thumb {
+    width: 60px;
+    height: 60px;
+  }
+
+  .dropzone {
+    padding: v.$space-xl;
+  }
+
+  .actions-section {
+    position: fixed;
+    bottom: calc(v.$bottom-nav-height + v.$safe-area-bottom);
+    left: 0;
+    right: 0;
+    background: v.$color-white;
+    padding: v.$space-md;
+    margin: 0;
+    border-top: 1px solid v.$color-border;
+    z-index: v.$z-sticky;
+  }
 }

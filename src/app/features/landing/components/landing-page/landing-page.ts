@@ -12,7 +12,18 @@ export class LandingPage {
   constructor(private router: Router) {}
 
   navigate(route: string) {
-    this.router.navigate([`auth/${route}`]);
+    switch (route) {
+      case 'patient-login':
+      case 'provider-login':
+        this.router.navigate(['/auth/login']);
+        break;
+      case 'signup':
+        this.router.navigate(['/auth/signup']);
+        break;
+      default:
+        this.router.navigate([route]);
+        break;
+    }
   }
 
 }

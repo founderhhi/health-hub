@@ -1,0 +1,343 @@
+/* ============================================
+   Appointments Page Styles
+   Dark Theme - Health Hub Design
+   ============================================ */
+
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+.appointments-page {
+  min-height: 100vh;
+  background: #0B0F14;
+  padding: v.$space-lg;
+  padding-bottom: calc(80px + v.$safe-area-bottom);
+  color: #FFFFFF;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-xl;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: v.$radius-full;
+  transition: background v.$transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.page-title {
+  flex: 1;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-semibold;
+  color: #FFFFFF;
+  margin: 0;
+  text-align: center;
+}
+
+.spacer {
+  width: 40px;
+}
+
+/* Tabs */
+.tabs-container {
+  display: flex;
+  background: #121826;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: v.$space-xl;
+}
+
+.tab-btn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #A0AEC0;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-regular;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  &.active {
+    background: #2ECC71;
+    color: #0B0F14;
+    font-weight: v.$font-weight-semibold;
+  }
+}
+
+/* Appointments List */
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.appointment-card {
+  background: #121826;
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  padding: v.$space-md;
+}
+
+/* Appointment Header */
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: v.$space-md;
+}
+
+.doctor-info {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+}
+
+.doctor-avatar {
+  width: 48px;
+  height: 48px;
+  background: #2ECC71;
+  border-radius: v.$radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: #0B0F14;
+}
+
+.doctor-details {
+  .doctor-name {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-md;
+    font-weight: v.$font-weight-semibold;
+    color: #FFFFFF;
+    margin: 0 0 2px 0;
+  }
+
+  .doctor-specialty {
+    font-family: v.$font-family-primary;
+    font-size: 13px;
+    font-weight: v.$font-weight-regular;
+    color: #A0AEC0;
+    margin: 0;
+  }
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: v.$radius-full;
+  font-family: v.$font-family-primary;
+  font-size: 12px;
+  font-weight: v.$font-weight-semibold;
+
+  &.status-confirmed {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ECC71;
+  }
+
+  &.status-pending {
+    background: rgba(245, 158, 11, 0.2);
+    color: #F59E0B;
+  }
+
+  &.status-cancelled {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+  }
+}
+
+/* Appointment Details */
+.appointment-details {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+  padding-bottom: v.$space-md;
+  margin-bottom: v.$space-md;
+  border-bottom: 1px solid #1E293B;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    color: #64748B;
+  }
+
+  span {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-regular;
+    color: #FFFFFF;
+  }
+
+  .mode-badge {
+    background: #1E293B;
+    color: #A0AEC0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+}
+
+/* Appointment Actions */
+.appointment-actions {
+  display: flex;
+  gap: v.$space-sm;
+}
+
+.btn {
+  height: 40px;
+  padding: 0 v.$space-md;
+  border-radius: 8px;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-xs;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  border: none;
+  white-space: nowrap;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.btn-primary {
+  background: #2ECC71;
+  color: #0B0F14;
+
+  &:hover {
+    background: #27AE60;
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #374151;
+  color: #FFFFFF;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #A0AEC0;
+
+  &:hover {
+    color: #FFFFFF;
+  }
+}
+
+.btn-full {
+  flex: 1;
+}
+
+.btn-book {
+  margin-top: v.$space-lg;
+  height: 48px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(64px + v.$safe-area-bottom);
+  background: #121826;
+  border-top: 1px solid #1E293B;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: v.$safe-area-bottom;
+  z-index: 1000;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 4px 8px;
+  color: #64748B;
+  text-decoration: none;
+  position: relative;
+  transition: color v.$transition-fast;
+
+  &:hover {
+    color: #A0AEC0;
+  }
+
+  &.active {
+    color: #2ECC71;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      width: 24px;
+      height: 2px;
+      background: #2ECC71;
+      border-radius: 2px;
+    }
+
+    .nav-label {
+      font-weight: v.$font-weight-semibold;
+    }
+  }
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2px;
+}
+
+.nav-label {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+}

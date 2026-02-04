@@ -1,55 +1,210 @@
-<<<<<<< HEAD
-<section class="hhi-provider-page">
-  <div class="hhi-provider-container">
-    <header class="hhi-page-header">
-      <h1 class="hhi-page-title">Upload Results</h1>
-      <p class="hhi-page-subtitle">Attach diagnostic results and notes.</p>
+<section class="result-upload">
+  <div class="upload-container">
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-title">Upload Results</h1>
+      <p class="page-subtitle">Attach diagnostic results and notes for Order DX-{{ orderId || 'pending' }}</p>
     </header>
 
-    <div class="hhi-section-grid">
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Upload</h2>
-        <div class="hhi-dropzone">
-          Drop files here or click to upload
-        </div>
-        <!-- TODO: Wire file upload dropzone -->
-      </section>
-
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Notes</h2>
-        <textarea
-          class="hhi-textarea"
-          placeholder="Add notes about the results"
-        ></textarea>
-        <!-- TODO: Bind notes to upload payload -->
-      </section>
-
-      <div class="hhi-actions submit-actions">
-        <button type="button" class="hhi-button hhi-button-primary">
-          Submit Results
-        </button>
+    <!-- Order Reference Card -->
+    <div class="card order-ref-card">
+      <div class="order-ref-header">
+        <span class="order-ref-id">DX-{{ orderId || 'pending' }}</span>
+        <span class="badge badge-urgent">Urgent</span>
       </div>
-      <!-- TODO: Wire submit results action -->
+      <div class="order-ref-patient">
+        <div class="avatar avatar-sm">SJ</div>
+        <span class="patient-name">Sarah Johnson</span>
+      </div>
+    </div>
+
+    <!-- Upload Dropzone -->
+    <div class="section">
+      <h2 class="section-title">Upload Files</h2>
+      <div 
+        class="dropzone"
+        [class.dragover]="dragOver"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+      >
+        <input 
+          #fileInput
+          type="file" 
+          multiple 
+          accept=".pdf,.jpg,.jpeg,.png,.dcm"
+          class="file-input"
+          (change)="onFileSelected($event)"
+        />
+        <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <p class="dropzone-title">Drop files here or click to upload</p>
+        <p class="dropzone-text">Supported: PDF, JPG, PNG, DICOM</p>
+        <p class="dropzone-text">Max file size: 50MB</p>
+      </div>
+    </div>
+
+    <!-- File Preview List -->
+    <div class="section" *ngIf="uploadedFiles.length > 0">
+      <h2 class="section-title">Files to Upload</h2>
+      <div class="file-preview-list">
+        <div class="file-preview" *ngFor="let file of uploadedFiles; let i = index">
+          <div class="file-thumb file-thumb-pdf">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="file-info">
+            <span class="file-name">{{ file.name }}</span>
+            <span class="file-size">{{ file.size / 1024 / 1024 | number:'1.1-1' }} MB</span>
+          </div>
+          <button class="file-remove" (click)="removeFile(i)" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Progress -->
+    <div class="section" *ngIf="uploadInProgress">
+      <h2 class="section-title">Uploading...</h2>
+      <div class="upload-progress">
+        <span class="progress-filename">CBC_Results_Sarah_Johnson.pdf</span>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 65%;"></div>
+        </div>
+        <span class="progress-percent">65%</span>
+      </div>
+    </div>
+
+    <!-- Result Details Form -->
+    <div class="section">
+      <h2 class="section-title">Result Details</h2>
+      
+      <!-- Date/Time Pickers -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Test Completion Date</label>
+          <div class="input-wrapper">
+            <input type="date" class="form-input" />
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Completion Time</label>
+          <div class="input-wrapper">
+            <input type="time" class="form-input" />
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technician Input -->
+      <div class="form-group">
+        <label class="form-label">Performing Technician</label>
+        <input type="text" class="form-input" placeholder="Enter technician name" />
+      </div>
+
+      <!-- Equipment Input -->
+      <div class="form-group">
+        <label class="form-label">Equipment Used</label>
+        <input type="text" class="form-input" placeholder="Enter equipment/model number" />
+      </div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="section">
+      <h2 class="section-title">Additional Notes</h2>
+      <textarea 
+        class="form-textarea" 
+        placeholder="Add any additional notes about the results, observations, or recommendations..."
+        [(ngModel)]="resultNotes"
+      ></textarea>
+    </div>
+
+    <!-- Verification Checklist -->
+    <div class="section">
+      <h2 class="section-title">Pre-Submission Checklist</h2>
+      <div class="verification-list">
+        <label class="verification-item">
+          <input type="checkbox" class="verification-checkbox" />
+          <span class="verification-checkmark"></span>
+          <span class="verification-text">All test results have been reviewed for accuracy</span>
+        </label>
+        <label class="verification-item">
+          <input type="checkbox" class="verification-checkbox" />
+          <span class="verification-checkmark"></span>
+          <span class="verification-text">Patient information matches the order</span>
+        </label>
+        <label class="verification-item">
+          <input type="checkbox" class="verification-checkbox" />
+          <span class="verification-checkmark"></span>
+          <span class="verification-text">Quality control checks passed</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-section">
+      <button type="button" class="btn btn-secondary btn-full" (click)="saveAsDraft()">
+        Save as Draft
+      </button>
+      <button type="button" class="btn btn-primary btn-full" (click)="submitResults()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Submit Results
+      </button>
     </div>
   </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a class="nav-item" routerLink="/diagnostics">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span class="nav-label">Orders</span>
+    </a>
+    <a class="nav-item active" [routerLink]="['/diagnostics/upload', orderId]">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <span class="nav-label">Upload</span>
+    </a>
+    <a class="nav-item" routerLink="/diagnostics">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <span class="nav-label">Reports</span>
+    </a>
+  </nav>
 </section>
-=======
-<app-header></app-header>
-<main class="p-6 bg-gray-50 min-h-screen">
-  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-semibold mb-4">Upload Results</h1>
-
-    <div class="mb-4 border border-dashed border-gray-200 rounded h-40 flex items-center justify-center text-gray-500">
-      <!-- TODO: implement drag & drop upload UI wiring -->
-      Upload dropzone placeholder
-    </div>
-
-    <textarea placeholder="Notes" class="w-full p-2 border rounded mb-4"></textarea>
-
-    <div class="flex">
-      <button class="px-4 py-2 bg-blue-600 text-white rounded" (click)="submitResults()">Submit Results</button>
-    </div>
-  </div>
-</main>
-<app-footer></app-footer>
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

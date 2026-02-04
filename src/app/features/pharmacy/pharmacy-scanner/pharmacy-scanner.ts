@@ -1,29 +1,36 @@
 import { Component } from '@angular/core';
-<<<<<<< HEAD
-=======
 import { CommonModule } from '@angular/common';
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94
+import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { PharmacyApiService } from '../../../core/api/pharmacy.service';
 
 @Component({
   selector: 'app-pharmacy-scanner',
   standalone: true,
-<<<<<<< HEAD
-  imports: [],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './pharmacy-scanner.html',
   styleUrl: './pharmacy-scanner.scss',
 })
-export class PharmacyScannerComponent {}
-=======
-  imports: [CommonModule],
-  templateUrl: './pharmacy-scanner.html'
-})
 export class PharmacyScannerComponent {
   // TODO: wire scanner/QR camera integration
-  // TODO: wire manual code lookup
+  code = '';
+  errorMessage = '';
+
+  constructor(private pharmacyApi: PharmacyApiService, private router: Router) {}
 
   manualLookup(): void {
-    // TODO: implement manual lookup action
-    console.log('TODO: manualLookup');
+    if (!this.code) {
+      this.errorMessage = 'Enter a prescription code.';
+      return;
+    }
+    this.errorMessage = '';
+    this.pharmacyApi.lookupByCode(this.code.trim()).subscribe({
+      next: (response) => {
+        this.router.navigate(['/pharmacy/prescription', response.prescription.id]);
+      },
+      error: () => {
+        this.errorMessage = 'Prescription not found.';
+      }
+    });
   }
 }
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

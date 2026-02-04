@@ -1,3 +1,477 @@
-.hhi-section-grid {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+/* ============================================
+   Specialist Dashboard Styles
+   ============================================ */
+
+.specialist-dashboard {
+  min-height: 100vh;
+  background: v.$color-surface;
+  padding-bottom: calc(v.$bottom-nav-height + v.$space-lg);
+}
+
+/* Page Header */
+.hhi-page-header {
+  margin-bottom: v.$space-lg;
+
+  .hhi-page-title {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$color-text-primary;
+    margin: 0 0 v.$space-xs 0;
+  }
+
+  .hhi-page-subtitle {
+    font-size: v.$font-size-base;
+    color: v.$color-text-secondary;
+    margin: 0;
+  }
+}
+
+/* Stats Grid - 2x2 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: v.$space-md;
+  margin-bottom: v.$space-xl;
+}
+
+.stat-card {
+  @include m.card;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: v.$space-md;
+  min-height: 120px;
+
+  .stat-value {
+    font-size: v.$font-size-3xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$color-text-primary;
+    line-height: 1;
+    margin-bottom: v.$space-xs;
+  }
+
+  .stat-label {
+    font-size: v.$font-size-sm;
+    color: v.$color-text-secondary;
+    font-weight: v.$font-weight-medium;
+  }
+
+  .stat-icon {
+    position: absolute;
+    top: v.$space-md;
+    right: v.$space-md;
+    width: 40px;
+    height: 40px;
+    border-radius: v.$radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &--referrals {
+      background: v.$color-emerald-light;
+      color: v.$color-emerald-dark;
+    }
+
+    &--appointments {
+      background: v.$color-info-light;
+      color: v.$color-info-dark;
+    }
+
+    &--consultations {
+      background: v.$color-warning-light;
+      color: v.$color-warning-dark;
+    }
+
+    &--patients {
+      background: v.$color-success-light;
+      color: v.$color-success-dark;
+    }
+  }
+}
+
+/* Tab Filters */
+.tab-filters {
+  display: flex;
+  gap: v.$space-sm;
+  margin-bottom: v.$space-lg;
+  overflow-x: auto;
+  padding-bottom: v.$space-xs;
+  @include m.scrollbar-hide;
+}
+
+.tab-filter {
+  padding: v.$space-sm v.$space-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-full;
+  background: v.$color-white;
+  color: v.$color-text-secondary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: v.$color-emerald;
+    color: v.$color-emerald;
+  }
+
+  &--active {
+    background: v.$color-emerald;
+    border-color: v.$color-emerald;
+    color: v.$color-text-primary;
+
+    &:hover {
+      background: v.$color-emerald-hover;
+      border-color: v.$color-emerald-hover;
+      color: v.$color-text-primary;
+    }
+  }
+}
+
+/* Section Title */
+.section-title {
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+  margin: 0 0 v.$space-md 0;
+}
+
+/* Referrals Section */
+.referrals-section {
+  margin-bottom: v.$space-xl;
+}
+
+/* Referral Cards */
+.referral-card {
+  @include m.card;
+  margin-bottom: v.$space-md;
+  padding: 0;
+  overflow: hidden;
+  border-left: 4px solid v.$color-border;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &--routine {
+    border-left-color: v.$color-emerald;
+  }
+
+  &--urgent {
+    border-left-color: v.$color-warning;
+  }
+
+  &--emergency {
+    border-left-color: v.$color-danger;
+  }
+
+  &__header {
+    padding: v.$space-md v.$space-md v.$space-sm;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: v.$space-xs;
+  }
+}
+
+.referral-badges {
+  display: flex;
+  gap: v.$space-xs;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px v.$space-sm;
+  border-radius: v.$radius-full;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &--new {
+    background: v.$color-bio-lime;
+    color: v.$color-text-primary;
+  }
+
+  &--routine {
+    background: v.$color-emerald-light;
+    color: v.$color-emerald-dark;
+  }
+
+  &--urgent {
+    background: v.$color-warning-light;
+    color: v.$color-warning-dark;
+  }
+
+  &--emergency {
+    background: v.$color-danger-light;
+    color: v.$color-danger-dark;
+  }
+}
+
+.patient-name {
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+  margin: 0;
+}
+
+.referral-meta {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  margin: 0;
+
+  .referrer-name {
+    color: v.$color-text-secondary;
+    font-weight: v.$font-weight-medium;
+  }
+}
+
+.referral-card__body {
+  padding: 0 v.$space-md v.$space-sm;
+}
+
+.clinical-summary {
+  font-size: v.$font-size-base;
+  color: v.$color-text-secondary;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.referral-card__actions {
+  display: flex;
+  gap: v.$space-sm;
+  padding: v.$space-sm v.$space-md v.$space-md;
+  border-top: 1px solid v.$color-border-light;
+}
+
+/* Buttons */
+.btn {
+  @include m.button-base;
+  flex: 1;
+
+  &--primary {
+    @include m.button-primary;
+  }
+
+  &--secondary {
+    @include m.button-secondary;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  @include m.card;
+  @include m.flex-column-center;
+  padding: v.$space-2xl;
+  text-align: center;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    color: v.$color-text-light;
+    margin-bottom: v.$space-md;
+  }
+
+  &__text {
+    font-size: v.$font-size-base;
+    color: v.$color-text-muted;
+    margin: 0;
+  }
+}
+
+/* Appointments Section */
+.appointments-section {
+  margin-bottom: v.$space-xl;
+}
+
+.appointment-card {
+  @include m.card;
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-md;
+  padding: v.$space-md;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    border-color: v.$color-emerald;
+    box-shadow: v.$shadow-sm;
+  }
+}
+
+.appointment-time {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-emerald;
+  min-width: 70px;
+}
+
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
+}
+
+.appointment-patient {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+}
+
+.appointment-type {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-secondary;
+}
+
+.appointment-status {
+  padding: v.$space-xs v.$space-sm;
+  border-radius: v.$radius-full;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-semibold;
+
+  &--confirmed {
+    background: v.$color-success-light;
+    color: v.$color-success-dark;
+  }
+
+  &--pending {
+    background: v.$color-warning-light;
+    color: v.$color-warning-dark;
+  }
+}
+
+/* Bottom Navigation */
+.hhi-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: v.$bottom-nav-height;
+  background: v.$color-white;
+  border-top: 1px solid v.$color-border;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: v.$z-fixed;
+  padding-bottom: v.$safe-area-bottom;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: v.$space-xs v.$space-sm;
+    color: v.$color-text-light;
+    text-decoration: none;
+    transition: color v.$transition-fast;
+
+    &--active {
+      color: v.$color-emerald;
+    }
+  }
+
+  &__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: v.$font-weight-medium;
+  }
+}
+
+/* Desktop Responsive */
+@include m.desktop {
+  .specialist-dashboard {
+    padding-bottom: v.$space-lg;
+  }
+
+  .hhi-bottom-nav {
+    display: none;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .referrals-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: v.$space-md;
+
+    .section-title {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .referral-card {
+    margin-bottom: 0;
+  }
+}
+
+/* Tablet Responsive */
+@include m.tablet {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Mobile Adjustments */
+@include m.mobile {
+  .hhi-page-header {
+    .hhi-page-title {
+      font-size: v.$font-size-xl;
+    }
+  }
+
+  .stat-card {
+    min-height: 100px;
+    padding: v.$space-sm;
+
+    .stat-value {
+      font-size: v.$font-size-2xl;
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      top: v.$space-sm;
+      right: v.$space-sm;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .appointment-card {
+    flex-wrap: wrap;
+  }
+
+  .appointment-status {
+    width: 100%;
+    text-align: center;
+    margin-top: v.$space-xs;
+  }
 }

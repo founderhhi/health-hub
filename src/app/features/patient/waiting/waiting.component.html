@@ -1,0 +1,11 @@
+<section class="waiting-page">
+  <div class="waiting-card">
+    <h1>Waiting Room</h1>
+    <p class="status">{{ statusMessage }}</p>
+
+    <div class="actions">
+      <button class="btn primary" (click)="joinConsult()" [disabled]="!roomUrl">Join Consultation</button>
+      <button class="btn ghost" (click)="cancel()">Cancel</button>
+    </div>
+  </div>
+</section>

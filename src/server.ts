@@ -5,7 +5,11 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import cors from 'cors';
 import { join } from 'node:path';
+import { createServer } from 'node:http';
+import { apiRouter } from './server/api';
+import { initWebSocketServer } from './server/realtime/ws';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -27,6 +31,10 @@ const angularApp = new AngularNodeAppEngine();
 /**
  * Serve static files from /browser
  */
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json());
+app.use('/api', apiRouter);
+
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
@@ -53,11 +61,14 @@ app.use((req, res, next) => {
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
   const port = process.env['PORT'] || 4000;
-  app.listen(port, (error) => {
-    if (error) {
-      throw error;
-    }
+  const server = createServer(app);
+  initWebSocketServer(server);
 
+  server.on('error', (error) => {
+    throw error;
+  });
+
+  server.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }

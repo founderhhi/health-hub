@@ -1,0 +1,195 @@
+/* ============================================
+   Health Records Page Styles
+   Dark Theme - Health Hub Design
+   ============================================ */
+
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+.records-page {
+  min-height: 100vh;
+  background: #0B0F14;
+  padding: v.$space-lg;
+  padding-bottom: calc(80px + v.$safe-area-bottom);
+  color: #FFFFFF;
+}
+
+/* Header */
+.page-header {
+  margin-bottom: v.$space-xl;
+}
+
+.page-title {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-semibold;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  gap: v.$space-md;
+  margin-bottom: v.$space-xl;
+  overflow-x: auto;
+  padding-bottom: v.$space-sm;
+  @include m.scrollbar-hide;
+}
+
+.tab-btn {
+  flex: 0 0 auto;
+  padding: v.$space-sm v.$space-md;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #A0AEC0;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-regular;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  white-space: nowrap;
+
+  &.active {
+    color: #2ECC71;
+    border-bottom-color: #2ECC71;
+    font-weight: v.$font-weight-semibold;
+  }
+}
+
+/* Records List */
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.record-card {
+  background: #121826;
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  padding: v.$space-md;
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    border-color: #2ECC71;
+  }
+}
+
+.record-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(46, 204, 113, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.record-info {
+  flex: 1;
+
+  .record-title {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-md;
+    font-weight: v.$font-weight-semibold;
+    color: #FFFFFF;
+    margin: 0 0 4px 0;
+  }
+
+  .record-doctor {
+    font-family: v.$font-family-primary;
+    font-size: 13px;
+    font-weight: v.$font-weight-regular;
+    color: #A0AEC0;
+    margin: 0 0 2px 0;
+  }
+
+  .record-date {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-regular;
+    color: #64748B;
+    margin: 0;
+  }
+}
+
+.arrow-icon {
+  width: 20px;
+  height: 20px;
+  color: #475569;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(64px + v.$safe-area-bottom);
+  background: #121826;
+  border-top: 1px solid #1E293B;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: v.$safe-area-bottom;
+  z-index: 1000;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 4px 8px;
+  color: #64748B;
+  text-decoration: none;
+  position: relative;
+  transition: color v.$transition-fast;
+
+  &:hover {
+    color: #A0AEC0;
+  }
+
+  &.active {
+    color: #2ECC71;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      width: 24px;
+      height: 2px;
+      background: #2ECC71;
+      border-radius: 2px;
+    }
+
+    .nav-label {
+      font-weight: v.$font-weight-semibold;
+    }
+  }
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2px;
+}
+
+.nav-label {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+}

@@ -1,93 +1,81 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { AuthFlowType, InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthApiService } from '../../../../core/api/auth.service';
+import { redirectAfterLogin } from '../../../../shared/guards/role.guard';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
 export class LoginComponent {
- private readonly router = inject(Router);
- private readonly auth = inject(AuthService);
+  form: FormGroup;
+  submitting = signal(false);
+  showPassword = false;
+  errorMessage = '';
 
-  /** UI State */
-  readonly submitting = signal(false);
-
-  /** Reactive Form */
-  readonly form = new FormGroup({
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email]
-    }),
-
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(8)]
-    })
-  });
-
-  // login(): void {
-  //   if (this.form.invalid) {
-  //     this.form.markAllAsTouched();
-  //     return;
-  //   }
-
-  //   this.submitting.set(true);
-
-  //   // 🔐 AuthService.login(this.form.getRawValue()) → future integration
-
-  //   this.router.navigate(['/dashboard/patient']);
-  // }
-
-  async login(): Promise<void> {
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authApi: AuthApiService
+  ) {
+    this.form = this.fb.group({
+      countryCode: ['+1', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      rememberMe: [false]
+    });
   }
 
-  const { email, password } = this.form.getRawValue();
+  /**
+   * Toggle password visibility
+   */
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
 
-  try {
-    const response = await this.auth.instance.send(
-      new InitiateAuthCommand({
-        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
-        ClientId: '7o70kqbrb50qa52o391uhrslop',
-        AuthParameters: {
-          USERNAME: email,
-          PASSWORD: password
-        }
-      })
-    );
-
-    const result = response.AuthenticationResult;
-
-    if (!result) {
-      throw new Error('Authentication failed');
-    }
-
-    console.log("RESPONSE",result,response);
-
-    this.auth.setTokens({
-      accessToken: result.AccessToken!,
-      idToken: result.IdToken!,
-      refreshToken: result.RefreshToken!
-    });
-
-  } catch (error: any) {
-    if (error.name === 'UserNotConfirmedException') {
-      this.router.navigate(['/confirm-signup'], {
-        queryParams: { email }
-      });
+  /**
+   * Handle login
+   */
+  login(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
-    console.log("ERROR",error);
+    this.submitting.set(true);
+    this.errorMessage = '';
+
+    const phone = `${this.form.get('countryCode')?.value}${this.form.get('phone')?.value}`;
+    const password = this.form.get('password')?.value;
+
+    this.authApi.login(phone, password).subscribe({
+      next: (response) => {
+        this.submitting.set(false);
+        redirectAfterLogin(response.user.role, this.router);
+      },
+      error: () => {
+        this.submitting.set(false);
+        this.errorMessage = 'Invalid phone or password';
+      }
+    });
   }
 
-  this.router.navigate(['/dashboard/patient']);
-}
+  /**
+   * Navigate to forgot password
+   */
+  forgotPassword(): void {
+    this.router.navigate(['/auth/forgot-password']);
+  }
+
+  /**
+   * Navigate to signup
+   */
+  goToSignup(): void {
+    this.router.navigate(['/auth/signup']);
+  }
 }
