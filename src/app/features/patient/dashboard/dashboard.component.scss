@@ -320,6 +320,54 @@
   }
 }
 
+/* Health Records Quick Access */
+.records-quick-access {
+  margin-bottom: v.$space-xl;
+}
+
+.records-card {
+  background: #121826;
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  padding: v.$space-md v.$space-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    border-color: #2ECC71;
+  }
+}
+
+.records-card-content {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+}
+
+.records-icon {
+  width: 24px;
+  height: 24px;
+  color: #2ECC71;
+}
+
+.records-title {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  color: #FFFFFF;
+  margin: 0 0 2px 0;
+}
+
+.records-desc {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: #A0AEC0;
+  margin: 0;
+}
+
 /* Recent Prescriptions */
 .recent-section {
   margin-bottom: v.$space-xl;

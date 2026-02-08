@@ -15,4 +15,16 @@ export class PatientApiService {
   getConsults() {
     return this.api.get<{ requests: any[] }>('/patient/consults');
   }
+
+  getProfile() {
+    return this.api.get<{ user: any }>('/patient/me');
+  }
+
+  getReferrals() {
+    return this.api.get<{ referrals: any[] }>('/patient/referrals');
+  }
+
+  getLabOrders() {
+    return this.api.get<{ orders: any[] }>('/patient/lab-orders');
+  }
 }

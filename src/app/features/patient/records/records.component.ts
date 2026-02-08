@@ -1,6 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { PatientApiService } from '../../../core/api/patient.service';
+import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
+
+interface PrescriptionItem {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+}
+
+interface Prescription {
+  id: string;
+  code: string;
+  items: PrescriptionItem[];
+  status: string;
+  created_at: string;
+}
+
+interface LabOrder {
+  id: string;
+  tests: string[];
+  status: string;
+  result_notes: string | null;
+  created_at: string;
+  specialist_name: string | null;
+}
 
 @Component({
   selector: 'app-records',
@@ -9,43 +35,120 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './records.component.html',
   styleUrl: './records.component.scss'
 })
-export class RecordsComponent {
-  activeCategory: string = 'consultations';
-  
-  categories = [
-    { id: 'consultations', label: 'Consultations', icon: 'stethoscope' },
-    { id: 'prescriptions', label: 'Prescriptions', icon: 'pill' },
-    { id: 'lab-results', label: 'Lab Results', icon: 'flask' },
-    { id: 'documents', label: 'Documents', icon: 'file' }
-  ];
+export class RecordsComponent implements OnInit {
+  activeTab: 'prescriptions' | 'lab-results' = 'prescriptions';
+  loading = true;
+  error: string | null = null;
 
-  records = [
-    {
-      id: '1',
-      title: 'General Consultation',
-      doctor: 'Dr. Sarah Johnson',
-      date: 'Jan 28, 2026',
-      type: 'consultation'
-    },
-    {
-      id: '2',
-      title: 'Blood Test Results',
-      doctor: 'City Diagnostics',
-      date: 'Jan 25, 2026',
-      type: 'lab'
-    },
-    {
-      id: '3',
-      title: 'Prescription - Amoxicillin',
-      doctor: 'Dr. Michael Chen',
-      date: 'Jan 20, 2026',
-      type: 'prescription'
+  prescriptions: Prescription[] = [];
+  labOrders: LabOrder[] = [];
+
+  constructor(
+    public router: Router,
+    private patientApi: PatientApiService,
+    private prescriptionsApi: PrescriptionsApiService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.loading = true;
+    this.error = null;
+
+    let prescriptionsLoaded = false;
+    let labOrdersLoaded = false;
+
+    const checkDone = () => {
+      if (prescriptionsLoaded && labOrdersLoaded) {
+        this.loading = false;
+      }
+    };
+
+    this.prescriptionsApi.listForPatient().subscribe({
+      next: (res) => {
+        this.prescriptions = (res.prescriptions || []).map(p => ({
+          ...p,
+          items: typeof p.items === 'string' ? JSON.parse(p.items) : (p.items || [])
+        }));
+        prescriptionsLoaded = true;
+        checkDone();
+      },
+      error: (err) => {
+        console.error('Failed to load prescriptions:', err);
+        this.error = 'Failed to load health records. Please try again.';
+        prescriptionsLoaded = true;
+        checkDone();
+      }
+    });
+
+    this.patientApi.getLabOrders().subscribe({
+      next: (res) => {
+        this.labOrders = (res.orders || []).map(o => ({
+          ...o,
+          tests: typeof o.tests === 'string' ? JSON.parse(o.tests) : (o.tests || [])
+        }));
+        labOrdersLoaded = true;
+        checkDone();
+      },
+      error: (err) => {
+        console.error('Failed to load lab orders:', err);
+        this.error = 'Failed to load health records. Please try again.';
+        labOrdersLoaded = true;
+        checkDone();
+      }
+    });
+  }
+
+  setTab(tab: 'prescriptions' | 'lab-results'): void {
+    this.activeTab = tab;
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'active': return 'status-active';
+      case 'claimed': return 'status-claimed';
+      case 'fulfilled': return 'status-fulfilled';
+      case 'completed': return 'status-completed';
+      case 'ordered': return 'status-ordered';
+      case 'in_progress': return 'status-in-progress';
+      default: return '';
     }
-  ];
+  }
 
-  constructor(public router: Router) {}
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'active': return 'Active';
+      case 'claimed': return 'Claimed';
+      case 'fulfilled': return 'Fulfilled';
+      case 'completed': return 'Completed';
+      case 'ordered': return 'Ordered';
+      case 'in_progress': return 'In Progress';
+      default: return status;
+    }
+  }
 
-  setCategory(categoryId: string): void {
-    this.activeCategory = categoryId;
+  getLabStatusMessage(status: string): string {
+    switch (status) {
+      case 'completed': return 'Results available - contact your doctor';
+      case 'in_progress': return 'In Progress';
+      case 'ordered': return 'Ordered';
+      default: return status;
+    }
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  retry(): void {
+    this.loadData();
   }
 }

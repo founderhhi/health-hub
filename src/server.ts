@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -53,6 +54,17 @@ app.use((req, res, next) => {
       response ? writeResponseToNodeResponse(response, res) : next(),
     )
     .catch(next);
+});
+
+/**
+ * Global error handler - returns JSON instead of HTML stack traces.
+ */
+app.use((err: any, _req: any, res: any, next: any) => {
+  console.error('Unhandled server error:', err?.message || err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({
+    error: 'Something went wrong. Please try again.'
+  });
 });
 
 /**

@@ -23,6 +23,7 @@ export class SignupComponent {
     private authApi: AuthApiService
   ) {
     this.form = this.fb.group({
+      displayName: ['', [Validators.required, Validators.minLength(2)]],
       countryCode: ['+1', Validators.required],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       password: ['', [Validators.required, Validators.minLength(8)]]
@@ -48,10 +49,11 @@ export class SignupComponent {
     this.submitting.set(true);
     this.errorMessage = '';
 
+    const displayName = this.form.get('displayName')?.value;
     const phone = `${this.form.get('countryCode')?.value}${this.form.get('phone')?.value}`;
     const password = this.form.get('password')?.value;
 
-    this.authApi.signup(phone, password).subscribe({
+    this.authApi.signup(phone, password, displayName).subscribe({
       next: () => {
         this.submitting.set(false);
         this.router.navigate(['/patient/dashboard']);

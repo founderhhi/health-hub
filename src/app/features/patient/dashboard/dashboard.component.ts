@@ -22,7 +22,7 @@ interface HealthStats {
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   // User data
-  userName: string = 'Sarah';
+  userName: string = '';
   notificationCount: number = 0;
   requestingConsult = false;
   requestError = '';
@@ -31,9 +31,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Health statistics
   stats: HealthStats = {
-    consultations: 12,
-    prescriptions: 8,
-    records: 24
+    consultations: 0,
+    prescriptions: 0,
+    records: 0
   };
 
   constructor(
@@ -45,6 +45,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Load real user name from localStorage (set during login/signup)
+    this.userName = localStorage.getItem('hhi_display_name') || 'Patient';
+
     this.loadStats();
     this.loadPrescriptions();
     this.loadNotifications();
@@ -63,6 +66,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ) {
         this.loadNotifications();
         this.loadPrescriptions();
+        this.loadStats();
       }
     });
   }
@@ -102,13 +106,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.router.navigate(['/heal-well/videos']);
         break;
       case 'specialist':
-        this.router.navigate(['/patient-services/specialist']);
+        this.router.navigate(['/patient/appointments']);
         break;
       case 'pharmacy':
-        this.router.navigate(['/pharmacy']);
+        this.router.navigate(['/patient/records']);
         break;
       case 'diagnostics':
-        this.router.navigate(['/diagnostics']);
+        // Coming soon - disabled
         break;
     }
   }
@@ -117,7 +121,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * Show coming soon notification
    */
   showComingSoon(): void {
-    alert('Coming Soon! This feature will be available shortly.');
+    // No-op for disabled cards
   }
 
   /**
@@ -140,6 +144,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.prescriptionsApi.listForPatient().subscribe({
       next: (response) => {
         this.stats.prescriptions = response.prescriptions.length;
+      }
+    });
+    this.patientApi.getLabOrders().subscribe({
+      next: (response) => {
+        this.stats.records = response.orders.length;
       }
     });
   }

@@ -16,44 +16,122 @@
 
 /* Header */
 .page-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
   margin-bottom: v.$space-xl;
 }
 
+.back-btn {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: v.$radius-full;
+  transition: background v.$transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
 .page-title {
+  flex: 1;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-xl;
   font-weight: v.$font-weight-semibold;
   color: #FFFFFF;
   margin: 0;
+  text-align: center;
 }
 
-/* Category Tabs */
-.category-tabs {
+.spacer {
+  width: 40px;
+}
+
+/* Loading State */
+.loading-state {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: v.$space-2xl;
   gap: v.$space-md;
+
+  p {
+    color: #A0AEC0;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-base;
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #1E293B;
+  border-top-color: #2ECC71;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Error State */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: v.$space-2xl;
+  gap: v.$space-md;
+  text-align: center;
+
+  .error-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .error-message {
+    color: #A0AEC0;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-base;
+    margin: 0;
+  }
+}
+
+/* Tab Pills */
+.tabs-container {
+  display: flex;
+  background: #121826;
+  border-radius: 12px;
+  padding: 4px;
   margin-bottom: v.$space-xl;
-  overflow-x: auto;
-  padding-bottom: v.$space-sm;
-  @include m.scrollbar-hide;
 }
 
 .tab-btn {
-  flex: 0 0 auto;
-  padding: v.$space-sm v.$space-md;
-  background: transparent;
+  flex: 1;
+  height: 44px;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-radius: 8px;
+  background: transparent;
   color: #A0AEC0;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-base;
   font-weight: v.$font-weight-regular;
   cursor: pointer;
   transition: all v.$transition-fast;
-  white-space: nowrap;
 
   &.active {
-    color: #2ECC71;
-    border-bottom-color: #2ECC71;
+    background: #2ECC71;
+    color: #0B0F14;
     font-weight: v.$font-weight-semibold;
   }
 }
@@ -65,39 +143,77 @@
   gap: v.$space-md;
 }
 
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: v.$space-2xl;
+  gap: v.$space-md;
+  text-align: center;
+
+  .empty-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .empty-title {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-md;
+    font-weight: v.$font-weight-semibold;
+    color: #FFFFFF;
+    margin: 0;
+  }
+
+  .empty-subtitle {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-base;
+    color: #A0AEC0;
+    margin: 0;
+  }
+}
+
+/* Record Card */
 .record-card {
   background: #121826;
   border: 1px solid #1E293B;
   border-radius: 12px;
   padding: v.$space-md;
+}
+
+.record-header {
   display: flex;
   align-items: center;
   gap: v.$space-md;
-  cursor: pointer;
-  transition: all v.$transition-fast;
-
-  &:hover {
-    border-color: #2ECC71;
-  }
 }
 
 .record-icon {
   width: 48px;
   height: 48px;
-  background: rgba(46, 204, 113, 0.1);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   svg {
     width: 24px;
     height: 24px;
   }
+
+  &.rx-icon {
+    background: rgba(46, 204, 113, 0.1);
+  }
+
+  &.lab-icon {
+    background: rgba(59, 130, 246, 0.1);
+  }
 }
 
 .record-info {
   flex: 1;
+  min-width: 0;
 
   .record-title {
     font-family: v.$font-family-primary;
@@ -107,14 +223,6 @@
     margin: 0 0 4px 0;
   }
 
-  .record-doctor {
-    font-family: v.$font-family-primary;
-    font-size: 13px;
-    font-weight: v.$font-weight-regular;
-    color: #A0AEC0;
-    margin: 0 0 2px 0;
-  }
-
   .record-date {
     font-family: v.$font-family-primary;
     font-size: v.$font-size-sm;
@@ -122,12 +230,179 @@
     color: #64748B;
     margin: 0;
   }
+
+  .record-doctor {
+    font-family: v.$font-family-primary;
+    font-size: 13px;
+    font-weight: v.$font-weight-regular;
+    color: #A0AEC0;
+    margin: 2px 0 0 0;
+  }
 }
 
-.arrow-icon {
-  width: 20px;
-  height: 20px;
-  color: #475569;
+.status-badge {
+  padding: 4px 12px;
+  border-radius: v.$radius-full;
+  font-family: v.$font-family-primary;
+  font-size: 12px;
+  font-weight: v.$font-weight-semibold;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &.status-active {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ECC71;
+  }
+
+  &.status-claimed {
+    background: rgba(245, 158, 11, 0.2);
+    color: #F59E0B;
+  }
+
+  &.status-fulfilled {
+    background: rgba(96, 165, 250, 0.2);
+    color: #60A5FA;
+  }
+
+  &.status-completed {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+  }
+
+  &.status-ordered {
+    background: rgba(100, 116, 139, 0.2);
+    color: #94A3B8;
+  }
+
+  &.status-in-progress {
+    background: rgba(245, 158, 11, 0.2);
+    color: #F59E0B;
+  }
+}
+
+/* Medication List */
+.medication-list {
+  margin-top: v.$space-sm;
+  padding-top: v.$space-sm;
+  border-top: 1px solid #1E293B;
+}
+
+.medication-item {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-sm;
+  padding: v.$space-xs 0;
+
+  .med-icon {
+    width: 8px;
+    height: 8px;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .med-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .med-name {
+      font-family: v.$font-family-primary;
+      font-size: v.$font-size-base;
+      font-weight: v.$font-weight-medium;
+      color: #FFFFFF;
+    }
+
+    .med-dosage {
+      font-family: v.$font-family-primary;
+      font-size: v.$font-size-sm;
+      color: #A0AEC0;
+    }
+  }
+}
+
+/* Test List (Lab) */
+.test-list {
+  margin-top: v.$space-sm;
+  padding-top: v.$space-sm;
+  border-top: 1px solid #1E293B;
+}
+
+.test-item {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  padding: v.$space-xs 0;
+
+  .test-icon {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-base;
+    color: #FFFFFF;
+  }
+}
+
+/* Lab Status Message */
+.lab-status-message {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  padding: v.$space-sm v.$space-md;
+  border-radius: 8px;
+  margin-top: v.$space-md;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+
+  .status-msg-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  &.lab-completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+  }
+
+  &.lab-in_progress {
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+  }
+
+  &.lab-ordered {
+    background: rgba(100, 116, 139, 0.1);
+    color: #94A3B8;
+  }
+}
+
+/* Buttons */
+.btn {
+  height: 40px;
+  padding: 0 v.$space-md;
+  border-radius: 8px;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-xs;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  border: none;
+}
+
+.btn-primary {
+  background: #2ECC71;
+  color: #0B0F14;
+
+  &:hover {
+    background: #27AE60;
+  }
 }
 
 /* Bottom Navigation */
@@ -192,4 +467,9 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-medium;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

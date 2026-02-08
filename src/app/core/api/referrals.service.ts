@@ -5,11 +5,18 @@ import { ApiClientService } from './api-client.service';
 export class ReferralsApiService {
   constructor(private api: ApiClientService) {}
 
-  createReferral(patientId: string, urgency: string, reason: string) {
+  createReferral(patientId: string, urgency: string, reason: string, options?: {
+    specialty?: string;
+    appointmentDate?: string;
+    appointmentTime?: string;
+    consultationMode?: 'online' | 'offline';
+    location?: string;
+  }) {
     return this.api.post<{ referral: any }>('/referrals', {
       patientId,
       urgency,
-      reason
+      reason,
+      ...options
     });
   }
 

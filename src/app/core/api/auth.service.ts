@@ -18,8 +18,8 @@ interface AuthResponse {
 export class AuthApiService {
   constructor(private api: ApiClientService) {}
 
-  signup(phone: string, password: string) {
-    return this.api.post<AuthResponse>('/auth/signup', { phone, password }).pipe(
+  signup(phone: string, password: string, displayName?: string) {
+    return this.api.post<AuthResponse>('/auth/signup', { phone, password, displayName }).pipe(
       tap((response) => this.persistSession(response))
     );
   }
@@ -35,6 +35,7 @@ export class AuthApiService {
     localStorage.removeItem('hhi_auth_token');
     localStorage.removeItem('hhi_user_role');
     localStorage.removeItem('hhi_user_id');
+    localStorage.removeItem('hhi_display_name');
   }
 
   private persistSession(response: AuthResponse) {
@@ -42,5 +43,8 @@ export class AuthApiService {
     localStorage.setItem('hhi_auth_token', response.token);
     localStorage.setItem('hhi_user_role', response.user.role);
     localStorage.setItem('hhi_user_id', response.user.id);
+    if (response.user.display_name) {
+      localStorage.setItem('hhi_display_name', response.user.display_name);
+    }
   }
 }

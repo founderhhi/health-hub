@@ -610,3 +610,309 @@
     transform: rotate(360deg);
   }
 }
+
+/* ============================================
+   Modal Styles
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: v.$space-md;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+  animation: slideUp 0.25s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: v.$space-lg v.$space-xl;
+  border-bottom: 1px solid #E2E8F0;
+
+  .modal-title {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-semibold;
+    color: #0B0F14;
+    margin: 0;
+  }
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    color: #64748B;
+  }
+
+  &:hover {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+  }
+}
+
+.modal-body {
+  padding: v.$space-lg v.$space-xl;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$space-md;
+  padding: v.$space-md v.$space-xl v.$space-lg;
+  border-top: 1px solid #E2E8F0;
+
+  .btn {
+    height: 40px;
+    padding: 0 v.$space-lg;
+    border-radius: 8px;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+    border: none;
+  }
+
+  .btn-primary {
+    background: #2ECC71;
+    color: #0B0F14;
+
+    &:hover {
+      background: #27AE60;
+    }
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+
+    &:hover {
+      background: #F8FAFC;
+      color: #0B0F14;
+    }
+  }
+}
+
+/* Form Styles inside Modals */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$space-md;
+
+  @include m.mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &.form-group-full {
+    grid-column: 1 / -1;
+  }
+}
+
+.form-label {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: #475569;
+}
+
+.form-input {
+  height: 40px;
+  padding: 0 v.$space-md;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  color: #0B0F14;
+  background: #FFFFFF;
+  transition: border-color v.$transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: #2ECC71;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+  }
+
+  &::placeholder {
+    color: #94A3B8;
+  }
+}
+
+.form-textarea {
+  height: auto;
+  padding: v.$space-sm v.$space-md;
+  resize: vertical;
+  min-height: 80px;
+}
+
+select.form-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Prescription Item Card */
+.prescription-item-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: v.$space-md;
+  margin-bottom: v.$space-md;
+}
+
+.prescription-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: v.$space-md;
+
+  .item-number {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    color: #475569;
+  }
+}
+
+.remove-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid #FCA5A5;
+  border-radius: 6px;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: #EF4444;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    background: #FEF2F2;
+    border-color: #EF4444;
+  }
+}
+
+.add-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-sm;
+  width: 100%;
+  padding: v.$space-md;
+  background: transparent;
+  border: 2px dashed #CBD5E1;
+  border-radius: 8px;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: #64748B;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    border-color: #2ECC71;
+    color: #2ECC71;
+    background: #F0FDF4;
+  }
+}
+
+/* Radio Group */
+.radio-group {
+  display: flex;
+  gap: v.$space-lg;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  cursor: pointer;
+
+  input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2ECC71;
+    cursor: pointer;
+  }
+
+  .radio-label {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-base;
+    color: #0B0F14;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

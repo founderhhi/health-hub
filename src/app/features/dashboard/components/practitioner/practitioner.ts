@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { GpApiService } from '../../../../core/api/gp.service';
 import { PrescriptionsApiService } from '../../../../core/api/prescriptions.service';
@@ -24,10 +25,27 @@ interface DashboardStats {
   avgTime: number;
 }
 
+interface PrescriptionItem {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+}
+
+interface ReferralFormData {
+  specialty: string;
+  urgency: string;
+  reason: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  consultationMode: 'online' | 'offline';
+  location: string;
+}
+
 @Component({
   selector: 'app-practitioner',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './practitioner.html',
   styleUrl: './practitioner.scss',
 })
@@ -46,6 +64,37 @@ export class Practitioner implements OnInit, OnDestroy {
   };
 
   queue: QueuePatient[] = [];
+
+  // ── Prescription Modal State ──
+  showPrescriptionModal = false;
+  prescriptionPatientId = '';
+  prescriptionItems: PrescriptionItem[] = [
+    { name: '', dosage: '', frequency: '', duration: '' }
+  ];
+
+  // ── Referral Modal State ──
+  showReferralModal = false;
+  referralPatientId = '';
+  referralForm: ReferralFormData = {
+    specialty: '',
+    urgency: 'routine',
+    reason: '',
+    appointmentDate: '',
+    appointmentTime: '',
+    consultationMode: 'online' as 'online' | 'offline',
+    location: ''
+  };
+
+  SPECIALTIES = [
+    'Cardiology',
+    'Dermatology',
+    'Orthopedics',
+    'Neurology',
+    'Pediatrics',
+    'Oncology',
+    'ENT',
+    'Ophthalmology'
+  ];
 
   constructor(
     private router: Router,
@@ -146,29 +195,117 @@ export class Practitioner implements OnInit, OnDestroy {
     });
   }
 
+  // ── Prescription Modal Methods ──
+
   prescribe(patientId?: string): void {
     if (!patientId) {
       return;
     }
-    const items = [
-      { name: 'Amoxicillin', dosage: '500mg', frequency: '2x/day', duration: '5 days' }
-    ];
-    this.prescriptionsApi.create(patientId, items).subscribe();
+    this.prescriptionPatientId = patientId;
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
+    this.showPrescriptionModal = true;
   }
+
+  addPrescriptionItem(): void {
+    this.prescriptionItems.push({ name: '', dosage: '', frequency: '', duration: '' });
+  }
+
+  removePrescriptionItem(index: number): void {
+    if (this.prescriptionItems.length > 1) {
+      this.prescriptionItems.splice(index, 1);
+    }
+  }
+
+  submitPrescription(): void {
+    const validItems = this.prescriptionItems.filter(
+      (item) => item.name.trim() && item.dosage.trim()
+    );
+    if (validItems.length === 0) {
+      return;
+    }
+    this.prescriptionsApi.create(this.prescriptionPatientId, validItems).subscribe({
+      next: () => {
+        this.closePrescriptionModal();
+      },
+      error: (err) => {
+        console.error('Failed to create prescription:', err);
+      }
+    });
+  }
+
+  closePrescriptionModal(): void {
+    this.showPrescriptionModal = false;
+    this.prescriptionPatientId = '';
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
+  }
+
+  // ── Referral Modal Methods ──
 
   referToSpecialist(patientId?: string): void {
     if (!patientId) {
       return;
     }
-    this.referralsApi.createReferral(patientId, 'routine', 'Specialist consultation recommended.').subscribe();
+    this.referralPatientId = patientId;
+    this.referralForm = {
+      specialty: '',
+      urgency: 'routine',
+      reason: '',
+      appointmentDate: '',
+      appointmentTime: '',
+      consultationMode: 'online',
+      location: ''
+    };
+    this.showReferralModal = true;
   }
 
+  submitReferral(): void {
+    if (!this.referralForm.specialty || !this.referralForm.reason.trim()) {
+      return;
+    }
+    this.referralsApi.createReferral(
+      this.referralPatientId,
+      this.referralForm.urgency,
+      this.referralForm.reason,
+      {
+        specialty: this.referralForm.specialty,
+        appointmentDate: this.referralForm.appointmentDate || undefined,
+        appointmentTime: this.referralForm.appointmentTime || undefined,
+        consultationMode: this.referralForm.consultationMode,
+        location: this.referralForm.consultationMode === 'offline'
+          ? this.referralForm.location
+          : undefined
+      }
+    ).subscribe({
+      next: () => {
+        this.closeReferralModal();
+      },
+      error: (err) => {
+        console.error('Failed to create referral:', err);
+      }
+    });
+  }
+
+  closeReferralModal(): void {
+    this.showReferralModal = false;
+    this.referralPatientId = '';
+    this.referralForm = {
+      specialty: '',
+      urgency: 'routine',
+      reason: '',
+      appointmentDate: '',
+      appointmentTime: '',
+      consultationMode: 'online',
+      location: ''
+    };
+  }
+
+  // ── Other Actions ──
+
   /**
-   * View patient details
+   * View patient details (route does not exist yet)
    */
   viewDetails(patientId: string): void {
-    console.log('Viewing details for patient:', patientId);
-    this.router.navigate(['/patient', patientId]);
+    alert('Patient details view is not available yet.');
   }
 
   /**
@@ -199,30 +336,30 @@ export class Practitioner implements OnInit, OnDestroy {
   }
 
   /**
-   * View schedule
+   * View schedule (route may not exist)
    */
   viewSchedule(): void {
-    this.router.navigate(['/dashboard/practitioner/schedule']);
+    console.log('Schedule view not available yet');
   }
 
   /**
-   * View patients
+   * View patients (route may not exist)
    */
   viewPatients(): void {
-    this.router.navigate(['/dashboard/practitioner/patients']);
+    console.log('Patients view not available yet');
   }
 
   /**
-   * Open settings
+   * Open settings (route may not exist)
    */
   openSettings(): void {
-    this.router.navigate(['/dashboard/practitioner/settings']);
+    console.log('Settings view not available yet');
   }
 
   /**
-   * View history
+   * View history (route may not exist)
    */
   viewHistory(): void {
-    this.router.navigate(['/dashboard/practitioner/history']);
+    console.log('History view not available yet');
   }
 }

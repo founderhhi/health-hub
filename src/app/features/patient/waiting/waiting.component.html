@@ -1,11 +1,36 @@
 <section class="waiting-page">
   <div class="waiting-card">
-    <h1>Waiting Room</h1>
-    <p class="status">{{ statusMessage }}</p>
+    <!-- Pulse Animation -->
+    <div class="pulse-container">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring pulse-ring--delayed"></div>
+      <div class="pulse-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+    </div>
 
-    <div class="actions">
-      <button class="btn primary" (click)="joinConsult()" [disabled]="!roomUrl">Join Consultation</button>
-      <button class="btn ghost" (click)="cancel()">Cancel</button>
+    <h1 class="waiting-title">Waiting Room</h1>
+    <p class="waiting-status">{{ statusMessage }}</p>
+
+    @if (!roomUrl) {
+      <p class="waiting-info">You will be connected when a GP is available. Please stay on this page.</p>
+    }
+
+    <div class="waiting-actions">
+      @if (roomUrl) {
+        <button class="btn btn-primary" (click)="joinConsult()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <polygon points="23 7 16 12 23 17 23 7"/>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+          </svg>
+          Join Consultation
+        </button>
+      }
+      <button class="btn btn-ghost" (click)="cancel()">
+        Cancel & Go Back
+      </button>
     </div>
   </div>
 </section>

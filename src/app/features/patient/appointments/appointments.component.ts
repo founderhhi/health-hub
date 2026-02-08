@@ -1,16 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { PatientApiService } from '../../../core/api/patient.service';
 
-interface Appointment {
+interface Referral {
   id: string;
-  doctorName: string;
+  patient_id: string;
+  from_provider_id: string;
+  to_specialist_id: string;
+  urgency: string;
+  reason: string;
+  status: string;
+  appointment_date: string;
+  appointment_time: string;
+  consultation_mode: string;
+  location: string;
   specialty: string;
-  date: string;
-  time: string;
-  mode: 'video' | 'in-person';
-  status: 'confirmed' | 'pending' | 'cancelled';
-  avatar: string;
+  created_at: string;
+  specialist_name: string | null;
+  specialist_phone: string | null;
 }
 
 @Component({
@@ -20,92 +28,100 @@ interface Appointment {
   templateUrl: './appointments.component.html',
   styleUrl: './appointments.component.scss'
 })
-export class AppointmentsComponent {
+export class AppointmentsComponent implements OnInit {
   activeTab: 'upcoming' | 'past' = 'upcoming';
+  loading = true;
+  error: string | null = null;
 
-  upcomingAppointments: Appointment[] = [
-    {
-      id: '1',
-      doctorName: 'Dr. Sarah Johnson',
-      specialty: 'General Physician',
-      date: 'Today, Feb 2',
-      time: '2:30 PM',
-      mode: 'video',
-      status: 'confirmed',
-      avatar: 'SJ'
-    },
-    {
-      id: '2',
-      doctorName: 'Dr. Michael Chen',
-      specialty: 'Cardiologist',
-      date: 'Tomorrow, Feb 3',
-      time: '10:00 AM',
-      mode: 'in-person',
-      status: 'confirmed',
-      avatar: 'MC'
-    },
-    {
-      id: '3',
-      doctorName: 'Dr. Emily Davis',
-      specialty: 'Dermatologist',
-      date: 'Feb 5, 2026',
-      time: '3:15 PM',
-      mode: 'video',
-      status: 'pending',
-      avatar: 'ED'
-    }
-  ];
+  upcomingAppointments: Referral[] = [];
+  pastAppointments: Referral[] = [];
 
-  pastAppointments: Appointment[] = [
-    {
-      id: '4',
-      doctorName: 'Dr. James Wilson',
-      specialty: 'General Physician',
-      date: 'Jan 28, 2026',
-      time: '11:00 AM',
-      mode: 'video',
-      status: 'confirmed',
-      avatar: 'JW'
-    },
-    {
-      id: '5',
-      doctorName: 'Dr. Lisa Anderson',
-      specialty: 'Gynecologist',
-      date: 'Jan 20, 2026',
-      time: '9:30 AM',
-      mode: 'in-person',
-      status: 'cancelled',
-      avatar: 'LA'
-    }
-  ];
+  constructor(
+    public router: Router,
+    private patientApi: PatientApiService
+  ) {}
 
-  constructor(public router: Router) {}
+  ngOnInit(): void {
+    this.loadReferrals();
+  }
+
+  loadReferrals(): void {
+    this.loading = true;
+    this.error = null;
+
+    this.patientApi.getReferrals().subscribe({
+      next: (res) => {
+        const referrals: Referral[] = res.referrals || [];
+        this.upcomingAppointments = referrals.filter(
+          r => r.status === 'new' || r.status === 'accepted' || r.status === 'confirmed'
+        );
+        this.pastAppointments = referrals.filter(
+          r => r.status === 'declined'
+        );
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load referrals:', err);
+        this.error = 'Failed to load appointments. Please try again.';
+        this.loading = false;
+      }
+    });
+  }
 
   setTab(tab: 'upcoming' | 'past'): void {
     this.activeTab = tab;
   }
 
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'new': return 'Waiting for Confirmation';
+      case 'accepted':
+      case 'confirmed': return 'Confirmed';
+      case 'declined': return 'Declined';
+      default: return status;
+    }
+  }
+
   getStatusClass(status: string): string {
-    return `status-${status}`;
+    switch (status) {
+      case 'new': return 'status-pending';
+      case 'accepted':
+      case 'confirmed': return 'status-confirmed';
+      case 'declined': return 'status-declined';
+      default: return '';
+    }
   }
 
-  joinCall(appointmentId: string): void {
-    console.log('Joining call:', appointmentId);
-    // Navigate to video call
-    this.router.navigate(['/patient/consultation', appointmentId]);
+  getInitials(name: string | null): string {
+    if (!name) return '??';
+    return name
+      .split(' ')
+      .map(n => n.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   }
 
-  reschedule(appointmentId: string): void {
-    console.log('Rescheduling:', appointmentId);
-    // Open reschedule modal or navigate
+  formatDate(dateStr: string): string {
+    if (!dateStr) return 'Date pending';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   }
 
-  cancel(appointmentId: string): void {
-    console.log('Cancelling:', appointmentId);
-    // Show confirmation and cancel
+  formatTime(timeStr: string): string {
+    if (!timeStr) return 'Time pending';
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
   }
 
-  bookNew(): void {
-    this.router.navigate(['/patient-services/connect']);
+  retry(): void {
+    this.loadReferrals();
   }
 }

@@ -53,7 +53,12 @@ create table if not exists referrals (
   to_specialist_id uuid references users(id) on delete set null,
   urgency text not null default 'routine' check (urgency in ('routine','urgent','emergency')),
   reason text,
-  status text not null default 'new' check (status in ('new','accepted','declined')),
+  status text not null default 'new' check (status in ('new','accepted','declined','confirmed')),
+  appointment_date date,
+  appointment_time time,
+  consultation_mode text default 'online' check (consultation_mode in ('online','offline')),
+  location text,
+  specialty text,
   created_at timestamptz not null default now()
 );
 

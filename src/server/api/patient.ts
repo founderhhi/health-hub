@@ -38,6 +38,59 @@ patientRouter.post('/consults', requireAuth, requireRole(['patient']), async (re
   }
 });
 
+patientRouter.get('/me', requireAuth, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const result = await db.query(
+      'select id, role, phone, display_name, created_at from users where id = $1',
+      [user.userId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    return res.json({ user: result.rows[0] });
+  } catch (error) {
+    console.error('Get user profile error', error);
+    return res.status(500).json({ error: 'Unable to fetch profile' });
+  }
+});
+
+patientRouter.get('/referrals', requireAuth, requireRole(['patient']), async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const result = await db.query(
+      `select r.*, u.display_name as specialist_name, u.phone as specialist_phone
+       from referrals r
+       left join users u on u.id = r.to_specialist_id
+       where r.patient_id = $1
+       order by r.created_at desc`,
+      [user.userId]
+    );
+    return res.json({ referrals: result.rows });
+  } catch (error) {
+    console.error('List patient referrals error', error);
+    return res.status(500).json({ error: 'Unable to list referrals' });
+  }
+});
+
+patientRouter.get('/lab-orders', requireAuth, requireRole(['patient']), async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const result = await db.query(
+      `select lo.*, u.display_name as specialist_name
+       from lab_orders lo
+       left join users u on u.id = lo.specialist_id
+       where lo.patient_id = $1
+       order by lo.created_at desc`,
+      [user.userId]
+    );
+    return res.json({ orders: result.rows });
+  } catch (error) {
+    console.error('List patient lab orders error', error);
+    return res.status(500).json({ error: 'Unable to list lab orders' });
+  }
+});
+
 patientRouter.get('/consults', requireAuth, requireRole(['patient']), async (req, res) => {
   try {
     const user = (req as any).user;

@@ -17,6 +17,22 @@
 
       <!-- Form -->
       <form [formGroup]="form" class="auth-form" novalidate>
+        <!-- Full Name -->
+        <div class="form-group">
+          <label for="displayName" class="form-label">Full Name</label>
+          <input
+            id="displayName"
+            type="text"
+            class="form-input"
+            formControlName="displayName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+          />
+          @if (form.controls['displayName']?.touched && form.controls['displayName']?.invalid) {
+            <span class="error-message">Please enter your name (at least 2 characters)</span>
+          }
+        </div>
+
         <!-- Phone Number -->
         <div class="form-group">
           <label for="phone" class="form-label">Phone Number</label>

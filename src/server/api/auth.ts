@@ -9,7 +9,7 @@ const jwtSecret = process.env['JWT_SECRET'] || 'demo_secret';
 
 authRouter.post('/signup', async (req, res) => {
   try {
-    const { phone, password } = req.body as { phone?: string; password?: string };
+    const { phone, password, displayName } = req.body as { phone?: string; password?: string; displayName?: string };
     if (!phone || !password) {
       return res.status(400).json({ error: 'phone and password required' });
     }
@@ -22,7 +22,7 @@ authRouter.post('/signup', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const insert = await db.query(
       'insert into users (role, phone, password_hash, display_name) values ($1, $2, $3, $4) returning id, role, phone, display_name',
-      ['patient', phone, passwordHash, 'Patient']
+      ['patient', phone, passwordHash, displayName || 'Patient']
     );
 
     const user = insert.rows[0];
