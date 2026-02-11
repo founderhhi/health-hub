@@ -171,6 +171,17 @@
   margin-top: 0;
 }
 
+.inline-status-message {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: #AEEA00;
+  background: rgba(174, 234, 0, 0.08);
+  border: 1px solid rgba(174, 234, 0, 0.3);
+  border-radius: 8px;
+  padding: v.$space-sm v.$space-md;
+  margin-bottom: v.$space-md;
+}
+
 .services-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

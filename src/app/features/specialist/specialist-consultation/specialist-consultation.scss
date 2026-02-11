@@ -588,6 +588,12 @@
     font-weight: v.$font-weight-medium;
   }
 
+  &__hint {
+    font-size: 10px;
+    color: v.$color-text-muted;
+    line-height: 1;
+  }
+
   &:hover {
     color: v.$color-white;
 
@@ -596,6 +602,42 @@
       color: v.$color-text-primary;
     }
   }
+
+  &--disabled {
+    color: v.$color-text-muted;
+
+    .quick-action__icon {
+      background: v.$color-border-dark;
+      color: v.$color-text-muted;
+    }
+
+    &:hover {
+      color: v.$color-text-muted;
+
+      .quick-action__icon {
+        background: v.$color-border-dark;
+        color: v.$color-text-muted;
+      }
+    }
+  }
+}
+
+.inline-notice {
+  position: fixed;
+  bottom: 225px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: v.$z-fixed + 20;
+  margin: 0;
+  width: min(92vw, 540px);
+  padding: v.$space-sm v.$space-md;
+  border-radius: v.$radius-md;
+  border: 1px solid v.$color-warning;
+  background: v.$color-warning-light;
+  color: v.$color-warning-dark;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  text-align: center;
 }
 
 /* End Call Button */
@@ -628,6 +670,17 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
   }
+
+  &--disabled {
+    background: v.$color-danger-dark;
+    cursor: not-allowed;
+
+    &:hover {
+      background: v.$color-danger-dark;
+      transform: none;
+      box-shadow: v.$shadow-lg;
+    }
+  }
 }
 
 /* Desktop Responsive */
@@ -643,6 +696,10 @@
 
   .end-call-btn {
     bottom: 100px;
+  }
+
+  .inline-notice {
+    bottom: 160px;
   }
 }
 
@@ -760,6 +817,11 @@
       width: 16px;
       height: 16px;
     }
+  }
+
+  .inline-notice {
+    bottom: 190px;
+    width: calc(100vw - #{v.$space-md} * 2);
   }
 
   .chat-container {

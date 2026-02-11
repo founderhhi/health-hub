@@ -422,6 +422,15 @@
   border-top: 1px solid v.$color-border;
 }
 
+.status-banner {
+  background: v.$color-info-light;
+  border: 1px solid v.$color-info-border;
+  color: v.$color-info-dark;
+  border-radius: v.$radius-md;
+  padding: v.$space-sm v.$space-md;
+  font-size: v.$font-size-sm;
+}
+
 /* Buttons */
 .btn {
   @include m.button-base;

@@ -32,6 +32,7 @@
               type="tel"
               class="form-input"
               formControlName="phone"
+              data-testid="login-phone"
               placeholder="Enter phone number"
               autocomplete="tel"
             />
@@ -50,6 +51,7 @@
               [type]="showPassword ? 'text' : 'password'"
               class="form-input"
               formControlName="password"
+              data-testid="login-password"
               placeholder="Enter your password"
               autocomplete="current-password"
             />
@@ -83,13 +85,14 @@
             <span class="checkbox-custom"></span>
             <span class="checkbox-label">Remember Me</span>
           </label>
-          <a class="forgot-link" (click)="forgotPassword()">Forgot Password?</a>
+          <a class="forgot-link" data-testid="forgot-password-link" (click)="forgotPassword()">Forgot Password?</a>
         </div>
 
         <!-- Submit Button -->
         <button
           type="button"
           class="btn btn-primary btn-full"
+          data-testid="login-submit"
           (click)="login()"
           [disabled]="form.invalid || submitting()"
         >

@@ -19,16 +19,19 @@
       </button>
       
       <div class="filters-content" [class.expanded]="filtersExpanded">
+        <p class="filters-helper" *ngIf="!filtersAvailable">
+          Filters are coming soon. Live order updates are still active.
+        </p>
         <div class="filters-grid">
-          <input type="text" class="filter-input" placeholder="Order ID" />
-          <input type="text" class="filter-input" placeholder="Patient name" />
-          <select class="filter-select">
+          <input type="text" class="filter-input" placeholder="Order ID" [disabled]="!filtersAvailable" />
+          <input type="text" class="filter-input" placeholder="Patient name" [disabled]="!filtersAvailable" />
+          <select class="filter-select" [disabled]="!filtersAvailable">
             <option value="">All Status</option>
             <option value="new">New</option>
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
-          <select class="filter-select">
+          <select class="filter-select" [disabled]="!filtersAvailable">
             <option value="">All Priorities</option>
             <option value="routine">Routine</option>
             <option value="urgent">Urgent</option>

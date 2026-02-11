@@ -16,6 +16,7 @@ export class DiagnosticsOrdersComponent implements OnInit {
   orders: any[] = [];
 
   filtersExpanded = false;
+  readonly filtersAvailable = false;
 
   constructor(private labsApi: LabsApiService, private router: Router, private ws: WsService) {}
 
@@ -31,7 +32,6 @@ export class DiagnosticsOrdersComponent implements OnInit {
 
   toggleFilters(): void {
     this.filtersExpanded = !this.filtersExpanded;
-    console.log('TODO: toggleFilters', this.filtersExpanded);
   }
 
   viewOrder(id: string): void {

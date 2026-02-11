@@ -53,6 +53,7 @@ export class Practitioner implements OnInit, OnDestroy {
   today = new Date();
   isRefreshing = false;
   refreshCountdown = 10;
+  unavailableNotice = '';
   private refreshInterval: any;
   private countdownInterval: any;
 
@@ -304,8 +305,8 @@ export class Practitioner implements OnInit, OnDestroy {
   /**
    * View patient details (route does not exist yet)
    */
-  viewDetails(patientId: string): void {
-    alert('Patient details view is not available yet.');
+  viewDetails(_patientId: string): void {
+    this.showUnavailableNotice('Patient details are coming soon.');
   }
 
   /**
@@ -325,7 +326,7 @@ export class Practitioner implements OnInit, OnDestroy {
    * View profile
    */
   viewProfile(): void {
-    this.router.navigate(['/dashboard/practitioner/profile']);
+    this.router.navigate(['/gp']);
   }
 
   /**
@@ -339,27 +340,35 @@ export class Practitioner implements OnInit, OnDestroy {
    * View schedule (route may not exist)
    */
   viewSchedule(): void {
-    console.log('Schedule view not available yet');
+    this.showUnavailableNotice('Schedule is coming soon.');
   }
 
   /**
    * View patients (route may not exist)
    */
   viewPatients(): void {
-    console.log('Patients view not available yet');
+    this.showUnavailableNotice('Patients view is coming soon.');
   }
 
   /**
    * Open settings (route may not exist)
    */
   openSettings(): void {
-    console.log('Settings view not available yet');
+    this.showUnavailableNotice('Settings are coming soon.');
   }
 
   /**
    * View history (route may not exist)
    */
   viewHistory(): void {
-    console.log('History view not available yet');
+    this.showUnavailableNotice('History is coming soon.');
+  }
+
+  dismissUnavailableNotice(): void {
+    this.unavailableNotice = '';
+  }
+
+  private showUnavailableNotice(message: string): void {
+    this.unavailableNotice = message;
   }
 }

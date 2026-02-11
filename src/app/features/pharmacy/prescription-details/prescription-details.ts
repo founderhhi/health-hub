@@ -15,6 +15,7 @@ export class PrescriptionDetailsComponent implements OnInit {
   prescription: any;
   loading = true;
   errorMessage = '';
+  readonly unavailableActionsReason = 'Not available yet: backend dispense tracking is still in development.';
 
   constructor(
     private route: ActivatedRoute,
@@ -49,10 +50,6 @@ export class PrescriptionDetailsComponent implements OnInit {
     this.router.navigate(['/pharmacy']);
   }
 
-  markAllDispensed(): void {
-    // UI-only for now
-  }
-
   completeDispensing(): void {
     if (!this.prescription?.id) return;
     this.pharmacyApi.claim(this.prescription.id).subscribe({
@@ -63,10 +60,6 @@ export class PrescriptionDetailsComponent implements OnInit {
         this.errorMessage = 'Unable to complete dispensing.';
       }
     });
-  }
-
-  markDispensed(): void {
-    // UI-only for now
   }
 
   flagIssue(): void {

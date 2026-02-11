@@ -40,7 +40,12 @@
       
       <div class="medication-card" *ngFor="let item of prescription?.items">
         <label class="medication-card__checkbox-wrapper">
-          <input type="checkbox" class="medication-card__checkbox" (change)="markDispensed()" />
+          <input
+            type="checkbox"
+            class="medication-card__checkbox"
+            [disabled]="true"
+            [attr.aria-label]="'Dispense status for ' + (item.name || 'medication')"
+          />
           <span class="medication-card__checkmark"></span>
         </label>
         <div class="medication-card__info">
@@ -89,9 +94,10 @@
   <!-- Sticky Action Footer -->
   <div class="sticky-footer">
     <div class="sticky-footer__actions">
-      <button type="button" class="action-button action-button--secondary" (click)="markAllDispensed()">
+      <button type="button" class="action-button action-button--secondary" [disabled]="true">
         Mark All as Dispensed
       </button>
+      <p class="action-unavailable-reason">{{ unavailableActionsReason }}</p>
       <button type="button" class="action-button action-button--primary" (click)="completeDispensing()" [disabled]="!prescription || prescription?.status === 'claimed'">
         Complete Dispensing
       </button>

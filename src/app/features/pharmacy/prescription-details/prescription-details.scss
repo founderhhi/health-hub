@@ -148,7 +148,7 @@
   &__checkbox-wrapper {
     position: relative;
     flex-shrink: 0;
-    cursor: pointer;
+    cursor: not-allowed;
   }
 
   &__checkbox {
@@ -169,6 +169,12 @@
 
     &:focus-visible ~ .medication-card__checkmark {
       box-shadow: v.$shadow-focus;
+    }
+
+    &:disabled ~ .medication-card__checkmark {
+      background: v.$color-surface-elevated;
+      border-color: v.$color-border;
+      opacity: 0.7;
     }
   }
 
@@ -338,6 +344,13 @@
   &--secondary {
     @include m.button-secondary;
   }
+}
+
+.action-unavailable-reason {
+  margin: calc(v.$space-xs * -1) 0 0;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-xs;
+  color: v.$color-text-muted;
 }
 
 /* Bottom Navigation */

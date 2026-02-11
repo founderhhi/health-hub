@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build-test-e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: healthhub
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d healthhub"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      CI: true
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/healthhub
+      DATABASE_SSL: 'false'
+      JWT_SECRET: ci_demo_secret
+      E2E_BASE_URL: http://127.0.0.1:4000
+      E2E_API_BASE_URL: http://127.0.0.1:4000/api
+      E2E_TIMEOUT_MS: '30000'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Initialize database
+        run: npm run db:init
+
+      - name: Build app
+        run: npm run build
+
+      - name: Run unit tests
+        run: npm run test -- --watch=false
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start app server
+        run: npm run serve:ssr:health-hub > app.log 2>&1 &
+
+      - name: Wait for health check
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4000/api/health > /dev/null; then
+              echo "App is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Health check did not pass in time"
+          exit 1
+
+      - name: Run e2e tests
+        run: npm run e2e:ci
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            app.log
+            playwright-report/
+            test-results/
+          if-no-files-found: warn

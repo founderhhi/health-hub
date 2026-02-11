@@ -57,9 +57,12 @@
   <!-- Services Grid -->
   <section class="services-section">
     <h2 class="section-title">Services</h2>
+    @if (comingSoonMessage) {
+      <div class="inline-status-message" role="status" aria-live="polite">{{ comingSoonMessage }}</div>
+    }
     <div class="services-grid">
       <!-- GP Consultation - Most Popular -->
-      <div class="service-card popular" (click)="navigateToService('gp')">
+      <div class="service-card popular" data-testid="service-gp" (click)="navigateToService('gp')">
         <span class="popular-badge">Most Popular</span>
         <div class="service-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -89,7 +92,7 @@
       </div>
 
       <!-- Specialist -->
-      <div class="service-card" (click)="navigateToService('specialist')">
+      <div class="service-card" data-testid="service-specialist" (click)="navigateToService('specialist')">
         <div class="service-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -104,7 +107,7 @@
       </div>
 
       <!-- Pharmacy -->
-      <div class="service-card" (click)="navigateToService('pharmacy')">
+      <div class="service-card" data-testid="service-pharmacy" (click)="navigateToService('pharmacy')">
         <div class="service-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
@@ -119,8 +122,14 @@
         </svg>
       </div>
 
-      <!-- Diagnostics -->
-      <div class="service-card" (click)="navigateToService('diagnostics')">
+      <!-- Diagnostics - Coming Soon -->
+      <div class="service-card coming-soon" data-testid="service-diagnostics-coming-soon" (click)="showComingSoon('Diagnostics booking is coming soon.')" aria-disabled="true">
+        <div class="lock-overlay">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
         <div class="service-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
@@ -128,13 +137,11 @@
         </div>
         <h3 class="service-title">Diagnostics</h3>
         <p class="service-desc">Book lab tests</p>
-        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
+        <span class="coming-soon-badge">Soon</span>
       </div>
 
       <!-- Travel & Insurance - Coming Soon -->
-      <div class="service-card coming-soon" (click)="showComingSoon()">
+      <div class="service-card coming-soon" (click)="showComingSoon('Travel and insurance is coming soon.')" aria-disabled="true">
         <div class="lock-overlay">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>

@@ -15,6 +15,14 @@ import { PrescriptionsApiService } from '../../../core/api/prescriptions.service
 export class SpecialistConsultationComponent implements OnInit {
   referral: any;
   dailyRoomUrl = 'https://healthhub.daily.co/demo';
+  unavailableActions = {
+    refer: true,
+    share: true,
+    mute: true,
+    video: true,
+    end: true,
+  };
+  actionNotice: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -32,20 +40,24 @@ export class SpecialistConsultationComponent implements OnInit {
     }
   }
 
+  private setUnavailableNotice(actionLabel: string): void {
+    this.actionNotice = `${actionLabel} is coming soon for specialist consultation.`;
+  }
+
   referPatient(): void {
-    console.log('TODO: referPatient');
+    this.setUnavailableNotice('Refer');
   }
 
   shareScreen(): void {
-    console.log('TODO: shareScreen');
+    this.setUnavailableNotice('Share Screen');
   }
 
   muteAudio(): void {
-    console.log('TODO: muteAudio');
+    this.setUnavailableNotice('Mute');
   }
 
   toggleVideo(): void {
-    console.log('TODO: toggleVideo');
+    this.setUnavailableNotice('Video');
   }
 
   startConsultation(): void {
@@ -53,8 +65,7 @@ export class SpecialistConsultationComponent implements OnInit {
   }
 
   endConsultation(): void {
-    // TODO: implement end consultation action
-    console.log('TODO: endConsultation');
+    this.setUnavailableNotice('End Call');
   }
 
   requestLabs(): void {

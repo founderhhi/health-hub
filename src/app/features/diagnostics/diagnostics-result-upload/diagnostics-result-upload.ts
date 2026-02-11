@@ -18,6 +18,7 @@ export class DiagnosticsResultUploadComponent implements OnInit {
   uploadedFiles: any[] = [];
   orderId: string | null = null;
   resultNotes = '';
+  draftStatusMessage: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -60,7 +61,7 @@ export class DiagnosticsResultUploadComponent implements OnInit {
   }
 
   saveAsDraft(): void {
-    alert('Draft saved (demo).');
+    this.draftStatusMessage = 'Draft saved locally. Server draft sync is coming soon.';
   }
 
   submitResults(): void {

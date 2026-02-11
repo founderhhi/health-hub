@@ -5,8 +5,13 @@ import { PrescriptionDetailsComponent } from './prescription-details/prescriptio
 
 export const PHARMACY_ROUTES: Routes = [
   {
-    path: '',
+    path: 'scanner',
     component: PharmacyScannerComponent
+  },
+  {
+    path: '',
+    component: PharmacyScannerComponent,
+    pathMatch: 'full'
   },
   {
     path: 'history',

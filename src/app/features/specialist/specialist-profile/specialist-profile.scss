@@ -364,9 +364,18 @@
     color: v.$color-text-light;
     text-decoration: none;
     transition: color v.$transition-fast;
+    background: none;
+    border: none;
+    font: inherit;
 
     &--active {
       color: v.$color-emerald;
+    }
+
+    &--disabled {
+      color: v.$color-text-muted;
+      cursor: not-allowed;
+      opacity: 0.8;
     }
   }
 
@@ -378,6 +387,12 @@
   &__label {
     font-size: 11px;
     font-weight: v.$font-weight-medium;
+  }
+
+  &__hint {
+    font-size: 10px;
+    color: v.$color-text-muted;
+    line-height: 1;
   }
 }
 

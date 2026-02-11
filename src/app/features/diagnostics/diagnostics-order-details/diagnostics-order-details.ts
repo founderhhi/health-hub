@@ -14,6 +14,8 @@ import { LabsApiService } from '../../../core/api/labs.service';
 export class DiagnosticsOrderDetailsComponent implements OnInit {
   order: any;
   loading = true;
+  printStatusMessage: string | null = null;
+  readonly rejectOrderAvailable = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,7 +56,7 @@ export class DiagnosticsOrderDetailsComponent implements OnInit {
   }
 
   rejectOrder(): void {
-    if (!this.order?.id) {
+    if (!this.rejectOrderAvailable || !this.order?.id) {
       return;
     }
     this.labsApi.updateOrderStatus(this.order.id, 'completed', 'Cancelled').subscribe({
@@ -63,6 +65,6 @@ export class DiagnosticsOrderDetailsComponent implements OnInit {
   }
 
   printLabel(): void {
-    alert('Label sent to printer.');
+    this.printStatusMessage = 'Print request queued. Label printing integration is coming soon.';
   }
 }

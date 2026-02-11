@@ -10,5 +10,7 @@ import { RouterModule } from '@angular/router';
   styleUrl: './pharmacy-history.scss',
 })
 export class PharmacyHistoryComponent {
+  readonly demoBannerText = 'Demo mode: history data and filters are read-only until backend integration is complete.';
+
   // TODO: load prescription history
 }

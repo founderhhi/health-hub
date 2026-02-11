@@ -290,6 +290,21 @@
   border-top: 1px solid v.$color-border;
 }
 
+.status-banner {
+  background: v.$color-info-light;
+  border: 1px solid v.$color-info-border;
+  color: v.$color-info-dark;
+  border-radius: v.$radius-md;
+  padding: v.$space-sm v.$space-md;
+  font-size: v.$font-size-sm;
+}
+
+.coming-soon-label {
+  font-size: v.$font-size-xs;
+  margin-left: v.$space-xs;
+  opacity: 0.9;
+}
+
 .secondary-actions {
   display: flex;
   gap: v.$space-md;
@@ -319,6 +334,11 @@
 
   &.btn-full {
     width: 100%;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 }
 

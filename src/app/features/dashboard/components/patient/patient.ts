@@ -21,6 +21,7 @@ export class Patient {
   // User data
   userName: string = 'Sarah';
   notificationCount: number = 3;
+  comingSoonMessage = '';
 
   // Health statistics
   stats: HealthStats = {
@@ -49,22 +50,22 @@ export class Patient {
         this.router.navigate(['/heal-well/videos']);
         break;
       case 'specialist':
-        this.router.navigate(['/patient-services/specialist']);
+        this.router.navigate(['/specialist']);
         break;
       case 'pharmacy':
         this.router.navigate(['/pharmacy']);
         break;
       case 'diagnostics':
-        this.router.navigate(['/diagnostics']);
+        this.showComingSoon('Diagnostics booking is coming soon.');
         break;
     }
   }
 
   /**
-   * Show coming soon notification
+   * Show inline coming soon notification
    */
-  showComingSoon(): void {
-    alert('Coming Soon! This feature will be available shortly.');
+  showComingSoon(message: string = 'Coming soon! This feature will be available shortly.'): void {
+    this.comingSoonMessage = message;
   }
 
   /**
@@ -84,16 +85,16 @@ export class Patient {
         this.router.navigate(['/patient-services/connect']);
         break;
        case 3:
-        this.router.navigate(['/patient-services/specialist']);
+        this.router.navigate(['/specialist']);
         break;
        case 4:
         this.router.navigate(['/pharmacy']);
         break;
        case 5:
-        this.router.navigate(['/diagnostics']);
+        this.showComingSoon('Diagnostics booking is coming soon.');
         break;
        case 6:
-        this.showComingSoon();
+        this.showComingSoon('Travel and insurance is coming soon.');
         break;       
     }
   }

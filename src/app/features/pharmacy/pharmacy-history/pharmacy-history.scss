@@ -39,6 +39,17 @@
   margin: 0;
 }
 
+.demo-banner {
+  margin-bottom: v.$space-md;
+  padding: v.$space-sm v.$space-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  background: v.$color-surface-elevated;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-secondary;
+}
+
 /* Filter Section */
 .filter-section {
   background: v.$color-white;

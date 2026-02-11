@@ -165,6 +165,9 @@
 
     <!-- Action Buttons -->
     <div class="actions-section">
+      <div class="status-banner" *ngIf="draftStatusMessage" role="status" aria-live="polite">
+        {{ draftStatusMessage }}
+      </div>
       <button type="button" class="btn btn-secondary btn-full" (click)="saveAsDraft()">
         Save as Draft
       </button>

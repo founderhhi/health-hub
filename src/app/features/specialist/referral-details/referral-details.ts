@@ -15,6 +15,7 @@ import { PrescriptionsApiService } from '../../../core/api/prescriptions.service
 export class ReferralDetailsComponent implements OnInit {
   referral: any;
   loading = true;
+  requestInfoNotice: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -69,8 +70,7 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   requestMoreInfo(): void {
-    // For demo: keep status as new but show a toast placeholder
-    alert('Request sent to GP for more information.');
+    this.requestInfoNotice = 'Request more info is coming soon. You can accept or decline this referral for now.';
   }
 
   decline(): void {

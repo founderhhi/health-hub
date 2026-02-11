@@ -95,10 +95,24 @@
   padding: 0 v.$space-md v.$space-md;
 }
 
+.filters-helper {
+  margin: 0;
+  padding: 0 v.$space-md v.$space-sm;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
 .filter-input,
 .filter-select {
   @include m.input-base;
   font-size: v.$font-size-base;
+
+  &:disabled {
+    background: v.$color-surface-elevated;
+    color: v.$color-text-muted;
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
 }
 
 /* Orders List */
