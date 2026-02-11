@@ -3,4 +3,4 @@
 set -a
 source .env
 set +a
-node dist/health-hub/server/server.mjs
+node --dns-result-order=ipv4first dist/health-hub/server/server.mjs

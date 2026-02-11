@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
 import { WsService } from '../../../core/realtime/ws.service';
@@ -17,6 +17,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   loading = true;
   private wsSubscription?: Subscription;
 
+  private platformId = inject(PLATFORM_ID);
+
   constructor(
     private notificationsApi: NotificationsApiService,
     private ws: WsService,
@@ -25,11 +27,15 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.load();
-    const userId = localStorage.getItem('hhi_user_id') || '';
-    this.ws.connect('patient', userId);
-    this.wsSubscription = this.ws.events$.subscribe(() => {
-      this.load();
-    });
+    
+    // SSR safety: only connect WebSocket in browser
+    if (isPlatformBrowser(this.platformId)) {
+      const userId = localStorage.getItem('hhi_user_id') || '';
+      this.ws.connect('patient', userId);
+      this.wsSubscription = this.ws.events$.subscribe(() => {
+        this.load();
+      });
+    }
   }
 
   ngOnDestroy(): void {

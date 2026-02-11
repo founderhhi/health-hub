@@ -1,5 +1,6 @@
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { Router, type CanActivateFn } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * Role-based Authorization Guard
@@ -17,6 +18,7 @@ import { Router, type CanActivateFn } from '@angular/router';
  */
 export const roleGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
   
   // Get required roles from route data
   const requiredRoles = route.data?.['roles'] as string[] | undefined;
@@ -28,7 +30,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
   
   // Get current user role
   // TODO: Replace with actual auth service
-  const userRole = getUserRole();
+  const userRole = getUserRole(platformId);
   
   // Check if user has required role
   if (requiredRoles.includes(userRole)) {
@@ -46,9 +48,15 @@ export const roleGuard: CanActivateFn = (route, state) => {
  * Get current user role
  * TODO: Replace with actual implementation using AuthService
  */
-function getUserRole(): string {
+function getUserRole(platformId: Object): string {
   // Placeholder implementation
   // In production, decode JWT token or fetch from user service
+  
+  // SSR safety: only access localStorage in browser
+  if (!isPlatformBrowser(platformId)) {
+    return 'patient';
+  }
+  
   return localStorage.getItem('hhi_user_role') || 'patient';
 }
 

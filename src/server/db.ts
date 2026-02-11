@@ -1,4 +1,8 @@
 import { Pool } from 'pg';
+import * as dns from 'dns';
+
+// Force IPv4 resolution to avoid IPv6 timeout issues on networks without IPv6 support
+dns.setDefaultResultOrder('ipv4first');
 
 const connectionString = process.env['DATABASE_URL'];
 

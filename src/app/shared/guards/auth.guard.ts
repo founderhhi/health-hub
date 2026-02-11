@@ -1,5 +1,6 @@
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { Router, type CanActivateFn } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * Authentication Guard
@@ -12,10 +13,11 @@ import { Router, type CanActivateFn } from '@angular/router';
  */
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
   
   // Check if user is authenticated
   // TODO: Replace with actual auth service check
-  const isAuthenticated = checkAuthentication();
+  const isAuthenticated = checkAuthentication(platformId);
   
   if (isAuthenticated) {
     return true;
@@ -36,12 +38,17 @@ export const authGuard: CanActivateFn = (route, state) => {
  * Check if user is authenticated
  * TODO: Replace with actual implementation using AuthService
  */
-function checkAuthentication(): boolean {
+function checkAuthentication(platformId: Object): boolean {
   // Placeholder implementation
   // In production, this should check:
   // - Valid JWT token in localStorage/sessionStorage
   // - Token expiration
   // - Session validity
+  
+  // SSR safety: only access localStorage in browser
+  if (!isPlatformBrowser(platformId)) {
+    return false;
+  }
   
   const token = localStorage.getItem('access_token') || localStorage.getItem('hhi_auth_token');
   return !!token;

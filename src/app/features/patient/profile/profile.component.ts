@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 
@@ -18,6 +18,8 @@ export class ProfileComponent implements OnInit {
     { icon: 'bell', label: 'Notifications', route: '/patient/notifications' }
   ];
 
+  private platformId = inject(PLATFORM_ID);
+
   constructor(
     public router: Router,
     private patientApi: PatientApiService
@@ -33,10 +35,15 @@ export class ProfileComponent implements OnInit {
     this.patientApi.getProfile().subscribe({
       next: (res) => {
         const u = res.user;
+        // SSR safety: only access localStorage in browser
+        const displayName = isPlatformBrowser(this.platformId) 
+          ? localStorage.getItem('hhi_display_name') 
+          : null;
+        
         this.user = {
-          name: u.display_name || u.full_name || u.name || localStorage.getItem('hhi_display_name') || 'Patient',
+          name: u.display_name || u.full_name || u.name || displayName || 'Patient',
           phone: u.phone || '',
-          avatar: this.getInitials(u.display_name || u.full_name || u.name || localStorage.getItem('hhi_display_name') || 'Patient')
+          avatar: this.getInitials(u.display_name || u.full_name || u.name || displayName || 'Patient')
         };
         this.loading = false;
       },
@@ -63,11 +70,14 @@ export class ProfileComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('hhi_auth_token');
-    localStorage.removeItem('hhi_user_role');
-    localStorage.removeItem('hhi_user_id');
-    localStorage.removeItem('hhi_display_name');
+    // SSR safety: only access localStorage in browser
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('hhi_auth_token');
+      localStorage.removeItem('hhi_user_role');
+      localStorage.removeItem('hhi_user_id');
+      localStorage.removeItem('hhi_display_name');
+    }
     this.router.navigate(['/landing']);
   }
 }

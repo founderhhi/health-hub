@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
@@ -36,6 +36,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     records: 0
   };
 
+  private platformId = inject(PLATFORM_ID);
+
   constructor(
     private router: Router,
     private patientApi: PatientApiService,
@@ -46,29 +48,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load real user name from localStorage (set during login/signup)
-    this.userName = localStorage.getItem('hhi_display_name') || 'Patient';
+    // SSR safety: only access localStorage in browser
+    if (isPlatformBrowser(this.platformId)) {
+      this.userName = localStorage.getItem('hhi_display_name') || 'Patient';
+    } else {
+      this.userName = 'Patient';
+    }
 
     this.loadStats();
     this.loadPrescriptions();
     this.loadNotifications();
 
-    const userId = localStorage.getItem('hhi_user_id') || '';
-    this.ws.connect('patient', userId);
-    this.wsSubscription = this.ws.events$.subscribe((event) => {
-      if (
-        [
-          'prescription.created',
-          'prescription.claimed',
-          'lab.status.updated',
-          'referral.created',
-          'consult.accepted'
-        ].includes(event.event)
-      ) {
-        this.loadNotifications();
-        this.loadPrescriptions();
-        this.loadStats();
-      }
-    });
+    // SSR safety: only connect WebSocket in browser
+    if (isPlatformBrowser(this.platformId)) {
+      const userId = localStorage.getItem('hhi_user_id') || '';
+      this.ws.connect('patient', userId);
+      this.wsSubscription = this.ws.events$.subscribe((event) => {
+        if (
+          [
+            'prescription.created',
+            'prescription.claimed',
+            'lab.status.updated',
+            'referral.created',
+            'consult.accepted'
+          ].includes(event.event)
+        ) {
+          this.loadNotifications();
+          this.loadPrescriptions();
+          this.loadStats();
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {
