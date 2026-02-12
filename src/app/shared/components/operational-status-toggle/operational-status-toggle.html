@@ -1,0 +1,7 @@
+<button type="button" class="status-toggle" [class.status-toggle--on]="isOperating" (click)="toggle()">
+  <span class="status-toggle__dot" [class.status-toggle__dot--off]="!isOperating"></span>
+  <span class="status-toggle__text">{{ isOperating ? 'Operating' : 'Not Operating' }}</span>
+  <span class="status-toggle__switch" [class.status-toggle__switch--on]="isOperating">
+    <span class="status-toggle__thumb"></span>
+  </span>
+</button>

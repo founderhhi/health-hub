@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { PharmacyScannerComponent } from './pharmacy-scanner/pharmacy-scanner';
 import { PharmacyHistoryComponent } from './pharmacy-history/pharmacy-history';
 import { PrescriptionDetailsComponent } from './prescription-details/prescription-details';
+import { PharmacyProfileComponent } from './pharmacy-profile/pharmacy-profile';
 
 export const PHARMACY_ROUTES: Routes = [
   {
@@ -20,5 +21,9 @@ export const PHARMACY_ROUTES: Routes = [
   {
     path: 'prescription/:id',
     component: PrescriptionDetailsComponent
+  },
+  {
+    path: 'profile',
+    component: PharmacyProfileComponent
   }
 ];

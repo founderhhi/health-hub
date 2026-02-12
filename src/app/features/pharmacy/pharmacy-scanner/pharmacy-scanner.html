@@ -1,40 +1,50 @@
 <section class="pharmacy-scanner">
   <div class="scanner-container">
-    <!-- Page Header -->
     <header class="page-header">
-      <h1 class="page-title">Scan Prescription</h1>
-      <p class="page-subtitle">Use the scanner or enter a code manually</p>
+      <div>
+        <h1 class="page-title">Scan Prescription</h1>
+        <p class="page-subtitle">Use the scanner or enter a code manually</p>
+      </div>
+      <button type="button" class="profile-button" (click)="openProfile()" aria-label="Open pharmacy profile">
+        <app-profile-button label="Open pharmacy profile" [initials]="profileInitials"></app-profile-button>
+      </button>
     </header>
 
-    <!-- QR Scanner Frame -->
     <div class="scanner-frame-wrapper">
-      <div class="scanner-frame">
-        <!-- Corner Markers -->
+      <div class="scanner-frame" (click)="requestCameraAccess()" (keydown.enter)="requestCameraAccess()" (keydown.space)="requestCameraAccess()" role="button" tabindex="0">
         <div class="corner-marker corner-marker--tl"></div>
         <div class="corner-marker corner-marker--tr"></div>
         <div class="corner-marker corner-marker--bl"></div>
         <div class="corner-marker corner-marker--br"></div>
-        
-        <!-- Scan Line Animation -->
         <div class="scan-line"></div>
-        
-        <!-- Camera Feed Placeholder -->
-        <div class="camera-placeholder">
-          <svg class="camera-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
-          <span class="camera-placeholder__text">Camera feed will appear here</span>
-        </div>
+
+        @if (cameraActive) {
+          <video #cameraVideo autoplay playsinline muted class="camera-feed"></video>
+        } @else {
+          <div class="camera-placeholder">
+            <svg class="camera-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="camera-placeholder__text">Camera feed will appear here</span>
+            <span class="camera-placeholder__hint">Tap to start scanning</span>
+          </div>
+        }
+
+        @if (permissionDenied) {
+          <div class="camera-inline-message">
+            Camera access denied. Please enable camera in browser settings to scan QR codes.
+          </div>
+        }
+
+        @if (cameraError) {
+          <div class="camera-inline-message camera-inline-message--error">{{ cameraError }}</div>
+        }
       </div>
     </div>
 
-    <!-- Scanner Instructions -->
-    <p class="scanner-instructions">
-      Position the QR code within the frame to scan
-    </p>
+    <p class="scanner-instructions">Position the QR code within the frame to scan</p>
 
-    <!-- Manual Input Section -->
     <div class="manual-input-section">
       <h2 class="manual-input-title">Enter Code Manually</h2>
       <div class="manual-input-row">
@@ -53,16 +63,19 @@
           <span>Lookup</span>
         </button>
       </div>
-      @if (errorMessage) {
-        <div class="manual-error">{{ errorMessage }}</div>
+
+      @if (inlineMessage) {
+        <div class="inline-message" [class.inline-message--info]="inlineMessageType === 'info'">
+          <span>{{ inlineMessage }}</span>
+          <button type="button" class="inline-message__close" (click)="closeInlineMessage()" aria-label="Close message">x</button>
+        </div>
       }
     </div>
 
-    <!-- Recent Scans List -->
     <div class="recent-scans-section">
       <h2 class="section-header">Recent Scans</h2>
       <div class="recent-scans-list">
-        <div class="recent-scan-item">
+        <div class="recent-scan-item" *ngFor="let scan of recentScans">
           <div class="recent-scan-item__icon-wrapper">
             <svg class="recent-scan-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -70,41 +83,63 @@
             </svg>
           </div>
           <div class="recent-scan-item__info">
-            <span class="recent-scan-item__title">RX-2024-001892</span>
+            <span class="recent-scan-item__title">{{ scan.code }}</span>
+            @if (scan.isDemo) {
+              <span class="recent-scan-item__badge">DEMO</span>
+            }
           </div>
-          <span class="recent-scan-item__time">2 min ago</span>
-        </div>
-        
-        <div class="recent-scan-item">
-          <div class="recent-scan-item__icon-wrapper">
-            <svg class="recent-scan-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-          </div>
-          <div class="recent-scan-item__info">
-            <span class="recent-scan-item__title">RX-2024-001891</span>
-          </div>
-          <span class="recent-scan-item__time">15 min ago</span>
-        </div>
-        
-        <div class="recent-scan-item">
-          <div class="recent-scan-item__icon-wrapper">
-            <svg class="recent-scan-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-          </div>
-          <div class="recent-scan-item__info">
-            <span class="recent-scan-item__title">RX-2024-001890</span>
-          </div>
-          <span class="recent-scan-item__time">1 hour ago</span>
+          <span class="recent-scan-item__time">{{ scan.timeLabel }}</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Mobile Bottom Navigation -->
+  @if (selectedPrescription) {
+    <div class="dialog-overlay" role="dialog" aria-modal="true" aria-label="Prescription details">
+      <div class="details-dialog">
+        <header class="details-dialog__header">
+          <h2>Prescription Details</h2>
+          <button type="button" (click)="closePrescriptionDialog()" aria-label="Close prescription dialog">x</button>
+        </header>
+
+        <div class="details-dialog__meta">
+          <p><strong>Prescription:</strong> {{ selectedPrescription.code }}</p>
+          <p><strong>Patient:</strong> {{ selectedPrescription.patientName }}</p>
+          <p><strong>Doctor:</strong> {{ selectedPrescription.doctorName }}</p>
+          <p><strong>Date Issued:</strong> {{ selectedPrescription.dateIssued }}</p>
+        </div>
+
+        <div class="details-dialog__section">
+          <h3>Medications:</h3>
+          <div class="medication-line" *ngFor="let medication of selectedPrescription.medications; index as i">
+            <p class="medication-line__title">{{ i + 1 }}. {{ medication.name }}</p>
+            <p>- Dosage: {{ medication.dosage }}</p>
+            @if (medication.duration) {
+              <p>- Duration: {{ medication.duration }}</p>
+            }
+            @if (medication.maxDosage) {
+              <p>- Max: {{ medication.maxDosage }}</p>
+            }
+            @if (medication.quantity) {
+              <p>- Quantity: {{ medication.quantity }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="details-dialog__section">
+          <h3>Instructions:</h3>
+          <p>{{ selectedPrescription.instructions }}</p>
+        </div>
+
+        <button type="button" class="mark-button" (click)="markAsDispensed()">Mark as Dispensed</button>
+      </div>
+    </div>
+  }
+
+  @if (toastMessage) {
+    <div class="toast-message">{{ toastMessage }}</div>
+  }
+
   <nav class="bottom-nav">
     <a class="bottom-nav__item bottom-nav__item--active" routerLink="/pharmacy/scanner">
       <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

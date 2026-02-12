@@ -1,0 +1,55 @@
+@use '../../styles/variables' as v;
+
+.status-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+
+  &__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: v.$radius-full;
+    background: v.$color-emerald;
+    margin-right: v.$space-sm;
+
+    &--off {
+      background: #bdc3c7;
+    }
+  }
+
+  &__text {
+    margin-right: auto;
+    color: v.$color-soft-charcoal;
+    font-size: v.$font-size-md;
+    font-weight: v.$font-weight-medium;
+  }
+
+  &__switch {
+    width: 48px;
+    height: 28px;
+    border-radius: 14px;
+    background: #bdc3c7;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    transition: background v.$transition-base;
+
+    &--on {
+      background: v.$color-emerald;
+      justify-content: flex-end;
+    }
+  }
+
+  &__thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: v.$radius-full;
+    background: v.$color-white;
+    box-shadow: v.$shadow-sm;
+  }
+}

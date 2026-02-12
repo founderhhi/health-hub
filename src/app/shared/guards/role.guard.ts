@@ -57,7 +57,44 @@ function getUserRole(platformId: Object): string {
     return 'patient';
   }
   
-  return localStorage.getItem('hhi_user_role') || 'patient';
+  const persistedRole = localStorage.getItem('hhi_user_role');
+  if (persistedRole) {
+    return persistedRole;
+  }
+
+  const token = localStorage.getItem('access_token') || localStorage.getItem('hhi_auth_token');
+  if (!token) {
+    return 'patient';
+  }
+
+  const roleFromToken = parseRoleFromToken(token);
+  if (roleFromToken) {
+    localStorage.setItem('hhi_user_role', roleFromToken);
+    return roleFromToken;
+  }
+
+  return 'patient';
+}
+
+function parseRoleFromToken(token: string): string | null {
+  try {
+    const payloadSegment = token.split('.')[1];
+    if (!payloadSegment) {
+      return null;
+    }
+
+    const normalized = payloadSegment.replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(
+      atob(normalized)
+        .split('')
+        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .join('')
+    );
+    const payload = JSON.parse(json) as { role?: string };
+    return payload.role || null;
+  } catch {
+    return null;
+  }
 }
 
 /**

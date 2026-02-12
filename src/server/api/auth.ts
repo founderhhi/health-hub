@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { db } from '../db';
+import { requireAuth } from '../middleware/auth';
 
 export const authRouter = Router();
 
@@ -83,4 +84,27 @@ authRouter.post('/login', async (req, res) => {
     console.error('Login error', error);
     return res.status(500).json({ error: 'Login failed' });
   }
+});
+
+authRouter.get('/validate', requireAuth, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const result = await db.query(
+      'select id, role, phone, display_name from users where id = $1',
+      [user.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.json({ valid: true, user: result.rows[0] });
+  } catch (error) {
+    console.error('Validate auth error', error);
+    return res.status(500).json({ error: 'Unable to validate session' });
+  }
+});
+
+authRouter.post('/logout', requireAuth, (_req, res) => {
+  return res.json({ ok: true });
 });

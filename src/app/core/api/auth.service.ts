@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { tap } from 'rxjs';
+import { catchError, of, tap } from 'rxjs';
 import { ApiClientService } from './api-client.service';
 
 interface AuthUser {
@@ -27,6 +27,16 @@ export class AuthApiService {
   login(phone: string, password: string) {
     return this.api.post<AuthResponse>('/auth/login', { phone, password }).pipe(
       tap((response) => this.persistSession(response))
+    );
+  }
+
+  validate() {
+    return this.api.get<{ valid: boolean; user: AuthUser }>('/auth/validate');
+  }
+
+  logout() {
+    return this.api.post<{ ok: boolean }>('/auth/logout', {}).pipe(
+      catchError(() => of({ ok: true }))
     );
   }
 
