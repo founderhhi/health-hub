@@ -1,23 +1,32 @@
 <section class="auth-page">
   <div class="auth-container">
-    <!-- Auth Card -->
     <div class="auth-card">
-      <!-- Logo -->
-      <div class="auth-logo">
-        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="30" stroke="#2ECC71" stroke-width="3"/>
-          <path d="M32 16V48M16 32H48" stroke="#2ECC71" stroke-width="4" stroke-linecap="round"/>
-          <path d="M32 8C20 8 12 20 12 32C12 44 20 56 32 56C44 56 52 44 52 32" stroke="#AEEA00" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-      </div>
+      <button class="auth-logo" type="button" (click)="goToLanding()" aria-label="Return to landing page">
+        @if (!logoLoadFailed) {
+          <img
+            src="images/logo-tree.svg"
+            alt="Health Hub International"
+            width="68"
+            height="68"
+            (error)="handleLogoError()"
+          />
+        } @else {
+          <span class="logo-fallback" aria-hidden="true">🌳</span>
+        }
+      </button>
 
-      <!-- Header -->
       <h1 class="auth-title">Welcome Back</h1>
-      <p class="auth-subtitle">Sign in to your account</p>
+      <p class="auth-subtitle">
+        Sign in to your
+        @if (loginRole === 'provider') {
+          provider
+        } @else {
+          patient
+        }
+        account
+      </p>
 
-      <!-- Form -->
       <form [formGroup]="form" class="auth-form" novalidate>
-        <!-- Phone Input -->
         <div class="form-group">
           <label for="phone" class="form-label">Phone Number</label>
           <div class="phone-input-group">
@@ -42,7 +51,6 @@
           }
         </div>
 
-        <!-- Password Input -->
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
           <div class="password-input-group">
@@ -58,6 +66,7 @@
             <button 
               type="button" 
               class="toggle-password"
+              aria-label="Toggle password visibility"
               (click)="togglePassword()"
             >
               @if (showPassword) {
@@ -78,7 +87,6 @@
           }
         </div>
 
-        <!-- Remember Me & Forgot Password -->
         <div class="form-options">
           <label class="checkbox-wrapper">
             <input type="checkbox" formControlName="rememberMe" class="checkbox-input" />
@@ -88,7 +96,6 @@
           <a class="forgot-link" data-testid="forgot-password-link" (click)="forgotPassword()">Forgot Password?</a>
         </div>
 
-        <!-- Submit Button -->
         <button
           type="button"
           class="btn btn-primary btn-full"
@@ -107,7 +114,6 @@
         }
       </form>
 
-      <!-- Footer -->
       <div class="auth-footer">
         <span>Don't have an account? </span>
         <a class="auth-link" (click)="goToSignup()">Sign Up</a>

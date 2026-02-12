@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthApiService } from '../../../../core/api/auth.service';
 import { redirectAfterLogin } from '../../../../shared/guards/role.guard';
@@ -17,10 +17,13 @@ export class LoginComponent {
   submitting = signal(false);
   showPassword = false;
   errorMessage = '';
+  logoLoadFailed = false;
+  loginRole: 'patient' | 'provider' = 'patient';
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authApi: AuthApiService
   ) {
     this.form = this.fb.group({
@@ -29,6 +32,9 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(8)]],
       rememberMe: [false]
     });
+
+    const role = this.route.snapshot.queryParamMap.get('role');
+    this.loginRole = role === 'provider' ? 'provider' : 'patient';
   }
 
   /**
@@ -77,5 +83,13 @@ export class LoginComponent {
    */
   goToSignup(): void {
     this.router.navigate(['/auth/signup']);
+  }
+
+  goToLanding(): void {
+    this.router.navigate(['/landing']);
+  }
+
+  handleLogoError(): void {
+    this.logoLoadFailed = true;
   }
 }
