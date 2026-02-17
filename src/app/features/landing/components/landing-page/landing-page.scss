@@ -12,6 +12,29 @@ $accent: #AEEA00;
 $border: #BDC3C7;
 $border-light: #E0E0E0;
 
+// Haptic animation keyframes
+@keyframes haptic-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(46, 204, 113, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.6), 0 0 40px rgba(46, 204, 113, 0.3); }
+}
+
 .landing-page {
   min-height: 100vh;
   background: $bg-primary;
@@ -34,12 +57,30 @@ $border-light: #E0E0E0;
   background: transparent;
   cursor: pointer;
   margin-bottom: 28px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  will-change: transform;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 .tree-logo {
   width: 92px;
   height: 92px;
   display: block;
+  filter: drop-shadow(0 4px 12px rgba(46, 204, 113, 0.3));
+  transition: filter 0.3s ease;
+  animation: float 6s ease-in-out infinite;
 }
 
 .tree-logo-fallback {
@@ -50,6 +91,7 @@ $border-light: #E0E0E0;
   place-items: center;
   background: rgba(46, 204, 113, 0.14);
   font-size: 48px;
+  animation: float 6s ease-in-out infinite;
 }
 
 .brand-name {
@@ -66,6 +108,7 @@ $border-light: #E0E0E0;
   font-size: 20px;
   font-weight: v.$font-weight-semibold;
   color: rgba(174, 234, 0, 0.8);
+  animation: haptic-pulse 3s ease-in-out infinite;
 }
 
 .button-group {
@@ -89,34 +132,69 @@ $border-light: #E0E0E0;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+  }
 
   &:active {
-    transform: scale(1);
+    transform: scale(0.98) translateY(0);
+    transition-duration: 0.1s;
   }
 
   &:focus-visible {
     outline: 2px solid $primary;
     outline-offset: 2px;
   }
+
+  // Ripple effect
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:active::after {
+    animation: ripple 0.6s ease-out;
+  }
 }
 
 .btn-icon {
   width: 20px;
   height: 20px;
+  transition: transform 0.2s ease;
+
+  .btn:hover & {
+    transform: translateX(2px);
+  }
 }
 
 .btn-primary {
   background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
   color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 
   &:hover {
-    background: $primary;
-    transform: scale(1.02);
+    background: linear-gradient(135deg, $primary-light 0%, $primary 100%);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
   }
 
   &:active {
     background: $primary-pressed;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
   }
 }
 
@@ -124,13 +202,17 @@ $border-light: #E0E0E0;
   background: transparent;
   border: 2px solid $primary;
   color: $primary;
+  transition: all 0.2s ease;
 
   &:hover {
     background: rgba(46, 204, 113, 0.1);
+    border-color: $primary-pressed;
+    color: $primary-pressed;
   }
 
   &:active {
     background: rgba(46, 204, 113, 0.2);
+    transform: scale(0.98);
   }
 }
 
@@ -144,10 +226,18 @@ $border-light: #E0E0E0;
   font-weight: v.$font-weight-medium;
   text-decoration: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  padding: 2px 4px;
+  border-radius: 4px;
 
   &:hover {
     color: $primary-pressed;
-    text-decoration: underline;
+    background: rgba(46, 204, 113, 0.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 
@@ -162,11 +252,30 @@ $border-light: #E0E0E0;
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
+
+  &:hover {
+    color: $primary;
+    background: rgba(46, 204, 113, 0.1);
+    transform: translateY(2px);
+  }
+
+  &:active {
+    transform: translateY(4px);
+  }
 
   svg {
     width: 16px;
     height: 16px;
     color: $primary;
+    transition: transform 0.3s ease;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  &:hover svg {
+    transform: translateY(3px);
   }
 }
 
@@ -204,16 +313,33 @@ $border-light: #E0E0E0;
   }
 }
 
-.steps-grid {
+// Mobile-first approach for steps
+.steps-container {
   max-width: 1220px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0;
 }
 
 .step-card {
   text-align: left;
+  padding: 24px 20px;
+  background: $bg-secondary;
+  border-radius: 16px;
+  border: 1px solid $border-light;
+  transition: all 0.3s ease;
+  will-change: transform, box-shadow;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.3);
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(0.99);
+  }
 
   h3 {
     margin-top: 16px;
@@ -238,18 +364,43 @@ $border-light: #E0E0E0;
   place-items: center;
   background: rgba(46, 204, 113, 0.14);
   color: $primary;
+  transition: all 0.3s ease;
+  will-change: transform, box-shadow;
+
+  .step-card:hover & {
+    transform: scale(1.1);
+    background: rgba(46, 204, 113, 0.2);
+    box-shadow: 0 4px 16px rgba(46, 204, 113, 0.3);
+    animation: glow 2s ease-in-out infinite;
+  }
 
   svg {
     width: 28px;
     height: 28px;
+    transition: transform 0.3s ease;
+
+    .step-card:hover & {
+      transform: rotate(5deg) scale(1.1);
+    }
+  }
+}
+
+.step-connector-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  
+  .connector-line {
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, rgba(174, 234, 0, 0.8), rgba(46, 204, 113, 0.8));
+    border-radius: 2px;
   }
 }
 
 .step-connector {
-  width: 2px;
-  height: 24px;
-  background: rgba(174, 234, 0, 0.5);
-  margin-left: 31px;
+  display: none;
 }
 
 .features-section {
@@ -273,11 +424,18 @@ $border-light: #E0E0E0;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease;
+  will-change: transform, box-shadow;
+  cursor: pointer;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    border-color: rgba(46, 204, 113, 0.3);
+  }
+
+  &:active {
+    transform: translateY(-3px) scale(0.99);
   }
 
   h3 {
@@ -299,6 +457,12 @@ $border-light: #E0E0E0;
   width: 48px;
   height: 48px;
   color: $primary;
+  transition: all 0.3s ease;
+
+  .feature-card:hover & {
+    transform: scale(1.15) rotate(5deg);
+    color: $primary-pressed;
+  }
 }
 
 .coming-soon {
@@ -306,6 +470,10 @@ $border-light: #E0E0E0;
 
   .feature-icon {
     color: rgba(46, 204, 113, 0.7);
+  }
+
+  &:hover .feature-icon {
+    color: rgba(46, 204, 113, 0.9);
   }
 }
 
@@ -319,6 +487,12 @@ $border-light: #E0E0E0;
   font-weight: v.$font-weight-semibold;
   padding: 4px 10px;
   border-radius: 999px;
+  transition: all 0.2s ease;
+  will-change: transform;
+
+  .feature-card:hover & {
+    transform: scale(1.05);
+  }
 }
 
 .cta-section {
@@ -343,6 +517,11 @@ $border-light: #E0E0E0;
 .cta-button {
   margin-top: 24px;
   max-width: 220px;
+  animation: haptic-pulse 4s ease-in-out infinite;
+
+  &:hover {
+    animation: none;
+  }
 }
 
 .trust-footer {
@@ -361,11 +540,27 @@ $border-light: #E0E0E0;
 
 .badge-item {
   text-align: center;
+  padding: 16px 8px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: default;
+
+  &:hover {
+    background: $bg-primary;
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
 
   svg {
     width: 32px;
     height: 32px;
     color: $primary;
+    transition: transform 0.3s ease;
+
+    .badge-item:hover & {
+      transform: scale(1.2);
+      animation: haptic-pulse 1s ease-in-out;
+    }
   }
 
   span {
@@ -388,25 +583,59 @@ $border-light: #E0E0E0;
 }
 
 @include m.desktop {
-  .steps-grid {
+  // Desktop grid layout for steps
+  .steps-container {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
-    gap: 18px;
-    align-items: start;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .step-wrapper {
+    display: contents;
   }
 
   .step-card {
     text-align: center;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
 
     .step-icon {
       margin: 0 auto;
     }
   }
 
+  // Hide mobile connectors
+  .step-connector-mobile {
+    display: none;
+  }
+
+  // Show desktop connector dots
   .step-connector {
-    width: 100%;
-    height: 2px;
-    margin: 32px 0 0;
+    display: block;
+    position: relative;
+    align-self: center;
+    padding: 0 8px;
+
+    .connector-arrow {
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(to right, rgba(174, 234, 0, 0.8), rgba(46, 204, 113, 0.8));
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 5px solid transparent;
+        border-left: 8px solid rgba(46, 204, 113, 0.8);
+      }
+    }
   }
 
   .features-grid {
@@ -446,5 +675,9 @@ $border-light: #E0E0E0;
 
   .trust-badges {
     grid-template-columns: 1fr;
+  }
+
+  .step-card {
+    padding: 20px 16px;
   }
 }

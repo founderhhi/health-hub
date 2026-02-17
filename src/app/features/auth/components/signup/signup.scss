@@ -1,31 +1,87 @@
 /* ============================================
    Signup Page Styles
-   Dark Theme - Health Hub Design
+   Light Theme - Health Hub Design
    ============================================ */
 
 @use '../../../../shared/styles/variables' as v;
 @use '../../../../shared/styles/mixins' as m;
 
-// Reuse auth page styles from login
+// Light theme color variables
+$bg-primary: #FFFFFF;
+$bg-secondary: #F5F5F5;
+$text-primary: #34495E;
+$text-secondary: #7F8C8D;
+$primary: #2ECC71;
+$primary-light: #2ED573;
+$primary-pressed: #27AE60;
+$accent: #AEEA00;
+$border: #E0E0E0;
+$border-light: #BDC3C7;
+$shadow-color: rgba(0, 0, 0, 0.08);
+$shadow-hover: rgba(46, 204, 113, 0.2);
+
+// Haptic animation keyframes
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(46, 204, 113, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.5), 0 0 40px rgba(46, 204, 113, 0.2); }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .auth-page {
   min-height: 100vh;
-  background: #0B0F14;
+  background: radial-gradient(circle at 50% -20%, rgba(46, 204, 113, 0.08), rgba(255, 255, 255, 0) 50%), $bg-primary;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: v.$space-lg;
+  animation: slideInUp 0.6s ease-out;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
 }
 
 .auth-card {
-  background: #121826;
-  border: 1px solid #1E293B;
-  border-radius: 16px;
+  background: $bg-primary;
+  border: 1px solid $border;
+  border-radius: 20px;
   padding: v.$space-xl;
+  box-shadow: 0 4px 24px $shadow-color;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform, box-shadow;
+
+  &:hover {
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+  }
 }
 
 /* Logo */
@@ -35,8 +91,16 @@
   margin-bottom: v.$space-lg;
 
   svg {
-    width: 64px;
-    height: 64px;
+    width: 72px;
+    height: 72px;
+    filter: drop-shadow(0 4px 12px rgba(46, 204, 113, 0.3));
+    transition: all 0.3s ease;
+    animation: float 4s ease-in-out infinite;
+
+    &:hover {
+      filter: drop-shadow(0 6px 20px rgba(46, 204, 113, 0.5));
+      transform: scale(1.05);
+    }
   }
 }
 
@@ -45,7 +109,7 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-2xl;
   font-weight: v.$font-weight-bold;
-  color: #FFFFFF;
+  color: $text-primary;
   text-align: center;
   margin: 0 0 v.$space-xs 0;
 }
@@ -54,7 +118,7 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-base;
   font-weight: v.$font-weight-regular;
-  color: #A0AEC0;
+  color: $text-secondary;
   text-align: center;
   margin: 0 0 v.$space-xl 0;
 }
@@ -76,7 +140,7 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-medium;
-  color: #A0AEC0;
+  color: $text-primary;
 }
 
 /* Phone Input */
@@ -85,21 +149,26 @@
   gap: v.$space-sm;
 
   .country-code {
-    width: 90px;
+    width: 100px;
     height: 48px;
-    background: #1E293B;
-    border: 1px solid #374151;
-    border-radius: 8px;
-    color: #FFFFFF;
+    background: $bg-secondary;
+    border: 1px solid $border;
+    border-radius: 12px;
+    color: $text-primary;
     font-family: v.$font-family-primary;
     font-size: v.$font-size-base;
     padding: 0 v.$space-sm;
     cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: $primary;
+    }
 
     &:focus {
       outline: none;
-      border-color: #2ECC71;
-      box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
     }
   }
 
@@ -125,15 +194,21 @@
     height: 32px;
     background: transparent;
     border: none;
-    color: #64748B;
+    color: $text-secondary;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color v.$transition-fast;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 
     &:hover {
-      color: #A0AEC0;
+      color: $primary;
+      background: rgba(46, 204, 113, 0.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
 
     svg {
@@ -147,23 +222,39 @@
 .form-input {
   width: 100%;
   height: 48px;
-  background: #1E293B;
-  border: 1px solid #374151;
-  border-radius: 8px;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: 12px;
   padding: 0 v.$space-md;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-base;
-  color: #FFFFFF;
-  transition: all v.$transition-fast;
+  color: $text-primary;
+  transition: all 0.2s ease;
+  will-change: transform, box-shadow;
 
   &::placeholder {
-    color: #64748B;
+    color: $text-secondary;
+    opacity: 0.7;
+  }
+
+  &:hover {
+    border-color: $primary;
   }
 
   &:focus {
     outline: none;
-    border-color: #2ECC71;
-    box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &.ng-touched.ng-invalid {
+    border-color: #EF4444;
+    animation: shake 0.4s ease-in-out;
+  }
+
+  &.ng-touched.ng-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
   }
 }
 
@@ -171,6 +262,7 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   color: #EF4444;
+  animation: slideInUp 0.3s ease-out;
 }
 
 .form-error {
@@ -178,6 +270,10 @@
   font-size: v.$font-size-sm;
   color: #EF4444;
   text-align: center;
+  padding: v.$space-sm;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  animation: slideInUp 0.3s ease-out;
 }
 
 /* Password Strength Indicator */
@@ -187,7 +283,7 @@
 
 .strength-bar {
   height: 4px;
-  background: #1E293B;
+  background: $border;
   border-radius: 2px;
   overflow: hidden;
   margin-bottom: 4px;
@@ -196,7 +292,7 @@
 .strength-fill {
   height: 100%;
   border-radius: 2px;
-  transition: all v.$transition-fast;
+  transition: all 0.3s ease;
 
   &.weak {
     background: #EF4444;
@@ -207,7 +303,8 @@
   }
 
   &.strong {
-    background: #2ECC71;
+    background: $primary;
+    animation: glow 2s ease-in-out infinite;
   }
 }
 
@@ -225,7 +322,7 @@
   }
 
   &.strong {
-    color: #2ECC71;
+    color: $primary;
   }
 }
 
@@ -235,14 +332,22 @@
   align-items: flex-start;
   gap: v.$space-sm;
   cursor: pointer;
+  padding: v.$space-xs;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(46, 204, 113, 0.05);
+  }
 }
 
 .checkbox-input {
   display: none;
 
   &:checked + .checkbox-custom {
-    background: #2ECC71;
-    border-color: #2ECC71;
+    background: $primary;
+    border-color: $primary;
+    animation: haptic-pulse 0.3s ease;
 
     &::after {
       content: '';
@@ -251,7 +356,7 @@
       top: 2px;
       width: 4px;
       height: 8px;
-      border: solid #0B0F14;
+      border: solid #FFFFFF;
       border-width: 0 2px 2px 0;
       transform: rotate(45deg);
     }
@@ -262,29 +367,39 @@
   width: 20px;
   height: 20px;
   min-width: 20px;
-  background: transparent;
-  border: 2px solid #475569;
-  border-radius: 4px;
+  background: $bg-secondary;
+  border: 2px solid $border;
+  border-radius: 6px;
   position: relative;
-  transition: all v.$transition-fast;
+  transition: all 0.2s ease;
   margin-top: 2px;
+
+  &:hover {
+    border-color: $primary;
+  }
 }
 
 .checkbox-label {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-regular;
-  color: #A0AEC0;
+  color: $text-secondary;
   line-height: 1.4;
 }
 
 .terms-link {
-  color: #2ECC71;
+  color: $primary;
   font-weight: v.$font-weight-medium;
   cursor: pointer;
+  transition: all 0.2s ease;
 
   &:hover {
+    color: $primary-pressed;
     text-decoration: underline;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 
@@ -299,21 +414,53 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all v.$transition-fast;
+  transition: all 0.2s ease;
   border: none;
+  position: relative;
+  overflow: hidden;
+  will-change: transform, box-shadow;
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:active:not(:disabled)::after {
+    animation: ripple 0.6s ease-out;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px $shadow-hover;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98) translateY(0);
+  }
 }
 
 .btn-primary {
-  background: #2ECC71;
-  color: #0B0F14;
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 
   &:hover:not(:disabled) {
-    background: #27AE60;
+    background: linear-gradient(135deg, $primary-light 0%, $primary 100%);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
   }
 }
 
@@ -325,7 +472,7 @@
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #0B0F14;
+  border: 2px solid #FFFFFF;
   border-top-color: transparent;
   border-radius: v.$radius-full;
   animation: spin 0.8s linear infinite;
@@ -343,17 +490,62 @@
   text-align: center;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-base;
-  color: #A0AEC0;
+  color: $text-secondary;
 }
 
 .auth-link {
-  color: #2ECC71;
+  color: $primary;
   font-weight: v.$font-weight-semibold;
   cursor: pointer;
-  transition: color v.$transition-fast;
+  transition: all 0.2s ease;
+  position: relative;
 
   &:hover {
-    color: #27AE60;
+    color: $primary-pressed;
     text-decoration: underline;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Additional haptic animations */
+@keyframes haptic-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Mobile responsiveness */
+@include m.mobile {
+  .auth-page {
+    padding: v.$space-md;
+    background: $bg-primary;
+  }
+
+  .auth-card {
+    padding: v.$space-lg;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px $shadow-color;
+  }
+
+  .auth-logo svg {
+    width: 64px;
+    height: 64px;
+  }
+
+  .auth-title {
+    font-size: v.$font-size-xl;
+  }
+
+  .auth-subtitle {
+    font-size: v.$font-size-sm;
+  }
+
+  .phone-input-group {
+    .country-code {
+      width: 90px;
+    }
   }
 }
