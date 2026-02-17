@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthApiService } from '../../../core/api/auth.service';
 import { ProviderProfileData, ProviderProfileService } from '../../../core/services/provider-profile.service';
 import { OperationalStatusToggleComponent } from '../../../shared/components/operational-status-toggle/operational-status-toggle';
 
 @Component({
-  selector: 'app-specialist-profile',
+  selector: 'app-gp-profile',
   standalone: true,
-  imports: [CommonModule, RouterModule, OperationalStatusToggleComponent],
-  templateUrl: './specialist-profile.html',
-  styleUrl: './specialist-profile.scss'
+  imports: [CommonModule, OperationalStatusToggleComponent],
+  templateUrl: './gp-profile.html',
+  styleUrl: './gp-profile.scss'
 })
-export class SpecialistProfileComponent implements OnInit {
+export class GpProfileComponent implements OnInit {
   profile!: ProviderProfileData;
 
   constructor(
@@ -22,16 +22,16 @@ export class SpecialistProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.profile = this.providerProfileService.getProfile('specialist');
+    this.profile = this.providerProfileService.getProfile('gp');
   }
 
   goBack(): void {
-    this.router.navigate(['/specialist']);
+    this.router.navigate(['/gp']);
   }
 
   updateOperationalStatus(isOperating: boolean): void {
     this.profile = { ...this.profile, operational: isOperating };
-    this.providerProfileService.setOperationalStatus('specialist', isOperating);
+    this.providerProfileService.setOperationalStatus('gp', isOperating);
   }
 
   signOut(): void {

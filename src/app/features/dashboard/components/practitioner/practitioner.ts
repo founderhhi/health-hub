@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { GpApiService } from '../../../../core/api/gp.service';
@@ -11,11 +11,18 @@ interface QueuePatient {
   id: string;
   patientId?: string;
   name: string;
+  displayName: string;
+  firstName?: string;
+  lastName?: string;
   priority: 'routine' | 'urgent' | 'emergency';
   waitTime: string;
+  waitMinutes: number;
   mode: 'video' | 'audio' | 'chat';
   aiSummary?: string;
   accepted?: boolean;
+  createdAt: string;
+  status?: 'waiting' | 'active' | 'completed' | 'paused';
+  symptoms?: string;
 }
 
 interface DashboardStats {
@@ -42,6 +49,14 @@ interface ReferralFormData {
   location: string;
 }
 
+interface ConsultationHistory {
+  id: string;
+  patientName: string;
+  diagnosis?: string;
+  completedAt: string;
+  duration?: number;
+}
+
 @Component({
   selector: 'app-practitioner',
   standalone: true,
@@ -56,6 +71,8 @@ export class Practitioner implements OnInit, OnDestroy {
   unavailableNotice = '';
   private refreshInterval: any;
   private countdownInterval: any;
+  private timeoutCheckInterval: any;
+  private platformId = inject(PLATFORM_ID);
 
   stats: DashboardStats = {
     waiting: 5,
@@ -65,6 +82,24 @@ export class Practitioner implements OnInit, OnDestroy {
   };
 
   queue: QueuePatient[] = [];
+  filteredQueue: QueuePatient[] = [];
+
+  // Filter states
+  filterName = '';
+  filterPriority: 'all' | 'routine' | 'urgent' | 'emergency' = 'all';
+  filterMode: 'all' | 'video' | 'audio' | 'chat' = 'all';
+  filterStatus: 'all' | 'waiting' | 'active' | 'completed' = 'all';
+
+  // Operational status
+  isOperating = true;
+
+  // Consultation history
+  consultationHistory: ConsultationHistory[] = [];
+  showHistory = false;
+
+  // ── Patient Details Modal State ──
+  showPatientDetailsModal = false;
+  selectedPatient: QueuePatient | null = null;
 
   // ── Prescription Modal State ──
   showPrescriptionModal = false;
@@ -108,6 +143,8 @@ export class Practitioner implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.startAutoRefresh();
     this.loadQueue();
+    this.startTimeoutChecker();
+    this.loadConsultationHistory();
     this.ws.connect('gp');
     this.ws.events$.subscribe((event) => {
       if (event.event === 'queue.updated') {
@@ -118,6 +155,32 @@ export class Practitioner implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopAutoRefresh();
+    this.stopTimeoutChecker();
+  }
+
+  /**
+   * Format patient name to "First L." format
+   */
+  formatPatientName(firstName?: string, lastName?: string, displayName?: string): string {
+    // If we have display name from API, use it
+    if (displayName && displayName.trim()) {
+      return displayName;
+    }
+
+    // If we have first and last name, format as "First L."
+    if (firstName && lastName) {
+      const first = firstName.trim();
+      const lastInitial = lastName.trim().charAt(0).toUpperCase();
+      return `${first} ${lastInitial}.`;
+    }
+
+    // Fallback to first name only
+    if (firstName) {
+      return firstName.trim();
+    }
+
+    // Ultimate fallback
+    return 'Unknown Patient';
   }
 
   /**
@@ -146,6 +209,79 @@ export class Practitioner implements OnInit, OnDestroy {
   }
 
   /**
+   * Start 15-minute timeout checker
+   */
+  private startTimeoutChecker(): void {
+    // Check every 30 seconds for patients exceeding 15 minutes
+    this.timeoutCheckInterval = setInterval(() => {
+      this.checkAndRemoveExpiredPatients();
+    }, 30000);
+  }
+
+  /**
+   * Stop timeout checker
+   */
+  private stopTimeoutChecker(): void {
+    if (this.timeoutCheckInterval) {
+      clearInterval(this.timeoutCheckInterval);
+    }
+  }
+
+  /**
+   * Check for and remove patients waiting > 15 minutes
+   */
+  private checkAndRemoveExpiredPatients(): void {
+    const now = Date.now();
+    const fifteenMinutes = 15 * 60 * 1000;
+
+    this.queue = this.queue.filter(patient => {
+      const createdAt = new Date(patient.createdAt).getTime();
+      const waitTime = now - createdAt;
+
+      if (waitTime > fifteenMinutes && patient.status === 'waiting') {
+        // Patient has been waiting > 15 minutes - remove from queue
+        this.removeFromQueue(patient.id, 'timeout');
+        return false;
+      }
+      return true;
+    });
+
+    this.applyFilters();
+  }
+
+  /**
+   * Remove patient from queue (timeout or manual delete)
+   */
+  private removeFromQueue(patientId: string, reason: 'timeout' | 'manual'): void {
+    this.gpApi.deleteFromQueue(patientId, reason).subscribe({
+      error: (err) => {
+        console.error('Failed to remove patient from queue:', err);
+      }
+    });
+
+    if (reason === 'timeout') {
+      this.showUnavailableNotice('A patient was removed due to 15-minute timeout.');
+    }
+  }
+
+  /**
+   * Delete patient from queue (manual)
+   */
+  deletePatient(patientId: string): void {
+    const patient = this.queue.find(p => p.id === patientId);
+    if (!patient) return;
+
+    // Remove from local queue immediately for responsive UI
+    this.queue = this.queue.filter(p => p.id !== patientId);
+    this.applyFilters();
+
+    // Notify backend
+    this.removeFromQueue(patientId, 'manual');
+
+    this.showUnavailableNotice(`${patient.displayName} has been removed from the queue.`);
+  }
+
+  /**
    * Refresh the queue
    */
   refreshQueue(): void {
@@ -157,26 +293,94 @@ export class Practitioner implements OnInit, OnDestroy {
     this.gpApi.getQueue().subscribe({
       next: (response) => {
         const now = Date.now();
-        this.queue = response.queue.map((item: any) => {
-          const createdAt = new Date(item.created_at).getTime();
-          const minutes = Math.max(1, Math.floor((now - createdAt) / 60000));
-          return {
-            id: item.id,
-            patientId: item.patient_id,
-            name: item.display_name || 'Patient',
-            priority: 'routine',
-            waitTime: `${minutes} min`,
-            mode: item.mode || 'video',
-            aiSummary: item.symptoms?.complaint || 'Consultation request'
-          } as QueuePatient;
-        });
+        const fifteenMinutes = 15 * 60 * 1000;
+
+        this.queue = response.queue
+          .filter((item: any) => {
+            // Filter out patients waiting > 15 minutes
+            const createdAt = new Date(item.created_at).getTime();
+            const waitTime = now - createdAt;
+            return waitTime <= fifteenMinutes;
+          })
+          .map((item: any) => {
+            const createdAt = new Date(item.created_at).getTime();
+            const minutes = Math.max(1, Math.floor((now - createdAt) / 60000));
+            const displayName = this.formatPatientName(
+              item.first_name,
+              item.last_name,
+              item.display_name
+            );
+
+            return {
+              id: item.id,
+              patientId: item.patient_id,
+              name: displayName,
+              displayName: displayName,
+              firstName: item.first_name,
+              lastName: item.last_name,
+              priority: item.priority || 'routine',
+              waitTime: `${minutes} min`,
+              waitMinutes: minutes,
+              mode: item.mode || 'video',
+              aiSummary: item.symptoms?.complaint || item.ai_summary || 'Consultation request',
+              status: item.status || 'waiting',
+              createdAt: item.created_at,
+              symptoms: item.symptoms?.description || item.symptoms
+            } as QueuePatient;
+          });
+
         this.stats.waiting = this.queue.length;
         this.isRefreshing = false;
+        this.applyFilters();
       },
       error: () => {
         this.isRefreshing = false;
       }
     });
+  }
+
+  /**
+   * Apply all filters to the queue
+   */
+  applyFilters(): void {
+    this.filteredQueue = this.queue.filter(patient => {
+      // Name filter
+      if (this.filterName) {
+        const searchTerm = this.filterName.toLowerCase();
+        const patientName = patient.displayName.toLowerCase();
+        if (!patientName.includes(searchTerm)) {
+          return false;
+        }
+      }
+
+      // Priority filter
+      if (this.filterPriority !== 'all' && patient.priority !== this.filterPriority) {
+        return false;
+      }
+
+      // Mode filter
+      if (this.filterMode !== 'all' && patient.mode !== this.filterMode) {
+        return false;
+      }
+
+      // Status filter
+      if (this.filterStatus !== 'all' && patient.status !== this.filterStatus) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  /**
+   * Clear all filters
+   */
+  clearFilters(): void {
+    this.filterName = '';
+    this.filterPriority = 'all';
+    this.filterMode = 'all';
+    this.filterStatus = 'all';
+    this.applyFilters();
   }
 
   /**
@@ -191,9 +395,27 @@ export class Practitioner implements OnInit, OnDestroy {
         const item = this.queue.find((p) => p.id === patientId);
         if (item) {
           item.accepted = true;
+          item.status = 'active';
         }
+        this.applyFilters();
       }
     });
+  }
+
+  /**
+   * View patient details - opens modal
+   */
+  viewDetails(patient: QueuePatient): void {
+    this.selectedPatient = patient;
+    this.showPatientDetailsModal = true;
+  }
+
+  /**
+   * Close patient details modal
+   */
+  closePatientDetailsModal(): void {
+    this.showPatientDetailsModal = false;
+    this.selectedPatient = null;
   }
 
   // ── Prescription Modal Methods ──
@@ -227,9 +449,11 @@ export class Practitioner implements OnInit, OnDestroy {
     this.prescriptionsApi.create(this.prescriptionPatientId, validItems).subscribe({
       next: () => {
         this.closePrescriptionModal();
+        this.showUnavailableNotice('Prescription created successfully.');
       },
       error: (err) => {
         console.error('Failed to create prescription:', err);
+        this.showUnavailableNotice('Failed to create prescription. Please try again.');
       }
     });
   }
@@ -279,9 +503,11 @@ export class Practitioner implements OnInit, OnDestroy {
     ).subscribe({
       next: () => {
         this.closeReferralModal();
+        this.showUnavailableNotice('Referral created successfully.');
       },
       error: (err) => {
         console.error('Failed to create referral:', err);
+        this.showUnavailableNotice('Failed to create referral. Please try again.');
       }
     });
   }
@@ -303,13 +529,6 @@ export class Practitioner implements OnInit, OnDestroy {
   // ── Other Actions ──
 
   /**
-   * View patient details (route does not exist yet)
-   */
-  viewDetails(_patientId: string): void {
-    this.showUnavailableNotice('Patient details are coming soon.');
-  }
-
-  /**
    * Skip a patient in the queue
    */
   skipPatient(patientId: string): void {
@@ -319,6 +538,7 @@ export class Practitioner implements OnInit, OnDestroy {
     if (index > -1) {
       const patient = this.queue.splice(index, 1)[0];
       this.queue.push(patient);
+      this.applyFilters();
     }
   }
 
@@ -326,42 +546,84 @@ export class Practitioner implements OnInit, OnDestroy {
    * View profile
    */
   viewProfile(): void {
-    this.router.navigate(['/gp']);
+    this.router.navigate(['/gp/profile']);
   }
 
   /**
-   * Start break
+   * Start/End break
    */
   startBreak(): void {
-    console.log('Starting break');
+    this.isOperating = !this.isOperating;
+    this.showHistory = !this.isOperating;
+
+    // Update operational status on backend
+    this.gpApi.updateOperationalStatus(this.isOperating).subscribe({
+      error: (err) => {
+        console.error('Failed to update operational status:', err);
+      }
+    });
+
+    if (this.isOperating) {
+      this.showUnavailableNotice('You are now online and will receive new patients.');
+    } else {
+      this.showUnavailableNotice('You are now on break. No new patients will be added to your queue.');
+    }
   }
 
   /**
-   * View schedule (route may not exist)
+   * Load consultation history
+   */
+  private loadConsultationHistory(): void {
+    this.gpApi.getConsultationHistory().subscribe({
+      next: (response) => {
+        this.consultationHistory = response.history || [];
+      },
+      error: (err) => {
+        console.error('Failed to load consultation history:', err);
+      }
+    });
+  }
+
+  /**
+   * Delete consultation history record
+   */
+  deleteHistoryRecord(recordId: string): void {
+    this.gpApi.deleteConsultationRecord(recordId).subscribe({
+      next: () => {
+        this.consultationHistory = this.consultationHistory.filter(r => r.id !== recordId);
+      },
+      error: (err) => {
+        console.error('Failed to delete consultation record:', err);
+      }
+    });
+  }
+
+  /**
+   * View schedule
    */
   viewSchedule(): void {
-    this.showUnavailableNotice('Schedule is coming soon.');
+    this.showUnavailableNotice('Schedule view is coming soon.');
   }
 
   /**
-   * View patients (route may not exist)
+   * View patients
    */
   viewPatients(): void {
     this.showUnavailableNotice('Patients view is coming soon.');
   }
 
   /**
-   * Open settings (route may not exist)
+   * Open settings
    */
   openSettings(): void {
     this.showUnavailableNotice('Settings are coming soon.');
   }
 
   /**
-   * View history (route may not exist)
+   * View history
    */
   viewHistory(): void {
-    this.showUnavailableNotice('History is coming soon.');
+    this.showHistory = true;
   }
 
   dismissUnavailableNotice(): void {
@@ -370,5 +632,9 @@ export class Practitioner implements OnInit, OnDestroy {
 
   private showUnavailableNotice(message: string): void {
     this.unavailableNotice = message;
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      this.unavailableNotice = '';
+    }, 5000);
   }
 }

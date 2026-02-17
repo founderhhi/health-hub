@@ -15,4 +15,8 @@ export class ApiClientService {
   post<T>(path: string, body?: unknown) {
     return this.http.post<T>(`${this.baseUrl}${path}`, body ?? {});
   }
+
+  delete<T>(path: string) {
+    return this.http.delete<T>(`${this.baseUrl}${path}`);
+  }
 }

@@ -28,6 +28,12 @@ export const routes: Routes = [
     data: { roles: ['doctor', 'gp'] }
   },
   {
+    path: 'gp/profile',
+    loadComponent: () => import('./features/dashboard/components/gp-profile/gp-profile').then(m => m.GpProfileComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['doctor', 'gp'] }
+  },
+  {
     path: 'patient-services',
     loadChildren: () => import('./features/practitioner-connect/practitioner-connect.route').then(m => m.PRACTIOTIONER_ROUTES),
     canActivate: [authGuard]
