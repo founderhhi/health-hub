@@ -82,6 +82,45 @@
   }
 }
 
+/* Filter Actions */
+.filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: v.$space-md;
+  padding-top: v.$space-md;
+  border-top: 1px solid v.$color-border-light;
+}
+
+.clear-filters-btn {
+  background: transparent;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  padding: v.$space-xs v.$space-md;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-text-secondary;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    background: v.$color-surface;
+    border-color: v.$color-text-light;
+    color: v.$color-text-primary;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.results-count {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
 /* History List Container */
 .history-list-container {
   display: flex;
@@ -176,6 +215,57 @@
     font-size: v.$font-size-sm;
     color: v.$color-text-light;
     flex-shrink: 0;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: v.$space-xs;
+    flex-shrink: 0;
+  }
+
+  &__status {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-xs;
+    font-weight: v.$font-weight-semibold;
+    padding: 2px 8px;
+    border-radius: v.$radius-full;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.status-completed {
+      background: v.$color-success-light;
+      color: v.$color-success;
+    }
+
+    &.status-pending {
+      background: v.$color-warning-light;
+      color: v.$color-warning;
+    }
+
+    &.status-cancelled {
+      background: v.$color-danger-light;
+      color: v.$color-danger;
+    }
+  }
+
+  &__icon-wrapper {
+    &--pending {
+      background: v.$color-warning-light;
+
+      .history-item__icon {
+        color: v.$color-warning;
+      }
+    }
+
+    &--cancelled {
+      background: v.$color-danger-light;
+
+      .history-item__icon {
+        color: v.$color-danger;
+      }
+    }
   }
 }
 

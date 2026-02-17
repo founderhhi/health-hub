@@ -18,6 +18,8 @@
             type="text"
             class="filter-input"
             placeholder="Patient name"
+            [(ngModel)]="filters.patientName"
+            (ngModelChange)="onFilterChange()"
           />
         </div>
         <div class="filter-group">
@@ -25,10 +27,12 @@
             type="text"
             class="filter-input"
             placeholder="Prescription ID"
+            [(ngModel)]="filters.prescriptionId"
+            (ngModelChange)="onFilterChange()"
           />
         </div>
         <div class="filter-group">
-          <select class="filter-select">
+          <select class="filter-select" [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()">
             <option value="">All Statuses</option>
             <option value="completed">Completed</option>
             <option value="pending">Pending</option>
@@ -36,7 +40,7 @@
           </select>
         </div>
         <div class="filter-group">
-          <select class="filter-select">
+          <select class="filter-select" [(ngModel)]="filters.dateRange" (ngModelChange)="onFilterChange()">
             <option value="">All Dates</option>
             <option value="today">Today</option>
             <option value="week">This Week</option>
@@ -44,143 +48,54 @@
           </select>
         </div>
       </div>
+      <div class="filter-actions" *ngIf="filters.patientName || filters.prescriptionId || filters.status || filters.dateRange">
+        <button type="button" class="clear-filters-btn" (click)="clearFilters()">
+          Clear Filters
+        </button>
+        <span class="results-count">{{ filteredItems.length }} result{{ filteredItems.length !== 1 ? 's' : '' }}</span>
+      </div>
     </div>
 
     <!-- History List -->
-    <div class="history-list-container">
-      <!-- Today's Group -->
-      <div class="history-group">
-        <h2 class="date-header">Today, January 15, 2024</h2>
+    <div class="history-list-container" *ngIf="hasResults()">
+      <div class="history-group" *ngFor="let groupKey of groupedItemsKeys">
+        <h2 class="date-header">{{ groupKey }}</h2>
         <div class="history-list">
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
+          <div class="history-item" *ngFor="let item of getItemsForGroup(groupKey)">
+            <div class="history-item__icon-wrapper" [class.history-item__icon-wrapper--cancelled]="item.status === 'cancelled'" [class.history-item__icon-wrapper--pending]="item.status === 'pending'">
               <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                <ng-container *ngIf="item.status === 'completed'">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </ng-container>
+                <ng-container *ngIf="item.status === 'pending'">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </ng-container>
+                <ng-container *ngIf="item.status === 'cancelled'">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </ng-container>
               </svg>
             </div>
             <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001892</span>
-              <span class="history-item__subtitle">Sarah J. • 4 items</span>
+              <span class="history-item__title">{{ item.code }}</span>
+              <span class="history-item__subtitle">{{ item.patientName }} • {{ item.itemCount }} item{{ item.itemCount !== 1 ? 's' : '' }}</span>
             </div>
-            <span class="history-item__time">2:45 PM</span>
-          </div>
-          
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
-              <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
+            <div class="history-item__meta">
+              <span class="history-item__time">{{ item.time }}</span>
+              <span class="history-item__status" [class.status-completed]="item.status === 'completed'" [class.status-pending]="item.status === 'pending'" [class.status-cancelled]="item.status === 'cancelled'">
+                {{ item.status | titlecase }}
+              </span>
             </div>
-            <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001891</span>
-              <span class="history-item__subtitle">Michael C. • 2 items</span>
-            </div>
-            <span class="history-item__time">11:30 AM</span>
-          </div>
-          
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
-              <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001890</span>
-              <span class="history-item__subtitle">Emma W. • 1 item</span>
-            </div>
-            <span class="history-item__time">9:15 AM</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Yesterday's Group -->
-      <div class="history-group">
-        <h2 class="date-header">Yesterday, January 14, 2024</h2>
-        <div class="history-list">
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
-              <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001889</span>
-              <span class="history-item__subtitle">James D. • 3 items</span>
-            </div>
-            <span class="history-item__time">4:20 PM</span>
-          </div>
-          
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
-              <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001888</span>
-              <span class="history-item__subtitle">Olivia P. • 2 items</span>
-            </div>
-            <span class="history-item__time">2:10 PM</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- January 13 Group -->
-      <div class="history-group">
-        <h2 class="date-header">January 13, 2024</h2>
-        <div class="history-list">
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
-              <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001887</span>
-              <span class="history-item__subtitle">William R. • 5 items</span>
-            </div>
-            <span class="history-item__time">5:45 PM</span>
-          </div>
-          
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
-              <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001886</span>
-              <span class="history-item__subtitle">Sophia L. • 2 items</span>
-            </div>
-            <span class="history-item__time">11:00 AM</span>
-          </div>
-          
-          <div class="history-item">
-            <div class="history-item__icon-wrapper">
-              <svg class="history-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="history-item__info">
-              <span class="history-item__title">RX-2024-001885</span>
-              <span class="history-item__subtitle">Lucas M. • 1 item</span>
-            </div>
-            <span class="history-item__time">9:30 AM</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div class="empty-state" *ngIf="false">
+    <div class="empty-state" *ngIf="!hasResults()">
       <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"></circle>
         <polyline points="12 6 12 12 16 14"></polyline>
