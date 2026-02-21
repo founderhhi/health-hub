@@ -1,3 +1,5 @@
+import { randomInt } from 'node:crypto';
+
 let patientCounter = 0;
 
 export interface GeneratedPatient {
@@ -19,7 +21,8 @@ function normalizeTail(seed: string): string {
 
 export function createPatientSeed(runId: string, password: string): GeneratedPatient {
   patientCounter += 1;
-  const tail = normalizeTail(`${Date.now()}${patientCounter}${runId}`);
+  const entropy = `${Date.now()}${process.pid}${patientCounter}${randomInt(0, 10_000_000)}`;
+  const tail = normalizeTail(`${runId}${entropy}`);
   const localPhone = `555${tail}`;
   const runTag = `${runId}-${patientCounter}`;
 
