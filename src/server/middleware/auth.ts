@@ -3,6 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 
 const jwtSecret = process.env['JWT_SECRET'] || 'demo_secret';
+const isTestEnv = process.env['NODE_ENV'] === 'test';
 
 export const loginRateLimit = rateLimit({
   windowMs: 60 * 1000,
@@ -10,6 +11,7 @@ export const loginRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many login attempts. Please try again in a minute.' },
+  skip: () => isTestEnv,
 });
 
 export interface AuthUser {

@@ -19,6 +19,7 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+const isTestEnv = process.env['NODE_ENV'] === 'test';
 
 type WsHealthResponse = {
   status: 'ok' | 'degraded' | 'unavailable';
@@ -140,6 +141,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' },
+  skip: () => isTestEnv,
 });
 
 // AUTH-04: Strict login limiter (5 req / 1 min per IP)
@@ -149,6 +151,7 @@ const authLoginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many auth attempts. Please try again later.' },
+  skip: () => isTestEnv,
 });
 
 // INF-03: Strict limiter for non-login auth routes (10 req / 15 min per IP)
@@ -158,6 +161,7 @@ const authSignupLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many auth attempts. Please try again later.' },
+  skip: () => isTestEnv,
 });
 
 app.use('/api', globalLimiter);
