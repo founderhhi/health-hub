@@ -14,6 +14,7 @@ export interface E2EEnvironment {
     specialist: RoleCredentials;
     pharmacy: RoleCredentials;
     diagnostics: RoleCredentials;
+    admin: RoleCredentials;
   };
 }
 
@@ -71,6 +72,10 @@ export function loadE2EEnvironment(): E2EEnvironment {
       diagnostics: {
         phone: process.env['E2E_DIAGNOSTICS_PHONE'] || '+17000000004',
         password: process.env['E2E_DIAGNOSTICS_PASSWORD'] || 'demo1234'
+      },
+      admin: {
+        phone: process.env['E2E_ADMIN_PHONE'] || '+17000000009',
+        password: process.env['E2E_ADMIN_PASSWORD'] || 'demo1234'
       }
     }
   };

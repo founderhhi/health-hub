@@ -33,6 +33,8 @@ PORT=4000
 npm run db:init
 ```
 
+If deploying via `render.yaml`, this is automated through `preDeployCommand: npm run db:init`.
+
 4. Start app:
 
 ```bash
@@ -56,6 +58,23 @@ curl -fsS http://127.0.0.1:4000/api/health
 - Route checks:
   - `/auth/forgot-password`
   - `/pharmacy/scanner`
+
+## Automated smoke command
+
+Use the built-in smoke script against staging or production:
+
+```bash
+DEPLOY_BASE_URL=https://<your-app>.onrender.com npm run deploy:smoke
+```
+
+Optional overrides:
+
+- `DEPLOY_SMOKE_TIMEOUT_MS` (default `15000`)
+- `E2E_GP_PHONE`, `E2E_GP_PASSWORD`
+- `E2E_SPECIALIST_PHONE`, `E2E_SPECIALIST_PASSWORD`
+- `E2E_PHARMACY_PHONE`, `E2E_PHARMACY_PASSWORD`
+- `E2E_DIAGNOSTICS_PHONE`, `E2E_DIAGNOSTICS_PASSWORD`
+- `E2E_ADMIN_PHONE`, `E2E_ADMIN_PASSWORD`
 
 ## Release hash freeze procedure
 

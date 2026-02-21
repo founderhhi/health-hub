@@ -5,6 +5,7 @@ import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
 import { WsService } from '../../../core/realtime/ws.service';
+import { PaymentMockComponent } from '../../../shared/components/payment-mock/payment-mock';
 import { Subscription } from 'rxjs';
 
 interface HealthStats {
@@ -16,7 +17,7 @@ interface HealthStats {
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PaymentMockComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -26,7 +27,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   notificationCount: number = 0;
   requestingConsult = false;
   requestError = '';
+  showModeSelector = false;
+  selectedMode: 'video' | 'audio' | 'chat' = 'video';
   recentPrescriptions: any[] = [];
+  showPaymentModal = false;
   private wsSubscription?: Subscription;
 
   // Health statistics
@@ -99,18 +103,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   navigateToService(service: string): void {
     switch(service) {
       case 'gp':
-        this.requestingConsult = true;
-        this.requestError = '';
-        this.patientApi.requestConsult('video', { complaint: 'General consult' }).subscribe({
-          next: () => {
-            this.requestingConsult = false;
-            this.router.navigate(['/patient/waiting']);
-          },
-          error: () => {
-            this.requestingConsult = false;
-            this.requestError = 'Unable to request a GP right now.';
-          }
-        });
+        this.showModeSelector = true;
         break;
       case 'healwell':
         this.router.navigate(['/heal-well/videos']);
@@ -143,6 +136,46 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   viewRecords(): void {
     this.router.navigate(['/patient/records']);
+  }
+
+  openPayment(): void {
+    this.showPaymentModal = true;
+  }
+
+  onPaymentComplete(result: { success: boolean }): void {
+    if (result.success) {
+      setTimeout(() => { this.showPaymentModal = false; }, 2000);
+    }
+  }
+
+  closePayment(): void {
+    this.showPaymentModal = false;
+  }
+
+  closeModeSelector(): void {
+    this.showModeSelector = false;
+    this.selectedMode = 'video';
+  }
+
+  requestWithMode(): void {
+    this.showModeSelector = false;
+    this.requestingConsult = true;
+    this.requestError = '';
+
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('hhi_consult_mode', this.selectedMode);
+    }
+
+    this.patientApi.requestConsult(this.selectedMode, { complaint: 'General consult' }).subscribe({
+      next: () => {
+        this.requestingConsult = false;
+        this.router.navigate(['/patient/waiting']);
+      },
+      error: () => {
+        this.requestingConsult = false;
+        this.requestError = 'Unable to request a GP right now.';
+      }
+    });
   }
 
   private loadStats(): void {

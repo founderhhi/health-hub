@@ -19,6 +19,10 @@ This repository ships with `.github/workflows/ci.yml` for build, unit, and E2E g
 - `E2E_SPECIALIST_PHONE`, `E2E_SPECIALIST_PASSWORD`
 - `E2E_PHARMACY_PHONE`, `E2E_PHARMACY_PASSWORD`
 - `E2E_DIAGNOSTICS_PHONE`, `E2E_DIAGNOSTICS_PASSWORD`
+- `E2E_ADMIN_PHONE`, `E2E_ADMIN_PASSWORD`
+- `RENDER_DEPLOY_HOOK_URL_STAGING`: Render staging deploy hook URL used on pushes to `health-hub-test`.
+- `RENDER_DEPLOY_HOOK_URL_PROD`: Render production deploy hook URL used on pushes to `main`.
+- `RENDER_DEPLOY_HOOK_URL`: Legacy fallback deploy hook secret used if stage-specific secrets are not set.
 
 ## Notes for hosted CI
 

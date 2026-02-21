@@ -1,6 +1,20 @@
 import { Injectable } from '@angular/core';
 import { ApiClientService } from './api-client.service';
 
+interface GpAcceptedConsultation {
+  id?: string;
+  consultation_id?: string;
+  consultationId?: string;
+  daily_room_url?: string;
+  roomUrl?: string;
+}
+
+interface GpAcceptResponse {
+  consultation?: GpAcceptedConsultation | null;
+  consultationId?: string;
+  roomUrl?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GpApiService {
   constructor(private api: ApiClientService) {}
@@ -10,7 +24,7 @@ export class GpApiService {
   }
 
   acceptRequest(requestId: string) {
-    return this.api.post<{ consultation: any; roomUrl: string }>(`/gp/queue/${requestId}/accept`);
+    return this.api.post<GpAcceptResponse>(`/gp/queue/${requestId}/accept`);
   }
 
   deleteFromQueue(requestId: string, reason: 'timeout' | 'manual') {
@@ -27,5 +41,9 @@ export class GpApiService {
 
   deleteConsultationRecord(recordId: string) {
     return this.api.delete<{ success: boolean }>(`/gp/consultations/${recordId}`);
+  }
+
+  completeConsultation(consultationId: string, notes?: string) {
+    return this.api.post<{ consultation: any }>(`/gp/consultations/${consultationId}/complete`, { notes });
   }
 }

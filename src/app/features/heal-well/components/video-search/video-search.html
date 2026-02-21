@@ -1,1 +1,52 @@
-<p>video-search works!</p>
+<section class="healwell-page">
+  <header class="page-header">
+    <h1 class="page-title">HealWell</h1>
+    <p class="page-subtitle">Health education videos and resources</p>
+  </header>
+
+  <div class="search-bar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search videos..."
+      [(ngModel)]="searchQuery"
+    />
+  </div>
+
+  <div class="tag-filters">
+    <button
+      *ngFor="let tag of tags"
+      class="tag-chip"
+      [class.tag-chip--active]="(tag === 'All' && !selectedTag) || selectedTag === tag"
+      (click)="selectTag(tag)"
+    >
+      {{ tag }}
+    </button>
+  </div>
+
+  <div class="video-grid" *ngIf="filteredVideos.length > 0; else noResults">
+    <div class="video-card" *ngFor="let video of filteredVideos" (click)="openVideo(video)">
+      <div class="video-thumbnail">
+        <div class="play-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </div>
+        <span class="video-duration">{{ video.duration }}</span>
+      </div>
+      <div class="video-info">
+        <h3 class="video-title">{{ video.title }}</h3>
+        <p class="video-desc">{{ video.description }}</p>
+        <div class="video-tags">
+          <span class="video-tag" *ngFor="let tag of video.tags">{{ tag }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noResults>
+    <div class="empty-state">
+      <p>No videos found matching your search.</p>
+    </div>
+  </ng-template>
+</section>

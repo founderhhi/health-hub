@@ -2,17 +2,63 @@ import { Router } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { db } from '../db';
-import { requireAuth } from '../middleware/auth';
+import { loginRateLimit, requireAuth } from '../middleware/auth';
 
 export const authRouter = Router();
 
 const jwtSecret = process.env['JWT_SECRET'] || 'demo_secret';
+const accessTokenTtl = '7d';
+const refreshTokenTtl = '30d';
+
+// AUTH-06: Password validation rules
+function validatePassword(password: string): { valid: boolean; error?: string } {
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters long' };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, error: 'Password must contain at least one uppercase letter' };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, error: 'Password must contain at least one lowercase letter' };
+  }
+  if (!/\d/.test(password)) {
+    return { valid: false, error: 'Password must contain at least one number' };
+  }
+  return { valid: true };
+}
+
+type TokenSubject = {
+  id: string;
+  role: string;
+  phone: string;
+};
+
+function mintAccessToken(user: TokenSubject): string {
+  return jwt.sign(
+    { userId: user.id, role: user.role, phone: user.phone, tokenType: 'access' },
+    jwtSecret,
+    { expiresIn: accessTokenTtl }
+  );
+}
+
+function mintRefreshToken(user: TokenSubject): string {
+  return jwt.sign(
+    { userId: user.id, role: user.role, phone: user.phone, tokenType: 'refresh' },
+    jwtSecret,
+    { expiresIn: refreshTokenTtl }
+  );
+}
 
 authRouter.post('/signup', async (req, res) => {
   try {
     const { phone, password, displayName } = req.body as { phone?: string; password?: string; displayName?: string };
     if (!phone || !password) {
       return res.status(400).json({ error: 'phone and password required' });
+    }
+
+    const pwCheck = validatePassword(password);
+    if (!pwCheck.valid) {
+      return res.status(400).json({ error: pwCheck.error });
     }
 
     const existing = await db.query('select id from users where phone = $1', [phone]);
@@ -27,18 +73,17 @@ authRouter.post('/signup', async (req, res) => {
     );
 
     const user = insert.rows[0];
-    const token = jwt.sign({ userId: user.id, role: user.role, phone: user.phone }, jwtSecret, {
-      expiresIn: '7d'
-    });
+    const token = mintAccessToken(user);
+    const refreshToken = mintRefreshToken(user);
 
-    return res.json({ token, user });
+    return res.json({ token, refreshToken, user });
   } catch (error) {
     console.error('Signup error', error);
     return res.status(500).json({ error: 'Signup failed' });
   }
 });
 
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', loginRateLimit, async (req, res) => {
   try {
     const { phone, password } = req.body as { phone?: string; password?: string };
     if (!phone || !password) {
@@ -67,12 +112,12 @@ authRouter.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user.id, role: user.role, phone: user.phone }, jwtSecret, {
-      expiresIn: '7d'
-    });
+    const token = mintAccessToken(user);
+    const refreshToken = mintRefreshToken(user);
 
     return res.json({
       token,
+      refreshToken,
       user: {
         id: user.id,
         role: user.role,
@@ -83,6 +128,50 @@ authRouter.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error', error);
     return res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+authRouter.post('/forgot-password', async (req, res) => {
+  const { phone } = (req.body || {}) as { phone?: string };
+  if (phone) {
+    console.log(`Password reset requested for: ${phone}`);
+  }
+
+  return res.json({
+    success: true,
+    message: 'If this phone number is registered, you will receive reset instructions.'
+  });
+});
+
+authRouter.post('/refresh', async (req, res) => {
+  try {
+    const body = (req.body || {}) as { refreshToken?: string; refresh_token?: string };
+    const refreshToken = body.refreshToken || body.refresh_token;
+    if (!refreshToken) {
+      return res.status(400).json({ error: 'refresh token required' });
+    }
+
+    const payload = jwt.verify(refreshToken, jwtSecret) as {
+      userId?: string;
+      role?: string;
+      phone?: string;
+      tokenType?: string;
+    };
+
+    if (payload.tokenType !== 'refresh' || !payload.userId) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+
+    const result = await db.query('select id, role, phone from users where id = $1', [payload.userId]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+
+    const user = result.rows[0] as TokenSubject;
+    const token = mintAccessToken(user);
+    return res.json({ token });
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid refresh token' });
   }
 });
 

@@ -46,6 +46,27 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/patient/dashboard']);
   }
 
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.read).length;
+  }
+
+  markAsRead(notification: any): void {
+    if (notification.read) return;
+    this.notificationsApi.markRead(notification.id).subscribe({
+      next: () => {
+        notification.read = true;
+      }
+    });
+  }
+
+  markAllAsRead(): void {
+    this.notificationsApi.markAllRead().subscribe({
+      next: () => {
+        this.notifications.forEach(n => n.read = true);
+      }
+    });
+  }
+
   private load(): void {
     this.loading = true;
     this.notificationsApi.list().subscribe({

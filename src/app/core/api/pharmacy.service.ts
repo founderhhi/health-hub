@@ -14,4 +14,12 @@ export class PharmacyApiService {
       dispensedItems
     });
   }
+
+  dispense(prescriptionId: string) {
+    return this.api.post<{ prescription: any }>(`/pharmacy/prescriptions/${prescriptionId}/dispense`, {});
+  }
+
+  getHistory() {
+    return this.api.get<{ history: any[] }>('/pharmacy/history');
+  }
 }

@@ -1,10 +1,72 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { requireAuth, requireRole } from '../middleware/auth';
-import { createDailyRoom } from '../integrations/daily';
+import { createDailyRoom, createMeetingToken, deleteRoom } from '../integrations/daily';
 import { broadcastToUser, broadcastToRole } from '../realtime/ws';
 
 export const gpRouter = Router();
+
+type MeetingTokenPayload = {
+  token: string | null;
+  expiresAt: string | null;
+  roomName: string | null;
+};
+
+function getDailyRoomName(roomUrl: string | null | undefined): string | null {
+  if (!roomUrl) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(roomUrl);
+    const segments = parsed.pathname.split('/').filter(Boolean);
+    return segments.length > 0 ? segments[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+async function generateMeetingToken(roomUrl: string | null | undefined, userId: string): Promise<MeetingTokenPayload> {
+  const roomName = getDailyRoomName(roomUrl);
+
+  if (!roomName) {
+    return {
+      token: null,
+      expiresAt: null,
+      roomName
+    };
+  }
+
+  try {
+    const token = await createMeetingToken(roomName, userId);
+    const expiresAt = token ? new Date(Date.now() + 60 * 60 * 1000).toISOString() : null;
+
+    return {
+      token,
+      expiresAt,
+      roomName
+    };
+  } catch (error) {
+    console.error('Daily meeting token generation error:', error);
+    return {
+      token: null,
+      expiresAt: null,
+      roomName
+    };
+  }
+}
+
+async function cleanupDailyRoom(roomUrl: string | null | undefined): Promise<void> {
+  if (!roomUrl) {
+    return;
+  }
+
+  try {
+    await deleteRoom(roomUrl);
+  } catch (error) {
+    console.error('Daily room cleanup error:', error);
+  }
+}
 
 gpRouter.get('/queue', requireAuth, requireRole(['gp', 'doctor']), async (_req, res) => {
   try {
@@ -27,44 +89,84 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
     const { id } = req.params;
     const user = (req as any).user;
 
-    const update = await db.query(
-      `update consult_requests
-       set status = 'accepted', accepted_at = now()
-       where id = $1 and status = 'waiting'
-       returning *`,
-      [id]
-    );
-    if (update.rows.length === 0) {
-      return res.status(404).json({ error: 'Request not found or already accepted' });
+    const client = await db.connect();
+    let request: any = null;
+    let consultation: any = null;
+
+    try {
+      await client.query('BEGIN');
+
+      const requestResult = await client.query(
+        `select * from consult_requests where id = $1 for update`,
+        [id]
+      );
+
+      if (requestResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Request not found' });
+      }
+
+      request = requestResult.rows[0];
+
+      if (request.status !== 'waiting') {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: 'Request already accepted or no longer waiting' });
+      }
+
+      const roomUrl = await createDailyRoom();
+
+      await client.query(
+        `update consult_requests
+         set status = 'accepted', accepted_at = now()
+         where id = $1`,
+        [id]
+      );
+
+      const consultResult = await client.query(
+        `insert into consultations (request_id, patient_id, gp_id, daily_room_url)
+         values ($1, $2, $3, $4)
+         returning *`,
+        [request.id, request.patient_id, user.userId, roomUrl]
+      );
+
+      consultation = consultResult.rows[0];
+
+      await client.query(
+        `insert into notifications (user_id, type, message, data)
+         values ($1, $2, $3, $4)`,
+        [
+          request.patient_id,
+          'consult.accepted',
+          'A GP accepted your request. Join the consultation.',
+          JSON.stringify({ consultationId: consultation.id })
+        ]
+      );
+
+      await client.query('COMMIT');
+    } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } catch {
+      }
+      throw error;
+    } finally {
+      client.release();
     }
 
-    const request = update.rows[0];
-    const roomUrl = await createDailyRoom();
+    const meetingToken = await generateMeetingToken(consultation.daily_room_url, user.userId);
 
-    const consult = await db.query(
-      `insert into consultations (request_id, patient_id, gp_id, daily_room_url)
-       values ($1, $2, $3, $4) returning *`,
-      [request.id, request.patient_id, user.userId, roomUrl]
-    );
-
-    await db.query(
-      `insert into notifications (user_id, type, message, data)
-       values ($1, $2, $3, $4)`,
-      [
-        request.patient_id,
-        'consult.accepted',
-        'A GP accepted your request. Join the consultation.',
-        JSON.stringify({ consultationId: consult.rows[0].id })
-      ]
-    );
     broadcastToUser(request.patient_id, 'consult.accepted', {
       requestId: request.id,
-      consultation: consult.rows[0]
+      consultation
     });
     broadcastToRole('gp', 'queue.updated', { acceptedId: request.id });
     broadcastToRole('doctor', 'queue.updated', { acceptedId: request.id });
 
-    return res.json({ consultation: consult.rows[0], roomUrl });
+    return res.json({
+      consultation,
+      roomUrl: consultation.daily_room_url,
+      meetingToken
+    });
   } catch (error) {
     console.error('Accept consult error', error);
     return res.status(500).json({ error: 'Unable to accept consult' });
@@ -173,28 +275,77 @@ gpRouter.get('/consultations/history', requireAuth, requireRole(['gp', 'doctor']
         u.first_name as patient_first_name,
         u.last_name as patient_last_name,
         c.notes as diagnosis,
-        c.completed_at,
-        extract(epoch from (c.completed_at - c.created_at))/60 as duration_minutes
+        COALESCE(c.completed_at, c.ended_at) as completed_at,
+        extract(epoch from (COALESCE(c.completed_at, c.ended_at) - c.started_at))/60 as duration_minutes
        from consultations c
        join users u on u.id = c.patient_id
-       where c.gp_id = $1 and c.status = 'completed'
-       order by c.completed_at desc
+       where c.gp_id = $1 and c.status in ('completed', 'ended') and c.gp_deleted = false
+       order by COALESCE(c.completed_at, c.ended_at) desc nulls last
        limit 50`,
       [user.userId]
     );
 
-    const history = result.rows.map(row => ({
-      id: row.id,
-      patientName: row.patient_name || `${row.patient_first_name} ${row.patient_last_name?.charAt(0)}.`,
-      diagnosis: row.diagnosis || 'No diagnosis recorded',
-      completedAt: row.completed_at,
-      duration: Math.round(row.duration_minutes || 0)
-    }));
+    const history = result.rows.map((row) => {
+      const lastInitial = row.patient_last_name ? `${row.patient_last_name.charAt(0)}.` : '';
+      const fallbackName = `${row.patient_first_name || ''} ${lastInitial}`.trim();
+
+      return {
+        id: row.id,
+        patientName: row.patient_name || fallbackName || 'Patient',
+        diagnosis: row.diagnosis || 'No diagnosis recorded',
+        completedAt: row.completed_at,
+        duration: Math.round(row.duration_minutes || 0)
+      };
+    });
 
     return res.json({ history });
   } catch (error) {
     console.error('Get consultation history error', error);
     return res.status(500).json({ error: 'Unable to fetch consultation history' });
+  }
+});
+
+// API-09: Complete a consultation
+gpRouter.post('/consultations/:id/complete', requireAuth, requireRole(['gp', 'doctor']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+    const { notes } = req.body as { notes?: string };
+
+    const result = await db.query(
+      `update consultations
+       set status = 'completed', completed_at = now(), notes = COALESCE($3::jsonb, notes)
+       where id = $1 and gp_id = $2 and status = 'active'
+       returning *`,
+      [id, user.userId, notes ? JSON.stringify(notes) : null]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Active consultation not found or not assigned to you' });
+    }
+
+    const consultation = result.rows[0];
+
+    // Notify patient
+    await db.query(
+      `insert into notifications (user_id, type, message, data)
+       values ($1, $2, $3, $4)`,
+      [
+        consultation.patient_id,
+        'consult.completed',
+        'Your consultation has been completed.',
+        JSON.stringify({ consultationId: consultation.id })
+      ]
+    );
+
+    await cleanupDailyRoom(consultation.daily_room_url);
+
+    broadcastToUser(consultation.patient_id, 'consult.completed', { consultation });
+
+    return res.json({ consultation });
+  } catch (error) {
+    console.error('Complete consultation error', error);
+    return res.status(500).json({ error: 'Unable to complete consultation' });
   }
 });
 

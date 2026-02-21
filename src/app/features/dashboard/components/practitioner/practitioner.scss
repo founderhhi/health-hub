@@ -39,6 +39,48 @@
   padding: 0;
 }
 
+.embedded-consultation {
+  margin-bottom: v.$space-lg;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: v.$space-sm;
+    padding: v.$space-md;
+    border-bottom: 1px solid #E2E8F0;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    color: #1E293B;
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$space-sm;
+  }
+
+  app-video-room {
+    display: block;
+    min-height: 420px;
+  }
+
+  &__chat {
+    display: block;
+    min-height: 260px;
+    border-top: 1px solid #E2E8F0;
+  }
+}
+
 /* Header */
 .dashboard-header {
   display: flex;

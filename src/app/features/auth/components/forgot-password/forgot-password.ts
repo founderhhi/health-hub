@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthApiService } from '../../../../core/api/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -17,7 +18,8 @@ export class ForgotPasswordComponent {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authApi: AuthApiService
   ) {
     this.form = this.fb.group({
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
@@ -34,9 +36,17 @@ export class ForgotPasswordComponent {
     this.submitting.set(true);
 
     const phone = this.form.get('phone')?.value;
-    this.statusMessage = `If an account exists for ${phone}, reset instructions will be sent shortly.`;
 
-    this.submitting.set(false);
+    this.authApi.forgotPassword(phone).subscribe({
+      next: (response) => {
+        this.statusMessage = response.message || 'If this phone number is registered, you will receive reset instructions.';
+        this.submitting.set(false);
+      },
+      error: () => {
+        this.statusMessage = 'If this phone number is registered, you will receive reset instructions.';
+        this.submitting.set(false);
+      }
+    });
   }
 
   goToLogin(): void {

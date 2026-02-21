@@ -5,6 +5,10 @@ on:
     branches: ['**']
   pull_request:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-test-e2e:
     runs-on: ubuntu-latest
@@ -75,6 +79,34 @@ jobs:
 
       - name: Run e2e tests
         run: npm run e2e:ci
+
+      - name: Trigger Render staging deploy hook
+        if: github.event_name == 'push' && github.ref == 'refs/heads/health-hub-test'
+        env:
+          RENDER_DEPLOY_HOOK_URL_STAGING: ${{ secrets.RENDER_DEPLOY_HOOK_URL_STAGING }}
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          HOOK_URL="${RENDER_DEPLOY_HOOK_URL_STAGING:-$RENDER_DEPLOY_HOOK_URL}"
+          if [ -z "$HOOK_URL" ]; then
+            echo "No staging deploy hook secret found; skipping staging trigger."
+            exit 0
+          fi
+
+          curl --fail --show-error --silent -X POST "$HOOK_URL"
+
+      - name: Trigger Render production deploy hook
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          RENDER_DEPLOY_HOOK_URL_PROD: ${{ secrets.RENDER_DEPLOY_HOOK_URL_PROD }}
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          HOOK_URL="${RENDER_DEPLOY_HOOK_URL_PROD:-$RENDER_DEPLOY_HOOK_URL}"
+          if [ -z "$HOOK_URL" ]; then
+            echo "No production deploy hook secret found; skipping production trigger."
+            exit 0
+          fi
+
+          curl --fail --show-error --silent -X POST "$HOOK_URL"
 
       - name: Upload Playwright artifacts
         if: always()

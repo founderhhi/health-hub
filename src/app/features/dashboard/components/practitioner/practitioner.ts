@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -6,6 +6,7 @@ import { GpApiService } from '../../../../core/api/gp.service';
 import { PrescriptionsApiService } from '../../../../core/api/prescriptions.service';
 import { ReferralsApiService } from '../../../../core/api/referrals.service';
 import { WsService } from '../../../../core/realtime/ws.service';
+import { ConsultShellComponent, ConsultMode } from '../../../../shared/components/consult-shell/consult-shell';
 
 interface QueuePatient {
   id: string;
@@ -60,15 +61,20 @@ interface ConsultationHistory {
 @Component({
   selector: 'app-practitioner',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ConsultShellComponent],
   templateUrl: './practitioner.html',
-  styleUrl: './practitioner.scss',
+  styleUrl: './practitioner.scss'
 })
 export class Practitioner implements OnInit, OnDestroy {
   today = new Date();
   isRefreshing = false;
   refreshCountdown = 10;
   unavailableNotice = '';
+  activeConsultRoomUrl = '';
+  activeConsultationId = '';
+  activeConsultMode: ConsultMode = 'video';
+  activeConsultPatientName = '';
+  showConsultShell = false;
   private refreshInterval: any;
   private countdownInterval: any;
   private timeoutCheckInterval: any;
@@ -389,17 +395,47 @@ export class Practitioner implements OnInit, OnDestroy {
   acceptPatient(patientId: string): void {
     this.gpApi.acceptRequest(patientId).subscribe({
       next: (response) => {
-        if (response.roomUrl) {
-          window.open(response.roomUrl, '_blank');
-        }
+        this.activeConsultRoomUrl =
+          response.roomUrl || response.consultation?.daily_room_url || response.consultation?.roomUrl || '';
+        this.activeConsultationId =
+          response.consultation?.consultation_id ||
+          response.consultation?.consultationId ||
+          response.consultation?.id ||
+          response.consultationId ||
+          '';
         const item = this.queue.find((p) => p.id === patientId);
         if (item) {
           item.accepted = true;
           item.status = 'active';
+          this.activeConsultMode = item.mode || 'video';
+          this.activeConsultPatientName = item.displayName;
         }
+        this.showConsultShell = true;
         this.applyFilters();
       }
     });
+  }
+
+  onEndConsultation(event: { notes: string }): void {
+    if (!this.activeConsultationId) return;
+    this.gpApi.completeConsultation(this.activeConsultationId, event.notes).subscribe({
+      next: () => {
+        this.showConsultShell = false;
+        this.activeConsultRoomUrl = '';
+        this.activeConsultationId = '';
+        this.showUnavailableNotice('Consultation completed successfully.');
+        this.loadQueue();
+        this.loadConsultationHistory();
+      },
+      error: (err) => {
+        console.error('Failed to end consultation:', err);
+        this.showUnavailableNotice('Failed to end consultation. Please try again.');
+      }
+    });
+  }
+
+  onLeaveConsultShell(): void {
+    this.showConsultShell = false;
   }
 
   /**
@@ -628,6 +664,18 @@ export class Practitioner implements OnInit, OnDestroy {
 
   dismissUnavailableNotice(): void {
     this.unavailableNotice = '';
+  }
+
+  closeEmbeddedConsultation(): void {
+    this.activeConsultRoomUrl = '';
+    this.activeConsultationId = '';
+  }
+
+  openConsultationInNewTab(): void {
+    if (!this.activeConsultRoomUrl || !isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    window.open(this.activeConsultRoomUrl, '_blank');
   }
 
   private showUnavailableNotice(message: string): void {

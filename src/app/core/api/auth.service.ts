@@ -14,6 +14,11 @@ interface AuthResponse {
   user: AuthUser;
 }
 
+interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
   constructor(private api: ApiClientService) {}
@@ -28,6 +33,10 @@ export class AuthApiService {
     return this.api.post<AuthResponse>('/auth/login', { phone, password }).pipe(
       tap((response) => this.persistSession(response))
     );
+  }
+
+  forgotPassword(phone: string) {
+    return this.api.post<ForgotPasswordResponse>('/auth/forgot-password', { phone });
   }
 
   validate() {

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { authRouter } from './auth';
 import { patientRouter } from './patient';
 import { gpRouter } from './gp';
@@ -7,12 +7,17 @@ import { pharmacyRouter } from './pharmacy';
 import { referralsRouter } from './referrals';
 import { labsRouter } from './labs';
 import { notificationsRouter } from './notifications';
+import { chatRouter } from './chat';
+import { adminRouter } from './admin';
 
 export const apiRouter = Router();
 
-apiRouter.get('/health', (_req, res) => {
-  res.json({ ok: true });
-});
+const healthHandler = (_req: Request, res: Response) => {
+  res.json({ ok: true, status: 'ok' });
+};
+
+apiRouter.get('/health', healthHandler);
+apiRouter.get('/healthz', healthHandler);
 
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/patient', patientRouter);
@@ -22,3 +27,5 @@ apiRouter.use('/pharmacy', pharmacyRouter);
 apiRouter.use('/referrals', referralsRouter);
 apiRouter.use('/labs', labsRouter);
 apiRouter.use('/notifications', notificationsRouter);
+apiRouter.use('/chat', chatRouter);
+apiRouter.use('/admin', adminRouter);

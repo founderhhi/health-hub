@@ -55,6 +55,50 @@ patientRouter.get('/me', requireAuth, async (req, res) => {
   }
 });
 
+// API-08: Update patient profile
+patientRouter.put('/me', requireAuth, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const { displayName, firstName, lastName } = req.body as {
+      displayName?: string;
+      firstName?: string;
+      lastName?: string;
+    };
+
+    const fields: string[] = [];
+    const values: unknown[] = [];
+    let idx = 1;
+
+    if (displayName !== undefined) {
+      fields.push(`display_name = $${idx++}`);
+      values.push(displayName);
+    }
+    if (firstName !== undefined) {
+      fields.push(`first_name = $${idx++}`);
+      values.push(firstName);
+    }
+    if (lastName !== undefined) {
+      fields.push(`last_name = $${idx++}`);
+      values.push(lastName);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    values.push(user.userId);
+    const result = await db.query(
+      `update users set ${fields.join(', ')} where id = $${idx} returning id, role, phone, display_name, first_name, last_name, created_at`,
+      values
+    );
+
+    return res.json({ user: result.rows[0] });
+  } catch (error) {
+    console.error('Update profile error', error);
+    return res.status(500).json({ error: 'Unable to update profile' });
+  }
+});
+
 patientRouter.get('/referrals', requireAuth, requireRole(['patient']), async (req, res) => {
   try {
     const user = (req as any).user;

@@ -6,8 +6,8 @@
       <p class="page-subtitle">Review previously dispensed prescriptions</p>
     </header>
 
-    <div class="demo-banner" role="status">
-      {{ demoBannerText }}
+    <div class="loading-banner" *ngIf="loading" role="status">
+      Loading prescription history...
     </div>
 
     <!-- Filter Section -->

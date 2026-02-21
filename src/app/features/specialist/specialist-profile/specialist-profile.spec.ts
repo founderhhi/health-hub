@@ -1,7 +1,28 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
 
+import { AuthApiService } from '../../../core/api/auth.service';
+import { ProviderProfileService } from '../../../core/services/provider-profile.service';
 import { SpecialistProfileComponent } from './specialist-profile';
+
+const authApiMock = {
+  logout: vi.fn(() => of({ ok: true })),
+  clearSession: vi.fn()
+};
+
+const providerProfileMock = {
+  getProfile: vi.fn(() => ({
+    username: 'spec-user',
+    facilityName: 'Specialist Clinic',
+    registrationNumber: 'SP-TEST-001',
+    address: 'Cardiology',
+    phoneNumber: '+254700000000',
+    operational: true
+  })),
+  setOperationalStatus: vi.fn()
+};
 
 describe('SpecialistProfileComponent', () => {
   let component: SpecialistProfileComponent;
@@ -10,7 +31,11 @@ describe('SpecialistProfileComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SpecialistProfileComponent],
-      providers: [provideRouter([])]
+      providers: [
+        provideRouter([]),
+        { provide: AuthApiService, useValue: authApiMock },
+        { provide: ProviderProfileService, useValue: providerProfileMock }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SpecialistProfileComponent);
@@ -22,16 +47,10 @@ describe('SpecialistProfileComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('uses disabled patient nav action with coming soon label', () => {
+  it('does not render specialist patient nav shortcut', () => {
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.querySelector('a[routerLink="/specialist/patients"]')).toBeNull();
-    const disabledPatientsNav = root.querySelector<HTMLButtonElement>(
-      '.hhi-bottom-nav__item.hhi-bottom-nav__item--disabled'
-    );
-
-    expect(disabledPatientsNav).toBeTruthy();
-    expect(disabledPatientsNav?.disabled).toBe(true);
-    expect(disabledPatientsNav?.textContent).toContain('Coming soon');
+    expect(root.textContent).not.toContain('Coming soon');
   });
 });

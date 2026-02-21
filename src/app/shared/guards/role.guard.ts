@@ -112,7 +112,7 @@ function getRedirectPathForRole(role: string): string {
     'lab_tech': '/diagnostics',
     'radiologist': '/diagnostics',
     'pathologist': '/diagnostics',
-    'admin': '/dashboard/admin'
+    'admin': '/admin'
   };
   
   return roleRoutes[role] || '/landing';

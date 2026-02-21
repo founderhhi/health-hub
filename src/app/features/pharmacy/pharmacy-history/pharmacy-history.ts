@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { PharmacyApiService } from '../../../core/api/pharmacy.service';
 
 interface HistoryItem {
   id: string;
@@ -29,7 +30,7 @@ interface FilterState {
   styleUrl: './pharmacy-history.scss',
 })
 export class PharmacyHistoryComponent implements OnInit {
-  readonly demoBannerText = 'Filters are active. Backend integration for live data in progress.';
+  loading = true;
 
   filters: FilterState = {
     patientName: '',
@@ -38,25 +39,67 @@ export class PharmacyHistoryComponent implements OnInit {
     dateRange: ''
   };
 
-  allHistoryItems: HistoryItem[] = [
-    // Today
-    { id: '1', code: 'RX-2024-001892', patientName: 'Sarah Johnson', itemCount: 4, time: '2:45 PM', timestamp: Date.now() - 2 * 60 * 60 * 1000, dateGroup: 'Today, January 15, 2024', status: 'completed' },
-    { id: '2', code: 'RX-2024-001891', patientName: 'Michael Chen', itemCount: 2, time: '11:30 AM', timestamp: Date.now() - 5 * 60 * 60 * 1000, dateGroup: 'Today, January 15, 2024', status: 'completed' },
-    { id: '3', code: 'RX-2024-001890', patientName: 'Emma Wilson', itemCount: 1, time: '9:15 AM', timestamp: Date.now() - 8 * 60 * 60 * 1000, dateGroup: 'Today, January 15, 2024', status: 'completed' },
-    // Yesterday
-    { id: '4', code: 'RX-2024-001889', patientName: 'James Davis', itemCount: 3, time: '4:20 PM', timestamp: Date.now() - 28 * 60 * 60 * 1000, dateGroup: 'Yesterday, January 14, 2024', status: 'completed' },
-    { id: '5', code: 'RX-2024-001888', patientName: 'Olivia Parker', itemCount: 2, time: '2:10 PM', timestamp: Date.now() - 30 * 60 * 60 * 1000, dateGroup: 'Yesterday, January 14, 2024', status: 'cancelled' },
-    // January 13
-    { id: '6', code: 'RX-2024-001887', patientName: 'William Roberts', itemCount: 5, time: '5:45 PM', timestamp: Date.now() - 52 * 60 * 60 * 1000, dateGroup: 'January 13, 2024', status: 'completed' },
-    { id: '7', code: 'RX-2024-001886', patientName: 'Sophia Lee', itemCount: 2, time: '11:00 AM', timestamp: Date.now() - 58 * 60 * 60 * 1000, dateGroup: 'January 13, 2024', status: 'pending' },
-    { id: '8', code: 'RX-2024-001885', patientName: 'Lucas Martinez', itemCount: 1, time: '9:30 AM', timestamp: Date.now() - 60 * 60 * 60 * 1000, dateGroup: 'January 13, 2024', status: 'completed' },
-  ];
-
+  allHistoryItems: HistoryItem[] = [];
   filteredItems: HistoryItem[] = [];
   groupedItems: Map<string, HistoryItem[]> = new Map();
 
+  private platformId = inject(PLATFORM_ID);
+
+  constructor(private pharmacyApi: PharmacyApiService) {}
+
   ngOnInit(): void {
-    this.applyFilters();
+    this.loadFromBackend();
+  }
+
+  private loadFromBackend(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      this.loading = false;
+      return;
+    }
+    this.pharmacyApi.getHistory().subscribe({
+      next: (res) => {
+        this.allHistoryItems = res.history.map((h: any) => this.mapToHistoryItem(h));
+        this.loading = false;
+        this.applyFilters();
+      },
+      error: () => {
+        // Fallback to empty list
+        this.allHistoryItems = [];
+        this.loading = false;
+        this.applyFilters();
+      }
+    });
+  }
+
+  private mapToHistoryItem(raw: any): HistoryItem {
+    const claimedAt = new Date(raw.claimed_at);
+    const items = Array.isArray(raw.items) ? raw.items : [];
+    const status = raw.prescription_status === 'fulfilled' ? 'completed' as const
+      : raw.prescription_status === 'claimed' ? 'pending' as const
+      : 'cancelled' as const;
+
+    return {
+      id: raw.id,
+      code: raw.code || 'N/A',
+      patientName: raw.patient_name || 'Unknown',
+      itemCount: items.length,
+      time: claimedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: claimedAt.getTime(),
+      dateGroup: this.formatDateGroup(claimedAt),
+      status,
+    };
+  }
+
+  private formatDateGroup(date: Date): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const itemDay = new Date(date);
+    itemDay.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.floor((today.getTime() - itemDay.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return `Today, ${date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}`;
+    if (diffDays === 1) return `Yesterday, ${date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}`;
+    return date.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
   }
 
   onFilterChange(): void {

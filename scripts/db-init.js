@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 
 const schemaPath = path.join(__dirname, '..', 'db', 'schema.sql');
 const seedPath = path.join(__dirname, '..', 'db', 'seed.sql');
+const migrationsDir = path.join(__dirname, '..', 'db', 'migrations');
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -27,6 +28,20 @@ async function run() {
 
   console.log('Applying seed data...');
   await pool.query(seed);
+
+  if (fs.existsSync(migrationsDir)) {
+    const migrationFiles = fs.readdirSync(migrationsDir)
+      .filter((file) => file.endsWith('.sql'))
+      .sort();
+
+    for (const file of migrationFiles) {
+      const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+      console.log(`Applying migration: ${file}`);
+      await pool.query(sql);
+    }
+
+    console.log(`Applied ${migrationFiles.length} migration(s).`);
+  }
 
   console.log('Database initialized.');
   await pool.end();

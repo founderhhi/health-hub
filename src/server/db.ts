@@ -15,7 +15,10 @@ const sslEnabled = process.env['DATABASE_SSL'] !== 'false';
 
 export const db = new Pool({
   connectionString,
-  ssl: sslEnabled ? { rejectUnauthorized: false } : undefined
+  ssl: sslEnabled ? { rejectUnauthorized: false } : undefined,
+  max: 25,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000
 });
 
 export async function healthCheck(): Promise<boolean> {

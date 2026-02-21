@@ -1,0 +1,173 @@
+{
+  "phase": "P0",
+  "timestamp": "2026-02-17T20:06:28.015Z",
+  "results": {
+    "D1-DB": {
+      "status": "pass",
+      "validators": [
+        {
+          "name": "validate-schema",
+          "pass": true,
+          "details": [
+            "  PASS: users.first_name column",
+            "  PASS: users.last_name column",
+            "  PASS: users.is_operating column",
+            "  PASS: consult_requests.removed_at column",
+            "  PASS: consult_requests.removed_reason column",
+            "  PASS: consult_requests.removed_by column",
+            "  PASS: consult_requests removed status in CHECK",
+            "  PASS: consultations.completed_at column",
+            "  PASS: consultations completed status in CHECK",
+            "  PASS: consultations.gp_deleted column",
+            "  PASS: consultations.gp_deleted_at column"
+          ]
+        },
+        {
+          "name": "validate-migration",
+          "pass": true,
+          "details": [
+            "  PASS: ALTER TABLE for users columns",
+            "  PASS: ALTER TABLE for consult_requests columns",
+            "  PASS: ALTER TABLE for consultations columns",
+            "  PASS: consult_requests constraint recreation",
+            "  PASS: consultations constraint recreation"
+          ]
+        },
+        {
+          "name": "validate-pool",
+          "pass": true,
+          "details": [
+            "  PASS: Pool max connections set to 25"
+          ]
+        }
+      ]
+    },
+    "D2-API": {
+      "status": "pass",
+      "validators": [
+        {
+          "name": "validate-gp-endpoints",
+          "pass": true,
+          "details": [
+            "  PASS: Transaction BEGIN in accept flow",
+            "  PASS: Row lock (FOR UPDATE) in accept flow",
+            "  PASS: Conflict response (409) for duplicate accept",
+            "  PASS: COALESCE in history query",
+            "  PASS: started_at usage in history",
+            "  PASS: gp_deleted filter in history/delete"
+          ]
+        },
+        {
+          "name": "validate-prescription-scope",
+          "pass": true,
+          "details": [
+            "  PASS: Patient role scoping",
+            "  PASS: Admin role check",
+            "  PASS: Forbidden response for unauthorized access"
+          ]
+        },
+        {
+          "name": "validate-referral-scope",
+          "pass": true,
+          "details": [
+            "  PASS: Specialist scoping on referral list",
+            "  PASS: Not found for unauthorized referral detail"
+          ]
+        },
+        {
+          "name": "validate-pharmacy-claim",
+          "pass": true,
+          "details": [
+            "  PASS: Transaction in claim flow",
+            "  PASS: Active status check for claim",
+            "  PASS: Conflict response for non-claimable state"
+          ]
+        }
+      ]
+    },
+    "D8-INFRA": {
+      "status": "pass",
+      "validators": [
+        {
+          "name": "validate-render-yaml",
+          "pass": true,
+          "details": [
+            "  PASS: DATABASE_URL env var configured",
+            "  PASS: JWT_SECRET env var configured"
+          ]
+        },
+        {
+          "name": "validate-startup-guard",
+          "pass": true,
+          "details": [
+            "  PASS: Production environment check",
+            "  PASS: Fatal exit on misconfiguration"
+          ]
+        }
+      ]
+    },
+    "D4-AUTH": {
+      "status": "pass",
+      "validators": [
+        {
+          "name": "validate-jwt-guard",
+          "pass": true,
+          "details": [
+            "  PASS: JWT_SECRET reference in startup guard",
+            "  PASS: demo_secret rejection check",
+            "  PASS: Fatal exit on insecure secret"
+          ]
+        }
+      ]
+    },
+    "D9-CI": {
+      "status": "pass",
+      "validators": [
+        {
+          "name": "validate-build",
+          "pass": true,
+          "details": [
+            "Build succeeded"
+          ]
+        }
+      ]
+    },
+    "AIC-10": {
+      "status": "pass",
+      "validators": [
+        {
+          "name": "validate-boundaries",
+          "pass": true,
+          "details": [
+            "Boundary audit report shows PASS"
+          ]
+        },
+        {
+          "name": "validate-integration",
+          "pass": true,
+          "details": [
+            "Integration check shows Conditional Pass or better"
+          ]
+        }
+      ]
+    },
+    "PM-00": {
+      "status": "pass",
+      "validators": [
+        {
+          "name": "validate-phase-gate",
+          "pass": true,
+          "details": [
+            "PM board exists and is maintained"
+          ]
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0
+  }
+}

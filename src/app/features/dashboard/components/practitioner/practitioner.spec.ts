@@ -15,7 +15,10 @@ describe('Practitioner', () => {
   let fixture: ComponentFixture<Practitioner>;
   const gpApiMock = {
     getQueue: vi.fn(() => of({ queue: [] })),
-    acceptRequest: vi.fn(() => of({ consultation: null, roomUrl: '' }))
+    acceptRequest: vi.fn(() => of({ consultation: null, roomUrl: '' })),
+    getConsultationHistory: vi.fn(() => of({ history: [] })),
+    deleteConsultationRecord: vi.fn(() => of({ success: true })),
+    updateOperationalStatus: vi.fn(() => of({ success: true }))
   };
   const prescriptionsApiMock = {
     create: vi.fn(() => of({ prescription: {} }))
@@ -62,23 +65,24 @@ describe('Practitioner', () => {
     expect(root.querySelector('a[routerLink="/dashboard/practitioner/schedule"]')).toBeNull();
     expect(root.querySelector('a[routerLink="/dashboard/practitioner/profile"]')).toBeNull();
 
-    const disabledNavItems = Array.from(
-      root.querySelectorAll<HTMLButtonElement>('.bottom-nav .nav-item.nav-item-disabled')
+    const mobileActionButtons = Array.from(
+      root.querySelectorAll<HTMLButtonElement>('.bottom-nav button.nav-item')
     );
-    expect(disabledNavItems.length).toBe(3);
-    expect(disabledNavItems.every(item => item.disabled)).toBe(true);
+    expect(mobileActionButtons.length).toBe(2);
+    expect(mobileActionButtons.some((item) => (item.textContent || '').includes('Patients'))).toBe(true);
+    expect(mobileActionButtons.some((item) => (item.textContent || '').includes('Schedule'))).toBe(true);
   });
 
-  it('marks quick-action TODO controls as disabled coming soon actions', () => {
+  it('renders quick-action controls as active buttons', () => {
     const root = fixture.nativeElement as HTMLElement;
     const quickActionButtons = Array.from(
       root.querySelectorAll<HTMLButtonElement>('.quick-actions .quick-action-btn')
     );
 
-    const disabledComingSoon = quickActionButtons.filter(
-      button => button.disabled && (button.textContent || '').includes('Coming soon')
-    );
-
-    expect(disabledComingSoon.length).toBeGreaterThanOrEqual(3);
+    expect(quickActionButtons.length).toBeGreaterThanOrEqual(4);
+    expect(quickActionButtons.every((button) => button.disabled === false)).toBe(true);
+    expect(quickActionButtons.some((button) => (button.textContent || '').includes('My Schedule'))).toBe(true);
+    expect(quickActionButtons.some((button) => (button.textContent || '').includes('My Patients'))).toBe(true);
+    expect(quickActionButtons.some((button) => (button.textContent || '').includes('Settings'))).toBe(true);
   });
 });

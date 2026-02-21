@@ -1,0 +1,144 @@
+{
+  "version": "2026-02-18",
+  "policy": {
+    "writeAccess": "strict-allowlist",
+    "readAccess": "full-repo",
+    "crossAgentWrites": false
+  },
+  "agents": [
+    {
+      "id": "PM-00",
+      "name": "Project Management Agent",
+      "allowedWriteGlobs": [
+        "docs/audit/AUDIT-AND-IMPLEMENTATION-PLAN.md",
+        "docs/audit/INTEGRATED-DELTA-IMPLEMENTATION-PLAN.md",
+        "docs/audit/agents/README.md",
+        "docs/audit/agents/agent-boundaries.json",
+        "docs/audit/agents/agents-catalog.md",
+        "docs/audit/agents/P0-orchestration-workflow.md",
+        "docs/audit/agents/task-boards/00-project-manager-board.md",
+        "scripts/agents/**"
+      ]
+    },
+    {
+      "id": "D1-DB",
+      "name": "Database and Schema Agent",
+      "allowedWriteGlobs": [
+        "db/schema.sql",
+        "db/migrations/*.sql",
+        "db/migrations/**/*.sql",
+        "scripts/db-init.js",
+        "src/server/db.ts",
+        "docs/audit/agents/task-boards/01-database-agent-board.md"
+      ]
+    },
+    {
+      "id": "D2-API",
+      "name": "Backend API Agent",
+      "allowedWriteGlobs": [
+        "src/server/api/index.ts",
+        "src/server/api/gp.ts",
+        "src/server/api/pharmacy.ts",
+        "src/server/api/prescriptions.ts",
+        "src/server/api/referrals.ts",
+        "src/server/api/notifications.ts",
+        "src/server/api/patient.ts",
+        "src/server/api/admin.ts",
+        "docs/audit/agents/task-boards/02-backend-api-agent-board.md"
+      ]
+    },
+    {
+      "id": "D3-FE",
+      "name": "Frontend Components Agent",
+      "allowedWriteGlobs": [
+        "src/app/app.routes.ts",
+        "src/app/features/**/*.route.ts",
+        "src/app/features/**/*.routes.ts",
+        "src/app/features/admin/**",
+        "src/app/app.scss",
+        "src/app/core/api/api-client.service.ts",
+        "src/app/core/api/auth.service.ts",
+        "src/app/core/api/gp.service.ts",
+        "src/app/core/api/labs.service.ts",
+        "src/app/core/api/patient.service.ts",
+        "src/app/core/api/pharmacy.service.ts",
+        "src/app/core/api/prescriptions.service.ts",
+        "src/app/core/api/referrals.service.ts",
+        "docs/audit/agents/task-boards/03-frontend-agent-board.md"
+      ]
+    },
+    {
+      "id": "D4-AUTH",
+      "name": "Authentication Agent",
+      "allowedWriteGlobs": [
+        "src/server/api/auth.ts",
+        "src/server/middleware/auth.ts",
+        "db/seed.sql",
+        "docs/audit/agents/task-boards/04-auth-agent-board.md"
+      ]
+    },
+    {
+      "id": "D5-WS",
+      "name": "Real-time and WebSocket Agent",
+      "allowedWriteGlobs": [
+        "src/server/realtime/ws.ts",
+        "src/app/core/realtime/ws.service.ts",
+        "src/app/core/api/notifications.service.ts",
+        "docs/audit/agents/task-boards/05-websocket-agent-board.md"
+      ]
+    },
+    {
+      "id": "D6-VIDCHAT",
+      "name": "Video and Chat Agent",
+      "allowedWriteGlobs": [
+        "src/server/integrations/daily.ts",
+        "src/server/api/chat.ts",
+        "src/app/shared/components/video-room/**",
+        "src/app/shared/components/chat-panel/**",
+        "docs/audit/agents/task-boards/06-video-chat-agent-board.md"
+      ]
+    },
+    {
+      "id": "D7-PAY",
+      "name": "Payment UI Agent",
+      "allowedWriteGlobs": [
+        "src/app/shared/components/payment-mock/**",
+        "src/app/features/patient/dashboard/**",
+        "docs/audit/agents/task-boards/07-payment-agent-board.md"
+      ]
+    },
+    {
+      "id": "D8-INFRA",
+      "name": "Infrastructure and Deployment Agent",
+      "allowedWriteGlobs": [
+        "src/server.ts",
+        "render.yaml",
+        "Dockerfile",
+        "docker-compose.yml",
+        ".dockerignore",
+        "docs/deploy/**",
+        "docs/audit/agents/reports/INF-02-render-provisioning-checklist.md",
+        "docs/audit/agents/task-boards/08-infra-agent-board.md"
+      ]
+    },
+    {
+      "id": "D9-CI",
+      "name": "CI/CD and Testing Agent",
+      "allowedWriteGlobs": [
+        ".github/workflows/ci.yml",
+        "e2e/**",
+        "docs/ci/**",
+        "docs/execution/**",
+        "docs/audit/agents/task-boards/09-ci-agent-board.md"
+      ]
+    },
+    {
+      "id": "AIC-10",
+      "name": "Audit and Integration Checker",
+      "allowedWriteGlobs": [
+        "docs/audit/agents/reports/**",
+        "docs/audit/agents/task-boards/10-audit-checker-board.md"
+      ]
+    }
+  ]
+}

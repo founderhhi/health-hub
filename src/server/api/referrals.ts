@@ -81,13 +81,30 @@ referralsRouter.post('/', requireAuth, requireRole(['gp', 'doctor', 'specialist'
   }
 });
 
-referralsRouter.get('/specialist', requireAuth, requireRole(['specialist']), async (_req, res) => {
+referralsRouter.get('/specialist', requireAuth, requireRole(['specialist', 'admin']), async (req, res) => {
   try {
+    const user = (req as any).user;
+    const specialistId = req.query['specialistId'] as string | undefined;
+    const params: string[] = [];
+    let whereClause = '';
+
+    if (user.role === 'specialist') {
+      whereClause = 'where r.to_specialist_id = $1';
+      params.push(user.userId);
+    } else if (specialistId) {
+      whereClause = 'where r.to_specialist_id = $1';
+      params.push(specialistId);
+    } else {
+      return res.status(400).json({ error: 'specialistId query parameter is required for admin' });
+    }
+
     const result = await db.query(
       `select r.*, u.display_name as patient_name, u.phone as patient_phone
        from referrals r
        join users u on u.id = r.patient_id
-       order by r.created_at desc`
+       ${whereClause}
+       order by r.created_at desc`,
+      params
     );
     return res.json({ referrals: result.rows });
   } catch (error) {
@@ -98,13 +115,20 @@ referralsRouter.get('/specialist', requireAuth, requireRole(['specialist']), asy
 
 referralsRouter.get('/:id', requireAuth, async (req, res) => {
   try {
+    const user = (req as any).user;
     const { id } = req.params;
     const result = await db.query(
       `select r.*, u.display_name as patient_name, u.phone as patient_phone
        from referrals r
        join users u on u.id = r.patient_id
-       where r.id = $1`,
-      [id]
+       where r.id = $1
+         and (
+           $2 = 'admin' or
+           r.patient_id = $3 or
+           r.from_provider_id = $3 or
+           r.to_specialist_id = $3
+         )`,
+      [id, user.role, user.userId]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Referral not found' });

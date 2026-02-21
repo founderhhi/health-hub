@@ -2,14 +2,25 @@
   <header class="page-header">
     <button class="back-btn" (click)="goBack()">Back</button>
     <h1>Notifications</h1>
+    <button class="mark-all-btn" *ngIf="unreadCount > 0" (click)="markAllAsRead()">
+      Mark all read ({{ unreadCount }})
+    </button>
   </header>
 
   <div class="notifications-list" *ngIf="!loading && notifications.length > 0; else emptyState">
-    <div class="notification-card" *ngFor="let note of notifications">
-      <div class="note-message">{{ note.message }}</div>
-      <div class="note-meta">
-        <span class="note-type">{{ note.type }}</span>
-        <span>{{ note.created_at | date:'short' }}</span>
+    <div
+      class="notification-card"
+      *ngFor="let note of notifications"
+      [class.notification-card--unread]="!note.read"
+      (click)="markAsRead(note)"
+    >
+      <div class="note-indicator" *ngIf="!note.read"></div>
+      <div class="note-content">
+        <div class="note-message">{{ note.message }}</div>
+        <div class="note-meta">
+          <span class="note-type">{{ note.type }}</span>
+          <span>{{ note.created_at | date:'short' }}</span>
+        </div>
       </div>
     </div>
   </div>

@@ -11,7 +11,8 @@
     "e2e:headed": "playwright test --headed",
     "e2e:ci": "playwright test --reporter=line,junit",
     "serve:ssr:health-hub": "node dist/health-hub/server/server.mjs",
-    "db:init": "node scripts/db-init.js"
+    "db:init": "node scripts/db-init.js",
+    "deploy:smoke": "node scripts/deploy-smoke.js"
   },
   "prettier": {
     "printWidth": 100,
@@ -41,8 +42,10 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",
+    "redis": "^5.11.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "ws": "^8.18.0"

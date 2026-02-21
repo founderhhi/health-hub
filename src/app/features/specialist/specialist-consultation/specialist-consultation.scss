@@ -384,6 +384,12 @@
   display: flex;
   flex-direction: column;
   height: 280px;
+
+  app-chat-panel {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .chat-header {
@@ -588,10 +594,8 @@
     font-weight: v.$font-weight-medium;
   }
 
-  &__hint {
-    font-size: 10px;
-    color: v.$color-text-muted;
-    line-height: 1;
+  .app-coming-soon-badge {
+    margin-top: 2px;
   }
 
   &:hover {
@@ -638,6 +642,12 @@
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-medium;
   text-align: center;
+
+  &--error {
+    border-color: v.$color-danger;
+    background: rgba(231, 76, 60, 0.14);
+    color: v.$color-danger-dark;
+  }
 }
 
 /* End Call Button */
@@ -663,6 +673,10 @@
   svg {
     width: 20px;
     height: 20px;
+  }
+
+  .app-coming-soon-badge {
+    margin-left: 4px;
   }
 
   &:hover {

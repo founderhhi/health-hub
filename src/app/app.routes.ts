@@ -90,6 +90,14 @@ export const routes: Routes = [
     data: { roles: ['patient'] }
   },
 
+  // 5. Admin Portal Route (FE-10)
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] }
+  },
+
   // 5. Default path - Redirect to landing page (FIXED)
   { path: '', redirectTo: 'landing', pathMatch: 'full' },
   

@@ -8,6 +8,9 @@ create table if not exists users (
   phone text unique not null,
   password_hash text not null,
   display_name text,
+  first_name text,
+  last_name text,
+  is_operating boolean not null default true,
   created_at timestamptz not null default now()
 );
 
@@ -26,11 +29,14 @@ create table if not exists provider_profiles (
 create table if not exists consult_requests (
   id uuid primary key default uuid_generate_v4(),
   patient_id uuid not null references users(id) on delete cascade,
-  status text not null default 'waiting' check (status in ('waiting','accepted','cancelled','completed')),
+  status text not null default 'waiting' check (status in ('waiting','accepted','cancelled','completed','removed')),
   mode text not null default 'video' check (mode in ('video','audio','chat')),
   symptoms jsonb default '{}'::jsonb,
   created_at timestamptz not null default now(),
-  accepted_at timestamptz
+  accepted_at timestamptz,
+  removed_at timestamptz,
+  removed_reason text,
+  removed_by uuid
 );
 
 create table if not exists consultations (
@@ -40,10 +46,13 @@ create table if not exists consultations (
   gp_id uuid references users(id) on delete set null,
   specialist_id uuid references users(id) on delete set null,
   daily_room_url text,
-  status text not null default 'active' check (status in ('active','ended')),
+  status text not null default 'active' check (status in ('active','ended','completed')),
   notes jsonb default '{}'::jsonb,
   started_at timestamptz not null default now(),
-  ended_at timestamptz
+  ended_at timestamptz,
+  completed_at timestamptz,
+  gp_deleted boolean not null default false,
+  gp_deleted_at timestamptz
 );
 
 create table if not exists referrals (
@@ -77,8 +86,20 @@ create table if not exists pharmacy_claims (
   prescription_id uuid not null references prescriptions(id) on delete cascade,
   pharmacy_id uuid not null references users(id) on delete set null,
   claimed_at timestamptz not null default now(),
+  dispensed_at timestamptz,
   dispensed_items jsonb default '[]'::jsonb
 );
+
+create table if not exists chat_messages (
+  id uuid primary key default uuid_generate_v4(),
+  consultation_id uuid not null references consultations(id) on delete cascade,
+  user_id uuid not null references users(id) on delete cascade,
+  message text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_chat_messages_consultation_created_at
+  on chat_messages (consultation_id, created_at);
 
 create table if not exists lab_orders (
   id uuid primary key default uuid_generate_v4(),

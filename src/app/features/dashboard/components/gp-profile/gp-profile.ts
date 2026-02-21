@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthApiService } from '../../../core/api/auth.service';
-import { ProviderProfileData, ProviderProfileService } from '../../../core/services/provider-profile.service';
-import { OperationalStatusToggleComponent } from '../../../shared/components/operational-status-toggle/operational-status-toggle';
+import { AuthApiService } from '../../../../core/api/auth.service';
+import { ProviderProfileData, ProviderProfileService } from '../../../../core/services/provider-profile.service';
+import { OperationalStatusToggleComponent } from '../../../../shared/components/operational-status-toggle/operational-status-toggle';
 
 @Component({
   selector: 'app-gp-profile',
