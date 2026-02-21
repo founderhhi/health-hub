@@ -14,7 +14,7 @@ This repository ships with `.github/workflows/ci.yml` for build, unit, and E2E g
 ## Optional CI variables
 
 - `E2E_RUN_ID`: override generated test run prefix.
-- `E2E_PATIENT_PASSWORD`: generated patient password for E2E.
+- `E2E_PATIENT_PASSWORD`: generated patient password for E2E (must satisfy auth policy; default is `Demo1234`).
 - `E2E_GP_PHONE`, `E2E_GP_PASSWORD`
 - `E2E_SPECIALIST_PHONE`, `E2E_SPECIALIST_PASSWORD`
 - `E2E_PHARMACY_PHONE`, `E2E_PHARMACY_PASSWORD`

@@ -55,7 +55,7 @@ export function loadE2EEnvironment(): E2EEnvironment {
     apiBaseUrl,
     timeoutMs: readNumber('E2E_TIMEOUT_MS', 15000),
     runId: buildRunId(),
-    patientPassword: process.env['E2E_PATIENT_PASSWORD'] || 'demo1234',
+    patientPassword: process.env['E2E_PATIENT_PASSWORD'] || 'Demo1234',
     roles: {
       gp: {
         phone: process.env['E2E_GP_PHONE'] || '+17000000001',
