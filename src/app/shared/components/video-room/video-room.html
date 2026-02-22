@@ -1,0 +1,37 @@
+<section class="video-room">
+  <header class="video-room__header">
+    <h3 class="video-room__title">{{ title }}</h3>
+
+    <div class="video-room__actions">
+      <button
+        type="button"
+        class="video-room__btn video-room__btn--secondary"
+        *ngIf="allowOpenInNewTab"
+        (click)="openInNewTab()"
+      >
+        Open in new tab
+      </button>
+      <button
+        type="button"
+        class="video-room__btn video-room__btn--danger"
+        *ngIf="showLeaveButton"
+        (click)="onLeave()"
+      >
+        Leave
+      </button>
+    </div>
+  </header>
+
+  <div class="video-room__stage" *ngIf="safeRoomUrl; else noRoomTpl">
+    <iframe
+      class="video-room__frame"
+      [src]="safeRoomUrl"
+      allow="camera; microphone; fullscreen; display-capture"
+      title="Video room"
+    ></iframe>
+  </div>
+
+  <ng-template #noRoomTpl>
+    <div class="video-room__empty">No room URL available yet.</div>
+  </ng-template>
+</section>

@@ -1,0 +1,145 @@
+/* ============================================
+   Bottom Navigation Component Styles
+   ============================================ */
+
+/* CSS Custom Properties for the component */
+:host {
+  --bottom-nav-height: 64px;
+  --bottom-nav-bg: #FFFFFF;
+  --bottom-nav-border: #E2E8F0;
+  --bottom-nav-active-color: #2ECC71;
+  --bottom-nav-inactive-color: #94A3B8;
+  --bottom-nav-label-size: 12px;
+  --bottom-nav-icon-size: 24px;
+  --bottom-nav-safe-area: env(safe-area-inset-bottom, 0px);
+}
+
+/* Bottom Navigation Container */
+.hhi-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--bottom-nav-height) + var(--bottom-nav-safe-area));
+  background: var(--bottom-nav-bg);
+  border-top: 1px solid var(--bottom-nav-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: var(--bottom-nav-safe-area);
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Navigation Item */
+.hhi-bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+  padding: 4px 8px;
+  color: var(--bottom-nav-inactive-color);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Hover state */
+  &:hover {
+    color: #64748B;
+  }
+
+  /* Active/Pressed state */
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+
+  /* Focus state for accessibility */
+  &:focus-visible {
+    outline: 2px solid var(--bottom-nav-active-color);
+    outline-offset: -2px;
+    border-radius: 8px;
+  }
+}
+
+/* Active Navigation Item */
+.hhi-bottom-nav__item--active {
+  color: var(--bottom-nav-active-color);
+
+  .hhi-bottom-nav__icon {
+    stroke-width: 2.5px;
+  }
+
+  .hhi-bottom-nav__label {
+    font-weight: 600;
+  }
+}
+
+/* Icon */
+.hhi-bottom-nav__icon {
+  width: var(--bottom-nav-icon-size);
+  height: var(--bottom-nav-icon-size);
+  stroke-width: 2px;
+  transition: all 150ms ease;
+}
+
+/* Label */
+.hhi-bottom-nav__label {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: var(--bottom-nav-label-size);
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  transition: all 150ms ease;
+}
+
+/* ============================================
+   Desktop Adaptations
+   ============================================ */
+@media (min-width: 768px) {
+  :host {
+    --bottom-nav-height: 56px;
+  }
+
+  .hhi-bottom-nav {
+    justify-content: center;
+    gap: 48px;
+  }
+
+  .hhi-bottom-nav__item {
+    flex: 0 0 auto;
+    min-width: 80px;
+    max-width: 120px;
+  }
+}
+
+/* ============================================
+   Hide on Large Screens (Optional)
+   Uncomment if you want to hide on desktop
+   ============================================ */
+/*
+@media (min-width: 1024px) {
+  .hhi-bottom-nav {
+    display: none;
+  }
+}
+*/
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :host {
+    --bottom-nav-bg: #121826;
+    --bottom-nav-border: #1E293B;
+    --bottom-nav-active-color: #2ECC71;
+    --bottom-nav-inactive-color: #64748B;
+  }
+}

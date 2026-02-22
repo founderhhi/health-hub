@@ -2,9 +2,9 @@ import { Routes } from '@angular/router';
 import { DiagnosticsOrdersComponent } from './diagnostics-orders/diagnostics-orders';
 import { DiagnosticsOrderDetailsComponent } from './diagnostics-order-details/diagnostics-order-details';
 import { DiagnosticsResultUploadComponent } from './diagnostics-result-upload/diagnostics-result-upload';
+import { DiagnosticsProfileComponent } from './diagnostics-profile/diagnostics-profile';
 
 export const DIAGNOSTICS_ROUTES: Routes = [
-<<<<<<< HEAD
   {
     path: '',
     component: DiagnosticsOrdersComponent
@@ -16,10 +16,9 @@ export const DIAGNOSTICS_ROUTES: Routes = [
   {
     path: 'upload/:id',
     component: DiagnosticsResultUploadComponent
+  },
+  {
+    path: 'profile',
+    component: DiagnosticsProfileComponent
   }
-=======
-  { path: '', component: DiagnosticsOrdersComponent },
-  { path: 'order/:id', component: DiagnosticsOrderDetailsComponent },
-  { path: 'upload/:id', component: DiagnosticsResultUploadComponent }
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94
 ];

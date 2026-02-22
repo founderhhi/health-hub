@@ -1,0 +1,106 @@
+.connect-page {
+  min-height: 100vh;
+  background: #0B0F14;
+  color: #FFFFFF;
+  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.page-header { margin-bottom: 20px; }
+.page-title { font-size: 24px; font-weight: 700; margin: 0 0 4px; }
+.page-subtitle { color: #94A3B8; font-size: 14px; margin: 0; }
+
+.search-bar { margin-bottom: 16px; }
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #1E293B;
+  background: #121826;
+  color: #FFFFFF;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  &:focus { border-color: #2563EB; }
+}
+
+.specialty-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.spec-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #1E293B;
+  background: #121826;
+  color: #94A3B8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  &--active { background: #2563EB; border-color: #2563EB; color: #FFFFFF; }
+}
+
+.practitioners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.practitioner-card {
+  background: #121826;
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.practitioner-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2563EB;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  &--unavailable { background: #475569; }
+}
+
+.practitioner-info { flex: 1; }
+.practitioner-name { font-weight: 600; font-size: 15px; }
+.practitioner-specialty { color: #94A3B8; font-size: 13px; }
+.practitioner-facility { color: #64748B; font-size: 12px; }
+
+.practitioner-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.availability-badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  background: #1E293B;
+  color: #94A3B8;
+  &--online { background: #064E3B; color: #34D399; }
+}
+
+.rating {
+  font-size: 12px;
+  color: #FBBF24;
+  &::before { content: '\2605 '; }
+}
+
+.empty-state { text-align: center; color: #94A3B8; padding: 40px 0; }

@@ -1,49 +1,11 @@
 import { Routes } from '@angular/router';
-// Use the exact path from app.routes.ts to the .ts files
-import { LoginComponent } from './login/login.component'; 
-import { SignupComponent } from './signup/signup.component';
+import { authGuard } from './shared/guards/auth.guard';
+import { roleGuard } from './shared/guards/role.guard';
 
 export const routes: Routes = [
-<<<<<<< HEAD
-    {
-        path: '',
-        loadChildren: () => import('./features/landing/landing.route').then(m => m.LANDING_ROUTES)
-    },
-    {
-        path: 'auth',
-        loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
-    },
-    {
-        path: 'dashboard',
-        loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
-    },
-    {
-        path: 'patient-services',
-        loadChildren: () => import('./features/practitioner-connect/practitioner-connect.route').then(m => m.PRACTIOTIONER_ROUTES)
-    },
-    {
-        path: 'heal-well',
-        loadChildren: () => import('./features/heal-well/heal-well.route').then(m => m.HEAL_WELL_ROUTES)
-    },
-    {
-        path: 'provider/specialist',
-        loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES)
-    },
-    {
-        path: 'provider/pharmacy',
-        loadChildren: () => import('./features/pharmacy/pharmacy.routes').then(m => m.PHARMACY_ROUTES)
-    },
-    {
-        path: 'provider/diagnostics',
-        loadChildren: () => import('./features/diagnostics/diagnostics.routes').then(m => m.DIAGNOSTICS_ROUTES)
-    }
-];
-=======
-  // 1. Your new Login/Signup paths
-  { path: 'login', component: LoginComponent },
-  { path: 'signup', component: SignupComponent },
-
-  // 2. Your existing Feature paths
+  // 1. Public routes - No authentication required
+  { path: 'login', redirectTo: 'auth/login', pathMatch: 'full' },
+  { path: 'signup', redirectTo: 'auth/signup', pathMatch: 'full' },
   {
     path: 'landing',
     loadChildren: () => import('./features/landing/landing.route').then(m => m.LANDING_ROUTES)
@@ -52,32 +14,93 @@ export const routes: Routes = [
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
+
+  // 2. Protected Feature paths - Authentication required
   {
     path: 'dashboard',
-    loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
+    loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'gp',
+    loadComponent: () => import('./features/dashboard/components/practitioner/practitioner').then(m => m.Practitioner),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['doctor', 'gp'] }
+  },
+  {
+    path: 'gp/profile',
+    loadComponent: () => import('./features/dashboard/components/gp-profile/gp-profile').then(m => m.GpProfileComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['doctor', 'gp'] }
   },
   {
     path: 'patient-services',
-    loadChildren: () => import('./features/practitioner-connect/practitioner-connect.route').then(m => m.PRACTIOTIONER_ROUTES)
+    loadChildren: () => import('./features/practitioner-connect/practitioner-connect.route').then(m => m.PRACTIOTIONER_ROUTES),
+    canActivate: [authGuard]
   },
   {
     path: 'heal-well',
-    loadChildren: () => import('./features/heal-well/heal-well.route').then(m => m.HEAL_WELL_ROUTES)
+    loadChildren: () => import('./features/heal-well/heal-well.route').then(m => m.HEAL_WELL_ROUTES),
+    canActivate: [authGuard]
   },
+  
+  // 3. Provider Portal Routes - Authentication + Role-based access
   {
     path: 'provider/specialist',
-    loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES)
+    loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['specialist', 'doctor'] }
+  },
+  {
+    path: 'specialist',
+    loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['specialist', 'doctor'] }
   },
   {
     path: 'provider/pharmacy',
-    loadChildren: () => import('./features/pharmacy/pharmacy.routes').then(m => m.PHARMACY_ROUTES)
+    loadChildren: () => import('./features/pharmacy/pharmacy.routes').then(m => m.PHARMACY_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['pharmacist', 'pharmacy_tech'] }
+  },
+  {
+    path: 'pharmacy',
+    loadChildren: () => import('./features/pharmacy/pharmacy.routes').then(m => m.PHARMACY_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['pharmacist', 'pharmacy_tech'] }
   },
   {
     path: 'provider/diagnostics',
-    loadChildren: () => import('./features/diagnostics/diagnostics.routes').then(m => m.DIAGNOSTICS_ROUTES)
+    loadChildren: () => import('./features/diagnostics/diagnostics.routes').then(m => m.DIAGNOSTICS_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['lab_tech', 'radiologist', 'pathologist'] }
+  },
+  {
+    path: 'diagnostics',
+    loadChildren: () => import('./features/diagnostics/diagnostics.routes').then(m => m.DIAGNOSTICS_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['lab_tech', 'radiologist', 'pathologist'] }
   },
 
-  // 3. The Default path (Redirects empty URL to login)
-  { path: '', redirectTo: 'login', pathMatch: 'full' }
+  // 4. Patient Portal Route
+  {
+    path: 'patient',
+    loadChildren: () => import('./features/patient/patient.routes').then(m => m.PATIENT_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['patient'] }
+  },
+
+  // 5. Admin Portal Route (FE-10)
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin'] }
+  },
+
+  // 5. Default path - Redirect to landing page (FIXED)
+  { path: '', redirectTo: 'landing', pathMatch: 'full' },
+  
+  // 6. Wildcard route - Redirect unknown paths to landing
+  { path: '**', redirectTo: 'landing' }
 ];
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

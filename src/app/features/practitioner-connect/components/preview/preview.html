@@ -1,1 +1,51 @@
-<p>preview works!</p>
+<section class="connect-page">
+  <header class="page-header">
+    <h1 class="page-title">Practitioner Connect</h1>
+    <p class="page-subtitle">Find and connect with healthcare providers</p>
+  </header>
+
+  <div class="search-bar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by name, specialty, or facility..."
+      [(ngModel)]="searchQuery"
+    />
+  </div>
+
+  <div class="specialty-filters">
+    <button
+      *ngFor="let spec of specialties"
+      class="spec-chip"
+      [class.spec-chip--active]="(spec === 'All' && !selectedSpecialty) || selectedSpecialty === spec"
+      (click)="selectSpecialty(spec)"
+    >
+      {{ spec }}
+    </button>
+  </div>
+
+  <div class="practitioners-list" *ngIf="filteredPractitioners.length > 0; else noResults">
+    <div class="practitioner-card" *ngFor="let doc of filteredPractitioners">
+      <div class="practitioner-avatar" [class.practitioner-avatar--unavailable]="!doc.available">
+        {{ getInitials(doc.name) }}
+      </div>
+      <div class="practitioner-info">
+        <div class="practitioner-name">{{ doc.name }}</div>
+        <div class="practitioner-specialty">{{ doc.specialty }}</div>
+        <div class="practitioner-facility">{{ doc.facility }}</div>
+      </div>
+      <div class="practitioner-meta">
+        <span class="availability-badge" [class.availability-badge--online]="doc.available">
+          {{ doc.available ? 'Available' : 'Offline' }}
+        </span>
+        <span class="rating">{{ doc.rating }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noResults>
+    <div class="empty-state">
+      <p>No practitioners found matching your search.</p>
+    </div>
+  </ng-template>
+</section>

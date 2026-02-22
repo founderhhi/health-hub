@@ -1,60 +1,137 @@
-<<<<<<< HEAD
-<section class="hhi-provider-page">
-  <div class="hhi-provider-container">
-    <header class="hhi-page-header">
-      <h1 class="hhi-page-title">Diagnostics Orders</h1>
-      <p class="hhi-page-subtitle">Manage incoming diagnostic orders.</p>
+<section class="diagnostics-orders">
+  <div class="orders-container">
+    <!-- Page Header -->
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Diagnostics Orders</h1>
+        <p class="page-subtitle">Manage incoming diagnostic orders</p>
+      </div>
+      <button type="button" class="profile-button" (click)="openProfile()" aria-label="Open diagnostics profile">
+        <app-profile-button label="Open diagnostics profile" [initials]="profileInitials"></app-profile-button>
+      </button>
     </header>
 
-    <div class="hhi-section-grid">
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Filters</h2>
-        <div class="hhi-form-grid">
-          <input
-            type="text"
-            class="hhi-input"
-            placeholder="Order ID"
-          />
-          <input
-            type="text"
-            class="hhi-input"
-            placeholder="Patient name"
-          />
-          <select class="hhi-select">
-            <option value="">Status</option>
+    <!-- Collapsible Filter Section -->
+    <div class="filters-section">
+      <button class="filter-toggle" (click)="toggleFilters()" [attr.aria-expanded]="filtersExpanded">
+        <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        <span>Filters</span>
+        <svg class="toggle-icon" [class.expanded]="filtersExpanded" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      
+      <div class="filters-content" [class.expanded]="filtersExpanded">
+        <p class="filters-helper">
+          Limited filters in place. Full functionality coming soon.
+        </p>
+        <div class="filters-grid">
+          <input type="text" class="filter-input" placeholder="Order ID" [(ngModel)]="orderIdSearch" />
+          <input type="text" class="filter-input" placeholder="Patient name" [disabled]="true" />
+          <select class="filter-select" [(ngModel)]="statusFilter">
+            <option value="All Status">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <div class="priority-filter-wrapper">
+            <select class="filter-select" [disabled]="true">
+              <option value="">All Priorities</option>
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgent</option>
+            </select>
+            <span class="coming-soon-pill">Coming Soon</span>
+          </div>
+          <select class="filter-select filter-select--mobile-only" [disabled]="true">
+            <option value="">All Priorities</option>
+            <option value="normal">Normal</option>
+            <option value="urgent">Urgent</option>
           </select>
         </div>
-        <!-- TODO: Wire filters to orders queue query -->
-      </section>
+      </div>
+    </div>
 
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Orders Queue</h2>
-        <div class="hhi-empty">
-          No orders loaded.
+    <!-- Orders List -->
+    <div class="orders-list" *ngIf="filteredOrders.length > 0">
+      <div class="order-card" *ngFor="let order of filteredOrders">
+        <span class="badge badge-new" *ngIf="order.status === 'Pending'">NEW</span>
+        <span class="demo-badge" *ngIf="order.isDemo">Demo Data</span>
+        <div class="order-card-header">
+          <span class="order-id">{{ order.orderId }}</span>
+          <span class="badge" [ngClass]="getStatusClass(order)">
+            {{ order.status }}
+          </span>
         </div>
-        <!-- TODO: Bind diagnostics orders list -->
-      </section>
+        <div class="order-patient">
+          <span class="patient-label">Patient:</span>
+          <span class="patient-name">{{ order.patientName }}</span>
+        </div>
+        <div class="order-tests">
+          <span class="test-item" *ngFor="let test of order.tests">{{ test }}</span>
+        </div>
+        <div class="order-footer">
+          <span class="order-date">Received: {{ order.orderedDate }}</span>
+          <button class="btn btn-primary" [disabled]="!order.id" (click)="viewLiveOrder(order)">View Order</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="orders.length === 0 && !hasActiveFilters">
+      <p>No diagnostic orders yet.</p>
+    </div>
+
+    <div class="empty-state" *ngIf="orders.length > 0 && filteredOrders.length === 0">
+      <svg class="empty-state-icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+        <path d="m8.5 8.5 5 5"></path>
+        <path d="m13.5 8.5-5 5"></path>
+      </svg>
+      <p>No orders found matching your filters</p>
+      <span>Try adjusting your search or filter criteria</span>
+      <button type="button" class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+    </div>
+
+    <!-- Pull to refresh indicator -->
+    <div class="pull-refresh">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      <span>Pull to refresh orders</span>
     </div>
   </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a class="nav-item active" routerLink="/diagnostics">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span class="nav-label">Orders</span>
+    </a>
+    <a class="nav-item" [class.disabled]="!filteredOrders[0]?.id" [routerLink]="filteredOrders[0]?.id ? ['/diagnostics/upload', filteredOrders[0]?.id] : null" [attr.aria-disabled]="!filteredOrders[0]?.id">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <span class="nav-label">Upload</span>
+    </a>
+    <a class="nav-item" routerLink="/diagnostics">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <span class="nav-label">Reports</span>
+    </a>
+  </nav>
 </section>
-=======
-<app-header></app-header>
-<main class="p-6 bg-gray-50 min-h-screen">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-semibold mb-4">Diagnostics Orders</h1>
-
-    <div class="mb-4 flex gap-2">
-      <input placeholder="Filter by patient" class="p-2 border rounded flex-1" />
-      <select class="p-2 border rounded">
-        <option>All Tests</option>
-      </select>
-    </div>
-
-    <!-- TODO: bind orders list here -->
-    <div class="p-6 bg-gray-50 border border-dashed border-gray-200 rounded text-gray-600">
-      No orders loaded.
-    </div>
-  </div>
-</main>
-<app-footer></app-footer>
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

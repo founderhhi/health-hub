@@ -1,0 +1,47 @@
+<section class="chat-panel">
+  <header class="chat-panel__header">
+    <h3 class="chat-panel__title">{{ title }}</h3>
+    <button type="button" class="chat-panel__refresh" (click)="loadMessages()" [disabled]="loading || disabled">
+      Refresh
+    </button>
+  </header>
+
+  <div class="chat-panel__status" *ngIf="loading">Loading messages...</div>
+  <div class="chat-panel__status chat-panel__status--error" *ngIf="!loading && error">{{ error }}</div>
+
+  <div #messagesContainer class="chat-panel__messages" *ngIf="!loading">
+    <div class="chat-panel__empty" *ngIf="messages.length === 0">No messages yet.</div>
+
+    <article
+      class="chat-panel__message"
+      *ngFor="let item of messages; trackBy: trackMessage"
+      [class.chat-panel__message--mine]="item.mine"
+    >
+      <p class="chat-panel__meta">
+        <span class="chat-panel__sender">{{ item.sender_name || item.sender_role || 'Participant' }}</span>
+        <time class="chat-panel__time">{{ item.created_at | date: 'shortTime' }}</time>
+      </p>
+      <p class="chat-panel__text">{{ item.message }}</p>
+    </article>
+  </div>
+
+  <form class="chat-panel__composer" (ngSubmit)="sendMessage()">
+    <input
+      type="text"
+      class="chat-panel__input"
+      [placeholder]="placeholder"
+      [(ngModel)]="draft"
+      name="chatMessage"
+      [disabled]="disabled || sending"
+      autocomplete="off"
+      maxlength="1000"
+    />
+    <button
+      type="submit"
+      class="chat-panel__send"
+      [disabled]="disabled || sending || !draft.trim()"
+    >
+      {{ sending ? 'Sending...' : sendButtonLabel }}
+    </button>
+  </form>
+</section>

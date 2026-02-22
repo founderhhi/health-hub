@@ -1,84 +1,167 @@
-<<<<<<< HEAD
-<section class="hhi-provider-page">
-  <div class="hhi-provider-container">
-    <header class="hhi-page-header">
-      <h1 class="hhi-page-title">Order Details</h1>
-      <p class="hhi-page-subtitle">Review diagnostic order information.</p>
-    </header>
+<section class="order-details">
+  <div class="details-container">
+    <!-- Back Button -->
+    <div class="details-header">
+      <button class="btn btn-ghost back-button" (click)="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"></path>
+        </svg>
+        Back to Orders
+      </button>
+    </div>
 
-    <div class="hhi-section-grid">
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Order Summary</h2>
-        <div class="hhi-empty">
-          No order summary available.
-        </div>
-        <!-- TODO: Bind order summary data -->
-      </section>
+    <!-- Order Title Section -->
+    <div class="order-title-section">
+      <div class="order-title-row">
+        <h1 class="order-id">DX-{{ order?.id | slice:0:8 }}</h1>
+        <span
+          class="badge"
+          [ngClass]="{
+            'badge-routine': order?.status === 'ordered',
+            'badge-urgent': order?.status === 'in_progress',
+            'badge-emergency': order?.status === 'completed'
+          }"
+        >
+          {{ order?.status | titlecase }}
+        </span>
+      </div>
+      <p class="order-received">Received {{ order?.created_at | date:'short' }}</p>
+    </div>
 
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Tests List</h2>
-        <div class="hhi-empty">
-          No tests available.
+    <!-- Patient Info Card -->
+    <div class="card patient-card">
+      <div class="patient-header">
+        <div class="avatar">SJ</div>
+        <div class="patient-details">
+          <h2 class="patient-name">{{ order?.patient_name || 'Patient' }}</h2>
+          <p class="patient-meta">ID: {{ order?.patient_id || 'Unknown' }}</p>
         </div>
-        <!-- TODO: Bind tests list -->
-      </section>
+      </div>
+    </div>
 
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Patient Info</h2>
-        <div class="hhi-empty">
-          No patient information available.
-        </div>
-        <!-- TODO: Bind patient info data -->
-      </section>
+    <!-- Clinical Indication -->
+    <div class="section">
+      <h2 class="section-title">Clinical Indication</h2>
+      <div class="info-box info-box-clinical">
+        <p>
+          Patient presents with fatigue, unexplained weight loss, and increased thirst. 
+          PCP suspects possible diabetes or thyroid dysfunction. Comprehensive metabolic 
+          panel ordered to evaluate glucose levels and thyroid function.
+        </p>
+      </div>
+    </div>
 
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Actions</h2>
-        <div class="hhi-actions">
-          <button type="button" class="hhi-button hhi-button-primary">
-            Accept Order
-          </button>
-          <button type="button" class="hhi-button hhi-button-secondary">
-            Reject
-          </button>
-          <button type="button" class="hhi-button hhi-button-secondary">
-            Print Label
-          </button>
+    <!-- Sample Requirements -->
+    <div class="section">
+      <h2 class="section-title">Sample Requirements</h2>
+      <div class="sample-types">
+        <div class="sample-item">
+          <svg class="sample-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.2 17.6l-2.8-2.8a4 4 0 0 0-5.6 0l-.4.4a4 4 0 0 1-5.6 0l-2.8-2.8a4 4 0 0 1 0-5.6l.4-.4a4 4 0 0 0 0-5.6L5.6 0H24v18.4l-3.8-3.8a4 4 0 0 0 0 5.6l-.4.4z"></path>
+          </svg>
+          <span>Blood (Fasting required - 8 hours)</span>
         </div>
-        <!-- TODO: Wire order action handlers -->
-      </section>
+        <div class="sample-item">
+          <svg class="sample-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.2 17.6l-2.8-2.8a4 4 0 0 0-5.6 0l-.4.4a4 4 0 0 1-5.6 0l-2.8-2.8a4 4 0 0 1 0-5.6l.4-.4a4 4 0 0 0 0-5.6L5.6 0H24v18.4l-3.8-3.8a4 4 0 0 0 0 5.6l-.4.4z"></path>
+          </svg>
+          <span>Urine (Mid-stream clean catch)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Checklist -->
+    <div class="section">
+      <h2 class="section-title">Tests Ordered</h2>
+      
+      <div class="checklist">
+        <div class="checklist-item" *ngFor="let test of order?.tests">
+          <label class="checkbox-label">
+            <input type="checkbox" class="checkbox-input" />
+            <span class="checkbox-mark"></span>
+            <div class="test-info">
+              <span class="test-name">{{ test }}</span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Instructions -->
+    <div class="section">
+      <h2 class="section-title">Special Instructions</h2>
+      <div class="card instructions-card">
+        <ul class="instructions-list">
+          <li>Patient must be fasting for at least 8 hours prior to blood draw</li>
+          <li>Collect blood samples before 10 AM for accurate cortisol levels</li>
+          <li>Verify patient identity with two identifiers before collection</li>
+          <li>Label all specimens immediately after collection</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-section">
+      <div class="status-banner" *ngIf="printStatusMessage" role="status" aria-live="polite">
+        {{ printStatusMessage }}
+      </div>
+      <button type="button" class="btn btn-primary btn-full" data-testid="diagnostics-accept-order" (click)="acceptOrder()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Accept & Start Processing
+      </button>
+      <div class="secondary-actions">
+        <button type="button" class="btn btn-secondary" (click)="printLabel()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          Print Label
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-testid="diagnostics-reject-order"
+          [disabled]="!rejectOrderAvailable"
+          [attr.aria-disabled]="!rejectOrderAvailable"
+          title="Coming soon"
+        >
+          Reject Order <span class="coming-soon-label">Coming soon</span>
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a class="nav-item" routerLink="/diagnostics">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span class="nav-label">Orders</span>
+    </a>
+    <a class="nav-item" [routerLink]="['/diagnostics/upload', order?.id]">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <span class="nav-label">Upload</span>
+    </a>
+    <a class="nav-item" routerLink="/diagnostics">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <span class="nav-label">Reports</span>
+    </a>
+  </nav>
 </section>
-=======
-<app-header></app-header>
-<main class="p-6 bg-gray-50 min-h-screen">
-  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-semibold mb-4">Order Details</h1>
-
-    <section class="mb-4">
-      <h3 class="font-medium mb-2">Order Summary</h3>
-      <!-- TODO: bind order summary -->
-      <div class="text-gray-600">No data yet — connect backend to load.</div>
-    </section>
-
-    <section class="mb-4">
-      <h3 class="font-medium mb-2">Tests List</h3>
-      <!-- TODO: render tests list -->
-      <div class="text-gray-600">No tests listed.</div>
-    </section>
-
-    <section class="mb-4">
-      <h3 class="font-medium mb-2">Patient Info</h3>
-      <!-- TODO: bind patient info -->
-      <div class="text-gray-600">No data yet — connect backend to load.</div>
-    </section>
-
-    <div class="flex gap-3">
-      <button class="px-4 py-2 bg-green-600 text-white rounded" (click)="acceptOrder()">Accept Order</button>
-      <button class="px-4 py-2 bg-red-600 text-white rounded" (click)="rejectOrder()">Reject</button>
-      <button class="px-4 py-2 bg-gray-700 text-white rounded" (click)="printLabel()">Print Label</button>
-    </div>
-  </div>
-</main>
-<app-footer></app-footer>
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

@@ -1,39 +1,92 @@
-import { Component } from '@angular/core';
-<<<<<<< HEAD
-=======
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ReferralsApiService } from '../../../core/api/referrals.service';
+import { LabsApiService } from '../../../core/api/labs.service';
+import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 
 @Component({
   selector: 'app-referral-details',
   standalone: true,
-<<<<<<< HEAD
-  imports: [],
+  imports: [CommonModule, RouterModule],
   templateUrl: './referral-details.html',
   styleUrl: './referral-details.scss',
 })
-export class ReferralDetailsComponent {}
-=======
-  imports: [CommonModule, RouterModule],
-  templateUrl: './referral-details.html'
-})
-export class ReferralDetailsComponent {
-  // TODO: wire route param `id` to load referral summary
+export class ReferralDetailsComponent implements OnInit {
+  referral: any;
+  loading = true;
+  requestInfoNotice: string | null = null;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private referralsApi: ReferralsApiService,
+    private labsApi: LabsApiService,
+    private prescriptionsApi: PrescriptionsApiService
+  ) {}
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.referralsApi.getReferral(id).subscribe({
+        next: (response) => {
+          this.referral = response.referral;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
+    } else {
+      this.loading = false;
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/specialist']);
+  }
+
+  scheduleAppointment(): void {
+    if (this.referral?.id) {
+      this.router.navigate(['/specialist/consultation', this.referral.id]);
+    }
+  }
+
+  orderTests(): void {
+    if (!this.referral?.patient_id) {
+      return;
+    }
+    const tests = ['CBC', 'Lipid Panel', 'HbA1c'];
+    this.labsApi.createOrder(this.referral.patient_id, tests).subscribe();
+  }
 
   accept(): void {
-    // TODO: implement accept action
-    console.log('TODO: accept referral');
+    if (!this.referral?.id) {
+      return;
+    }
+    this.referralsApi.updateStatus(this.referral.id, 'accepted').subscribe({
+      next: (response) => (this.referral = response.referral)
+    });
   }
 
   requestMoreInfo(): void {
-    // TODO: implement request more info action
-    console.log('TODO: request more info');
+    this.requestInfoNotice = 'Request more info is coming soon. You can accept or decline this referral for now.';
   }
 
   decline(): void {
-    // TODO: implement decline action
-    console.log('TODO: decline referral');
+    if (!this.referral?.id) {
+      return;
+    }
+    this.referralsApi.updateStatus(this.referral.id, 'declined').subscribe({
+      next: (response) => (this.referral = response.referral)
+    });
+  }
+
+  prescribe(): void {
+    if (!this.referral?.patient_id) {
+      return;
+    }
+    const items = [{ name: 'Vitamin D', dosage: '1000 IU', frequency: '1x/day', duration: '30 days' }];
+    this.prescriptionsApi.create(this.referral.patient_id, items).subscribe();
   }
 }
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94

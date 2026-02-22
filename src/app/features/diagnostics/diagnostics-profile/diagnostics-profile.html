@@ -1,0 +1,58 @@
+<section class="provider-profile">
+  <div class="profile-container">
+    <header class="profile-header">
+      <button type="button" class="back-button" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"></path>
+          <path d="m12 19-7-7 7-7"></path>
+        </svg>
+        Back
+      </button>
+      <h1>Profile</h1>
+    </header>
+
+    <div class="profile-avatar">{{ profile.facilityName.charAt(0) }}</div>
+
+    <article class="field-card">
+      <span class="field-label">Username</span>
+      <span class="field-value">{{ profile.username }}</span>
+    </article>
+
+    <article class="field-card">
+      <span class="field-label">Diagnostic Center Name</span>
+      <span class="field-value">{{ profile.facilityName }}</span>
+    </article>
+
+    <article class="field-card">
+      <span class="field-label">Registration Number</span>
+      <span class="field-value">{{ profile.registrationNumber }}</span>
+    </article>
+
+    <article class="field-card">
+      <span class="field-label">Address</span>
+      <span class="field-value">{{ profile.address }}</span>
+    </article>
+
+    <article class="field-card">
+      <span class="field-label">Phone Number</span>
+      <span class="field-value">{{ profile.phoneNumber }}</span>
+    </article>
+
+    <article class="field-card">
+      <span class="field-label">Operational Status</span>
+      <app-operational-status-toggle
+        [isOperating]="profile.operational"
+        (isOperatingChange)="updateOperationalStatus($event)"
+      />
+    </article>
+
+    <button type="button" class="sign-out-button" (click)="signOut()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      Sign Out
+    </button>
+  </div>
+</section>

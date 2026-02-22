@@ -1,88 +1,185 @@
-<<<<<<< HEAD
-<section class="hhi-provider-page">
-  <div class="hhi-provider-container">
-    <header class="hhi-page-header">
-      <h1 class="hhi-page-title">Consultation</h1>
-      <p class="hhi-page-subtitle">Review referral and manage the consultation.</p>
-    </header>
-
-    <div class="hhi-section-grid">
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Patient Summary</h2>
-        <div class="hhi-empty">
-          No patient details available.
-        </div>
-        <!-- TODO: Bind patient summary data -->
-      </section>
-
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Referral Info</h2>
-        <div class="hhi-empty">
-          No referral information available.
-        </div>
-        <!-- TODO: Bind referral information data -->
-      </section>
-
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Notes</h2>
-        <div class="hhi-empty">
-          No notes yet.
-        </div>
-        <!-- TODO: Bind consultation notes data -->
-      </section>
-
-      <section class="hhi-card">
-        <h2 class="hhi-card-title">Actions</h2>
-        <div class="hhi-actions">
-          <button type="button" class="hhi-button hhi-button-primary">
-            Start Consultation
-          </button>
-          <button type="button" class="hhi-button hhi-button-secondary">
-            End Consultation
-          </button>
-          <button type="button" class="hhi-button hhi-button-secondary">
-            Request Labs
-          </button>
-          <button type="button" class="hhi-button hhi-button-secondary">
-            Prescribe
-          </button>
-        </div>
-        <!-- TODO: Wire consultation action handlers -->
-      </section>
+<section class="hhi-provider-page active-consultation">
+  <!-- Session Timer with Progress Bar -->
+  <div class="session-timer">
+    <div class="timer-content">
+      <svg class="timer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span class="timer-time">12:34</span>
+      <span class="timer-total">/ 15:00</span>
+    </div>
+    <div class="timer-progress">
+      <div class="timer-progress__bar" style="width: 83%;"></div>
     </div>
   </div>
-</section>
-=======
-<app-header></app-header>
-<main class="p-6 bg-gray-50 min-h-screen">
-  <div class="max-w-4xl mx-auto grid grid-cols-3 gap-6">
-    <!-- Left: Patient Summary -->
-    <div class="col-span-1 bg-white p-4 rounded shadow">
-      <h3 class="font-semibold mb-2">Patient Summary</h3>
-      <!-- TODO: bind patient name, age, identifiers -->
-      <div class="text-gray-600">No data yet — connect backend to load.</div>
-    </div>
 
-    <!-- Middle: Referral Info & Notes -->
-    <div class="col-span-1 bg-white p-4 rounded shadow">
-      <h3 class="font-semibold mb-2">Referral Info</h3>
-      <!-- TODO: bind referral metadata -->
-      <div class="text-gray-600 mb-4">No data yet — connect backend to load.</div>
+  <!-- Main Consultation Layout -->
+  <div class="consultation-layout">
+    <!-- Patient Info Panel (Left on Desktop - 40%) -->
+    <aside class="patient-panel">
+      <!-- Patient Summary Card -->
+      <div class="panel-card patient-summary">
+        <div class="patient-header">
+          <div class="patient-avatar">{{ patientInitials }}</div>
+          <div class="patient-details">
+            <h2 class="patient-name">{{ patientName }}</h2>
+            <p class="patient-subtitle">{{ patientSubtitle }}</p>
+          </div>
+        </div>
+      </div>
 
-      <h3 class="font-semibold mb-2">Notes</h3>
-      <!-- TODO: bind notes list -->
-      <div class="text-gray-600">No data yet — connect backend to load.</div>
-    </div>
+      <!-- Chief Complaint -->
+      <div class="panel-card">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Chief Complaint
+        </h3>
+        <p class="complaint-text">{{ chiefComplaint }}</p>
+      </div>
 
-    <!-- Right: Actions Panel -->
-    <aside class="col-span-1 bg-white p-4 rounded shadow flex flex-col">
-      <h3 class="font-semibold mb-4">Actions</h3>
-      <button class="mb-2 px-4 py-2 bg-green-600 text-white rounded" (click)="startConsultation()">Start Consultation</button>
-      <button class="mb-2 px-4 py-2 bg-red-600 text-white rounded" (click)="endConsultation()">End Consultation</button>
-      <button class="mb-2 px-4 py-2 bg-yellow-500 text-white rounded" (click)="requestLabs()">Request Labs</button>
-      <button class="mb-2 px-4 py-2 bg-blue-600 text-white rounded mt-auto" (click)="prescribe()">Prescribe</button>
+      <!-- Vitals -->
+      <div class="panel-card">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          Vitals
+        </h3>
+        <div class="vitals-grid">
+          <div class="vital-item">
+            <span class="vital-label">BP</span>
+            <span class="vital-value">140/90</span>
+            <span class="vital-unit">mmHg</span>
+          </div>
+          <div class="vital-item">
+            <span class="vital-label">HR</span>
+            <span class="vital-value">88</span>
+            <span class="vital-unit">bpm</span>
+          </div>
+          <div class="vital-item">
+            <span class="vital-label">Temp</span>
+            <span class="vital-value">98.6</span>
+            <span class="vital-unit">°F</span>
+          </div>
+          <div class="vital-item">
+            <span class="vital-label">SpO2</span>
+            <span class="vital-value">98</span>
+            <span class="vital-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="panel-card panel-card--flex">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Consultation Notes
+        </h3>
+        <textarea 
+          class="notes-textarea" 
+          placeholder="Add consultation notes..."
+        ></textarea>
+        <div class="notes-actions">
+          <button class="btn btn--secondary btn--sm">Save Draft</button>
+          <button class="btn btn--primary btn--sm">Save & Close</button>
+        </div>
+      </div>
     </aside>
+
+    <!-- Video & Chat Area (Right on Desktop - 60%) -->
+    <main class="video-chat-panel">
+      <!-- Video Container -->
+      <div class="video-container">
+        <!-- Main Patient Video -->
+        <div class="video-main">
+          <div class="video-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Patient video connecting...</span>
+          </div>
+          
+          <!-- Video Overlay Controls -->
+          <div class="video-overlay">
+            <div class="participant-name">Sarah Johnson</div>
+            <div class="connection-status">
+              <span class="status-dot"></span>
+              Connected
+            </div>
+          </div>
+        </div>
+        
+        <!-- PIP Self View -->
+        <div class="video-pip">
+          <div class="video-pip__content">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <button class="pip-toggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <app-chat-panel
+        class="chat-container"
+        [consultationId]="consultationId"
+        [currentUserId]="currentUserId"
+      ></app-chat-panel>
+    </main>
   </div>
-</main>
-<app-footer></app-footer>
->>>>>>> 584888cea698e878fe157096eaac97c89d5ddb94
+
+  <!-- Quick Actions Panel -->
+  <div class="quick-actions">
+    <button class="quick-action" (click)="requestLabs()" [disabled]="requestingLabs">
+      <div class="quick-action__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+        </svg>
+      </div>
+      <span class="quick-action__label">{{ requestingLabs ? 'Requesting...' : 'Request Labs' }}</span>
+    </button>
+    
+    <button class="quick-action" (click)="prescribe()" [disabled]="creatingPrescription">
+      <div class="quick-action__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+      </div>
+      <span class="quick-action__label">{{ creatingPrescription ? 'Creating...' : 'Prescribe' }}</span>
+    </button>
+
+    <button class="quick-action" (click)="startConsultation()">
+      <div class="quick-action__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="23 7 16 12 23 17 23 7"></polygon>
+          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+        </svg>
+      </div>
+      <span class="quick-action__label">Open Call</span>
+    </button>
+  </div>
+
+  <p class="inline-notice" *ngIf="statusMessage">{{ statusMessage }}</p>
+  <p class="inline-notice inline-notice--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</section>

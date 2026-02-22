@@ -1,0 +1,161 @@
+.healwell-page {
+  min-height: 100vh;
+  background: #0B0F14;
+  color: #FFFFFF;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.page-subtitle {
+  color: #94A3B8;
+  font-size: 14px;
+  margin: 0;
+}
+
+.search-bar {
+  margin-bottom: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #1E293B;
+  background: #121826;
+  color: #FFFFFF;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #2563EB;
+  }
+}
+
+.tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tag-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #1E293B;
+  background: #121826;
+  color: #94A3B8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &--active {
+    background: #2563EB;
+    border-color: #2563EB;
+    color: #FFFFFF;
+  }
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.video-card {
+  background: #121826;
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: #2563EB55;
+  }
+}
+
+.video-thumbnail {
+  height: 140px;
+  background: linear-gradient(135deg, #1A2332, #0B0F14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.play-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(37, 99, 235, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 2px;
+  }
+}
+
+.video-duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #FFFFFF;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.video-info {
+  padding: 12px;
+}
+
+.video-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.video-desc {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.video-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.video-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #1E293B;
+  color: #94A3B8;
+  font-size: 11px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #94A3B8;
+  padding: 40px 0;
+}

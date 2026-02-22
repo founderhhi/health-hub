@@ -1,0 +1,114 @@
+<section class="admin-dashboard">
+  <header class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <div class="tab-bar">
+      <button class="tab" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">Users</button>
+      <button class="tab" [class.active]="activeTab === 'health'" (click)="activeTab = 'health'">System Health</button>
+    </div>
+  </header>
+
+  @if (activeTab === 'users') {
+    <div class="controls">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by name or phone..."
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+      />
+      <select class="role-select" [(ngModel)]="roleFilter" (ngModelChange)="onRoleFilter()">
+        <option value="">All Roles</option>
+        @for (role of roles; track role) {
+          <option [value]="role">{{ role }}</option>
+        }
+      </select>
+    </div>
+
+    @if (loading) {
+      <div class="loading">Loading users...</div>
+    } @else {
+      <div class="user-count">{{ totalUsers }} users found</div>
+
+      <div class="user-table-wrap">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users; track user.id) {
+              <tr>
+                <td class="name-cell">{{ user.display_name || (user.first_name || '') + ' ' + (user.last_name || '') }}</td>
+                <td>{{ user.phone }}</td>
+                <td>
+                  <select class="inline-select" [ngModel]="user.role" (ngModelChange)="updateRole(user, $event)">
+                    @for (r of roles; track r) {
+                      <option [value]="r">{{ r }}</option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <span class="status-badge" [class.active]="user.is_operating" [class.disabled]="!user.is_operating">
+                    {{ user.is_operating ? 'Active' : 'Disabled' }}
+                  </span>
+                </td>
+                <td>
+                  <button class="action-btn" (click)="toggleStatus(user)">
+                    {{ user.is_operating ? 'Disable' : 'Enable' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button class="page-btn" [disabled]="currentPage <= 1" (click)="prevPage()">Previous</button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="page-btn" [disabled]="currentPage >= totalPages" (click)="nextPage()">Next</button>
+      </div>
+    }
+  }
+
+  @if (activeTab === 'health') {
+    @if (systemHealth) {
+      <div class="health-grid">
+        <div class="health-card">
+          <h3>Total Users</h3>
+          <span class="health-value">{{ systemHealth.users.total }}</span>
+        </div>
+        <div class="health-card">
+          <h3>Consultations (24h)</h3>
+          <span class="health-value">{{ systemHealth.activity.consultationsLast24h }}</span>
+        </div>
+        <div class="health-card">
+          <h3>Queue Size</h3>
+          <span class="health-value">{{ systemHealth.activity.pendingQueueSize }}</span>
+        </div>
+      </div>
+
+      <div class="role-breakdown">
+        <h2>Users by Role</h2>
+        <div class="role-bars">
+          @for (item of healthRoles; track item.role) {
+            <div class="role-bar-row">
+              <span class="role-label">{{ item.role }}</span>
+              <div class="role-bar">
+                <div class="role-bar-fill" [style.width.%]="(item.count / systemHealth.users.total) * 100"></div>
+              </div>
+              <span class="role-count">{{ item.count }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="loading">Loading system health...</div>
+    }
+  }
+</section>

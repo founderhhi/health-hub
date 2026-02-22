@@ -1,3 +1,507 @@
-.hhi-actions {
-  justify-content: flex-start;
+@use '../../../shared/styles/variables' as v;
+@use '../../../shared/styles/mixins' as m;
+
+/* ============================================
+   Referral Details Styles
+   ============================================ */
+
+.referral-details {
+  min-height: 100vh;
+  background: v.$color-surface;
+  padding-bottom: calc(v.$bottom-nav-height + v.$space-xl);
+
+  .hhi-provider-container {
+    max-width: v.$content-max-width;
+    margin: 0 auto;
+    padding: v.$space-md;
+  }
+}
+
+/* Header & Back Button */
+.referral-details__header {
+  margin-bottom: v.$space-md;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-sm;
+  padding: v.$space-sm v.$space-sm v.$space-sm 0;
+  background: transparent;
+  border: none;
+  color: v.$color-soft-charcoal;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-medium;
+  cursor: pointer;
+  transition: color v.$transition-fast;
+
+  &:hover {
+    color: v.$color-emerald;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Page Title */
+.page-title {
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-bold;
+  color: v.$color-text-primary;
+  margin: 0 0 v.$space-lg 0;
+  letter-spacing: 0.02em;
+}
+
+/* Section Wrapper */
+.section-wrapper {
+  margin-bottom: v.$space-lg;
+}
+
+.section-title {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+  margin: 0 0 v.$space-sm 0;
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+
+  .attachment-count {
+    color: v.$color-text-muted;
+    font-weight: v.$font-weight-regular;
+  }
+}
+
+/* Info Card */
+.info-card {
+  @include m.card;
+  background: v.$color-white;
+}
+
+/* Patient Info Card */
+.patient-info-card {
+  margin-bottom: v.$space-lg;
+}
+
+.patient-info-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  padding: v.$space-sm 0;
+}
+
+.patient-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: v.$radius-full;
+  background: linear-gradient(135deg, v.$color-emerald, v.$color-emerald-dark);
+  color: v.$color-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-bold;
+  flex-shrink: 0;
+}
+
+.patient-info-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.patient-name {
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-bold;
+  color: v.$color-text-primary;
+  margin: 0;
+}
+
+.patient-meta {
+  font-size: v.$font-size-base;
+  color: v.$color-text-secondary;
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background: v.$color-border;
+  margin: v.$space-md 0;
+}
+
+.patient-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: v.$space-md;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  font-size: v.$font-size-xs;
+  color: v.$color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: v.$font-weight-medium;
+}
+
+.info-value {
+  font-size: v.$font-size-base;
+  color: v.$color-text-primary;
+  font-weight: v.$font-weight-medium;
+}
+
+/* Clinical Box */
+.clinical-box {
+  background: v.$color-info-light;
+  border-left: 4px solid v.$color-info;
+  border-radius: 0 v.$radius-md v.$radius-md 0;
+  padding: v.$space-md;
+}
+
+.clinical-text {
+  font-size: v.$font-size-base;
+  color: v.$color-text-secondary;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Clinical Grid */
+.clinical-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: v.$space-md;
+}
+
+.clinical-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clinical-label {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  font-weight: v.$font-weight-medium;
+}
+
+.clinical-value {
+  font-size: v.$font-size-base;
+  color: v.$color-text-primary;
+}
+
+.urgency-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px v.$space-sm;
+  border-radius: v.$radius-full;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-bold;
+  text-transform: uppercase;
+
+  &--routine {
+    background: v.$color-emerald-light;
+    color: v.$color-emerald-dark;
+  }
+
+  &--urgent {
+    background: v.$color-warning-light;
+    color: v.$color-warning-dark;
+  }
+
+  &--emergency {
+    background: v.$color-danger-light;
+    color: v.$color-danger-dark;
+  }
+}
+
+/* Attachments */
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  padding: v.$space-md;
+  text-decoration: none;
+  border-radius: v.$radius-md;
+  transition: background v.$transition-fast;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid v.$color-border-light;
+  }
+
+  &:hover {
+    background: v.$color-surface;
+  }
+}
+
+.attachment-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: v.$radius-md;
+  background: v.$color-emerald-light;
+  color: v.$color-emerald-dark;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.attachment-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.attachment-name {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-medium;
+  color: v.$color-text-primary;
+  @include m.text-truncate;
+}
+
+.attachment-meta {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.attachment-arrow {
+  width: 20px;
+  height: 20px;
+  color: v.$color-text-light;
+  flex-shrink: 0;
+}
+
+/* Physician Info */
+.physician-info {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+}
+
+.physician-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: v.$radius-full;
+  background: v.$color-surface-elevated;
+  color: v.$color-text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: v.$font-size-md;
+  font-weight: v.$font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.physician-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.physician-name {
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+}
+
+.physician-specialty {
+  font-size: v.$font-size-base;
+  color: v.$color-text-secondary;
+}
+
+.physician-date {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+/* Action Panel */
+.action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+  margin-top: v.$space-xl;
+  padding-top: v.$space-lg;
+  border-top: 1px solid v.$color-border;
+}
+
+.action-btn {
+  @include m.button-base;
+  width: 100%;
+
+  &--primary {
+    @include m.button-primary;
+    min-height: 48px;
+  }
+
+  &--secondary {
+    @include m.button-secondary;
+    min-height: 48px;
+  }
+
+  &--ghost {
+    @include m.button-ghost;
+    flex: 1;
+  }
+
+  &--danger {
+    @include m.button-danger;
+    flex: 1;
+  }
+}
+
+.secondary-actions {
+  display: flex;
+  gap: v.$space-md;
+}
+
+.inline-notice {
+  margin: 0;
+  padding: v.$space-sm v.$space-md;
+  border-radius: v.$radius-md;
+  border: 1px solid v.$color-warning;
+  background: v.$color-warning-light;
+  color: v.$color-warning-dark;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+}
+
+/* Bottom Navigation */
+.hhi-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: v.$bottom-nav-height;
+  background: v.$color-white;
+  border-top: 1px solid v.$color-border;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: v.$z-fixed;
+  padding-bottom: v.$safe-area-bottom;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: v.$space-xs v.$space-sm;
+    color: v.$color-text-light;
+    text-decoration: none;
+    transition: color v.$transition-fast;
+    background: none;
+    border: none;
+    font: inherit;
+
+    &--active {
+      color: v.$color-emerald;
+    }
+
+    &--disabled {
+      color: v.$color-text-muted;
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+  }
+
+  &__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: v.$font-weight-medium;
+  }
+
+  &__hint {
+    font-size: 10px;
+    color: v.$color-text-muted;
+    line-height: 1;
+  }
+}
+
+/* Desktop Responsive */
+@include m.desktop {
+  .referral-details {
+    padding-bottom: v.$space-xl;
+  }
+
+  .hhi-bottom-nav {
+    display: none;
+  }
+
+  .action-panel {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .action-btn {
+      flex: 1;
+      min-width: 200px;
+
+      &--primary,
+      &--secondary {
+        max-width: 280px;
+      }
+    }
+
+    .secondary-actions {
+      flex: 1;
+      min-width: 200px;
+    }
+  }
+}
+
+/* Mobile Responsive */
+@include m.mobile {
+  .referral-details {
+    .hhi-provider-container {
+      padding: v.$space-md;
+    }
+  }
+
+  .patient-info-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .patient-name {
+    font-size: v.$font-size-lg;
+  }
+
+  .patient-info-grid {
+    grid-template-columns: 1fr;
+    gap: v.$space-sm;
+  }
+
+  .clinical-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .secondary-actions {
+    flex-direction: column;
+  }
+
+  .attachment-item {
+    padding: v.$space-sm;
+  }
 }

@@ -1,0 +1,320 @@
+<section class="patient-dashboard">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="greeting-section">
+      <p class="greeting-time">{{ greeting }},</p>
+      <h1 class="user-name">{{ userName }}</h1>
+    </div>
+    <button class="notification-btn" (click)="viewNotifications()">
+      <svg class="notification-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+    </button>
+  </header>
+
+  @if (requestingConsult) {
+    <div class="status-banner status-banner--info">Requesting a GP, please wait...</div>
+  }
+  @if (requestError) {
+    <div class="status-banner status-banner--error">{{ requestError }}</div>
+  }
+
+  <!-- Health Summary Cards (Horizontal Scroll) -->
+  <section class="health-summary">
+    <div class="summary-scroll">
+      <div class="summary-card">
+        <div class="summary-icon consultations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+          </svg>
+        </div>
+        <span class="summary-value">{{ stats.consultations }}</span>
+        <span class="summary-label">Consultations</span>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon prescriptions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <span class="summary-value">{{ stats.prescriptions }}</span>
+        <span class="summary-label">Prescriptions</span>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon records">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <span class="summary-value">{{ stats.records }}</span>
+        <span class="summary-label">Lab Orders</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Grid -->
+  <section class="services-section">
+    <h2 class="section-title">Services</h2>
+    <div class="services-grid">
+      <!-- GP Consultation - Most Popular -->
+      <div class="service-card popular" (click)="navigateToService('gp')">
+        <span class="popular-badge">Most Popular</span>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <h3 class="service-title">GP Consultation</h3>
+        <p class="service-desc">Talk to a doctor now</p>
+        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+
+      <!-- Heal Well -->
+      <div class="service-card" (click)="navigateToService('healwell')">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="23 7 16 12 23 17 23 7"/>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+          </svg>
+        </div>
+        <h3 class="service-title">Heal Well</h3>
+        <p class="service-desc">Video wellness library</p>
+        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+
+      <!-- Specialist / Referral Appointments -->
+      <div class="service-card" (click)="navigateToService('specialist')">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <h3 class="service-title">Specialist</h3>
+        <p class="service-desc">Referral appointments</p>
+        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+
+      <!-- Pharmacy / My Prescriptions -->
+      <div class="service-card" (click)="navigateToService('pharmacy')">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <line x1="12" y1="11" x2="12" y2="16"/>
+            <line x1="9" y1="14" x2="15" y2="14"/>
+          </svg>
+        </div>
+        <h3 class="service-title">Pharmacy</h3>
+        <p class="service-desc">My prescriptions</p>
+        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+
+      <!-- Diagnostics - Coming Soon -->
+      <div class="service-card coming-soon" (click)="showComingSoon()">
+        <div class="lock-overlay">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <h3 class="service-title">Diagnostics</h3>
+        <p class="service-desc">Book lab tests</p>
+        <span class="coming-soon-badge">Soon</span>
+      </div>
+
+      <!-- Travel & Insurance - Coming Soon -->
+      <div class="service-card coming-soon" (click)="showComingSoon()">
+        <div class="lock-overlay">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          </svg>
+        </div>
+        <h3 class="service-title">Travel & Insurance</h3>
+        <p class="service-desc">Health coverage</p>
+        <span class="coming-soon-badge">Soon</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Health Records Quick Access -->
+  <section class="records-quick-access">
+    <div class="records-card" (click)="viewRecords()">
+      <div class="records-card-content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="records-icon">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        <div>
+          <h3 class="records-title">Health Records</h3>
+          <p class="records-desc">View prescriptions & lab results</p>
+        </div>
+      </div>
+      <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Payment Card (PAY-01/02/03) -->
+  <section class="payment-section">
+    <div class="payment-card" (click)="openPayment()">
+      <div class="payment-card-header">
+        <div class="payment-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        </div>
+        <div class="payment-info">
+          <h3 class="payment-title">Payment</h3>
+          <p class="payment-subtitle">Billing & Transactions</p>
+        </div>
+        <span class="free-beta-badge">Free Beta</span>
+      </div>
+      <p class="payment-note">No payment required during beta. Tap to try the mock payment flow.</p>
+    </div>
+  </section>
+
+  @if (showPaymentModal) {
+    <div class="payment-overlay" (click)="closePayment()">
+      <div class="payment-modal" (click)="$event.stopPropagation()">
+        <div class="payment-modal-header">
+          <h2>Mock Payment</h2>
+          <button class="close-btn" (click)="closePayment()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <app-payment-mock (paymentComplete)="onPaymentComplete($event)"></app-payment-mock>
+      </div>
+    </div>
+  }
+
+  <!-- Mode Selector Modal -->
+  @if (showModeSelector) {
+    <div class="mode-selector-overlay" (click)="closeModeSelector()">
+      <div class="mode-selector-modal" (click)="$event.stopPropagation()">
+        <h2 class="mode-selector-title">Choose Consultation Mode</h2>
+        <p class="mode-selector-desc">How would you like to connect with your GP?</p>
+        <div class="mode-options">
+          <button
+            class="mode-option"
+            [class.selected]="selectedMode === 'video'"
+            (click)="selectedMode = 'video'"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            <span class="mode-option-label">Video</span>
+            <span class="mode-option-desc">Face-to-face video call</span>
+          </button>
+          <button
+            class="mode-option"
+            [class.selected]="selectedMode === 'audio'"
+            (click)="selectedMode = 'audio'"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <span class="mode-option-label">Audio</span>
+            <span class="mode-option-desc">Voice-only call</span>
+          </button>
+          <button
+            class="mode-option"
+            [class.selected]="selectedMode === 'chat'"
+            (click)="selectedMode = 'chat'"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="mode-option-label">Chat</span>
+            <span class="mode-option-desc">Text-based consultation</span>
+          </button>
+        </div>
+        <div class="mode-selector-actions">
+          <button class="btn-mode-cancel" type="button" (click)="closeModeSelector()">Cancel</button>
+          <button class="btn-mode-confirm" type="button" (click)="requestWithMode()">
+            Request GP
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Recent Prescriptions -->
+  <section class="recent-section" *ngIf="recentPrescriptions.length > 0">
+    <div class="recent-header">
+      <h2 class="section-title">Recent Prescriptions</h2>
+      <button class="link-btn" (click)="viewRecords()">View all</button>
+    </div>
+    <div class="prescription-list">
+      <div class="prescription-card" *ngFor="let rx of recentPrescriptions">
+        <div class="rx-main">
+          <span class="rx-code">{{ rx.code }}</span>
+          <span class="rx-status" [class]="'status-' + rx.status">{{ rx.status | titlecase }}</span>
+        </div>
+        <div class="rx-meta">
+          <span>{{ rx.items?.length || 0 }} items</span>
+          <span>{{ rx.created_at | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Tab Navigation (3 tabs) -->
+  <nav class="bottom-nav">
+    <a class="nav-item active" routerLink="/patient/dashboard" routerLinkActive="active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span class="nav-label">Home</span>
+    </a>
+    <a class="nav-item" routerLink="/patient/appointments" routerLinkActive="active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="nav-label">Appointments</span>
+    </a>
+    <a class="nav-item" routerLink="/patient/profile" routerLinkActive="active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="nav-label">Profile</span>
+    </a>
+  </nav>
+</section>
