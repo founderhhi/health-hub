@@ -20,6 +20,12 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 const isTestEnv = process.env['NODE_ENV'] === 'test';
+const canonicalRedirectSourceHost = (
+  process.env['CANONICAL_REDIRECT_SOURCE_HOST'] || 'healthhubinternational.com'
+).toLowerCase();
+const canonicalRedirectTargetHost = (
+  process.env['CANONICAL_REDIRECT_TARGET_HOST'] || 'www.healthhubinternational.com'
+).toLowerCase();
 
 type WsHealthResponse = {
   status: 'ok' | 'degraded' | 'unavailable';
@@ -112,6 +118,37 @@ async function getWsHealthResponse(): Promise<WsHealthResponse> {
     note: 'WS health helper not exported',
   };
 }
+
+function getForwardedHeaderValue(rawHeader: string | string[] | undefined): string {
+  if (Array.isArray(rawHeader)) {
+    return (rawHeader[0] || '').split(',')[0].trim().toLowerCase();
+  }
+  return (rawHeader || '').split(',')[0].trim().toLowerCase();
+}
+
+function normalizeHostHeader(rawHost: string | undefined): string {
+  return (rawHost || '').trim().toLowerCase().replace(/\.$/, '').replace(/:\d+$/, '');
+}
+
+app.set('trust proxy', true);
+
+// Canonical custom-domain redirect: apex -> www for production traffic.
+app.use((req, res, next) => {
+  if (process.env['NODE_ENV'] !== 'production') {
+    return next();
+  }
+
+  const forwardedHost = getForwardedHeaderValue(req.headers['x-forwarded-host']);
+  const host = normalizeHostHeader(forwardedHost || req.headers.host);
+  if (host !== canonicalRedirectSourceHost) {
+    return next();
+  }
+
+  const forwardedProto = getForwardedHeaderValue(req.headers['x-forwarded-proto']);
+  const protocol = forwardedProto || 'https';
+  const targetPath = req.originalUrl || '/';
+  return res.redirect(308, `${protocol}://${canonicalRedirectTargetHost}${targetPath}`);
+});
 
 // INF-04: Structured JSON request logging
 app.use((req, res, next) => {
