@@ -21,6 +21,11 @@ export const db = new Pool({
   connectionTimeoutMillis: 10000
 });
 
+// Prevent process crashes on transient idle-client socket failures.
+db.on('error', (error) => {
+  console.error('Unexpected PostgreSQL pool error on idle client', error);
+});
+
 export async function healthCheck(): Promise<boolean> {
   try {
     await db.query('select 1');

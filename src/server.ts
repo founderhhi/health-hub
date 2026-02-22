@@ -168,8 +168,9 @@ app.use('/api', globalLimiter);
 app.use('/api/auth/login', authLoginLimiter);
 app.use('/api/auth/signup', authSignupLimiter);
 
-// INF-06: Deep health response for infra observability
-app.get('/api/health', async (_req, res) => {
+// INF-06: Deep readiness response for infra observability.
+// Keep /api/health and /api/healthz as lightweight liveness routes from apiRouter.
+app.get('/api/ready', async (_req, res) => {
   try {
     const dbOk = await dbHealthCheck();
     const ws = await getWsHealthResponse();

@@ -6,7 +6,7 @@ services:
     buildCommand: npm ci && npm run build
     preDeployCommand: npm run db:init
     startCommand: node --dns-result-order=ipv4first dist/health-hub/server/server.mjs
-    healthCheckPath: /api/health
+    healthCheckPath: /api/healthz
     envVars:
       - key: NODE_ENV
         value: production
