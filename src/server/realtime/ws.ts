@@ -230,11 +230,15 @@ async function distributedBroadcast(type: 'role' | 'user', key: string, payload:
 }
 
 export function broadcastToRole(role: Role, event: string, data: unknown) {
-  distributedBroadcast('role', role, { event, data });
+  void distributedBroadcast('role', role, { event, data }).catch((error) => {
+    console.error('WS broadcastToRole failed:', error);
+  });
 }
 
 export function broadcastToUser(userId: string, event: string, data: unknown) {
-  distributedBroadcast('user', userId, { event, data });
+  void distributedBroadcast('user', userId, { event, data }).catch((error) => {
+    console.error('WS broadcastToUser failed:', error);
+  });
 }
 
 function countSubscriptions(connectionMap: Map<string, Set<WebSocket>>) {
