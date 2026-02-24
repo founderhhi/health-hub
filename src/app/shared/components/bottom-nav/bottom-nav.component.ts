@@ -42,11 +42,11 @@ export interface BottomNavTab {
 export class BottomNavComponent {
   /** Array of tab configurations */
   @Input() tabs: BottomNavTab[] = [];
-  
+
   /** ID of currently active tab */
   @Input() activeTab: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   /**
    * Navigate to the selected tab route
@@ -124,19 +124,19 @@ export const SPECIALIST_TABS: BottomNavTab[] = [
 export const PHARMACY_TABS: BottomNavTab[] = [
   {
     id: 'scan',
-    route: '/provider/pharmacy/scanner',
+    route: '/pharmacy/scanner',
     label: 'Scan',
     icon: 'scan'
   },
   {
     id: 'prescriptions',
-    route: '/provider/pharmacy/prescription',
+    route: '/pharmacy',
     label: 'Prescriptions',
     icon: 'file'
   },
   {
     id: 'history',
-    route: '/provider/pharmacy/history',
+    route: '/pharmacy/history',
     label: 'History',
     icon: 'clock'
   }

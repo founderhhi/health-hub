@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
+import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface PrescriptionItem {
   name: string;
@@ -31,14 +32,16 @@ interface LabOrder {
 @Component({
   selector: 'app-records',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BottomNavComponent],
   templateUrl: './records.component.html',
   styleUrl: './records.component.scss'
 })
 export class RecordsComponent implements OnInit {
+  PATIENT_TABS = PATIENT_TABS;
   activeTab: 'prescriptions' | 'lab-results' = 'prescriptions';
   loading = true;
   error: string | null = null;
+  selectedRx: Prescription | null = null;
 
   prescriptions: Prescription[] = [];
   labOrders: LabOrder[] = [];
@@ -47,7 +50,7 @@ export class RecordsComponent implements OnInit {
     public router: Router,
     private patientApi: PatientApiService,
     private prescriptionsApi: PrescriptionsApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -150,5 +153,13 @@ export class RecordsComponent implements OnInit {
 
   retry(): void {
     this.loadData();
+  }
+
+  viewPrescription(rx: Prescription): void {
+    this.selectedRx = rx;
+  }
+
+  closePrescription(): void {
+    this.selectedRx = null;
   }
 }

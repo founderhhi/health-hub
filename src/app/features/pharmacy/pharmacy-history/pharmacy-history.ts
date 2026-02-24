@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PharmacyApiService } from '../../../core/api/pharmacy.service';
+import { BottomNavComponent, PHARMACY_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface HistoryItem {
   id: string;
@@ -25,12 +26,13 @@ interface FilterState {
 @Component({
   selector: 'app-pharmacy-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, BottomNavComponent],
   templateUrl: './pharmacy-history.html',
   styleUrl: './pharmacy-history.scss',
 })
 export class PharmacyHistoryComponent implements OnInit {
   loading = true;
+  PHARMACY_TABS = PHARMACY_TABS;
 
   filters: FilterState = {
     patientName: '',
@@ -45,7 +47,7 @@ export class PharmacyHistoryComponent implements OnInit {
 
   private platformId = inject(PLATFORM_ID);
 
-  constructor(private pharmacyApi: PharmacyApiService) {}
+  constructor(private pharmacyApi: PharmacyApiService) { }
 
   ngOnInit(): void {
     this.loadFromBackend();
@@ -76,7 +78,7 @@ export class PharmacyHistoryComponent implements OnInit {
     const items = Array.isArray(raw.items) ? raw.items : [];
     const status = raw.prescription_status === 'fulfilled' ? 'completed' as const
       : raw.prescription_status === 'claimed' ? 'pending' as const
-      : 'cancelled' as const;
+        : 'cancelled' as const;
 
     return {
       id: raw.id,
@@ -112,7 +114,7 @@ export class PharmacyHistoryComponent implements OnInit {
     // Filter by patient name
     if (this.filters.patientName.trim()) {
       const searchTerm = this.filters.patientName.toLowerCase();
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.patientName.toLowerCase().includes(searchTerm)
       );
     }
@@ -120,7 +122,7 @@ export class PharmacyHistoryComponent implements OnInit {
     // Filter by prescription ID
     if (this.filters.prescriptionId.trim()) {
       const searchTerm = this.filters.prescriptionId.toUpperCase();
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.code.toUpperCase().includes(searchTerm)
       );
     }
@@ -134,10 +136,10 @@ export class PharmacyHistoryComponent implements OnInit {
     if (this.filters.dateRange) {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       filtered = filtered.filter(item => {
         const itemDate = new Date(item.timestamp);
-        
+
         switch (this.filters.dateRange) {
           case 'today':
             return itemDate >= today;
@@ -161,7 +163,7 @@ export class PharmacyHistoryComponent implements OnInit {
 
   private groupItemsByDate(): void {
     this.groupedItems = new Map();
-    
+
     for (const item of this.filteredItems) {
       if (!this.groupedItems.has(item.dateGroup)) {
         this.groupedItems.set(item.dateGroup, []);

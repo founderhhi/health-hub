@@ -1,27 +1,24 @@
-<section class="auth-page">
-  <div class="auth-container">
-    <div class="auth-card">
-      <button class="auth-logo" type="button" (click)="goToLanding()" aria-label="Return to landing page">
+<section class="hhi-auth-layout">
+  <div class="hhi-auth-layout__brand-panel">
+  </div>
+  <div class="hhi-auth-layout__form-panel">
+    <div class="hhi-auth-card">
+      <button class="hhi-auth-card__logo" type="button" (click)="goToLanding()" aria-label="Return to landing page">
         @if (!logoLoadFailed) {
-          <img
-            src="images/logo-tree.svg"
-            alt="Health Hub International"
-            width="68"
-            height="68"
-            (error)="handleLogoError()"
-          />
+        <img src="images/logo-tree.svg" alt="Health Hub International" width="68" height="68"
+          (error)="handleLogoError()" />
         } @else {
-          <span class="logo-fallback" aria-hidden="true">🌳</span>
+        <span class="logo-fallback" aria-hidden="true">🌳</span>
         }
       </button>
 
-      <h1 class="auth-title">Welcome Back</h1>
+      <h1 class="hhi-auth-card__title">Welcome Back</h1>
       <p class="auth-subtitle">
         Sign in to your
         @if (loginRole === 'provider') {
-          provider
+        provider
         } @else {
-          patient
+        patient
         }
         account
       </p>
@@ -36,54 +33,38 @@
               <option value="+44">🇬🇧 +44</option>
               <option value="+61">🇦🇺 +61</option>
             </select>
-            <input
-              id="phone"
-              type="tel"
-              class="form-input"
-              formControlName="phone"
-              data-testid="login-phone"
-              placeholder="Enter phone number"
-              autocomplete="tel"
-            />
+            <input id="phone" type="tel" class="form-input" formControlName="phone" data-testid="login-phone"
+              placeholder="Enter phone number" autocomplete="tel" />
           </div>
           @if (form.controls['phone']?.touched && form.controls['phone']?.invalid) {
-            <span class="error-message">Please enter a valid phone number</span>
+          <span class="error-message">Please enter a valid phone number</span>
           }
         </div>
 
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
           <div class="password-input-group">
-            <input
-              id="password"
-              [type]="showPassword ? 'text' : 'password'"
-              class="form-input"
-              formControlName="password"
-              data-testid="login-password"
-              placeholder="Enter your password"
-              autocomplete="current-password"
-            />
-            <button 
-              type="button" 
-              class="toggle-password"
-              aria-label="Toggle password visibility"
-              (click)="togglePassword()"
-            >
+            <input id="password" [type]="showPassword ? 'text' : 'password'" class="form-input"
+              formControlName="password" data-testid="login-password" placeholder="Enter your password"
+              autocomplete="current-password" />
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility"
+              (click)="togglePassword()">
               @if (showPassword) {
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                  <line x1="1" y1="1" x2="23" y2="23"/>
-                </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
               } @else {
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
               }
             </button>
           </div>
           @if (form.controls['password']?.touched && form.controls['password']?.invalid) {
-            <span class="error-message">Password must be at least 8 characters</span>
+          <span class="error-message">Password must be at least 8 characters</span>
           }
         </div>
 
@@ -96,21 +77,16 @@
           <a class="forgot-link" data-testid="forgot-password-link" (click)="forgotPassword()">Forgot Password?</a>
         </div>
 
-        <button
-          type="button"
-          class="btn btn-primary btn-full"
-          data-testid="login-submit"
-          (click)="login()"
-          [disabled]="form.invalid || submitting()"
-        >
+        <button type="button" class="btn btn-primary btn-full" data-testid="login-submit" (click)="login()"
+          [disabled]="form.invalid || submitting()">
           @if (submitting()) {
-            <span class="spinner"></span>
+          <span class="spinner"></span>
           } @else {
-            Sign In
+          Sign In
           }
         </button>
         @if (errorMessage) {
-          <div class="form-error">{{ errorMessage }}</div>
+        <div class="form-error">{{ errorMessage }}</div>
         }
       </form>
 

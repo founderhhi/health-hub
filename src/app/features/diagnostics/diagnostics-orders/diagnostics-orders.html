@@ -14,65 +14,88 @@
     <!-- Collapsible Filter Section -->
     <div class="filters-section">
       <button class="filter-toggle" (click)="toggleFilters()" [attr.aria-expanded]="filtersExpanded">
-        <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
         </svg>
         <span>Filters</span>
-        <svg class="toggle-icon" [class.expanded]="filtersExpanded" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="toggle-icon" [class.expanded]="filtersExpanded" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
       </button>
-      
+
       <div class="filters-content" [class.expanded]="filtersExpanded">
-        <p class="filters-helper">
-          Limited filters in place. Full functionality coming soon.
-        </p>
-        <div class="filters-grid">
-          <input type="text" class="filter-input" placeholder="Order ID" [(ngModel)]="orderIdSearch" />
-          <input type="text" class="filter-input" placeholder="Patient name" [disabled]="true" />
-          <select class="filter-select" [(ngModel)]="statusFilter">
-            <option value="All Status">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-          <div class="priority-filter-wrapper">
-            <select class="filter-select" [disabled]="true">
+        <div class="filters-inner">
+          <p class="filters-helper">
+            Limited filters in place. Full functionality coming soon.
+          </p>
+          <div class="filters-grid">
+            <input type="text" class="filter-input" placeholder="Order ID" [(ngModel)]="orderIdSearch" />
+            <input type="text" class="filter-input" placeholder="Patient name" [disabled]="true" />
+            <select class="filter-select" [(ngModel)]="statusFilter">
+              <option value="All Status">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <div class="priority-filter-wrapper">
+              <select class="filter-select" [disabled]="true">
+                <option value="">All Priorities</option>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgent</option>
+              </select>
+              <span class="coming-soon-pill">Coming Soon</span>
+            </div>
+            <select class="filter-select filter-select--mobile-only" [disabled]="true">
               <option value="">All Priorities</option>
               <option value="normal">Normal</option>
               <option value="urgent">Urgent</option>
             </select>
-            <span class="coming-soon-pill">Coming Soon</span>
           </div>
-          <select class="filter-select filter-select--mobile-only" [disabled]="true">
-            <option value="">All Priorities</option>
-            <option value="normal">Normal</option>
-            <option value="urgent">Urgent</option>
-          </select>
         </div>
       </div>
     </div>
 
     <!-- Orders List -->
     <div class="orders-list" *ngIf="filteredOrders.length > 0">
-      <div class="order-card" *ngFor="let order of filteredOrders">
-        <span class="badge badge-new" *ngIf="order.status === 'Pending'">NEW</span>
+      <div class="order-card" *ngFor="let order of filteredOrders" [ngClass]="{
+             'order-card--pending': order.status === 'Pending',
+             'order-card--progress': order.status === 'In Progress',
+             'order-card--ready': order.status === 'Completed',
+             'order-card--urgent': order.priority === 'Urgent'
+           }">
         <span class="demo-badge" *ngIf="order.isDemo">Demo Data</span>
         <div class="order-card-header">
           <span class="order-id">{{ order.orderId }}</span>
-          <span class="badge" [ngClass]="getStatusClass(order)">
-            {{ order.status }}
-          </span>
+          <div class="order-badges">
+            <span class="hhi-badge hhi-badge--urgent" *ngIf="order.priority === 'Urgent'">Urgent</span>
+            <span class="hhi-badge hhi-badge--ready"
+              *ngIf="order.status === 'Pending' && order.priority !== 'Urgent'">New</span>
+            <span class="hhi-badge" [ngClass]="getStatusClass(order)">
+              {{ order.status }}
+            </span>
+          </div>
         </div>
         <div class="order-patient">
-          <span class="patient-label">Patient:</span>
-          <span class="patient-name">{{ order.patientName }}</span>
+          <div class="order-card__avatar">{{ getInitials(order.patientName) }}</div>
+          <div class="patient-details">
+            <span class="patient-name">{{ order.patientName }}</span>
+            <span class="patient-masked-info">
+              <span class="patient-masked-info__lock">🔒</span>
+              +254 ••• ••• {{ order.patientPhone | slice:-4 }}
+            </span>
+          </div>
         </div>
         <div class="order-tests">
           <span class="test-item" *ngFor="let test of order.tests">{{ test }}</span>
         </div>
+        <progress class="order-progress" value="50" max="100" aria-label="Order 50% complete"
+          *ngIf="order.status === 'In Progress'"></progress>
         <div class="order-footer">
-          <span class="order-date">Received: {{ order.orderedDate }}</span>
+          <div class="order-card__time">
+            <span class="order-date" [title]="order.orderedDate">{{ order.orderedRelative || order.orderedDate }}</span>
+          </div>
           <button class="btn btn-primary" [disabled]="!order.id" (click)="viewLiveOrder(order)">View Order</button>
         </div>
       </div>
@@ -83,7 +106,8 @@
     </div>
 
     <div class="empty-state" *ngIf="orders.length > 0 && filteredOrders.length === 0">
-      <svg class="empty-state-icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="empty-state-icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"></circle>
         <path d="m21 21-4.3-4.3"></path>
         <path d="m8.5 8.5 5 5"></path>
@@ -96,42 +120,18 @@
 
     <!-- Pull to refresh indicator -->
     <div class="pull-refresh">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-      </svg>
-      <span>Pull to refresh orders</span>
+      <ng-template #pullToRefreshContent>
+        <div class="pull-refresh">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          <span>Pull to refresh orders</span>
+        </div>
+      </ng-template>
     </div>
   </div>
 
-  <!-- Mobile Bottom Navigation -->
-  <nav class="bottom-nav">
-    <a class="nav-item active" routerLink="/diagnostics">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7"></rect>
-        <rect x="14" y="3" width="7" height="7"></rect>
-        <rect x="14" y="14" width="7" height="7"></rect>
-        <rect x="3" y="14" width="7" height="7"></rect>
-      </svg>
-      <span class="nav-label">Orders</span>
-    </a>
-    <a class="nav-item" [class.disabled]="!filteredOrders[0]?.id" [routerLink]="filteredOrders[0]?.id ? ['/diagnostics/upload', filteredOrders[0]?.id] : null" [attr.aria-disabled]="!filteredOrders[0]?.id">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="17 8 12 3 7 8"></polyline>
-        <line x1="12" y1="3" x2="12" y2="15"></line>
-      </svg>
-      <span class="nav-label">Upload</span>
-    </a>
-    <a class="nav-item" routerLink="/diagnostics">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <polyline points="14 2 14 8 20 8"></polyline>
-        <line x1="16" y1="13" x2="8" y2="13"></line>
-        <line x1="16" y1="17" x2="8" y2="17"></line>
-        <polyline points="10 9 9 9 8 9"></polyline>
-      </svg>
-      <span class="nav-label">Reports</span>
-    </a>
-  </nav>
+  <app-bottom-nav [tabs]="DIAGNOSTICS_TABS" activeTabId="orders"></app-bottom-nav>
 </section>

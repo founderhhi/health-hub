@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(npx ng build:*)"
+      "Bash(npx ng build:*)",
+      "Bash(brew:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(npm install:*)",
+      "Bash(node:*)"
     ]
   }
 }

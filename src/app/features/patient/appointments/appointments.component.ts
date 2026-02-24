@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
+import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface Referral {
   id: string;
@@ -24,11 +25,12 @@ interface Referral {
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BottomNavComponent],
   templateUrl: './appointments.component.html',
   styleUrl: './appointments.component.scss'
 })
 export class AppointmentsComponent implements OnInit {
+  PATIENT_TABS = PATIENT_TABS;
   activeTab: 'upcoming' | 'past' = 'upcoming';
   loading = true;
   error: string | null = null;
@@ -39,7 +41,7 @@ export class AppointmentsComponent implements OnInit {
   constructor(
     public router: Router,
     private patientApi: PatientApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadReferrals();

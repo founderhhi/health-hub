@@ -54,34 +54,74 @@
   margin: 0;
 }
 
-/* Badge Styles */
-.badge {
-  display: inline-flex;
+/* Status Pipeline */
+.status-pipeline {
+  display: flex;
   align-items: center;
-  padding: v.$space-xs v.$space-sm;
-  border-radius: v.$radius-full;
-  font-size: v.$font-size-xs;
-  font-weight: v.$font-weight-semibold;
-  text-transform: uppercase;
-  letter-spacing: v.$letter-spacing-wide;
-}
+  padding: 12px 0;
+  margin-bottom: v.$space-lg;
 
-.badge-urgent {
-  background: v.$color-warning-light;
-  color: v.$color-warning-dark;
-  border: 1px solid v.$color-warning-border;
-}
+  &__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
 
-.badge-emergency {
-  background: v.$color-danger-light;
-  color: v.$color-danger-dark;
-  border: 1px solid v.$color-danger-border;
-}
+    &-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: v.$color-border;
+      border: 2px solid v.$color-border-dark;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      z-index: 1;
+      font-weight: v.$font-weight-bold;
+      color: v.$color-text-secondary;
+    }
 
-.badge-routine {
-  background: v.$color-surface-elevated;
-  color: v.$color-text-secondary;
-  border: 1px solid v.$color-border;
+    &-label {
+      font-size: 10px;
+      color: v.$color-text-muted;
+      margin-top: 4px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: v.$font-weight-semibold;
+    }
+
+    &--complete &-icon {
+      background: v.$color-emerald;
+      border-color: v.$color-emerald;
+      color: white;
+    }
+
+    &--active &-icon {
+      border-color: v.$color-info-dark;
+      background: v.$color-info-light;
+      color: v.$color-info-dark;
+    }
+
+    &--complete &-label,
+    &--active &-label {
+      color: v.$color-text-primary;
+    }
+  }
+
+  &__connector {
+    flex: 1;
+    height: 2px;
+    background: v.$color-border-dark;
+    position: relative;
+    top: -12px;
+
+    &--complete {
+      background: v.$color-emerald;
+    }
+  }
 }
 
 /* Card Component */
@@ -126,6 +166,20 @@
   font-size: v.$font-size-base;
   color: v.$color-text-secondary;
   margin: 0;
+}
+
+.patient-masked-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: v.$color-text-muted;
+  font-family: v.$font-family-mono, monospace;
+
+  &__lock {
+    font-size: 12px;
+    color: v.$color-text-light;
+  }
 }
 
 /* Section */
@@ -234,11 +288,11 @@
   }
 }
 
-.checkbox-input:checked ~ .checkbox-mark {
+.checkbox-input:checked~.checkbox-mark {
   border-color: v.$color-emerald;
 }
 
-.checkbox-input:checked ~ .checkbox-mark::after {
+.checkbox-input:checked~.checkbox-mark::after {
   opacity: 1;
 }
 
@@ -258,6 +312,60 @@
 .test-code {
   font-size: v.$font-size-sm;
   color: v.$color-text-muted;
+}
+
+/* Result Range Bar */
+.result-range-bar-wrapper {
+  margin-top: v.$space-sm;
+  width: 100%;
+}
+
+.result-range-bar {
+  display: flex;
+  align-items: center;
+
+  &__track {
+    flex: 1;
+    height: 6px;
+    border-radius: 9999px;
+    background: v.$color-border;
+    position: relative;
+  }
+
+  &__normal-zone {
+    position: absolute;
+    height: 100%;
+    background: rgba(v.$color-emerald, 0.3);
+    border-radius: 9999px;
+  }
+
+  &__value-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: v.$color-emerald;
+    top: -2px;
+    transform: translateX(-50%);
+
+    &--out-of-range {
+      background: v.$color-danger;
+    }
+  }
+
+  &__labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: v.$color-text-muted;
+    margin-top: v.$space-xs;
+    font-weight: v.$font-weight-medium;
+
+    strong {
+      color: v.$color-danger;
+      margin-left: 2px;
+    }
+  }
 }
 
 /* Instructions Card */
@@ -342,52 +450,6 @@
   }
 }
 
-/* Mobile Bottom Navigation */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: calc(v.$bottom-nav-height + v.$safe-area-bottom);
-  background: v.$color-white;
-  border-top: 1px solid v.$color-border;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  padding-top: v.$space-sm;
-  padding-bottom: v.$safe-area-bottom;
-  z-index: v.$z-fixed;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: v.$space-xs v.$space-md;
-  text-decoration: none;
-  color: v.$color-text-light;
-  transition: color v.$transition-fast;
-
-  &.active {
-    color: v.$color-emerald;
-  }
-
-  &:hover:not(.active) {
-    color: v.$color-text-secondary;
-  }
-}
-
-.nav-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.nav-label {
-  font-size: v.$font-size-xs;
-  font-weight: v.$font-weight-medium;
-}
-
 /* ============================================
    Desktop Styles
    ============================================ */
@@ -395,10 +457,6 @@
 @include m.md {
   .details-container {
     padding: v.$space-xl;
-  }
-
-  .bottom-nav {
-    display: none;
   }
 
   .order-details {

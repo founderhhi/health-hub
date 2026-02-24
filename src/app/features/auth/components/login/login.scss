@@ -194,7 +194,7 @@ $error: #E74C3C;
 .checkbox-input {
   display: none;
 
-  &:checked + .checkbox-custom {
+  &:checked+.checkbox-custom {
     border-color: $primary;
     background: $primary;
 
@@ -281,14 +281,10 @@ $error: #E74C3C;
   border: 2px solid #FFFFFF;
   border-top-color: transparent;
   border-radius: 999px;
-  animation: spin 0.8s linear infinite;
+  animation: hhi-spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 .auth-footer {
   margin-top: 20px;

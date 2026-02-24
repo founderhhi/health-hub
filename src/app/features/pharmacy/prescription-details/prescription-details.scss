@@ -158,7 +158,7 @@
     width: 0;
     height: 0;
 
-    &:checked ~ .medication-card__checkmark {
+    &:checked~.medication-card__checkmark {
       background: v.$color-emerald;
       border-color: v.$color-emerald;
 
@@ -167,11 +167,11 @@
       }
     }
 
-    &:focus-visible ~ .medication-card__checkmark {
+    &:focus-visible~.medication-card__checkmark {
       box-shadow: v.$shadow-focus;
     }
 
-    &:disabled ~ .medication-card__checkmark {
+    &:disabled~.medication-card__checkmark {
       background: v.$color-surface-elevated;
       border-color: v.$color-border;
       opacity: 0.7;
@@ -353,128 +353,8 @@
   color: v.$color-text-muted;
 }
 
-/* Bottom Navigation */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: calc(v.$bottom-nav-height + v.$safe-area-bottom);
-  background: v.$bottom-nav-background;
-  border-top: 1px solid v.$color-border;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  padding-top: v.$space-sm;
-  padding-bottom: v.$safe-area-bottom;
-  z-index: v.$z-fixed;
-  box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.05);
-}
-
-.bottom-nav__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  flex: 1;
-  height: 100%;
-  padding: 4px 8px;
-  color: v.$bottom-nav-inactive-color;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all v.$transition-fast;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-
-  &:hover {
-    color: v.$color-text-secondary;
-  }
-
-  &:active {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-
-  &--active {
-    color: v.$bottom-nav-active-color;
-
-    .bottom-nav__icon {
-      stroke-width: 2.5px;
-    }
-
-    .bottom-nav__label {
-      font-weight: v.$font-weight-semibold;
-    }
-  }
-}
-
-.bottom-nav__icon {
-  width: 24px;
-  height: 24px;
-  stroke-width: 2px;
-  transition: all v.$transition-fast;
-}
-
-.bottom-nav__label {
-  font-family: v.$font-family-primary;
-  font-size: v.$font-size-sm;
-  font-weight: v.$font-weight-medium;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* Mobile Responsive */
-@include m.mobile {
-  .prescription-container {
-    padding: v.$space-md;
-  }
-
-  .prescription-id {
-    font-size: v.$font-size-xl;
-  }
-
-  .medications-section {
-    gap: v.$space-sm;
-  }
-
-  .medication-card {
-    padding: v.$space-sm;
-  }
-
-  .privacy-badges {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .sticky-footer {
-    bottom: v.$bottom-nav-height;
-    padding: v.$space-md;
-    border-radius: 0;
-  }
-}
-
-@include m.xs {
-  .bottom-nav__label {
-    font-size: v.$font-size-xs;
-  }
-}
-
 /* Desktop Adaptations */
 @include m.desktop {
-  .bottom-nav {
-    justify-content: center;
-    gap: v.$space-2xl;
-    height: calc(v.$bottom-nav-height-desktop + v.$safe-area-bottom);
-  }
-
-  .bottom-nav__item {
-    flex: 0 0 auto;
-    min-width: 80px;
-    max-width: 120px;
-  }
-
   .sticky-footer {
     &__actions {
       flex-direction: row;
