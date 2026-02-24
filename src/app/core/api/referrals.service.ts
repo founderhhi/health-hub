@@ -31,4 +31,11 @@ export class ReferralsApiService {
   updateStatus(id: string, status: string) {
     return this.api.post<{ referral: any }>(`/referrals/${id}/status`, { status });
   }
+
+  requestMoreInfo(id: string, message: string) {
+    return this.api.post<{ referral: any; request: { message: string; requestedAt: string } }>(
+      `/referrals/${id}/request-info`,
+      { message }
+    );
+  }
 }

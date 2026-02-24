@@ -99,41 +99,20 @@
 
     <!-- Video & Chat Area (Right on Desktop - 60%) -->
     <main class="video-chat-panel">
-      <!-- Video Container -->
+      <!-- [AGENT_SPECIALIST] ISS-13: Video panel with proper coming-soon state -->
       <div class="video-container">
-        <!-- Main Patient Video -->
         <div class="video-main">
-          <div class="video-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span>Patient video connecting...</span>
-          </div>
-          
-          <!-- Video Overlay Controls -->
-          <div class="video-overlay">
-            <div class="participant-name">Sarah Johnson</div>
-            <div class="connection-status">
-              <span class="status-dot"></span>
-              Connected
+          <div class="video-placeholder video-placeholder--pending">
+            <div class="video-placeholder__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+              </svg>
             </div>
+            <span class="video-placeholder__title">Video Consultation</span>
+            <span class="video-placeholder__subtitle">Will be available when the patient joins</span>
+            <button class="btn btn--primary btn--sm" (click)="startConsultation()">Open Call in New Window</button>
           </div>
-        </div>
-        
-        <!-- PIP Self View -->
-        <div class="video-pip">
-          <div class="video-pip__content">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </div>
-          <button class="pip-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-            </svg>
-          </button>
         </div>
       </div>
 

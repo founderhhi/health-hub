@@ -16,6 +16,7 @@ export class DiagnosticsOrderDetailsComponent implements OnInit {
   DIAGNOSTICS_TABS = DIAGNOSTICS_TABS;
   order: any;
   loading = true;
+  errorMessage = '';
   printStatusMessage: string | null = null;
   readonly rejectOrderAvailable = false;
 
@@ -27,6 +28,13 @@ export class DiagnosticsOrderDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      this.errorMessage = 'Order ID is missing.';
+      this.loading = false;
+      return;
+    }
+
+    this.errorMessage = '';
     this.labsApi.listDiagnosticsOrders().subscribe({
       next: (response) => {
         const found = response.orders.find((item) => item.id === id);
@@ -35,10 +43,14 @@ export class DiagnosticsOrderDetailsComponent implements OnInit {
             ...found,
             tests: Array.isArray(found.tests) ? found.tests : []
           };
+          this.errorMessage = '';
+        } else {
+          this.errorMessage = 'Order not found.';
         }
         this.loading = false;
       },
       error: () => {
+        this.errorMessage = 'Unable to load order details.';
         this.loading = false;
       }
     });
@@ -53,7 +65,13 @@ export class DiagnosticsOrderDetailsComponent implements OnInit {
       return;
     }
     this.labsApi.updateOrderStatus(this.order.id, 'in_progress').subscribe({
-      next: (response) => (this.order = response.order)
+      next: (response) => {
+        this.order = response.order;
+        this.errorMessage = '';
+      },
+      error: () => {
+        this.errorMessage = 'Unable to update order status right now.';
+      }
     });
   }
 
@@ -62,7 +80,13 @@ export class DiagnosticsOrderDetailsComponent implements OnInit {
       return;
     }
     this.labsApi.updateOrderStatus(this.order.id, 'completed', 'Cancelled').subscribe({
-      next: (response) => (this.order = response.order)
+      next: (response) => {
+        this.order = response.order;
+        this.errorMessage = '';
+      },
+      error: () => {
+        this.errorMessage = 'Unable to update order status right now.';
+      }
     });
   }
 

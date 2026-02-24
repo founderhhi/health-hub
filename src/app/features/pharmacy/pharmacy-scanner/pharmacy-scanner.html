@@ -149,7 +149,8 @@
         <p>{{ selectedPrescription.instructions }}</p>
       </div>
 
-      <button type="button" class="mark-button" (click)="markAsDispensed()">Mark as Dispensed</button>
+      <!-- [AGENT_PHARMACY] ISS-16: button says 'Claim' because this action calls the claim endpoint, not dispense -->
+      <button type="button" class="mark-button" (click)="markAsDispensed()">Claim Prescription</button>
     </div>
   </div>
   }

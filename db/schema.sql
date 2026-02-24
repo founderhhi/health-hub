@@ -68,6 +68,10 @@ create table if not exists referrals (
   consultation_mode text default 'online' check (consultation_mode in ('online','offline')),
   location text,
   specialty text,
+  consultation_id uuid references consultations(id) on delete set null,
+  requested_info_note text,
+  requested_info_at timestamptz,
+  requested_info_by uuid references users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 

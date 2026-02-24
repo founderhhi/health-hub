@@ -5,7 +5,7 @@ import { broadcastToRole, broadcastToUser } from '../realtime/ws';
 
 export const referralsRouter = Router();
 
-referralsRouter.post('/', requireAuth, requireRole(['gp', 'doctor', 'specialist']), async (req, res) => {
+referralsRouter.post('/', requireAuth, requireRole(['gp']), async (req, res) => { // [AGENT_ROLES] ISS-07: only GPs create referrals, removed legacy 'doctor' and 'specialist'
   try {
     const user = (req as any).user;
     const { patientId, toSpecialistId, urgency, reason, appointmentDate, appointmentTime, consultationMode, location, specialty } = req.body as {
@@ -99,9 +99,10 @@ referralsRouter.get('/specialist', requireAuth, requireRole(['specialist', 'admi
     }
 
     const result = await db.query(
-      `select r.*, u.display_name as patient_name, u.phone as patient_phone
+      `select r.*, u.display_name as patient_name, u.phone as patient_phone, c.daily_room_url
        from referrals r
        join users u on u.id = r.patient_id
+       left join consultations c on c.id = r.consultation_id
        ${whereClause}
        order by r.created_at desc`,
       params
@@ -118,9 +119,10 @@ referralsRouter.get('/:id', requireAuth, async (req, res) => {
     const user = (req as any).user;
     const { id } = req.params;
     const result = await db.query(
-      `select r.*, u.display_name as patient_name, u.phone as patient_phone
+      `select r.*, u.display_name as patient_name, u.phone as patient_phone, c.daily_room_url
        from referrals r
        join users u on u.id = r.patient_id
+       left join consultations c on c.id = r.consultation_id
        where r.id = $1
          and (
            $2 = 'admin' or
@@ -141,32 +143,212 @@ referralsRouter.get('/:id', requireAuth, async (req, res) => {
 });
 
 referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), async (req, res) => {
+  const client = await db.connect();
+  let transactionStarted = false;
   try {
+    const user = (req as any).user;
     const { id } = req.params;
     const { status } = req.body as { status?: string };
-    const update = await db.query(
-      `update referrals set status = $1 where id = $2 returning *`,
-      [status || 'accepted', id]
+    const resolvedStatus = status || 'accepted';
+
+    await client.query('begin');
+    transactionStarted = true;
+
+    const current = await client.query(
+      `select * from referrals where id = $1 for update`,
+      [id]
     );
-    if (update.rows.length === 0) {
+    if (current.rows.length === 0) {
+      await client.query('rollback');
+      transactionStarted = false;
       return res.status(404).json({ error: 'Referral not found' });
     }
 
-    const referral = update.rows[0];
-    await db.query(
+    const referral = current.rows[0] as {
+      id: string;
+      patient_id: string;
+      from_provider_id: string;
+      to_specialist_id: string | null;
+      consultation_id: string | null;
+      status: string;
+    };
+
+    // Allow only the assigned specialist to mutate referral status.
+    // For unassigned referrals, the first acting specialist claims it.
+    if (referral.to_specialist_id && referral.to_specialist_id !== user.userId) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    let consultationId = referral.consultation_id;
+    let dailyRoomUrl: string | null = null;
+
+    // Create and persist consultation link exactly once when accepting referral.
+    if (resolvedStatus === 'accepted') {
+      if (!consultationId) {
+        const consult = await client.query(
+          `insert into consultations (patient_id, specialist_id, status, notes, daily_room_url)
+           values ($1, $2, 'active', $3, $4)
+           returning id, daily_room_url`,
+          [
+            referral.patient_id,
+            user.userId,
+            JSON.stringify({ referral_id: referral.id }),
+            process.env['DAILY_FALLBACK_ROOM'] || null
+          ]
+        );
+        consultationId = consult.rows[0].id as string;
+        dailyRoomUrl = (consult.rows[0].daily_room_url as string | null) || null;
+      } else {
+        const consult = await client.query(
+          `select daily_room_url from consultations where id = $1`,
+          [consultationId]
+        );
+        dailyRoomUrl = (consult.rows[0]?.daily_room_url as string | null) || null;
+      }
+    }
+
+    const update = await client.query(
+      `update referrals
+       set status = $1,
+           consultation_id = coalesce($2, consultation_id),
+           to_specialist_id = coalesce(to_specialist_id, $3)
+       where id = $4
+       returning *`,
+      [resolvedStatus, consultationId, user.userId, id]
+    );
+    const updatedReferral = update.rows[0] as Record<string, unknown>;
+    if (consultationId) {
+      updatedReferral['consultation_id'] = consultationId;
+    }
+    if (dailyRoomUrl) {
+      updatedReferral['daily_room_url'] = dailyRoomUrl;
+    }
+
+    await client.query(
       `insert into notifications (user_id, type, message, data)
        values ($1, $2, $3, $4)`,
       [
-        referral.patient_id,
+        updatedReferral['patient_id'],
         'referral.status',
-        `Referral status updated to ${referral.status}.`,
-        JSON.stringify({ referralId: referral.id, status: referral.status })
+        `Referral status updated to ${String(updatedReferral['status'])}.`,
+        JSON.stringify({
+          referralId: updatedReferral['id'],
+          status: updatedReferral['status'],
+          consultationId: updatedReferral['consultation_id'] || null
+        })
       ]
     );
-    broadcastToUser(referral.patient_id, 'referral.status', { referral });
-    return res.json({ referral });
+
+    await client.query('commit');
+    transactionStarted = false;
+
+    broadcastToUser(String(updatedReferral['patient_id']), 'referral.status', { referral: updatedReferral });
+    return res.json({ referral: updatedReferral });
   } catch (error) {
+    if (transactionStarted) {
+      try {
+        await client.query('rollback');
+      } catch (rollbackError) {
+        console.error('Referral status rollback failed', rollbackError);
+      }
+    }
     console.error('Update referral status error', error);
     return res.status(500).json({ error: 'Unable to update referral' });
+  } finally {
+    client.release();
+  }
+});
+
+referralsRouter.post('/:id/request-info', requireAuth, requireRole(['specialist']), async (req, res) => {
+  const client = await db.connect();
+  let transactionStarted = false;
+  try {
+    const user = (req as any).user;
+    const { id } = req.params;
+    const { message } = req.body as { message?: string };
+    const trimmedMessage = message?.trim();
+
+    if (!trimmedMessage) {
+      return res.status(400).json({ error: 'message is required' });
+    }
+
+    await client.query('begin');
+    transactionStarted = true;
+
+    const current = await client.query(
+      `select * from referrals where id = $1 for update`,
+      [id]
+    );
+    if (current.rows.length === 0) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(404).json({ error: 'Referral not found' });
+    }
+
+    const referral = current.rows[0] as {
+      id: string;
+      patient_id: string;
+      from_provider_id: string;
+      to_specialist_id: string | null;
+    };
+
+    if (referral.to_specialist_id && referral.to_specialist_id !== user.userId) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const update = await client.query(
+      `update referrals
+       set to_specialist_id = coalesce(to_specialist_id, $2),
+           requested_info_note = $3,
+           requested_info_at = now(),
+           requested_info_by = $2
+       where id = $1
+       returning *`,
+      [id, user.userId, trimmedMessage]
+    );
+    const updatedReferral = update.rows[0];
+
+    await client.query(
+      `insert into notifications (user_id, type, message, data)
+       values ($1, $2, $3, $4)`,
+      [
+        updatedReferral.from_provider_id,
+        'referral.request_info',
+        'Specialist requested additional information for a referral.',
+        JSON.stringify({ referralId: updatedReferral.id, message: trimmedMessage })
+      ]
+    );
+
+    await client.query('commit');
+    transactionStarted = false;
+
+    broadcastToUser(updatedReferral.from_provider_id, 'referral.request_info', {
+      referral: updatedReferral,
+      request: { message: trimmedMessage, requestedAt: updatedReferral.requested_info_at }
+    });
+
+    return res.json({
+      referral: updatedReferral,
+      request: {
+        message: trimmedMessage,
+        requestedAt: updatedReferral.requested_info_at
+      }
+    });
+  } catch (error) {
+    if (transactionStarted) {
+      try {
+        await client.query('rollback');
+      } catch (rollbackError) {
+        console.error('Referral request-info rollback failed', rollbackError);
+      }
+    }
+    console.error('Request referral info error', error);
+    return res.status(500).json({ error: 'Unable to request more information' });
+  } finally {
+    client.release();
   }
 });

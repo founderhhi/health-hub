@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 })
 export class SpecialistDashboardComponent implements OnInit, OnDestroy {
   referrals: any[] = [];
+  errorMessage = '';
   stats = {
     pending: 0,
     appointments: 0,
@@ -53,7 +54,13 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
 
   acceptReferral(id: string): void {
     this.referralsApi.updateStatus(id, 'accepted').subscribe({
-      next: () => this.loadReferrals()
+      next: () => {
+        this.errorMessage = '';
+        this.loadReferrals();
+      },
+      error: () => {
+        this.errorMessage = 'Unable to accept referral right now.';
+      }
     });
   }
 
@@ -62,6 +69,10 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.referrals = response.referrals;
         this.stats.pending = this.referrals.filter((r) => r.status === 'new').length;
+        this.errorMessage = '';
+      },
+      error: () => {
+        this.errorMessage = 'Unable to load referrals right now.';
       }
     });
   }

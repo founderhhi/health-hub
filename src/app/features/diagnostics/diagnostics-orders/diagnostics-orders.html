@@ -101,7 +101,12 @@
       </div>
     </div>
 
-    <div class="empty-state" *ngIf="orders.length === 0 && !hasActiveFilters">
+    <!-- [AGENT_DIAGNOSTICS] ISS-19: show error message when API call fails -->
+    <div class="empty-state empty-state--error" *ngIf="errorMessage">
+      <p class="error-message">{{ errorMessage }}</p>
+    </div>
+
+    <div class="empty-state" *ngIf="orders.length === 0 && !hasActiveFilters && !errorMessage">
       <p>No diagnostic orders yet.</p>
     </div>
 
@@ -133,5 +138,5 @@
     </div>
   </div>
 
-  <app-bottom-nav [tabs]="DIAGNOSTICS_TABS" activeTabId="orders"></app-bottom-nav>
+  <app-bottom-nav [tabs]="DIAGNOSTICS_TABS" activeTab="orders"></app-bottom-nav>
 </section>

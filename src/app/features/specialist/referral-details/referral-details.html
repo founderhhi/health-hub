@@ -224,12 +224,28 @@
       </button>
       <div class="secondary-actions">
         <button type="button" class="action-btn action-btn--ghost" (click)="requestMoreInfo()">
-          Request More Info
+          {{ showRequestInfoForm ? 'Cancel Request' : 'Request More Info' }}
         </button>
         <button type="button" class="action-btn action-btn--danger" (click)="decline()">
           Decline
         </button>
       </div>
+      <!-- [AGENT_SPECIALIST] ISS-14: textarea form for requesting additional info from referring GP -->
+      <div class="request-info-form" *ngIf="showRequestInfoForm">
+        <label class="request-info-label" for="requestInfoText">What additional information do you need?</label>
+        <textarea
+          id="requestInfoText"
+          class="request-info-textarea"
+          [(ngModel)]="requestInfoText"
+          placeholder="Describe the additional information you need from the referring physician..."
+          rows="3"
+        ></textarea>
+        <div class="request-info-actions">
+          <button type="button" class="action-btn action-btn--ghost action-btn--sm" (click)="cancelRequestInfo()">Cancel</button>
+          <button type="button" class="action-btn action-btn--primary action-btn--sm" (click)="submitRequestInfo()" [disabled]="!requestInfoText.trim()">Send Request</button>
+        </div>
+      </div>
+      <p class="inline-notice inline-notice--error" *ngIf="errorMessage">{{ errorMessage }}</p>
       <p class="inline-notice" *ngIf="requestInfoNotice">{{ requestInfoNotice }}</p>
     </div>
   </div>

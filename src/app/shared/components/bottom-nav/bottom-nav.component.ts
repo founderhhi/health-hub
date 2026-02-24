@@ -145,20 +145,14 @@ export const PHARMACY_TABS: BottomNavTab[] = [
 export const DIAGNOSTICS_TABS: BottomNavTab[] = [
   {
     id: 'orders',
-    route: '/provider/diagnostics/orders',
+    route: '/provider/diagnostics', // [AGENT_DIAGNOSTICS] ISS-17: was '/provider/diagnostics/orders' but default route '' serves orders
     label: 'Orders',
     icon: 'grid'
   },
   {
-    id: 'upload',
-    route: '/provider/diagnostics/upload',
-    label: 'Upload',
-    icon: 'upload'
-  },
-  {
-    id: 'reports',
-    route: '/provider/diagnostics/reports',
-    label: 'Reports',
-    icon: 'file'
+    id: 'profile',
+    route: '/provider/diagnostics/profile', // [AGENT_DIAGNOSTICS] ISS-17: was '/provider/diagnostics/upload' (requires :id param, not a standalone tab); replaced with profile route
+    label: 'Profile',
+    icon: 'user'
   }
 ];

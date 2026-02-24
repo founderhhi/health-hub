@@ -12,7 +12,8 @@
     "e2e:ci": "playwright test --reporter=line,junit",
     "serve:ssr:health-hub": "node dist/health-hub/server/server.mjs",
     "db:init": "node scripts/db-init.js",
-    "deploy:smoke": "node scripts/deploy-smoke.js"
+    "deploy:smoke": "node scripts/deploy-smoke.js",
+    "verify:prelive": "node scripts/prelive-verify.js"
   },
   "prettier": {
     "printWidth": 100,

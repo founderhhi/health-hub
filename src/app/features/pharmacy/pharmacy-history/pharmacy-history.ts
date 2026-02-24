@@ -76,6 +76,8 @@ export class PharmacyHistoryComponent implements OnInit {
   private mapToHistoryItem(raw: any): HistoryItem {
     const claimedAt = new Date(raw.claimed_at);
     const items = Array.isArray(raw.items) ? raw.items : [];
+    // [AGENT_PHARMACY] ISS-16: map backend statuses to UI display labels
+    // fulfilled -> completed (dispensing finished), claimed -> pending (claimed but not yet dispensed)
     const status = raw.prescription_status === 'fulfilled' ? 'completed' as const
       : raw.prescription_status === 'claimed' ? 'pending' as const
         : 'cancelled' as const;

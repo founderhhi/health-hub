@@ -15,6 +15,7 @@ import { ChatPanelComponent } from '../../../shared/components/chat-panel/chat-p
 })
 export class SpecialistConsultationComponent implements OnInit {
   referral: any;
+  referralId = '';
   consultationId = '';
   dailyRoomUrl = 'https://healthhub.daily.co/demo';
   currentUserId = '';
@@ -39,13 +40,18 @@ export class SpecialistConsultationComponent implements OnInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.consultationId = id;
+      this.referralId = id;
+      this.errorMessage = '';
       this.referralsApi.getReferral(id).subscribe({
         next: (response) => {
           this.referral = response.referral;
-          this.consultationId = response.referral?.consultation_id || response.referral?.consultationId || id;
+          this.consultationId = response.referral?.consultation_id || response.referral?.consultationId || '';
           this.dailyRoomUrl = response.referral?.daily_room_url || this.dailyRoomUrl;
-        }
+          if (!this.consultationId && response.referral?.status === 'accepted') {
+            this.errorMessage = 'Consultation is not linked yet. Please reopen this referral in a moment.';
+          }
+        },
+        error: (err) => { console.error('[AGENT_SPECIALIST] ISS-08: failed to load referral', err); this.errorMessage = 'Unable to load referral details.'; } // [AGENT_SPECIALIST] ISS-08: error handler
       });
     }
   }

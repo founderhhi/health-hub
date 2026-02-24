@@ -89,6 +89,7 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
 export class DiagnosticsOrdersComponent implements OnInit {
   DIAGNOSTICS_TABS = DIAGNOSTICS_TABS;
   orders: DiagnosticsOrderView[] = [];
+  errorMessage = ''; // [AGENT_DIAGNOSTICS] ISS-19: surface API errors to user
 
   filtersExpanded = false;
   orderIdSearch = '';
@@ -156,6 +157,7 @@ export class DiagnosticsOrdersComponent implements OnInit {
   }
 
   private loadOrders(): void {
+    this.errorMessage = ''; // [AGENT_DIAGNOSTICS] ISS-19: clear previous errors on reload
     this.labsApi.listDiagnosticsOrders().subscribe({
       next: (response) => {
         const sourceOrders = Array.isArray(response.orders) ? response.orders : [];
@@ -174,10 +176,11 @@ export class DiagnosticsOrdersComponent implements OnInit {
             isDemo: false
           };
         });
-        this.orders = mappedOrders.length > 0 ? mappedOrders : DEMO_ORDERS;
+        this.orders = mappedOrders; // [AGENT_DIAGNOSTICS] ISS-19: removed silent DEMO_ORDERS fallback when API returns empty
       },
       error: () => {
-        this.orders = DEMO_ORDERS;
+        this.errorMessage = 'Failed to load diagnostic orders. Please try again later.'; // [AGENT_DIAGNOSTICS] ISS-19: surface error to user instead of silent demo fallback
+        this.orders = []; // [AGENT_DIAGNOSTICS] ISS-19: empty array instead of DEMO_ORDERS
       }
     });
   }

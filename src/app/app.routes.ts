@@ -16,22 +16,21 @@ export const routes: Routes = [
   },
 
   // 2. Protected Feature paths - Authentication required
-  {
-    path: 'dashboard',
-    loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
-    canActivate: [authGuard]
-  },
+  // [AGENT_PATIENT] ISS-10: legacy /dashboard redirects to /patient/dashboard to avoid duplicate routes
+  { path: 'dashboard', redirectTo: 'patient/dashboard', pathMatch: 'full' },
+  // [AGENT_PATIENT] ISS-10: legacy /dashboard/patient redirect for bookmarks
+  { path: 'dashboard/patient', redirectTo: 'patient/dashboard', pathMatch: 'full' },
   {
     path: 'gp',
     loadComponent: () => import('./features/dashboard/components/practitioner/practitioner').then(m => m.Practitioner),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['doctor', 'gp'] }
+    data: { roles: ['gp'] } // [AGENT_ROLES] ISS-07: canonical role is 'gp', removed legacy 'doctor'
   },
   {
     path: 'gp/profile',
     loadComponent: () => import('./features/dashboard/components/gp-profile/gp-profile').then(m => m.GpProfileComponent),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['doctor', 'gp'] }
+    data: { roles: ['gp'] } // [AGENT_ROLES] ISS-07: canonical role is 'gp', removed legacy 'doctor'
   },
   {
     path: 'patient-services',
@@ -49,13 +48,13 @@ export const routes: Routes = [
     path: 'provider/specialist',
     loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['specialist', 'doctor'] }
+    data: { roles: ['specialist'] } // [AGENT_ROLES] ISS-07: specialist routes for 'specialist' only, removed legacy 'doctor'
   },
   {
     path: 'specialist',
     loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['specialist', 'doctor'] }
+    data: { roles: ['specialist'] } // [AGENT_ROLES] ISS-07: specialist routes for 'specialist' only, removed legacy 'doctor'
   },
   {
     path: 'provider/pharmacy',

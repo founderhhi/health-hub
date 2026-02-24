@@ -11,6 +11,8 @@
       </button>
     </div>
 
+    <div class="status-banner status-banner--error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
     <!-- Order Title Section -->
     <div class="order-title-section">
       <div class="order-title-row">
@@ -197,5 +199,5 @@
     </div>
   </div>
 
-  <app-bottom-nav [tabs]="DIAGNOSTICS_TABS" activeTabId="orders"></app-bottom-nav>
+  <app-bottom-nav [tabs]="DIAGNOSTICS_TABS" activeTab="orders"></app-bottom-nav>
 </section>

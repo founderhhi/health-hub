@@ -87,6 +87,22 @@
               }
             </button>
           </div>
+          <!-- [AGENT_PATIENT] ISS-11: specific password policy error messages matching backend validation -->
+          @if (form.controls['password']?.touched && form.controls['password']?.hasError('required')) {
+          <span class="error-message">Password is required</span>
+          }
+          @if (form.controls['password']?.touched && form.controls['password']?.hasError('minlength')) {
+          <span class="error-message">Password must be at least 8 characters long</span>
+          }
+          @if (form.controls['password']?.touched && form.controls['password']?.hasError('requireUppercase')) {
+          <span class="error-message">Password must contain at least one uppercase letter</span>
+          }
+          @if (form.controls['password']?.touched && form.controls['password']?.hasError('requireLowercase')) {
+          <span class="error-message">Password must contain at least one lowercase letter</span>
+          }
+          @if (form.controls['password']?.touched && form.controls['password']?.hasError('requireDigit')) {
+          <span class="error-message">Password must contain at least one number</span>
+          }
         </div>
 
         <!-- Submit Button -->

@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
+import { db } from '../db';
 
 const jwtSecret = process.env['JWT_SECRET'] || 'demo_secret';
 const isTestEnv = process.env['NODE_ENV'] === 'test';
@@ -21,7 +22,7 @@ export interface AuthUser {
   tokenType?: string;
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing Authorization header' });
@@ -38,10 +39,28 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
       return res.status(401).json({ error: 'Invalid token' });
     }
 
+    // Enforce current account status for every authenticated request so disabled
+    // users lose API access immediately, even with pre-existing access tokens.
+    const userResult = await db.query(
+      `select id, role, phone, is_operating
+       from users
+       where id = $1`,
+      [payload.userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    const activeUser = userResult.rows[0] as { id: string; role: string; phone: string; is_operating: boolean };
+    if (!activeUser.is_operating) {
+      return res.status(403).json({ error: 'Account is disabled' });
+    }
+
     const user: AuthUser = {
-      userId: payload.userId,
-      role: payload.role,
-      phone: payload.phone,
+      userId: activeUser.id,
+      role: activeUser.role,
+      phone: activeUser.phone,
       tokenType: payload.tokenType
     };
     (req as Request & { user?: AuthUser }).user = user;

@@ -130,7 +130,7 @@ function normalizeHostHeader(rawHost: string | undefined): string {
   return (rawHost || '').trim().toLowerCase().replace(/\.$/, '').replace(/:\d+$/, '');
 }
 
-app.set('trust proxy', true);
+app.set('trust proxy', 1); // [AGENT_INFRA] ISS-06: trust only first proxy hop (Render)
 
 // Canonical custom-domain redirect: apex -> www for production traffic.
 app.use((req, res, next) => {
@@ -171,6 +171,8 @@ app.use((req, res, next) => {
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
+const EXEMPT_PATHS = ['/api/healthz', '/api/health', '/api/ready']; // [AGENT_INFRA] ISS-05: exempt health endpoints from rate limiting
+
 // INF-03: Global rate limiter (100 req / 15 min per IP)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -178,7 +180,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' },
-  skip: () => isTestEnv,
+  skip: (req) => isTestEnv || EXEMPT_PATHS.includes(req.path), // [AGENT_INFRA] ISS-05: skip rate limiting for health endpoints
 });
 
 // AUTH-04: Strict login limiter (5 req / 1 min per IP)

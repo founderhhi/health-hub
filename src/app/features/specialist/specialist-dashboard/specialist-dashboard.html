@@ -75,6 +75,7 @@
     <!-- Referrals Section -->
     <section class="referrals-section">
       <h2 class="section-title">New Referrals</h2>
+      <p class="referrals-error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
       <div class="referral-card" *ngFor="let referral of referrals"
         [class]="'referral-card referral-card--' + referral.urgency">
