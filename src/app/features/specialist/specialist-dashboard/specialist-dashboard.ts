@@ -23,11 +23,15 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
   };
   private wsSubscription?: Subscription;
 
+  get allCount() { return this.referrals.length; }
+  get gpCount() { return this.referrals.filter(r => r.source === 'gp' || !r.source).length; }
+  get specialistCount() { return this.referrals.filter(r => r.source === 'specialist').length; }
+
   constructor(
     private referralsApi: ReferralsApiService,
     private ws: WsService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadReferrals();

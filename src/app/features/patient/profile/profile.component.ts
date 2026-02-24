@@ -2,15 +2,17 @@ import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
+import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BottomNavComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit {
+  PATIENT_TABS = PATIENT_TABS;
   loading = true;
   user: { name: string; phone: string; avatar: string } | null = null;
 
@@ -23,7 +25,7 @@ export class ProfileComponent implements OnInit {
   constructor(
     public router: Router,
     private patientApi: PatientApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadProfile();
@@ -36,10 +38,10 @@ export class ProfileComponent implements OnInit {
       next: (res) => {
         const u = res.user;
         // SSR safety: only access localStorage in browser
-        const displayName = isPlatformBrowser(this.platformId) 
-          ? localStorage.getItem('hhi_display_name') 
+        const displayName = isPlatformBrowser(this.platformId)
+          ? localStorage.getItem('hhi_display_name')
           : null;
-        
+
         this.user = {
           name: u.display_name || u.full_name || u.name || displayName || 'Patient',
           phone: u.phone || '',

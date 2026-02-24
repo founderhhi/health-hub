@@ -38,17 +38,21 @@
 }
 
 .stat-card {
-  @include m.card;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: v.$space-lg;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   position: relative;
-  padding: v.$space-md;
   min-height: 120px;
 
   .stat-value {
-    font-size: v.$font-size-3xl;
-    font-weight: v.$font-weight-bold;
-    color: v.$color-text-primary;
+    font-family: v.$font-family-primary;
+    font-size: 32px;
+    font-weight: 700;
+    color: #4ADE80; // SP-5 emphasis color
     line-height: 1;
     margin-bottom: v.$space-xs;
   }
@@ -103,36 +107,71 @@
   gap: v.$space-sm;
   margin-bottom: v.$space-lg;
   overflow-x: auto;
-  padding-bottom: v.$space-xs;
-  @include m.scrollbar-hide;
-}
+  padding-bottom: v.$space-sm;
+  position: relative; // For the pseudo-element
 
-.tab-filter {
-  padding: v.$space-sm v.$space-md;
-  border: 1px solid v.$color-border;
-  border-radius: v.$radius-full;
-  background: v.$color-white;
-  color: v.$color-text-secondary;
-  font-size: v.$font-size-sm;
-  font-weight: v.$font-weight-medium;
-  cursor: pointer;
-  transition: all v.$transition-fast;
-  white-space: nowrap;
-
-  &:hover {
-    border-color: v.$color-emerald;
-    color: v.$color-emerald;
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  &--active {
-    background: v.$color-emerald;
-    border-color: v.$color-emerald;
-    color: v.$color-text-primary;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 48px;
+    background: linear-gradient(to right, transparent, #F8FAFC);
+    pointer-events: none;
+  }
+
+  .tab-filter {
+    white-space: nowrap;
+    padding: v.$space-sm v.$space-lg;
+    border-radius: 9999px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    color: #64748B;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-sm;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    .tab-count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 9999px;
+      background: #22C55E; // $green-500
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
 
     &:hover {
-      background: v.$color-emerald-hover;
-      border-color: v.$color-emerald-hover;
+      background: #F8FAFC;
+      color: #0B0F14;
+      border-color: v.$color-emerald;
+    }
+
+    &--active {
+      background: v.$color-emerald;
+      border-color: v.$color-emerald;
       color: v.$color-text-primary;
+
+      &:hover {
+        background: v.$color-emerald-hover;
+        border-color: v.$color-emerald-hover;
+        color: v.$color-text-primary;
+      }
     }
   }
 }
@@ -152,38 +191,89 @@
 
 /* Referral Cards */
 .referral-card {
-  @include m.card;
-  margin-bottom: v.$space-md;
-  padding: 0;
-  overflow: hidden;
-  border-left: 4px solid v.$color-border;
-  transition: all v.$transition-fast;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid #94A3B8; // Default left border
+  border-radius: 12px;
+  padding: v.$space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+  transition: background 200ms ease-in-out, box-shadow 200ms ease-in-out;
+  cursor: pointer;
+  overflow: hidden; // Added from original
+  margin-bottom: v.$space-md; // Added from original
 
   &:hover {
-    box-shadow: v.$shadow-md;
-    transform: translateY(-2px);
+    background: #F8FAFC;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   &--routine {
-    border-left-color: v.$color-emerald;
+    border-left-color: #3B82F6; // Blue for routine
   }
 
   &--urgent {
-    border-left-color: v.$color-warning;
+    border-left-color: #EF4444; // Red for urgent
   }
 
   &--emergency {
-    border-left-color: v.$color-danger;
+    border-left-color: v.$color-danger; // Kept from original
   }
 
   &__header {
-    padding: v.$space-md v.$space-md v.$space-sm;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0; // Removed original padding, now handled by parent
+
+    .referral-card__avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(74, 222, 128, 0.3); // $green-900-30 approx
+      color: #22C55E; // $green-400 equivalent
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
   }
 
   &__info {
     display: flex;
     flex-direction: column;
     gap: v.$space-xs;
+    flex: 1;
+
+    .referral-badges {
+      display: flex;
+      gap: v.$space-sm;
+      margin-bottom: v.$space-xs;
+    }
+
+    .patient-name {
+      font-family: v.$font-family-primary;
+      font-size: v.$font-size-lg;
+      font-weight: 600;
+      color: #0B0F14;
+      margin: 0;
+    }
+
+    .referral-meta {
+      font-family: v.$font-family-primary;
+      font-size: v.$font-size-sm;
+      color: #64748B;
+      margin: 0;
+
+      .referrer-name {
+        color: v.$color-text-secondary;
+        font-weight: v.$font-weight-medium;
+      }
+    }
   }
 }
 
@@ -302,59 +392,78 @@
 }
 
 .appointment-card {
-  @include m.card;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: v.$space-md v.$space-lg;
   display: flex;
   align-items: center;
-  gap: v.$space-md;
-  margin-bottom: v.$space-md;
-  padding: v.$space-md;
-  transition: all v.$transition-fast;
+  gap: v.$space-lg;
+  transition: background 200ms ease-in-out, box-shadow 200ms ease-in-out;
+  cursor: pointer;
+  margin-bottom: v.$space-md; // Added from original
 
   &:hover {
-    border-color: v.$color-emerald;
-    box-shadow: v.$shadow-sm;
-  }
-}
-
-.appointment-time {
-  font-size: v.$font-size-base;
-  font-weight: v.$font-weight-semibold;
-  color: v.$color-emerald;
-  min-width: 70px;
-}
-
-.appointment-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 2px;
-}
-
-.appointment-patient {
-  font-size: v.$font-size-base;
-  font-weight: v.$font-weight-semibold;
-  color: v.$color-text-primary;
-}
-
-.appointment-type {
-  font-size: v.$font-size-sm;
-  color: v.$color-text-secondary;
-}
-
-.appointment-status {
-  padding: v.$space-xs v.$space-sm;
-  border-radius: v.$radius-full;
-  font-size: v.$font-size-xs;
-  font-weight: v.$font-weight-semibold;
-
-  &--confirmed {
-    background: v.$color-success-light;
-    color: v.$color-success-dark;
+    background: #F8FAFC;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
-  &--pending {
-    background: v.$color-warning-light;
-    color: v.$color-warning-dark;
+  @include m.mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: v.$space-md;
+  }
+
+  .appointment-time {
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-lg;
+    font-weight: 600;
+    color: #0B0F14;
+    min-width: 80px;
+  }
+
+  .appointment-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .appointment-patient {
+      font-family: v.$font-family-primary;
+      font-size: v.$font-size-md;
+      font-weight: 600;
+      color: #0B0F14;
+      margin-bottom: 2px;
+    }
+
+    .appointment-type {
+      font-family: v.$font-family-primary;
+      font-size: v.$font-size-sm;
+      color: #64748B;
+    }
+  }
+
+  .appointment-status {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-sm;
+    font-weight: 500;
+    width: auto;
+    align-self: center;
+
+    @include m.mobile {
+      align-self: flex-start;
+    }
+
+    &--confirmed {
+      background: v.$color-success-light;
+      color: v.$color-success-dark;
+    }
+
+    &--pending {
+      background: v.$color-warning-light;
+      color: v.$color-warning-dark;
+    }
   }
 }
 

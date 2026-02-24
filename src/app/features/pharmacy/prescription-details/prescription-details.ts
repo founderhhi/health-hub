@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { PharmacyApiService } from '../../../core/api/pharmacy.service';
+import { BottomNavComponent, PHARMACY_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-prescription-details',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BottomNavComponent],
   templateUrl: './prescription-details.html',
   styleUrl: './prescription-details.scss',
 })
@@ -16,13 +17,14 @@ export class PrescriptionDetailsComponent implements OnInit {
   loading = true;
   errorMessage = '';
   readonly unavailableActionsReason = 'Not available yet: backend dispense tracking is still in development.';
+  PHARMACY_TABS = PHARMACY_TABS;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private prescriptionsApi: PrescriptionsApiService,
     private pharmacyApi: PharmacyApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

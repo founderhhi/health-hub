@@ -1,22 +1,18 @@
 @use '../../../../shared/styles/variables' as v;
 @use '../../../../shared/styles/mixins' as m;
 
-$bg-primary: #FFFFFF;
-$bg-secondary: #F5F5F5;
-$text-primary: #34495E;
-$text-secondary: #7F8C8D;
-$primary: #2ECC71;
-$primary-light: #2ED573;
-$primary-pressed: #27AE60;
-$accent: #AEEA00;
-$border: #BDC3C7;
-$border-light: #E0E0E0;
+$bg-primary: v.$color-white;
+$bg-secondary: v.$color-surface;
+$text-primary: v.$color-text-primary;
+$text-secondary: v.$color-text-secondary;
+$primary: v.$color-emerald;
+$primary-light: v.$color-emerald-light;
+$primary-pressed: v.$color-emerald-dark;
+$accent: v.$color-bio-lime;
+$border: v.$color-border;
+$border-light: v.$color-border-light;
 
-// Haptic animation keyframes
-@keyframes haptic-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
+// Haptic animation keyframes moved to mixins
 
 @keyframes ripple {
   to {
@@ -26,13 +22,27 @@ $border-light: #E0E0E0;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(46, 204, 113, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.6), 0 0 40px rgba(46, 204, 113, 0.3); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(46, 204, 113, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.6), 0 0 40px rgba(46, 204, 113, 0.3);
+  }
 }
 
 .landing-page {
@@ -105,10 +115,14 @@ $border-light: #E0E0E0;
 .tagline {
   margin-top: 10px;
   font-family: v.$font-family-primary;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: v.$font-weight-semibold;
-  color: rgba(174, 234, 0, 0.8);
-  animation: haptic-pulse 3s ease-in-out infinite;
+  color: #34495E;
+  display: inline-block;
+  background: rgba(174, 234, 0, 0.15);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  @include m.animation-haptic-pulse;
 }
 
 .button-group {
@@ -390,7 +404,7 @@ $border-light: #E0E0E0;
   align-items: center;
   justify-content: center;
   padding: 12px 0;
-  
+
   .connector-line {
     width: 2px;
     height: 32px;
@@ -516,11 +530,50 @@ $border-light: #E0E0E0;
 
 .cta-button {
   margin-top: 24px;
-  max-width: 220px;
-  animation: haptic-pulse 4s ease-in-out infinite;
+  min-width: 220px;
+  max-width: 320px;
+  @include m.animation-haptic-pulse;
 
   &:hover {
     animation: none;
+  }
+}
+
+// Sticky landing nav
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+// Social proof strip
+.social-proof {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  padding: 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: v.$color-emerald;
   }
 }
 
@@ -559,7 +612,7 @@ $border-light: #E0E0E0;
 
     .badge-item:hover & {
       transform: scale(1.2);
-      animation: haptic-pulse 1s ease-in-out;
+      animation: hhi-haptic-pulse 1s ease-in-out;
     }
   }
 
@@ -583,6 +636,7 @@ $border-light: #E0E0E0;
 }
 
 @include m.desktop {
+
   // Desktop grid layout for steps
   .steps-container {
     display: grid;
@@ -625,7 +679,7 @@ $border-light: #E0E0E0;
       height: 2px;
       background: linear-gradient(to right, rgba(174, 234, 0, 0.8), rgba(46, 204, 113, 0.8));
       position: relative;
-      
+
       &::after {
         content: '';
         position: absolute;

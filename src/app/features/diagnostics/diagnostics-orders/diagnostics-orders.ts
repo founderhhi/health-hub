@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LabsApiService } from '../../../core/api/labs.service';
+import { BottomNavComponent, DIAGNOSTICS_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { WsService } from '../../../core/realtime/ws.service';
 import { ProfileButtonComponent } from '../../../shared/components/profile-button/profile-button';
 
@@ -14,6 +15,7 @@ interface DiagnosticsOrderView {
   patientPhone: string;
   tests: string[];
   orderedDate: string;
+  orderedRelative?: string;
   status: 'Pending' | 'In Progress' | 'Completed';
   priority: 'Normal' | 'Urgent';
   isDemo?: boolean;
@@ -23,9 +25,10 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
   {
     orderId: 'DX-2024-001',
     patientName: 'Sarah J.',
-    patientPhone: '+254 7XX XXX 245',
+    patientPhone: '+254 712 345 245',
     tests: ['Complete Blood Count (CBC)', 'Lipid Profile'],
-    orderedDate: '3 days ago',
+    orderedDate: 'Oct 24, 2023 10:30 AM',
+    orderedRelative: '3 days ago',
     status: 'Completed',
     priority: 'Normal',
     isDemo: true
@@ -33,9 +36,10 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
   {
     orderId: 'DX-2024-002',
     patientName: 'Michael C.',
-    patientPhone: '+254 7XX XXX 891',
+    patientPhone: '+254 722 000 891',
     tests: ['HbA1c Test', 'Fasting Blood Sugar'],
-    orderedDate: '6 days ago',
+    orderedDate: 'Oct 21, 2023 09:15 AM',
+    orderedRelative: '6 days ago',
     status: 'Completed',
     priority: 'Normal',
     isDemo: true
@@ -43,9 +47,10 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
   {
     orderId: 'DX-2024-003',
     patientName: 'Emma W.',
-    patientPhone: '+254 7XX XXX 432',
+    patientPhone: '+254 733 111 432',
     tests: ['Thyroid Panel (TSH, T3, T4)'],
-    orderedDate: '8 days ago',
+    orderedDate: 'Oct 19, 2023 02:45 PM',
+    orderedRelative: '8 days ago',
     status: 'Completed',
     priority: 'Urgent',
     isDemo: true
@@ -53,9 +58,10 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
   {
     orderId: 'DX-2024-004',
     patientName: 'James M.',
-    patientPhone: '+254 7XX XXX 678',
+    patientPhone: '+254 744 222 678',
     tests: ['Liver Function Test (LFT)'],
-    orderedDate: '2 hours ago',
+    orderedDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toLocaleString(),
+    orderedRelative: '2 hours ago',
     status: 'Pending',
     priority: 'Normal',
     isDemo: true
@@ -63,9 +69,10 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
   {
     orderId: 'DX-2024-005',
     patientName: 'Lisa K.',
-    patientPhone: '+254 7XX XXX 123',
+    patientPhone: '+254 755 333 123',
     tests: ['Complete Metabolic Panel'],
-    orderedDate: '4 hours ago',
+    orderedDate: new Date(Date.now() - 4 * 60 * 60 * 1000).toLocaleString(),
+    orderedRelative: '4 hours ago',
     status: 'In Progress',
     priority: 'Urgent',
     isDemo: true
@@ -75,11 +82,12 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
 @Component({
   selector: 'app-diagnostics-orders',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ProfileButtonComponent],
+  imports: [CommonModule, FormsModule, RouterModule, BottomNavComponent, ProfileButtonComponent],
   templateUrl: './diagnostics-orders.html',
   styleUrl: './diagnostics-orders.scss',
 })
 export class DiagnosticsOrdersComponent implements OnInit {
+  DIAGNOSTICS_TABS = DIAGNOSTICS_TABS;
   orders: DiagnosticsOrderView[] = [];
 
   filtersExpanded = false;
@@ -102,7 +110,7 @@ export class DiagnosticsOrdersComponent implements OnInit {
     });
   }
 
-  constructor(private labsApi: LabsApiService, private router: Router, private ws: WsService) {}
+  constructor(private labsApi: LabsApiService, private router: Router, private ws: WsService) { }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -135,9 +143,9 @@ export class DiagnosticsOrdersComponent implements OnInit {
   }
 
   getStatusClass(order: DiagnosticsOrderView): string {
-    if (order.status === 'Completed') return 'badge-emergency';
-    if (order.status === 'In Progress') return 'badge-urgent';
-    return 'badge-routine';
+    if (order.status === 'Completed') return 'hhi-badge--success';
+    if (order.status === 'In Progress') return 'hhi-badge--info';
+    return 'hhi-badge--warning';
   }
 
   viewLiveOrder(order: DiagnosticsOrderView): void {
@@ -159,7 +167,8 @@ export class DiagnosticsOrdersComponent implements OnInit {
             patientName: order.patient_name || 'Patient',
             patientPhone: order.patient_phone || '+254 7XX XXX XXX',
             tests,
-            orderedDate: order.created_at ? new Date(order.created_at).toLocaleString() : 'Recently',
+            orderedDate: order.created_at ? new Date(order.created_at).toLocaleString() : new Date().toLocaleString(),
+            orderedRelative: 'Recently',
             status: this.normalizeStatus(order.status),
             priority: 'Normal' as const,
             isDemo: false
@@ -180,8 +189,8 @@ export class DiagnosticsOrdersComponent implements OnInit {
     return 'Pending';
   }
 
-  private getInitials(value: string): string {
-    if (!value.trim()) {
+  getInitials(value: string): string {
+    if (!value || !value.trim()) {
       return '';
     }
     return value

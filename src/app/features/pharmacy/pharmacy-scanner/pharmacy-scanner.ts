@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PharmacyApiService } from '../../../core/api/pharmacy.service';
 import { ProfileButtonComponent } from '../../../shared/components/profile-button/profile-button';
+import { BottomNavComponent, PHARMACY_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface RecentScan {
   code: string;
@@ -65,7 +66,7 @@ const DEMO_PRESCRIPTION: PrescriptionView = {
 @Component({
   selector: 'app-pharmacy-scanner',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ProfileButtonComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ProfileButtonComponent, BottomNavComponent],
   templateUrl: './pharmacy-scanner.html',
   styleUrl: './pharmacy-scanner.scss',
 })
@@ -82,13 +83,15 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
   recentScans: RecentScan[] = [];
   selectedPrescription: PrescriptionView | null = null;
   profileInitials = '';
+  scanSuccess = false;
+  PHARMACY_TABS = PHARMACY_TABS;
 
   private stream: MediaStream | null = null;
   private inlineMessageTimer: ReturnType<typeof setTimeout> | null = null;
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
   private platformId = inject(PLATFORM_ID);
 
-  constructor(private pharmacyApi: PharmacyApiService, private router: Router) {}
+  constructor(private pharmacyApi: PharmacyApiService, private router: Router) { }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -147,8 +150,12 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
     }
 
     if (trimmedCode.toUpperCase() === DEMO_PRESCRIPTION.code) {
-      this.selectedPrescription = DEMO_PRESCRIPTION;
-      this.inlineMessage = '';
+      this.scanSuccess = true;
+      setTimeout(() => {
+        this.scanSuccess = false;
+        this.selectedPrescription = DEMO_PRESCRIPTION;
+        this.inlineMessage = '';
+      }, 800);
       return;
     }
 
@@ -168,7 +175,11 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
           return;
         }
 
-        this.selectedPrescription = this.mapPrescriptionToView(prescription, trimmedCode);
+        this.scanSuccess = true;
+        setTimeout(() => {
+          this.scanSuccess = false;
+          this.selectedPrescription = this.mapPrescriptionToView(prescription, trimmedCode);
+        }, 800);
       },
       error: () => {
         this.showInlineMessage('Prescription not found. Please check the code and try again.', 'error');
@@ -264,11 +275,11 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
   private mapPrescriptionToView(prescription: any, enteredCode: string): PrescriptionView {
     const items = Array.isArray(prescription?.items)
       ? prescription.items.map((item: any) => ({
-          name: item?.name || 'Medication',
-          dosage: item?.dosage || item?.frequency || 'As directed',
-          duration: item?.duration,
-          quantity: item?.quantity
-        }))
+        name: item?.name || 'Medication',
+        dosage: item?.dosage || item?.frequency || 'As directed',
+        duration: item?.duration,
+        quantity: item?.quantity
+      }))
       : [];
 
     const patient = String(prescription?.patient_name || prescription?.patient_id || 'Patient');

@@ -67,6 +67,7 @@
 }
 
 .filter-group {
+
   .filter-input,
   .filter-select {
     @include m.input-base;
@@ -148,29 +149,24 @@
 
 /* History List */
 .history-list {
-  background: v.$color-white;
-  border: 1px solid v.$color-border;
-  border-radius: v.$radius-md;
-  overflow: hidden;
-  box-shadow: v.$shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
 }
 
 /* History Item */
 .history-item {
+  @include m.card;
   display: flex;
   align-items: center;
   gap: v.$space-md;
   padding: v.$space-md;
   cursor: pointer;
   transition: all v.$transition-fast;
-  border-bottom: 1px solid v.$color-border-light;
-
-  &:last-child {
-    border-bottom: none;
-  }
 
   &:hover {
-    background: v.$color-surface;
+    border-color: v.$color-emerald;
+    box-shadow: v.$shadow-md;
   }
 
   &__icon-wrapper {
@@ -225,31 +221,6 @@
     flex-shrink: 0;
   }
 
-  &__status {
-    font-family: v.$font-family-primary;
-    font-size: v.$font-size-xs;
-    font-weight: v.$font-weight-semibold;
-    padding: 2px 8px;
-    border-radius: v.$radius-full;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-
-    &.status-completed {
-      background: v.$color-success-light;
-      color: v.$color-success;
-    }
-
-    &.status-pending {
-      background: v.$color-warning-light;
-      color: v.$color-warning;
-    }
-
-    &.status-cancelled {
-      background: v.$color-danger-light;
-      color: v.$color-danger;
-    }
-  }
-
   &__icon-wrapper {
     &--pending {
       background: v.$color-warning-light;
@@ -269,106 +240,6 @@
   }
 }
 
-/* Empty State */
-.empty-state {
-  @include m.flex-column-center;
-  padding: v.$space-3xl v.$space-lg;
-  text-align: center;
-
-  &__icon {
-    width: 56px;
-    height: 56px;
-    color: v.$color-text-light;
-    margin-bottom: v.$space-md;
-  }
-
-  &__title {
-    font-family: v.$font-family-primary;
-    font-size: v.$font-size-lg;
-    font-weight: v.$font-weight-semibold;
-    color: v.$color-text-primary;
-    margin: 0 0 v.$space-xs 0;
-  }
-
-  &__subtitle {
-    font-family: v.$font-family-primary;
-    font-size: v.$font-size-sm;
-    color: v.$color-text-muted;
-    margin: 0;
-  }
-}
-
-/* Bottom Navigation */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: calc(v.$bottom-nav-height + v.$safe-area-bottom);
-  background: v.$bottom-nav-background;
-  border-top: 1px solid v.$color-border;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  padding-top: v.$space-sm;
-  padding-bottom: v.$safe-area-bottom;
-  z-index: v.$z-fixed;
-  box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.05);
-}
-
-.bottom-nav__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  flex: 1;
-  height: 100%;
-  padding: 4px 8px;
-  color: v.$bottom-nav-inactive-color;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all v.$transition-fast;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-
-  &:hover {
-    color: v.$color-text-secondary;
-  }
-
-  &:active {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-
-  &--active {
-    color: v.$bottom-nav-active-color;
-
-    .bottom-nav__icon {
-      stroke-width: 2.5px;
-    }
-
-    .bottom-nav__label {
-      font-weight: v.$font-weight-semibold;
-    }
-  }
-}
-
-.bottom-nav__icon {
-  width: 24px;
-  height: 24px;
-  stroke-width: 2px;
-  transition: all v.$transition-fast;
-}
-
-.bottom-nav__label {
-  font-family: v.$font-family-primary;
-  font-size: v.$font-size-sm;
-  font-weight: v.$font-weight-medium;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-}
 
 /* Mobile Responsive */
 @include m.mobile {
@@ -408,36 +279,8 @@
   }
 }
 
-@include m.xs {
-  .bottom-nav__label {
-    font-size: v.$font-size-xs;
-  }
-
-  .history-item {
-    &__subtitle {
-      font-size: v.$font-size-xs;
-    }
-
-    &__time {
-      font-size: v.$font-size-xs;
-    }
-  }
-}
-
 /* Desktop Adaptations */
 @include m.desktop {
-  .bottom-nav {
-    justify-content: center;
-    gap: v.$space-2xl;
-    height: calc(v.$bottom-nav-height-desktop + v.$safe-area-bottom);
-  }
-
-  .bottom-nav__item {
-    flex: 0 0 auto;
-    min-width: 80px;
-    max-width: 120px;
-  }
-
   .filter-grid {
     grid-template-columns: repeat(4, 1fr);
   }

@@ -4,15 +4,17 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LabsApiService } from '../../../core/api/labs.service';
+import { BottomNavComponent, DIAGNOSTICS_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-diagnostics-result-upload',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, BottomNavComponent],
   templateUrl: './diagnostics-result-upload.html',
   styleUrl: './diagnostics-result-upload.scss',
 })
 export class DiagnosticsResultUploadComponent implements OnInit {
+  DIAGNOSTICS_TABS = DIAGNOSTICS_TABS;
   dragOver = false;
   uploadInProgress = false;
   uploadedFiles: any[] = [];
@@ -24,7 +26,7 @@ export class DiagnosticsResultUploadComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private labsApi: LabsApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.orderId = this.route.snapshot.paramMap.get('id');

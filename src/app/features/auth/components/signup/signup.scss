@@ -29,19 +29,50 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(46, 204, 113, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.5), 0 0 40px rgba(46, 204, 113, 0.2); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(46, 204, 113, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.5), 0 0 40px rgba(46, 204, 113, 0.2);
+  }
 }
 
 @keyframes slideInUp {
@@ -49,69 +80,59 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.auth-page {
-  min-height: 100vh;
-  background: radial-gradient(circle at 50% -20%, rgba(46, 204, 113, 0.08), rgba(255, 255, 255, 0) 50%), $bg-primary;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: v.$space-lg;
-  animation: slideInUp 0.6s ease-out;
+.auth-subtitle {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-regular;
+  color: $text-secondary;
+  text-align: center;
+  margin: 0 0 v.$space-xl 0;
 }
 
-.auth-container {
-  width: 100%;
-  max-width: 440px;
-}
+// Role selector (signup)
+.role-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
 
-.auth-card {
-  background: $bg-primary;
-  border: 1px solid $border;
-  border-radius: 20px;
-  padding: v.$space-xl;
-  box-shadow: 0 4px 24px $shadow-color;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  will-change: transform, box-shadow;
-
-  &:hover {
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
-  }
-}
-
-/* Logo */
-.auth-logo {
-  display: flex;
-  justify-content: center;
-  margin-bottom: v.$space-lg;
-
-  svg {
-    width: 72px;
-    height: 72px;
-    filter: drop-shadow(0 4px 12px rgba(46, 204, 113, 0.3));
-    transition: all 0.3s ease;
-    animation: float 4s ease-in-out infinite;
+  &__option {
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px solid #E2E8F0;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 200ms ease-in-out, background 200ms ease-in-out;
 
     &:hover {
-      filter: drop-shadow(0 6px 20px rgba(46, 204, 113, 0.5));
-      transform: scale(1.05);
+      border-color: rgba(46, 204, 113, 0.4);
+      background: rgba(46, 204, 113, 0.02);
+    }
+
+    &.selected {
+      border-color: #2ECC71;
+      background: rgba(46, 204, 113, 0.05);
+    }
+
+    &__icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    &__label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1E293B;
     }
   }
-}
-
-/* Header */
-.auth-title {
-  font-family: v.$font-family-primary;
-  font-size: v.$font-size-2xl;
-  font-weight: v.$font-weight-bold;
-  color: $text-primary;
-  text-align: center;
-  margin: 0 0 v.$space-xs 0;
 }
 
 .auth-subtitle {
@@ -344,7 +365,7 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
 .checkbox-input {
   display: none;
 
-  &:checked + .checkbox-custom {
+  &:checked+.checkbox-custom {
     background: $primary;
     border-color: $primary;
     animation: haptic-pulse 0.3s ease;
@@ -512,9 +533,17 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
 
 /* Additional haptic animations */
 @keyframes haptic-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Mobile responsiveness */

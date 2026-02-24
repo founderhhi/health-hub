@@ -362,6 +362,7 @@
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -376,6 +377,7 @@
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -387,9 +389,12 @@
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
   @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.5;
     }
@@ -404,11 +409,90 @@
   padding-bottom: v.$safe-area-bottom;
 }
 
-@mixin safe-area-top {
-  padding-top: v.$safe-area-top;
+@mixin safe-area-left {
+  padding-left: v.$safe-area-left;
 }
 
-@mixin safe-area-x {
-  padding-left: v.$safe-area-left;
+@mixin safe-area-right {
   padding-right: v.$safe-area-right;
+}
+
+// ============================================
+// Global Design System Animations
+// ============================================
+
+@keyframes hhi-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@mixin animation-spin($duration: 1s) {
+  animation: hhi-spin $duration linear infinite;
+}
+
+@keyframes hhi-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@mixin animation-fade-in-up($delay: 0ms) {
+  animation: hhi-fade-in-up 400ms ease-out $delay both;
+}
+
+@keyframes hhi-haptic-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+@mixin animation-haptic-pulse {
+  animation: hhi-haptic-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hhi-scan {
+  0% {
+    top: 0;
+  }
+
+  100% {
+    top: 100%;
+  }
+}
+
+@mixin animation-scan {
+  animation: hhi-scan 2s linear infinite;
+}
+
+@keyframes hhi-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@mixin skeleton-shimmer {
+  background: linear-gradient(90deg, #121826 25%, #1c2535 50%, #121826 75%);
+  background-size: 200% 100%;
+  animation: hhi-shimmer 1.5s ease-in-out infinite;
 }

@@ -11,7 +11,7 @@
   background: #0B0F14;
   padding: v.$space-lg;
   padding-bottom: calc(80px + v.$safe-area-bottom);
-  color: #FFFFFF;
+  color: #F0F4F8;
 }
 
 /* Header */
@@ -405,71 +405,123 @@
   }
 }
 
-/* Bottom Navigation */
-.bottom-nav {
+/* QR Modal Overlay */
+.qr-modal-overlay {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: calc(64px + v.$safe-area-bottom);
-  background: #121826;
-  border-top: 1px solid #1E293B;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  padding-top: 8px;
-  padding-bottom: v.$safe-area-bottom;
-  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: v.$space-lg;
+  animation: hhi-fade-in 0.25s ease-out;
 }
 
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  padding: 4px 8px;
-  color: #64748B;
-  text-decoration: none;
+.qr-modal-content {
+  background: v.$color-surface-1;
+  border: 1px solid #1E293B;
+  border-radius: 16px;
+  padding: v.$space-2xl v.$space-lg;
+  max-width: 400px;
+  width: 100%;
   position: relative;
-  transition: color v.$transition-fast;
+  text-align: center;
+  animation: hhi-fade-in-up 0.3s ease-out;
+}
+
+.qr-close-btn {
+  position: absolute;
+  top: v.$space-md;
+  right: v.$space-md;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all v.$transition-fast;
 
   &:hover {
-    color: #A0AEC0;
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
   }
 
-  &.active {
-    color: #2ECC71;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: -8px;
-      width: 24px;
-      height: 2px;
-      background: #2ECC71;
-      border-radius: 2px;
-    }
-
-    .nav-label {
-      font-weight: v.$font-weight-semibold;
-    }
+  svg {
+    width: 20px;
+    height: 20px;
   }
 }
 
-.nav-icon {
-  width: 24px;
-  height: 24px;
-  stroke-width: 2px;
-}
-
-.nav-label {
+.qr-modal-title {
   font-family: v.$font-family-primary;
-  font-size: v.$font-size-sm;
-  font-weight: v.$font-weight-medium;
+  font-size: v.$font-size-xl;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0 0 v.$space-xl 0;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.qr-prescription-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 320px;
+  margin: 0 auto;
+  box-shadow: 0 0 0 1px rgba(46, 204, 113, 0.15),
+    0 0 32px rgba(46, 204, 113, 0.2);
+
+  &__qr-code {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__patient-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1E293B;
+    text-align: center;
+    margin-top: 16px;
+    font-family: v.$font-family-primary;
+  }
+}
+
+.qr-medication-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 24px;
+  margin-bottom: 24px;
+
+  .chip {
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: rgba(46, 204, 113, 0.15);
+    color: v.$color-emerald;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    font-family: v.$font-family-primary;
+  }
+}
+
+.qr-download-btn {
+  margin: 0 auto;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+
+  &:hover {
+    background: #F8FAFC;
+    color: #0F172A;
+  }
 }
