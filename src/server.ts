@@ -11,7 +11,7 @@ import rateLimit from 'express-rate-limit';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
 import { apiRouter } from './server/api';
-import { healthCheck as dbHealthCheck } from './server/db';
+import { ensureRuntimeSchema, healthCheck as dbHealthCheck } from './server/db';
 import { initWebSocketServer } from './server/realtime/ws';
 import * as wsModule from './server/realtime/ws';
 
@@ -284,32 +284,40 @@ if (
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
   const port = process.env['PORT'] || 4000;
   const server = createServer(app);
-  initWebSocketServer(server);
+  const startServer = async () => {
+    await ensureRuntimeSchema();
+    initWebSocketServer(server);
 
-  server.on('error', (error) => {
-    throw error;
-  });
-
-  server.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
-
-  // INF-05: Graceful shutdown handler
-  function shutdown(signal: string) {
-    console.log(`${signal} received. Shutting down gracefully...`);
-    server.close(() => {
-      console.log('HTTP server closed.');
-      process.exit(0);
+    server.on('error', (error) => {
+      throw error;
     });
-    // Force exit after 10 seconds if connections don't close
-    setTimeout(() => {
-      console.error('Forced shutdown after timeout.');
-      process.exit(1);
-    }, 10_000).unref();
-  }
 
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT', () => shutdown('SIGINT'));
+    server.listen(port, () => {
+      console.log(`Node Express server listening on http://localhost:${port}`);
+    });
+
+    // INF-05: Graceful shutdown handler
+    function shutdown(signal: string) {
+      console.log(`${signal} received. Shutting down gracefully...`);
+      server.close(() => {
+        console.log('HTTP server closed.');
+        process.exit(0);
+      });
+      // Force exit after 10 seconds if connections don't close
+      setTimeout(() => {
+        console.error('Forced shutdown after timeout.');
+        process.exit(1);
+      }, 10_000).unref();
+    }
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+  };
+
+  startServer().catch((error) => {
+    console.error('Server startup failed', error);
+    process.exit(1);
+  });
 }
 
 /**
