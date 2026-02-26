@@ -14,6 +14,7 @@ import { OperationalStatusToggleComponent } from '../../../../shared/components/
 })
 export class GpProfileComponent implements OnInit {
   profile!: ProviderProfileData;
+  settingsNotice = '';
 
   constructor(
     private router: Router,
@@ -32,6 +33,13 @@ export class GpProfileComponent implements OnInit {
   updateOperationalStatus(isOperating: boolean): void {
     this.profile = { ...this.profile, operational: isOperating };
     this.providerProfileService.setOperationalStatus('gp', isOperating);
+  }
+
+  openSettings(): void {
+    this.settingsNotice = 'Advanced settings are coming soon.';
+    setTimeout(() => {
+      this.settingsNotice = '';
+    }, 3000);
   }
 
   signOut(): void {

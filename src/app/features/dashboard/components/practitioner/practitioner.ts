@@ -299,18 +299,20 @@ export class Practitioner implements OnInit, OnDestroy {
     this.gpApi.getQueue().subscribe({
       next: (response) => {
         const now = Date.now();
-        const fifteenMinutes = 15 * 60 * 1000;
+        const sourceQueue = Array.isArray(response?.queue) ? response.queue : [];
 
-        this.queue = response.queue
-          .filter((item: any) => {
-            // Filter out patients waiting > 15 minutes
-            const createdAt = new Date(item.created_at).getTime();
-            const waitTime = now - createdAt;
-            return waitTime <= fifteenMinutes;
+        // Render queue from backend response directly so UI stays aligned with API state.
+        this.queue = sourceQueue
+          .slice()
+          .sort((a: any, b: any) => {
+            const aCreatedAt = new Date(a?.created_at || 0).getTime();
+            const bCreatedAt = new Date(b?.created_at || 0).getTime();
+            return bCreatedAt - aCreatedAt;
           })
           .map((item: any) => {
-            const createdAt = new Date(item.created_at).getTime();
-            const minutes = Math.max(1, Math.floor((now - createdAt) / 60000));
+            const createdAt = new Date(item?.created_at || now).getTime();
+            const waitTimeMs = Math.max(0, now - createdAt);
+            const minutes = Math.max(1, Math.floor(waitTimeMs / 60000));
             const displayName = this.formatPatientName(
               item.first_name,
               item.last_name,
@@ -646,13 +648,6 @@ export class Practitioner implements OnInit, OnDestroy {
    */
   viewPatients(): void {
     this.showUnavailableNotice('Patients view is coming soon.');
-  }
-
-  /**
-   * Open settings
-   */
-  openSettings(): void {
-    this.showUnavailableNotice('Settings are coming soon.');
   }
 
   /**

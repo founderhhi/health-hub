@@ -60,11 +60,20 @@ export class PharmacyHistoryComponent implements OnInit {
     }
     this.pharmacyApi.getHistory().subscribe({
       next: (res) => {
-        this.allHistoryItems = res.history.map((h: any) => this.mapToHistoryItem(h));
+        const sourceHistory = Array.isArray(res?.history) ? res.history : [];
+        this.allHistoryItems = sourceHistory.flatMap((entry: any) => {
+          try {
+            return [this.mapToHistoryItem(entry)];
+          } catch (error) {
+            console.error('Failed to map pharmacy history item:', error);
+            return [];
+          }
+        });
         this.loading = false;
         this.applyFilters();
       },
-      error: () => {
+      error: (error) => {
+        console.error('Failed to load pharmacy history:', error);
         // Fallback to empty list
         this.allHistoryItems = [];
         this.loading = false;
@@ -74,16 +83,16 @@ export class PharmacyHistoryComponent implements OnInit {
   }
 
   private mapToHistoryItem(raw: any): HistoryItem {
-    const claimedAt = new Date(raw.claimed_at);
+    const claimedAt = this.toValidDate(
+      raw?.claimed_at ?? raw?.claimedAt ?? raw?.dispensed_at ?? raw?.prescription_date
+    );
     const items = Array.isArray(raw.items) ? raw.items : [];
     // [AGENT_PHARMACY] ISS-16: map backend statuses to UI display labels
     // fulfilled -> completed (dispensing finished), claimed -> pending (claimed but not yet dispensed)
-    const status = raw.prescription_status === 'fulfilled' ? 'completed' as const
-      : raw.prescription_status === 'claimed' ? 'pending' as const
-        : 'cancelled' as const;
+    const status = this.normalizeHistoryStatus(raw?.prescription_status ?? raw?.status);
 
     return {
-      id: raw.id,
+      id: raw?.id || `history-${claimedAt.getTime()}-${Math.random().toString(36).slice(2, 8)}`,
       code: raw.code || 'N/A',
       patientName: raw.patient_name || 'Unknown',
       itemCount: items.length,
@@ -92,6 +101,22 @@ export class PharmacyHistoryComponent implements OnInit {
       dateGroup: this.formatDateGroup(claimedAt),
       status,
     };
+  }
+
+  private normalizeHistoryStatus(status: unknown): HistoryItem['status'] {
+    const normalized = String(status || '').toLowerCase();
+    if (normalized === 'fulfilled' || normalized === 'completed') {
+      return 'completed';
+    }
+    if (normalized === 'claimed' || normalized === 'pending') {
+      return 'pending';
+    }
+    return 'cancelled';
+  }
+
+  private toValidDate(value: unknown): Date {
+    const parsed = new Date(String(value || ''));
+    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
   }
 
   private formatDateGroup(date: Date): string {

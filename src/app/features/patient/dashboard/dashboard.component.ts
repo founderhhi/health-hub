@@ -6,6 +6,7 @@ import { PrescriptionsApiService } from '../../../core/api/prescriptions.service
 import { NotificationsApiService } from '../../../core/api/notifications.service';
 import { WsService } from '../../../core/realtime/ws.service';
 import { PaymentMockComponent } from '../../../shared/components/payment-mock/payment-mock';
+import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { Subscription } from 'rxjs';
 
 interface HealthStats {
@@ -17,11 +18,13 @@ interface HealthStats {
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, PaymentMockComponent],
+  imports: [CommonModule, RouterModule, PaymentMockComponent, BottomNavComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  PATIENT_TABS = PATIENT_TABS;
+
   // User data
   userName: string = '';
   notificationCount: number = 0;

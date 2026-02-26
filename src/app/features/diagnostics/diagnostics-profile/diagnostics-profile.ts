@@ -4,15 +4,17 @@ import { Router } from '@angular/router';
 import { OperationalStatusToggleComponent } from '../../../shared/components/operational-status-toggle/operational-status-toggle';
 import { AuthApiService } from '../../../core/api/auth.service';
 import { ProviderProfileData, ProviderProfileService } from '../../../core/services/provider-profile.service';
+import { BottomNavComponent, DIAGNOSTICS_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-diagnostics-profile',
   standalone: true,
-  imports: [CommonModule, OperationalStatusToggleComponent],
+  imports: [CommonModule, OperationalStatusToggleComponent, BottomNavComponent],
   templateUrl: './diagnostics-profile.html',
   styleUrl: './diagnostics-profile.scss'
 })
 export class DiagnosticsProfileComponent implements OnInit {
+  DIAGNOSTICS_TABS = DIAGNOSTICS_TABS;
   profile!: ProviderProfileData;
 
   constructor(

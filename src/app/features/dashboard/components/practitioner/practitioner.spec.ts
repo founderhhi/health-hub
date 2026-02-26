@@ -83,6 +83,6 @@ describe('Practitioner', () => {
     expect(quickActionButtons.every((button) => button.disabled === false)).toBe(true);
     expect(quickActionButtons.some((button) => (button.textContent || '').includes('My Schedule'))).toBe(true);
     expect(quickActionButtons.some((button) => (button.textContent || '').includes('My Patients'))).toBe(true);
-    expect(quickActionButtons.some((button) => (button.textContent || '').includes('Settings'))).toBe(true);
+    expect(quickActionButtons.some((button) => (button.textContent || '').includes('Profile'))).toBe(true);
   });
 });
