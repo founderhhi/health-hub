@@ -91,6 +91,9 @@ export class VideoSearch {
   }
 
   openVideo(video: HealthVideo): void {
-    window.open(video.url, '_blank');
+    const opened = window.open(video.url, '_blank', 'noopener,noreferrer');
+    if (!opened) {
+      window.location.assign(video.url);
+    }
   }
 }

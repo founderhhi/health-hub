@@ -184,17 +184,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadStats(): void {
     this.patientApi.getConsults().subscribe({
       next: (response) => {
-        this.stats.consultations = response.requests.length;
+        const requests = Array.isArray(response?.requests) ? response.requests : [];
+        this.stats.consultations = requests.filter((item: any) => {
+          const status = String(item?.status || '').toLowerCase();
+          return status !== 'removed' && status !== 'cancelled';
+        }).length;
+      },
+      error: () => {
+        this.stats.consultations = 0;
       }
     });
+
+    // Keep consultation count in sync when an active consult exists but list endpoint lags.
+    this.patientApi.getActiveConsult().subscribe({
+      next: (response) => {
+        if (response?.active) {
+          this.stats.consultations = Math.max(this.stats.consultations, 1);
+        }
+      }
+    });
+
     this.prescriptionsApi.listForPatient().subscribe({
       next: (response) => {
-        this.stats.prescriptions = response.prescriptions.length;
+        const prescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
+        this.stats.prescriptions = prescriptions.length;
+      },
+      error: () => {
+        this.stats.prescriptions = 0;
       }
     });
+
     this.patientApi.getLabOrders().subscribe({
       next: (response) => {
-        this.stats.records = response.orders.length;
+        const orders = Array.isArray(response?.orders) ? response.orders : [];
+        this.stats.records = orders.length;
+      },
+      error: () => {
+        this.stats.records = 0;
       }
     });
   }

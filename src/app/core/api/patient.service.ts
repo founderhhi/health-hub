@@ -27,4 +27,12 @@ export class PatientApiService {
   getLabOrders() {
     return this.api.get<{ orders: any[] }>('/patient/lab-orders');
   }
+
+  getActiveConsult() {
+    return this.api.get<{ active: any }>('/patient/consults/active');
+  }
+
+  cancelConsult(requestId: string) {
+    return this.api.post<{ success: boolean }>(`/patient/consults/${requestId}/cancel`);
+  }
 }

@@ -3,7 +3,7 @@ import { db } from '../db';
 import { requireAuth } from '../middleware/auth';
 import { broadcastToUser } from '../realtime/ws';
 
-const CHAT_PARTICIPANT_ROLES = ['patient', 'gp', 'specialist'];
+const CHAT_PARTICIPANT_ROLES = ['patient', 'gp', 'doctor', 'specialist'];
 
 export const chatRouter = Router();
 

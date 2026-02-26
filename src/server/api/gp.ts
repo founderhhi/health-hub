@@ -26,6 +26,24 @@ function getDailyRoomName(roomUrl: string | null | undefined): string | null {
   }
 }
 
+function withMeetingToken(roomUrl: string | null | undefined, token: string | null): string | null {
+  if (!roomUrl) {
+    return null;
+  }
+  if (!token) {
+    return roomUrl;
+  }
+
+  try {
+    const parsed = new URL(roomUrl);
+    parsed.searchParams.set('t', token);
+    return parsed.toString();
+  } catch {
+    const separator = roomUrl.includes('?') ? '&' : '?';
+    return `${roomUrl}${separator}t=${encodeURIComponent(token)}`;
+  }
+}
+
 async function generateMeetingToken(roomUrl: string | null | undefined, userId: string): Promise<MeetingTokenPayload> {
   const roomName = getDailyRoomName(roomUrl);
 
@@ -153,19 +171,31 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
       client.release();
     }
 
-    const meetingToken = await generateMeetingToken(consultation.daily_room_url, user.userId);
+    const gpMeetingToken = await generateMeetingToken(consultation.daily_room_url, user.userId);
+    const patientMeetingToken = await generateMeetingToken(consultation.daily_room_url, request.patient_id);
+    const gpJoinUrl = withMeetingToken(consultation.daily_room_url, gpMeetingToken.token);
+    const patientJoinUrl = withMeetingToken(consultation.daily_room_url, patientMeetingToken.token);
+    const consultationForGp = {
+      ...consultation,
+      daily_room_url: gpJoinUrl
+    };
+    const consultationForPatient = {
+      ...consultation,
+      daily_room_url: patientJoinUrl
+    };
 
     broadcastToUser(request.patient_id, 'consult.accepted', {
       requestId: request.id,
-      consultation
+      consultation: consultationForPatient,
+      roomUrl: patientJoinUrl
     });
     broadcastToRole('gp', 'queue.updated', { acceptedId: request.id });
     broadcastToRole('doctor', 'queue.updated', { acceptedId: request.id });
 
     return res.json({
-      consultation,
-      roomUrl: consultation.daily_room_url,
-      meetingToken
+      consultation: consultationForGp,
+      roomUrl: gpJoinUrl,
+      meetingToken: gpMeetingToken
     });
   } catch (error) {
     console.error('Accept consult error', error);
@@ -326,6 +356,15 @@ gpRouter.post('/consultations/:id/complete', requireAuth, requireRole(['gp', 'do
 
     const consultation = result.rows[0];
 
+    if (consultation.request_id) {
+      await db.query(
+        `update consult_requests
+         set status = 'completed'
+         where id = $1 and status in ('waiting', 'accepted')`,
+        [consultation.request_id]
+      );
+    }
+
     // Notify patient
     await db.query(
       `insert into notifications (user_id, type, message, data)
@@ -341,6 +380,14 @@ gpRouter.post('/consultations/:id/complete', requireAuth, requireRole(['gp', 'do
     await cleanupDailyRoom(consultation.daily_room_url);
 
     broadcastToUser(consultation.patient_id, 'consult.completed', { consultation });
+    if (consultation.gp_id) {
+      // Keep GP tabs in sync when completion happens from another tab/device.
+      broadcastToUser(consultation.gp_id, 'consult.completed', { consultation });
+    }
+
+    // Issue 4: Notify all GPs so their queue/stats refresh
+    broadcastToRole('gp', 'queue.updated', { completedId: consultation.id });
+    broadcastToRole('doctor', 'queue.updated', { completedId: consultation.id });
 
     return res.json({ consultation });
   } catch (error) {

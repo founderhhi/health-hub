@@ -73,7 +73,7 @@ export class RecordsComponent implements OnInit {
       next: (res) => {
         this.prescriptions = (res.prescriptions || []).map(p => ({
           ...p,
-          items: typeof p.items === 'string' ? JSON.parse(p.items) : (p.items || [])
+          items: this.parseJsonArray<PrescriptionItem>(p.items)
         }));
         prescriptionsLoaded = true;
         checkDone();
@@ -90,7 +90,7 @@ export class RecordsComponent implements OnInit {
       next: (res) => {
         this.labOrders = (res.orders || []).map(o => ({
           ...o,
-          tests: typeof o.tests === 'string' ? JSON.parse(o.tests) : (o.tests || [])
+          tests: this.parseJsonArray<string>(o.tests)
         }));
         labOrdersLoaded = true;
         checkDone();
@@ -161,5 +161,21 @@ export class RecordsComponent implements OnInit {
 
   closePrescription(): void {
     this.selectedRx = null;
+  }
+
+  private parseJsonArray<T>(value: unknown): T[] {
+    if (Array.isArray(value)) {
+      return value as T[];
+    }
+    if (typeof value !== 'string' || !value.trim()) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? (parsed as T[]) : [];
+    } catch {
+      return [];
+    }
   }
 }

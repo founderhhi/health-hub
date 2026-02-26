@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { GpApiService } from '../../../../core/api/gp.service';
 import { PrescriptionsApiService } from '../../../../core/api/prescriptions.service';
 import { ReferralsApiService } from '../../../../core/api/referrals.service';
@@ -66,6 +67,8 @@ interface ConsultationHistory {
   styleUrl: './practitioner.scss'
 })
 export class Practitioner implements OnInit, OnDestroy {
+  @ViewChild(ConsultShellComponent) consultShellRef?: ConsultShellComponent;
+
   today = new Date();
   isRefreshing = false;
   refreshCountdown = 10;
@@ -78,6 +81,7 @@ export class Practitioner implements OnInit, OnDestroy {
   private refreshInterval: any;
   private countdownInterval: any;
   private timeoutCheckInterval: any;
+  private wsSubscription?: Subscription;
   private platformId = inject(PLATFORM_ID);
 
   stats: DashboardStats = {
@@ -152,9 +156,22 @@ export class Practitioner implements OnInit, OnDestroy {
     this.startTimeoutChecker();
     this.loadConsultationHistory();
     this.ws.connect('gp');
-    this.ws.events$.subscribe((event) => {
+    this.wsSubscription = this.ws.events$.subscribe((event) => {
       if (event.event === 'queue.updated') {
         this.loadQueue();
+      } else if (event.event === 'consult.completed') {
+        const data = event.data as any;
+        const completedId = data?.consultationId || data?.consultation?.id || '';
+
+        if (completedId && completedId === this.activeConsultationId) {
+          this.showConsultShell = false;
+          this.activeConsultRoomUrl = '';
+          this.activeConsultationId = '';
+          this.showUnavailableNotice('Consultation has ended.');
+        }
+
+        this.loadQueue();
+        this.loadConsultationHistory();
       }
     });
   }
@@ -162,6 +179,7 @@ export class Practitioner implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopAutoRefresh();
     this.stopTimeoutChecker();
+    this.wsSubscription?.unsubscribe();
   }
 
   /**
@@ -432,6 +450,8 @@ export class Practitioner implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Failed to end consultation:', err);
         this.showUnavailableNotice('Failed to end consultation. Please try again.');
+        // Issue 5: Reset consult shell "ending" state so the button becomes usable again
+        this.consultShellRef?.onEndError('Failed to end consultation. Please try again.');
       }
     });
   }
