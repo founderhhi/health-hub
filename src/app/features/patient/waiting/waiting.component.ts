@@ -56,6 +56,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
             this.showConsultShell = false;
             this.roomUrl = '';
             this.consultationId = '';
+            this.autoOpenedConsultationId = '';
           }
         }
         if (event.event === 'consult.removed') {
@@ -63,6 +64,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
           this.showConsultShell = false;
           this.roomUrl = '';
           this.consultationId = '';
+          this.autoOpenedConsultationId = '';
         }
       });
 
@@ -119,13 +121,27 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   private applyAcceptedConsultation(payload: unknown): void {
     const data = payload as any;
-    this.roomUrl = this.extractRoomUrl(data);
-    this.consultationId = this.extractConsultationId(data);
-    this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
+    const requestId = this.extractRequestId(data);
+    if (requestId) {
+      if (this.requestId && requestId !== this.requestId) {
+        return;
+      }
+      this.requestId = requestId;
+    }
 
-    if (!this.roomUrl || !this.consultationId) {
+    const nextConsultationId = this.extractConsultationId(data);
+    const nextRoomUrl = this.extractRoomUrl(data);
+    if (!nextConsultationId) {
       return;
     }
+
+    if (this.consultationId && this.consultationId !== nextConsultationId && this.autoOpenedConsultationId === this.consultationId) {
+      return;
+    }
+
+    this.roomUrl = nextRoomUrl;
+    this.consultationId = nextConsultationId;
+    this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
 
     this.statusMessage = 'GP accepted. Joining consultation...';
 
@@ -147,6 +163,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
             this.showConsultShell = false;
             this.consultationId = '';
             this.roomUrl = '';
+            this.requestId = '';
+            this.autoOpenedConsultationId = '';
           }
           return;
         }
@@ -172,6 +190,17 @@ export class WaitingComponent implements OnInit, OnDestroy {
       payload?.consultation?.consultationId ||
       payload?.consultation?.id ||
       payload?.consultationId ||
+      ''
+    );
+  }
+
+  private extractRequestId(payload: any): string {
+    return (
+      payload?.requestId ||
+      payload?.request_id ||
+      payload?.id ||
+      payload?.consultation?.request_id ||
+      payload?.consultation?.requestId ||
       ''
     );
   }

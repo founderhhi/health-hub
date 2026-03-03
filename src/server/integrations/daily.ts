@@ -1,3 +1,29 @@
+const DAILY_DEFAULT_TIMEOUT_MS = 5_000;
+
+function resolveTimeoutMs() {
+  const raw = Number(process.env['DAILY_API_TIMEOUT_MS'] || DAILY_DEFAULT_TIMEOUT_MS);
+  if (!Number.isFinite(raw) || raw <= 0) {
+    return DAILY_DEFAULT_TIMEOUT_MS;
+  }
+  return Math.floor(raw);
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit) {
+  const controller = new AbortController();
+  const timeoutMs = resolveTimeoutMs();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError';
+}
+
 export async function createDailyRoom(): Promise<string> {
   const apiKey = process.env['DAILY_API_KEY'];
   const fallbackRoom = resolveFallbackRoom(process.env['DAILY_FALLBACK_ROOM'] || 'https://healthhub.daily.co/demo');
@@ -8,7 +34,7 @@ export async function createDailyRoom(): Promise<string> {
   }
 
   try {
-    const response = await fetch('https://api.daily.co/v1/rooms', {
+    const response = await fetchWithTimeout('https://api.daily.co/v1/rooms', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -32,6 +58,10 @@ export async function createDailyRoom(): Promise<string> {
     const data = (await response.json()) as { url?: string };
     return data.url || fallbackRoom;
   } catch (error) {
+    if (isAbortError(error)) {
+      console.warn('Daily room creation timed out. Falling back to default room URL.');
+      return fallbackRoom;
+    }
     console.error('Daily room creation request error:', error);
     return fallbackRoom;
   }
@@ -47,7 +77,7 @@ export async function createMeetingToken(
   }
 
   try {
-    const response = await fetch('https://api.daily.co/v1/meeting-tokens', {
+    const response = await fetchWithTimeout('https://api.daily.co/v1/meeting-tokens', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -71,6 +101,10 @@ export async function createMeetingToken(
     const data = (await response.json()) as { token?: string };
     return data.token || null;
   } catch (error) {
+    if (isAbortError(error)) {
+      console.warn('Daily meeting token request timed out.');
+      return null;
+    }
     console.error('Daily meeting token request error:', error);
     return null;
   }
@@ -88,7 +122,7 @@ export async function deleteRoom(roomUrl: string): Promise<void> {
   }
 
   try {
-    const response = await fetch(`https://api.daily.co/v1/rooms/${roomName}`, {
+    const response = await fetchWithTimeout(`https://api.daily.co/v1/rooms/${roomName}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${apiKey}`
@@ -100,6 +134,10 @@ export async function deleteRoom(roomUrl: string): Promise<void> {
       console.warn('Daily room deletion failed:', text);
     }
   } catch (error) {
+    if (isAbortError(error)) {
+      console.warn('Daily room deletion timed out.');
+      return;
+    }
     console.warn('Daily room deletion request error:', error);
   }
 }

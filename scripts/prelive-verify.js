@@ -18,6 +18,13 @@ const requiredColumns = [
   { table: 'pharmacy_claims', column: 'dispensed_at' },
   { table: 'pharmacy_claims', column: 'dispensed_items' }
 ];
+const requiredConstraints = [
+  {
+    table: 'consult_requests',
+    constraint: 'consult_requests_status_check',
+    mustInclude: "'removed'"
+  }
+];
 
 const requiredEndpoints = ['/api/healthz', '/api/health', '/api/ready'];
 
@@ -41,6 +48,7 @@ async function verifyDatabase() {
 
   try {
     const missing = [];
+    const invalidConstraints = [];
     for (const item of requiredColumns) {
       const result = await pool.query(
         `select 1
@@ -55,6 +63,30 @@ async function verifyDatabase() {
       }
     }
 
+    for (const item of requiredConstraints) {
+      const result = await pool.query(
+        `select pg_get_constraintdef(c.oid) as definition
+         from pg_constraint c
+         join pg_class t on t.oid = c.conrelid
+         join pg_namespace n on n.oid = t.relnamespace
+         where n.nspname = 'public'
+           and t.relname = $1
+           and c.conname = $2
+         limit 1`,
+        [item.table, item.constraint]
+      );
+
+      if (result.rows.length === 0) {
+        invalidConstraints.push(`${item.table}.${item.constraint} missing`);
+        continue;
+      }
+
+      const definition = String(result.rows[0].definition || '');
+      if (!definition.includes(item.mustInclude)) {
+        invalidConstraints.push(`${item.table}.${item.constraint} missing ${item.mustInclude}`);
+      }
+    }
+
     if (missing.length > 0) {
       console.error('DB check failed. Missing columns:');
       for (const item of missing) {
@@ -62,8 +94,15 @@ async function verifyDatabase() {
       }
       return { ok: false };
     }
+    if (invalidConstraints.length > 0) {
+      console.error('DB check failed. Invalid constraints:');
+      for (const item of invalidConstraints) {
+        console.error(`- ${item}`);
+      }
+      return { ok: false };
+    }
 
-    console.log('DB check passed. Required columns are present.');
+    console.log('DB check passed. Required columns and constraints are present.');
     return { ok: true };
   } catch (error) {
     console.error('DB check failed with error:', error.message || error);

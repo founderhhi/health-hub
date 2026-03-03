@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { broadcastToRole, broadcastToUser } from '../realtime/ws';
-import { createMeetingToken, deleteRoom } from '../integrations/daily';
+import { deleteRoom } from '../integrations/daily';
 
 export const patientRouter = Router();
 
@@ -15,38 +15,6 @@ async function cleanupDailyRoom(roomUrl: string | null | undefined): Promise<voi
     await deleteRoom(roomUrl);
   } catch (error) {
     console.error('Daily room cleanup error:', error);
-  }
-}
-
-function getDailyRoomName(roomUrl: string | null | undefined): string | null {
-  if (!roomUrl) {
-    return null;
-  }
-
-  try {
-    const parsed = new URL(roomUrl);
-    const segments = parsed.pathname.split('/').filter(Boolean);
-    return segments.length > 0 ? segments[0] : null;
-  } catch {
-    return null;
-  }
-}
-
-function withMeetingToken(roomUrl: string | null | undefined, token: string | null): string | null {
-  if (!roomUrl) {
-    return null;
-  }
-  if (!token) {
-    return roomUrl;
-  }
-
-  try {
-    const parsed = new URL(roomUrl);
-    parsed.searchParams.set('t', token);
-    return parsed.toString();
-  } catch {
-    const separator = roomUrl.includes('?') ? '&' : '?';
-    return `${roomUrl}${separator}t=${encodeURIComponent(token)}`;
   }
 }
 
@@ -222,16 +190,7 @@ patientRouter.get('/consults/active', requireAuth, requireRole(['patient']), asy
       return res.json({ active: null });
     }
 
-    const active = { ...result.rows[0] } as Record<string, any>;
-    if (active['status'] === 'accepted' && active['daily_room_url']) {
-      const roomName = getDailyRoomName(active['daily_room_url'] as string);
-      if (roomName) {
-        const token = await createMeetingToken(roomName, user.userId);
-        active['daily_room_url'] = withMeetingToken(active['daily_room_url'] as string, token);
-      }
-    }
-
-    return res.json({ active });
+    return res.json({ active: result.rows[0] });
   } catch (error) {
     console.error('Get active consult error', error);
     return res.status(500).json({ error: 'Unable to fetch active consult' });

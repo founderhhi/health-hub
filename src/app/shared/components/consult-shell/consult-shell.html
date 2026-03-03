@@ -89,8 +89,11 @@
                 <h3>Ready for Audio Call</h3>
                 <p>Click below to start an audio consultation in a new tab.</p>
               }
-              <button class="btn btn-primary btn-lg" type="button" (click)="startCall()" [disabled]="!roomUrl">
-                @if (mode === 'video') {
+              <button class="btn btn-primary btn-lg" type="button" (click)="startCall()"
+                [disabled]="joiningCall || (!roomUrl && !consultationId)">
+                @if (joiningCall) {
+                  Opening...
+                } @else if (mode === 'video') {
                   Start Video Call
                 } @else {
                   Start Audio Call
@@ -101,7 +104,9 @@
             <div class="call-active-indicator">
               <div class="call-pulse"></div>
               <span>{{ mode === 'video' ? 'Video' : 'Audio' }} call in progress (new tab)</span>
-              <button class="btn btn-secondary btn-sm" type="button" (click)="startCall()">Rejoin Call</button>
+              <button class="btn btn-secondary btn-sm" type="button" (click)="startCall()" [disabled]="joiningCall">
+                {{ joiningCall ? 'Opening...' : 'Rejoin Call' }}
+              </button>
             </div>
           }
         </div>
@@ -111,12 +116,12 @@
       @if (mode === 'chat' && canEscalateToCall) {
         <div class="shell-escalate-bar">
           <span>Need to talk?</span>
-          <button class="btn btn-secondary btn-sm" type="button" (click)="escalateToCall()">
+          <button class="btn btn-secondary btn-sm" type="button" (click)="escalateToCall()" [disabled]="joiningCall">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="23 7 16 12 23 17 23 7"/>
               <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
             </svg>
-            Start Video Call
+            {{ joiningCall ? 'Opening...' : 'Start Video Call' }}
           </button>
         </div>
       }
@@ -125,7 +130,9 @@
         <div class="call-active-indicator compact">
           <div class="call-pulse"></div>
           <span>Video call in progress (new tab)</span>
-          <button class="btn btn-secondary btn-sm" type="button" (click)="escalateToCall()">Rejoin</button>
+          <button class="btn btn-secondary btn-sm" type="button" (click)="escalateToCall()" [disabled]="joiningCall">
+            {{ joiningCall ? 'Opening...' : 'Rejoin' }}
+          </button>
         </div>
       }
 
@@ -144,6 +151,12 @@
       @if (isGp) {
         <footer class="shell-footer">
           <div class="shell-footer__actions">
+            <button class="btn btn-secondary" type="button" (click)="onPrescribe()" [disabled]="ending">
+              Prescribe
+            </button>
+            <button class="btn btn-secondary" type="button" (click)="onRefer()" [disabled]="ending">
+              Refer Specialist
+            </button>
             <button class="btn btn-danger-outline" type="button" (click)="openEndConfirm()" [disabled]="ending">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>

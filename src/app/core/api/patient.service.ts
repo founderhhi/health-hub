@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ApiClientService } from './api-client.service';
 
+export interface ConsultationJoinLinkResponse {
+  consultationId: string;
+  roomUrl: string;
+  tokenStatus: 'generated' | 'fallback';
+  expiresAt: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PatientApiService {
   constructor(private api: ApiClientService) {}
@@ -34,5 +41,9 @@ export class PatientApiService {
 
   cancelConsult(requestId: string) {
     return this.api.post<{ success: boolean }>(`/patient/consults/${requestId}/cancel`);
+  }
+
+  getConsultationJoinLink(consultationId: string) {
+    return this.api.get<ConsultationJoinLinkResponse>(`/consultations/${consultationId}/join-link?role=patient`);
   }
 }

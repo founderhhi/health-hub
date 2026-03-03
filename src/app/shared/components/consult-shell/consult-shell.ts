@@ -1,13 +1,19 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { ChatPanelComponent } from '../chat-panel/chat-panel';
 import { WsService } from '../../../core/realtime/ws.service';
+import { ApiClientService } from '../../../core/api/api-client.service';
 
 export type ConsultMode = 'video' | 'audio' | 'chat';
 export type ConsultRole = 'gp' | 'patient';
 export type ConsultStatus = 'connecting' | 'active' | 'completed' | 'error';
+
+interface JoinLinkResponse {
+  roomUrl: string;
+  tokenStatus?: 'generated' | 'fallback';
+}
 
 @Component({
   selector: 'app-consult-shell',
@@ -19,12 +25,15 @@ export type ConsultStatus = 'connecting' | 'active' | 'completed' | 'error';
 export class ConsultShellComponent implements OnInit, OnDestroy {
   @Input() consultationId = '';
   @Input() roomUrl = '';
+  @Input() autoStartCall = false;
   @Input() mode: ConsultMode = 'video';
   @Input() role: ConsultRole = 'patient';
   @Input() patientName = '';
   @Input() gpName = '';
 
   @Output() endConsultation = new EventEmitter<{ notes: string }>();
+  @Output() prescribe = new EventEmitter<void>();
+  @Output() refer = new EventEmitter<void>();
   @Output() leave = new EventEmitter<void>();
 
   status: ConsultStatus = 'connecting';
@@ -35,13 +44,18 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   ending = false;
   errorMessage = '';
   currentUserId = '';
+  joiningCall = false;
+  private autoStartConsumed = false;
 
   private platformId = inject(PLATFORM_ID);
   private timerInterval: any;
   private startTime = 0;
   private wsSubscription?: Subscription;
 
-  constructor(private ws: WsService) {}
+  constructor(
+    private ws: WsService,
+    private api: ApiClientService
+  ) {}
 
   ngOnInit(): void {
     this.status = 'active';
@@ -60,6 +74,13 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
           }
         }
       });
+
+      if (this.autoStartCall && !this.autoStartConsumed && (this.mode === 'video' || this.mode === 'audio')) {
+        this.autoStartConsumed = true;
+        setTimeout(() => {
+          this.startCall();
+        }, 0);
+      }
     }
   }
 
@@ -89,11 +110,17 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   }
 
   get canStartCall(): boolean {
-    return (this.mode === 'video' || this.mode === 'audio') && !!this.roomUrl && !this.callActive;
+    return (this.mode === 'video' || this.mode === 'audio')
+      && (!!this.roomUrl || !!this.consultationId)
+      && !this.callActive
+      && !this.joiningCall;
   }
 
   get canEscalateToCall(): boolean {
-    return this.mode === 'chat' && !!this.roomUrl && !this.callActive;
+    return this.mode === 'chat'
+      && (!!this.roomUrl || !!this.consultationId)
+      && !this.callActive
+      && !this.joiningCall;
   }
 
   get isGp(): boolean {
@@ -101,15 +128,11 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   }
 
   startCall(): void {
-    if (!this.roomUrl || !isPlatformBrowser(this.platformId)) return;
-    this.callActive = true;
-    window.open(this.roomUrl, '_blank', 'noopener');
+    void this.openCallWindow();
   }
 
   escalateToCall(): void {
-    if (!this.roomUrl || !isPlatformBrowser(this.platformId)) return;
-    this.callActive = true;
-    window.open(this.roomUrl, '_blank', 'noopener');
+    void this.openCallWindow();
   }
 
   openEndConfirm(): void {
@@ -124,6 +147,14 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   confirmEnd(): void {
     this.ending = true;
     this.endConsultation.emit({ notes: this.endNotes });
+  }
+
+  onPrescribe(): void {
+    this.prescribe.emit();
+  }
+
+  onRefer(): void {
+    this.refer.emit();
   }
 
   onEndComplete(): void {
@@ -141,6 +172,54 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.leave.emit();
+  }
+
+  private async openCallWindow(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId) || this.joiningCall) {
+      return;
+    }
+
+    this.joiningCall = true;
+    this.errorMessage = '';
+
+    try {
+      let resolvedRoomUrl = this.roomUrl;
+
+      if (this.consultationId) {
+        try {
+          const response = await firstValueFrom(
+            this.api.get<JoinLinkResponse>(`/consultations/${this.consultationId}/join-link?role=${this.role}`)
+          );
+          resolvedRoomUrl = response.roomUrl || resolvedRoomUrl;
+        } catch (error: any) {
+          const backendError = String(error?.error?.error || '');
+          const fallbackError = backendError || 'Unable to prepare call link right now.';
+          if (!resolvedRoomUrl) {
+            this.errorMessage = fallbackError;
+            this.callActive = false;
+            return;
+          }
+          this.errorMessage = `${fallbackError} Using last known call link.`;
+        }
+      }
+
+      if (!resolvedRoomUrl) {
+        this.errorMessage = 'Consultation room is unavailable right now.';
+        this.callActive = false;
+        return;
+      }
+
+      const popup = window.open(resolvedRoomUrl, '_blank', 'noopener,noreferrer');
+      if (!popup) {
+        this.errorMessage = 'Popup blocked. Tap Start Call to join consultation.';
+        this.callActive = false;
+        return;
+      }
+
+      this.callActive = true;
+    } finally {
+      this.joiningCall = false;
+    }
   }
 
   private startTimer(): void {

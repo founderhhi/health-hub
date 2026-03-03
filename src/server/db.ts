@@ -55,6 +55,22 @@ const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'pharmacy_claims', column: 'dispensed_at' },
   { table: 'pharmacy_claims', column: 'dispensed_items' },
 ];
+const REQUIRED_SCHEMA_CONSTRAINTS: Array<{
+  table: string;
+  constraint: string;
+  mustInclude: string;
+}> = [
+  {
+    table: 'consult_requests',
+    constraint: 'consult_requests_status_check',
+    mustInclude: "'removed'"
+  }
+];
+const REQUIRED_SCHEMA_TABLES = ['chat_messages'];
+const REQUIRED_SCHEMA_INDEXES = [
+  'idx_chat_messages_consultation_created_at',
+  'idx_referrals_consultation_id'
+];
 
 async function findMissingSchemaColumns() {
   const missing: string[] = [];
@@ -77,6 +93,70 @@ async function findMissingSchemaColumns() {
   return missing;
 }
 
+async function findInvalidSchemaConstraints() {
+  const invalid: string[] = [];
+
+  for (const item of REQUIRED_SCHEMA_CONSTRAINTS) {
+    const result = await db.query(
+      `select pg_get_constraintdef(c.oid) as definition
+       from pg_constraint c
+       join pg_class t on t.oid = c.conrelid
+       join pg_namespace n on n.oid = t.relnamespace
+       where n.nspname = 'public'
+         and t.relname = $1
+         and c.conname = $2
+       limit 1`,
+      [item.table, item.constraint]
+    );
+
+    if (result.rows.length === 0) {
+      invalid.push(`${item.table}.${item.constraint} missing`);
+      continue;
+    }
+
+    const definition = String(result.rows[0].definition || '');
+    if (!definition.includes(item.mustInclude)) {
+      invalid.push(`${item.table}.${item.constraint} missing ${item.mustInclude}`);
+    }
+  }
+
+  return invalid;
+}
+
+async function findMissingSchemaTables() {
+  const missing: string[] = [];
+
+  for (const tableName of REQUIRED_SCHEMA_TABLES) {
+    const result = await db.query(
+      `select to_regclass($1) as table_ref`,
+      [`public.${tableName}`]
+    );
+
+    if (!result.rows[0]?.table_ref) {
+      missing.push(tableName);
+    }
+  }
+
+  return missing;
+}
+
+async function findMissingSchemaIndexes() {
+  const missing: string[] = [];
+
+  for (const indexName of REQUIRED_SCHEMA_INDEXES) {
+    const result = await db.query(
+      `select to_regclass($1) as index_ref`,
+      [`public.${indexName}`]
+    );
+
+    if (!result.rows[0]?.index_ref) {
+      missing.push(indexName);
+    }
+  }
+
+  return missing;
+}
+
 export async function ensureRuntimeSchema(): Promise<void> {
   if (!connectionString) {
     return;
@@ -88,14 +168,36 @@ export async function ensureRuntimeSchema(): Promise<void> {
 
   ensureRuntimeSchemaPromise = (async () => {
     const missingColumns = await findMissingSchemaColumns();
+    const invalidConstraints = await findInvalidSchemaConstraints();
+    const missingTables = await findMissingSchemaTables();
+    const missingIndexes = await findMissingSchemaIndexes();
     if (missingColumns.length > 0) {
       throw new Error(
         `Database schema is incompatible. Missing columns: ${missingColumns.join(', ')}. ` +
         'Run migrations before starting the app.'
       );
     }
+    if (invalidConstraints.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Invalid constraints: ${invalidConstraints.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
+    }
+    if (missingTables.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Missing tables: ${missingTables.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
+    }
+    if (missingIndexes.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Missing indexes: ${missingIndexes.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
+    }
 
     await db.query(`CREATE INDEX IF NOT EXISTS idx_referrals_consultation_id ON referrals (consultation_id);`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
     console.log('Runtime schema compatibility check passed.');
   })();
 

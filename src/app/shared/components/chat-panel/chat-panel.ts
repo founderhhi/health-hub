@@ -128,9 +128,9 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
         this.loading = false;
         this.shouldScrollToBottom = true;
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
-        this.error = 'Unable to load messages.';
+        this.error = this.resolveChatError(error, 'load');
       }
     });
   }
@@ -157,9 +157,9 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
         this.sending = false;
         this.shouldScrollToBottom = true;
       },
-      error: () => {
+      error: (error) => {
         this.sending = false;
-        this.error = 'Unable to send message.';
+        this.error = this.resolveChatError(error, 'send');
       }
     });
   }
@@ -209,5 +209,32 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
       return;
     }
     container.scrollTop = container.scrollHeight;
+  }
+
+  private resolveChatError(error: any, action: 'load' | 'send'): string {
+    const code = String(error?.error?.code || '').toUpperCase();
+    const status = Number(error?.status || 0);
+
+    if (code === 'NOT_ACTIVE') {
+      return 'Chat is closed because the consultation has ended.';
+    }
+
+    if (code === 'SCHEMA_ERROR') {
+      return 'Chat server is unavailable right now. Please retry shortly.';
+    }
+
+    if (status === 0) {
+      return 'Chat request timed out. Check your connection and retry.';
+    }
+
+    if (status >= 500) {
+      return 'Chat server error. Please retry in a moment.';
+    }
+
+    if (code === 'NOT_PARTICIPANT' || status === 403) {
+      return 'You are no longer allowed to access this chat.';
+    }
+
+    return action === 'send' ? 'Unable to send message.' : 'Unable to load messages.';
   }
 }

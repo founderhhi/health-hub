@@ -16,9 +16,11 @@ describe('Practitioner', () => {
   const gpApiMock = {
     getQueue: vi.fn(() => of({ queue: [] })),
     acceptRequest: vi.fn(() => of({ consultation: null, roomUrl: '' })),
+    deleteFromQueue: vi.fn(() => of({ success: true })),
+    getOperationalStatus: vi.fn(() => of({ operational: true })),
     getConsultationHistory: vi.fn(() => of({ history: [] })),
     deleteConsultationRecord: vi.fn(() => of({ success: true })),
-    updateOperationalStatus: vi.fn(() => of({ success: true }))
+    updateOperationalStatus: vi.fn(() => of({ success: true, operational: true }))
   };
   const prescriptionsApiMock = {
     create: vi.fn(() => of({ prescription: {} }))
