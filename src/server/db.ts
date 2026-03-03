@@ -185,6 +185,20 @@ async function ensureConsultRequestStatusConstraintIncludesRemoved(): Promise<vo
   );
 }
 
+async function ensureChatMessagesTableAndIndexes(): Promise<void> {
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS chat_messages (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      consultation_id uuid NOT NULL REFERENCES consultations(id) ON DELETE CASCADE,
+      user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      message text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );`
+  );
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
+}
+
 export async function ensureRuntimeSchema(): Promise<void> {
   if (!connectionString) {
     return;
@@ -196,6 +210,7 @@ export async function ensureRuntimeSchema(): Promise<void> {
 
   ensureRuntimeSchemaPromise = (async () => {
     await ensureConsultRequestStatusConstraintIncludesRemoved();
+    await ensureChatMessagesTableAndIndexes();
 
     const missingColumns = await findMissingSchemaColumns();
     const invalidConstraints = await findInvalidSchemaConstraints();
