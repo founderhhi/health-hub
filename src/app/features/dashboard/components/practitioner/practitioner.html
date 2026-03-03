@@ -273,8 +273,8 @@
       </div>
       }
 
-      <!-- Consultation History Section (shown when on break) -->
-      @if (showHistory && !isOperating) {
+      <!-- Consultation History Section -->
+      @if (showHistory) {
       <div class="history-section">
         <h3 class="section-title">Past Consultations</h3>
         @if (consultationHistory.length > 0) {

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -83,6 +83,9 @@ export class Practitioner implements OnInit, OnDestroy {
   private countdownInterval: any;
   private wsSubscription?: Subscription;
   private platformId = inject(PLATFORM_ID);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private isDestroyed = false;
+  private renderScheduled = false;
 
   stats: DashboardStats = {
     waiting: 0,
@@ -155,12 +158,11 @@ export class Practitioner implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.startAutoRefresh();
     this.loadOperationalStatus();
-    this.loadQueue();
-    this.loadConsultationHistory();
+    this.refreshDashboard();
     this.ws.connect('gp');
     this.wsSubscription = this.ws.events$.subscribe((event) => {
       if (event.event === 'queue.updated') {
-        this.loadQueue();
+        this.refreshDashboard();
       } else if (event.event === 'consult.completed') {
         const data = event.data as any;
         const completedId = data?.consultationId || data?.consultation?.id || '';
@@ -174,13 +176,13 @@ export class Practitioner implements OnInit, OnDestroy {
           this.syncStats();
         }
 
-        this.loadQueue();
-        this.loadConsultationHistory();
+        this.refreshDashboard();
       }
     });
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.stopAutoRefresh();
     this.wsSubscription?.unsubscribe();
   }
@@ -217,9 +219,10 @@ export class Practitioner implements OnInit, OnDestroy {
     this.countdownInterval = setInterval(() => {
       this.refreshCountdown--;
       if (this.refreshCountdown <= 0) {
-        this.refreshQueue();
+        this.refreshDashboard();
         this.refreshCountdown = 10;
       }
+      this.renderNow();
     }, 1000);
   }
 
@@ -270,8 +273,14 @@ export class Practitioner implements OnInit, OnDestroy {
    * Refresh the queue
    */
   refreshQueue(): void {
+    this.refreshCountdown = 10;
+    this.refreshDashboard();
+  }
+
+  private refreshDashboard(): void {
     this.isRefreshing = true;
     this.loadQueue();
+    this.loadConsultationHistory();
   }
 
   private loadQueue(): void {
@@ -326,9 +335,11 @@ export class Practitioner implements OnInit, OnDestroy {
         this.syncStats();
         this.isRefreshing = false;
         this.applyFilters();
+        this.renderNow();
       },
       error: () => {
         this.isRefreshing = false;
+        this.renderNow();
       }
     });
   }
@@ -407,12 +418,14 @@ export class Practitioner implements OnInit, OnDestroy {
         this.isOperating = response.operational !== false;
         this.showHistory = !this.isOperating;
         this.providerProfileService.setOperationalStatus('gp', this.isOperating);
+        this.renderNow();
       },
       error: (err) => {
         console.error('Failed to fetch operational status:', err);
         const fallback = this.providerProfileService.getProfile('gp').operational;
         this.isOperating = fallback;
         this.showHistory = !fallback;
+        this.renderNow();
       }
     });
   }
@@ -677,12 +690,15 @@ export class Practitioner implements OnInit, OnDestroy {
         } else {
           this.showUnavailableNotice('You are now on break. No new patients will be added to your queue.');
         }
+        this.refreshDashboard();
+        this.renderNow();
       },
       error: (err) => {
         console.error('Failed to update operational status:', err);
         this.isOperating = previous;
         this.showHistory = !previous;
         this.showUnavailableNotice('Failed to update your break status. Please retry.');
+        this.renderNow();
       }
     });
   }
@@ -695,9 +711,11 @@ export class Practitioner implements OnInit, OnDestroy {
       next: (response) => {
         this.consultationHistory = response.history || [];
         this.syncStats();
+        this.renderNow();
       },
       error: (err) => {
         console.error('Failed to load consultation history:', err);
+        this.renderNow();
       }
     });
   }
@@ -736,6 +754,7 @@ export class Practitioner implements OnInit, OnDestroy {
    */
   viewHistory(): void {
     this.showHistory = true;
+    this.renderNow();
   }
 
   dismissUnavailableNotice(): void {
@@ -757,10 +776,26 @@ export class Practitioner implements OnInit, OnDestroy {
 
   private showUnavailableNotice(message: string): void {
     this.unavailableNotice = message;
+    this.renderNow();
     // Auto-dismiss after 5 seconds
     setTimeout(() => {
       this.unavailableNotice = '';
+      this.renderNow();
     }, 5000);
+  }
+
+  private renderNow(): void {
+    if (this.isDestroyed || this.renderScheduled) {
+      return;
+    }
+    this.renderScheduled = true;
+    queueMicrotask(() => {
+      this.renderScheduled = false;
+      if (this.isDestroyed) {
+        return;
+      }
+      this.cdr.detectChanges();
+    });
   }
 
   private resolveCompleteConsultationError(err: any): string {
