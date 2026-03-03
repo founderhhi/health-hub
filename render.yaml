@@ -14,7 +14,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
-        value: "22.11.0"
+        value: "22.12.0"
       - key: CANONICAL_REDIRECT_SOURCE_HOST
         value: healthhubinternational.com
       - key: CANONICAL_REDIRECT_TARGET_HOST
@@ -41,7 +41,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
-        value: "22.11.0"
+        value: "22.12.0"
       - key: CANONICAL_REDIRECT_SOURCE_HOST
         value: healthhubinternational.com
       - key: CANONICAL_REDIRECT_TARGET_HOST

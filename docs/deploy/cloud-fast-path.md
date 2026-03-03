@@ -4,7 +4,7 @@ This runbook documents the quickest path to deploy the app for shareholder flow 
 
 ## Target baseline
 
-- Runtime: Node 22.11.x (LTS) everywhere (`.nvmrc`, CI, Render)
+- Runtime: Node 22.12.x (LTS) everywhere (`.nvmrc`, CI, Render)
 - Process command: `npm run serve:ssr:health-hub`
 - Health check: `GET /api/health`
 - Required services: PostgreSQL
