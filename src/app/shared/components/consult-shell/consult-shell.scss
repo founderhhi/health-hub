@@ -191,6 +191,12 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
 
+  &__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: v.$space-sm;
+  }
+
   button {
     background: transparent;
     border: none;
@@ -200,6 +206,11 @@
     padding: 0;
     font-family: v.$font-family-primary;
     font-size: v.$font-size-sm;
+    text-decoration: underline;
+
+    &:hover {
+      opacity: 0.85;
+    }
   }
 }
 

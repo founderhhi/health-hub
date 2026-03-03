@@ -221,8 +221,8 @@
 
           <div class="queue-actions">
             <button class="btn btn-primary" (click)="acceptPatient(patient.id)"
-              [disabled]="patient.accepted || isDeletePending(patient.id)">
-              {{ patient.accepted ? 'Accepted' : 'Accept' }}
+              [disabled]="patient.accepted || isDeletePending(patient.id) || isAcceptPending(patient.id)">
+              {{ isAcceptPending(patient.id) ? 'Accepting...' : (patient.accepted ? 'Accepted' : 'Accept') }}
             </button>
             <button class="btn btn-icon btn-prescription" (click)="prescribe(patient.patientId)"
               [disabled]="isDeletePending(patient.id)"
@@ -469,8 +469,9 @@
 
     <div class="modal-footer">
       <button class="btn btn-ghost" (click)="closePatientDetailsModal()">Close</button>
-      <button class="btn btn-primary" (click)="acceptPatient(selectedPatient.id); closePatientDetailsModal()">
-        Accept Patient
+      <button class="btn btn-primary" (click)="acceptPatient(selectedPatient.id); closePatientDetailsModal()"
+        [disabled]="selectedPatient.accepted || isDeletePending(selectedPatient.id) || isAcceptPending(selectedPatient.id)">
+        {{ isAcceptPending(selectedPatient.id) ? 'Accepting...' : 'Accept Patient' }}
       </button>
     </div>
   </div>

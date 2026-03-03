@@ -48,7 +48,13 @@
   @if (errorMessage) {
     <div class="shell-error" role="alert">
       <span>{{ errorMessage }}</span>
-      <button type="button" (click)="errorMessage = ''">Dismiss</button>
+      <div class="shell-error__actions">
+        @if (fallbackRoomUrl && !callActive) {
+          <button type="button" (click)="openCallInSameTab()">Open Here</button>
+          <button type="button" (click)="copyCallLink()">Copy Link</button>
+        }
+        <button type="button" (click)="errorMessage = ''">Dismiss</button>
+      </div>
     </div>
   }
 

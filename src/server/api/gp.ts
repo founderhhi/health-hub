@@ -159,6 +159,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
     const client = await db.connect();
     let request: any = null;
     let consultation: any = null;
+    let reused = false;
 
     try {
       await client.query('BEGIN');
@@ -176,40 +177,66 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
       request = requestResult.rows[0];
 
       if (request.status !== 'waiting') {
-        await client.query('ROLLBACK');
-        return res.status(409).json({ error: 'Request already accepted or no longer waiting' });
+        if (request.status === 'accepted') {
+          const existingConsultationResult = await client.query(
+            `select *
+             from consultations
+             where request_id = $1 and status = 'active'
+             order by created_at desc
+             limit 1`,
+            [id]
+          );
+
+          const existingConsultation = existingConsultationResult.rows[0];
+          if (!existingConsultation) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Request already accepted or no longer waiting' });
+          }
+
+          if (existingConsultation.gp_id !== user.userId) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Request has already been accepted by another GP' });
+          }
+
+          consultation = existingConsultation;
+          reused = true;
+          await client.query('COMMIT');
+        } else {
+          await client.query('ROLLBACK');
+          return res.status(409).json({ error: 'Request already accepted or no longer waiting' });
+        }
+      } else {
+        const roomUrl = await createDailyRoom();
+
+        await client.query(
+          `update consult_requests
+           set status = 'accepted', accepted_at = now()
+           where id = $1`,
+          [id]
+        );
+
+        const consultResult = await client.query(
+          `insert into consultations (request_id, patient_id, gp_id, daily_room_url)
+           values ($1, $2, $3, $4)
+           returning *`,
+          [request.id, request.patient_id, user.userId, roomUrl]
+        );
+
+        consultation = consultResult.rows[0];
+
+        await client.query(
+          `insert into notifications (user_id, type, message, data)
+           values ($1, $2, $3, $4)`,
+          [
+            request.patient_id,
+            'consult.accepted',
+            'A GP accepted your request. Join the consultation.',
+            JSON.stringify({ consultationId: consultation.id })
+          ]
+        );
+
+        await client.query('COMMIT');
       }
-
-      const roomUrl = await createDailyRoom();
-
-      await client.query(
-        `update consult_requests
-         set status = 'accepted', accepted_at = now()
-         where id = $1`,
-        [id]
-      );
-
-      const consultResult = await client.query(
-        `insert into consultations (request_id, patient_id, gp_id, daily_room_url)
-         values ($1, $2, $3, $4)
-         returning *`,
-        [request.id, request.patient_id, user.userId, roomUrl]
-      );
-
-      consultation = consultResult.rows[0];
-
-      await client.query(
-        `insert into notifications (user_id, type, message, data)
-         values ($1, $2, $3, $4)`,
-        [
-          request.patient_id,
-          'consult.accepted',
-          'A GP accepted your request. Join the consultation.',
-          JSON.stringify({ consultationId: consultation.id })
-        ]
-      );
-
-      await client.query('COMMIT');
     } catch (error) {
       try {
         await client.query('ROLLBACK');
@@ -222,17 +249,20 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
 
     const roomUrl = consultation.daily_room_url || null;
 
-    broadcastToUser(request.patient_id, 'consult.accepted', {
-      requestId: request.id,
-      consultation,
-      roomUrl
-    });
-    broadcastToRole('gp', 'queue.updated', { acceptedId: request.id });
-    broadcastToRole('doctor', 'queue.updated', { acceptedId: request.id });
+    if (!reused) {
+      broadcastToUser(request.patient_id, 'consult.accepted', {
+        requestId: request.id,
+        consultation,
+        roomUrl
+      });
+      broadcastToRole('gp', 'queue.updated', { acceptedId: request.id });
+      broadcastToRole('doctor', 'queue.updated', { acceptedId: request.id });
+    }
 
     return res.json({
       consultation,
-      roomUrl
+      roomUrl,
+      reused
     });
   } catch (error) {
     console.error('Accept consult error', error);

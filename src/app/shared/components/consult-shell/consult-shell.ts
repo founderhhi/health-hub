@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription, firstValueFrom } from 'rxjs';
+import { Subscription, firstValueFrom, timeout } from 'rxjs';
 import { ChatPanelComponent } from '../chat-panel/chat-panel';
 import { WsService } from '../../../core/realtime/ws.service';
 import { ApiClientService } from '../../../core/api/api-client.service';
@@ -23,6 +23,8 @@ interface JoinLinkResponse {
   styleUrl: './consult-shell.scss'
 })
 export class ConsultShellComponent implements OnInit, OnDestroy {
+  private static readonly JOIN_LINK_TIMEOUT_MS = 8000;
+
   @Input() consultationId = '';
   @Input() roomUrl = '';
   @Input() autoStartCall = false;
@@ -45,6 +47,7 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   errorMessage = '';
   currentUserId = '';
   joiningCall = false;
+  fallbackRoomUrl = '';
   private autoStartConsumed = false;
 
   private platformId = inject(PLATFORM_ID);
@@ -59,8 +62,9 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.status = 'active';
-    this.startTime = Date.now();
-    this.startTimer();
+    if (this.mode === 'chat') {
+      this.startElapsedTimer();
+    }
 
     if (isPlatformBrowser(this.platformId)) {
       this.currentUserId = localStorage.getItem('hhi_user_id') || '';
@@ -184,19 +188,29 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
 
     try {
       let resolvedRoomUrl = this.roomUrl;
+      const popup = window.open('', '_blank', 'noopener,noreferrer');
+      const popupBlocked = !popup;
 
       if (this.consultationId) {
         try {
           const response = await firstValueFrom(
-            this.api.get<JoinLinkResponse>(`/consultations/${this.consultationId}/join-link?role=${this.role}`)
+            this.api
+              .get<JoinLinkResponse>(`/consultations/${this.consultationId}/join-link?role=${this.role}`)
+              .pipe(timeout(ConsultShellComponent.JOIN_LINK_TIMEOUT_MS))
           );
           resolvedRoomUrl = response.roomUrl || resolvedRoomUrl;
         } catch (error: any) {
+          const timedOut = error?.name === 'TimeoutError';
           const backendError = String(error?.error?.error || '');
-          const fallbackError = backendError || 'Unable to prepare call link right now.';
+          const fallbackError = timedOut
+            ? 'Timed out while preparing call link.'
+            : backendError || 'Unable to prepare call link right now.';
           if (!resolvedRoomUrl) {
             this.errorMessage = fallbackError;
             this.callActive = false;
+            if (popup && !popup.closed) {
+              popup.close();
+            }
             return;
           }
           this.errorMessage = `${fallbackError} Using last known call link.`;
@@ -206,20 +220,75 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       if (!resolvedRoomUrl) {
         this.errorMessage = 'Consultation room is unavailable right now.';
         this.callActive = false;
+        if (popup && !popup.closed) {
+          popup.close();
+        }
         return;
       }
 
-      const popup = window.open(resolvedRoomUrl, '_blank', 'noopener,noreferrer');
-      if (!popup) {
-        this.errorMessage = 'Popup blocked. Tap Start Call to join consultation.';
+      this.fallbackRoomUrl = resolvedRoomUrl;
+      this.roomUrl = resolvedRoomUrl;
+
+      if (popupBlocked) {
+        this.errorMessage = 'Popup blocked. Use Open Here or Copy Link to continue.';
         this.callActive = false;
         return;
       }
 
+      try {
+        popup.location.replace(resolvedRoomUrl);
+      } catch {
+        if (!popup.closed) {
+          popup.close();
+        }
+        this.callActive = true;
+        this.startElapsedTimer();
+        window.location.href = resolvedRoomUrl;
+        return;
+      }
+
       this.callActive = true;
+      this.startElapsedTimer();
     } finally {
       this.joiningCall = false;
     }
+  }
+
+  openCallInSameTab(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.fallbackRoomUrl) {
+      return;
+    }
+
+    this.callActive = true;
+    this.startElapsedTimer();
+    window.location.href = this.fallbackRoomUrl;
+  }
+
+  copyCallLink(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.fallbackRoomUrl) {
+      return;
+    }
+
+    const clipboard = navigator?.clipboard;
+    if (!clipboard?.writeText) {
+      this.errorMessage = 'Copy is not supported in this browser. Use Open Here to continue.';
+      return;
+    }
+
+    void clipboard.writeText(this.fallbackRoomUrl).then(() => {
+      this.errorMessage = 'Consultation link copied. Open it in a new tab if needed.';
+    }).catch(() => {
+      this.errorMessage = 'Unable to copy link right now. Use Open Here to continue.';
+    });
+  }
+
+  private startElapsedTimer(): void {
+    if (this.startTime > 0 || this.timerInterval) {
+      return;
+    }
+
+    this.startTime = Date.now();
+    this.startTimer();
   }
 
   private startTimer(): void {

@@ -71,8 +71,9 @@ export class Practitioner implements OnInit, OnDestroy {
   @ViewChild(ConsultShellComponent) consultShellRef?: ConsultShellComponent;
 
   today = new Date();
+  private readonly autoRefreshIntervalSeconds = 5;
   isRefreshing = false;
-  refreshCountdown = 10;
+  refreshCountdown = this.autoRefreshIntervalSeconds;
   unavailableNotice = '';
   activeConsultRoomUrl = '';
   activeConsultationId = '';
@@ -97,6 +98,7 @@ export class Practitioner implements OnInit, OnDestroy {
   queue: QueuePatient[] = [];
   filteredQueue: QueuePatient[] = [];
   private deletingPatientIds = new Set<string>();
+  private acceptingPatientIds = new Set<string>();
 
   // Filter states
   filterName = '';
@@ -219,8 +221,10 @@ export class Practitioner implements OnInit, OnDestroy {
     this.countdownInterval = setInterval(() => {
       this.refreshCountdown--;
       if (this.refreshCountdown <= 0) {
-        this.refreshDashboard();
-        this.refreshCountdown = 10;
+        if (!this.isRefreshing) {
+          this.refreshDashboard();
+        }
+        this.refreshCountdown = this.autoRefreshIntervalSeconds;
       }
       this.renderNow();
     }, 1000);
@@ -273,7 +277,7 @@ export class Practitioner implements OnInit, OnDestroy {
    * Refresh the queue
    */
   refreshQueue(): void {
-    this.refreshCountdown = 10;
+    this.refreshCountdown = this.autoRefreshIntervalSeconds;
     this.refreshDashboard();
   }
 
@@ -295,7 +299,7 @@ export class Practitioner implements OnInit, OnDestroy {
           .sort((a: any, b: any) => {
             const aCreatedAt = new Date(a?.created_at || 0).getTime();
             const bCreatedAt = new Date(b?.created_at || 0).getTime();
-            return bCreatedAt - aCreatedAt;
+            return aCreatedAt - bCreatedAt;
           })
           .map((item: any) => {
             const createdAt = new Date(item?.created_at || now).getTime();
@@ -329,6 +333,11 @@ export class Practitioner implements OnInit, OnDestroy {
         for (const deletingId of Array.from(this.deletingPatientIds)) {
           if (!queueIds.has(deletingId)) {
             this.deletingPatientIds.delete(deletingId);
+          }
+        }
+        for (const acceptingId of Array.from(this.acceptingPatientIds)) {
+          if (!queueIds.has(acceptingId)) {
+            this.acceptingPatientIds.delete(acceptingId);
           }
         }
 
@@ -379,6 +388,10 @@ export class Practitioner implements OnInit, OnDestroy {
 
   isDeletePending(patientId: string): boolean {
     return this.deletingPatientIds.has(patientId);
+  }
+
+  isAcceptPending(patientId: string): boolean {
+    return this.acceptingPatientIds.has(patientId);
   }
 
   /**
@@ -434,10 +447,11 @@ export class Practitioner implements OnInit, OnDestroy {
    * Accept a patient from the queue
    */
   acceptPatient(patientId: string): void {
-    if (this.deletingPatientIds.has(patientId)) {
+    if (this.deletingPatientIds.has(patientId) || this.acceptingPatientIds.has(patientId)) {
       return;
     }
 
+    this.acceptingPatientIds.add(patientId);
     const selected = this.queue.find((item) => item.id === patientId);
     const snapshot = selected ? { ...selected } : null;
 
@@ -468,11 +482,13 @@ export class Practitioner implements OnInit, OnDestroy {
         this.showConsultShell = true;
         this.applyFilters();
         this.syncStats();
+        this.acceptingPatientIds.delete(patientId);
       },
       error: (err) => {
         console.error('Failed to accept patient:', err);
         const message = err?.error?.error || 'Unable to accept patient right now. Please retry.';
         this.showUnavailableNotice(message);
+        this.acceptingPatientIds.delete(patientId);
       }
     });
   }

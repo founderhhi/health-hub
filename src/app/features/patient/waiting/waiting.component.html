@@ -62,10 +62,25 @@
           }
         </button>
       }
-      <button class="btn btn-ghost" type="button" (click)="cancel()">
-        Cancel & Go Back
+      <button class="btn btn-ghost" type="button" (click)="requestCancel()" [disabled]="cancelPending">
+        {{ cancelPending ? 'Cancelling...' : 'Cancel & Go Back' }}
       </button>
     </div>
   </div>
   </section>
+}
+
+@if (showCancelConfirm) {
+  <div class="cancel-modal-overlay" (click)="closeCancelConfirm()">
+    <div class="cancel-modal" (click)="$event.stopPropagation()">
+      <h2>Cancel Request?</h2>
+      <p>Canceling now will remove your request from the GP queue.</p>
+      <div class="cancel-modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="closeCancelConfirm()">Keep Waiting</button>
+        <button class="btn btn-danger" type="button" (click)="confirmCancel()">
+          Yes, Cancel Request
+        </button>
+      </div>
+    </div>
+  </div>
 }

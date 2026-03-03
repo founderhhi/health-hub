@@ -19,18 +19,50 @@ async function cleanupDailyRoom(roomUrl: string | null | undefined): Promise<voi
 }
 
 patientRouter.post('/consults', requireAuth, requireRole(['patient']), async (req, res) => {
+  const client = await db.connect();
   try {
     const { mode, symptoms } = req.body as { mode?: string; symptoms?: unknown };
     const user = (req as any).user;
 
-    const insert = await db.query(
+    await client.query('BEGIN');
+    // Serialize consult creation per patient to prevent duplicate open requests.
+    await client.query(`select pg_advisory_xact_lock(hashtext($1))`, [user.userId]);
+
+    const existingOpen = await client.query(
+      `select cr.*,
+              c.id as consultation_id,
+              c.daily_room_url,
+              c.status as consultation_status,
+              u.display_name as gp_name
+       from consult_requests cr
+       left join consultations c on c.request_id = cr.id and c.status = 'active'
+       left join users u on u.id = c.gp_id
+       where cr.patient_id = $1
+         and cr.status in ('waiting', 'accepted')
+       order by
+         case
+           when cr.status = 'accepted' and c.id is not null then 0
+           when cr.status = 'accepted' then 1
+           else 2
+         end,
+         cr.created_at desc
+       limit 1`,
+      [user.userId]
+    );
+
+    if (existingOpen.rows.length > 0) {
+      await client.query('COMMIT');
+      return res.json({ request: existingOpen.rows[0], reused: true });
+    }
+
+    const insert = await client.query(
       `insert into consult_requests (patient_id, mode, symptoms)
        values ($1, $2, $3) returning *`,
       [user.userId, mode || 'video', symptoms || {}]
     );
 
     const request = insert.rows[0];
-    await db.query(
+    await client.query(
       `insert into notifications (user_id, type, message, data)
        values ($1, $2, $3, $4)`,
       [
@@ -40,14 +72,24 @@ patientRouter.post('/consults', requireAuth, requireRole(['patient']), async (re
         JSON.stringify({ requestId: request.id })
       ]
     );
+
+    await client.query('COMMIT');
+
     broadcastToRole('gp', 'queue.updated', { request });
     broadcastToRole('doctor', 'queue.updated', { request });
     broadcastToUser(user.userId, 'patient.consult.requested', { request });
 
-    return res.json({ request });
+    return res.json({ request, reused: false });
   } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      // no-op
+    }
     console.error('Create consult request error', error);
     return res.status(500).json({ error: 'Unable to create consult request' });
+  } finally {
+    client.release();
   }
 });
 
@@ -177,11 +219,14 @@ patientRouter.get('/consults/active', requireAuth, requireRole(['patient']), asy
        left join consultations c on c.request_id = cr.id and c.status = 'active'
        left join users u on u.id = c.gp_id
        where cr.patient_id = $1
-         and (
-           cr.status = 'waiting'
-           or (cr.status = 'accepted' and c.id is not null)
-         )
-       order by cr.created_at desc
+         and cr.status in ('waiting', 'accepted')
+       order by
+         case
+           when cr.status = 'accepted' and c.id is not null then 0
+           when cr.status = 'accepted' then 1
+           else 2
+         end,
+         cr.created_at desc
        limit 1`,
       [user.userId]
     );

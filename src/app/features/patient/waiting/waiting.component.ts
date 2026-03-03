@@ -19,6 +19,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
   consultMode: ConsultMode = 'video';
   gpName = '';
   showConsultShell = false;
+  showCancelConfirm = false;
+  cancelPending = false;
   statusMessage = 'Waiting for a GP to accept your request...';
 
   private platformId = inject(PLATFORM_ID);
@@ -86,11 +88,33 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.showConsultShell = true;
   }
 
+  requestCancel(): void {
+    if (this.cancelPending) {
+      return;
+    }
+    this.showCancelConfirm = true;
+  }
+
+  closeCancelConfirm(): void {
+    if (this.cancelPending) {
+      return;
+    }
+    this.showCancelConfirm = false;
+  }
+
   onLeaveConsultShell(): void {
     this.showConsultShell = false;
   }
 
-  cancel(): void {
+  confirmCancel(): void {
+    if (this.cancelPending) {
+      return;
+    }
+
+    this.cancelPending = true;
+    this.showCancelConfirm = false;
+    this.statusMessage = 'Cancelling your consultation request...';
+
     if (this.requestId) {
       this.cancelRequest(this.requestId);
       return;
@@ -104,9 +128,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
           this.cancelRequest(fallbackRequestId);
           return;
         }
+        this.cancelPending = false;
         this.router.navigate(['/patient/dashboard']);
       },
       error: () => {
+        this.cancelPending = false;
         this.router.navigate(['/patient/dashboard']);
       }
     });
@@ -114,8 +140,14 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   private cancelRequest(requestId: string): void {
     this.patientApi.cancelConsult(requestId).subscribe({
-      next: () => this.router.navigate(['/patient/dashboard']),
-      error: () => this.router.navigate(['/patient/dashboard'])
+      next: () => {
+        this.cancelPending = false;
+        this.router.navigate(['/patient/dashboard']);
+      },
+      error: () => {
+        this.cancelPending = false;
+        this.router.navigate(['/patient/dashboard']);
+      }
     });
   }
 
