@@ -157,6 +157,34 @@ async function findMissingSchemaIndexes() {
   return missing;
 }
 
+async function ensureConsultRequestStatusConstraintIncludesRemoved(): Promise<void> {
+  const result = await db.query(
+    `select pg_get_constraintdef(c.oid) as definition
+     from pg_constraint c
+     join pg_class t on t.oid = c.conrelid
+     join pg_namespace n on n.oid = t.relnamespace
+     where n.nspname = 'public'
+       and t.relname = 'consult_requests'
+       and c.conname = 'consult_requests_status_check'
+     limit 1`
+  );
+
+  const definition = String(result.rows[0]?.definition || '');
+  if (definition.includes("'removed'")) {
+    return;
+  }
+
+  console.warn(
+    'Runtime schema repair: updating consult_requests_status_check to include removed status.'
+  );
+  await db.query(`ALTER TABLE consult_requests DROP CONSTRAINT IF EXISTS consult_requests_status_check;`);
+  await db.query(
+    `ALTER TABLE consult_requests
+     ADD CONSTRAINT consult_requests_status_check
+     CHECK (status IN ('waiting', 'accepted', 'cancelled', 'completed', 'removed'));`
+  );
+}
+
 export async function ensureRuntimeSchema(): Promise<void> {
   if (!connectionString) {
     return;
@@ -167,6 +195,8 @@ export async function ensureRuntimeSchema(): Promise<void> {
   }
 
   ensureRuntimeSchemaPromise = (async () => {
+    await ensureConsultRequestStatusConstraintIncludesRemoved();
+
     const missingColumns = await findMissingSchemaColumns();
     const invalidConstraints = await findInvalidSchemaConstraints();
     const missingTables = await findMissingSchemaTables();
