@@ -156,12 +156,25 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const duration = Date.now() - start;
     if (req.path.startsWith('/api')) {
+      const status = res.statusCode;
+      const isApi5xx = status >= 500;
+      const isReadyFailure = req.path === '/api/ready' && status >= 500;
+      const isLoginDenied = req.path === '/api/auth/login' && (status === 401 || status === 403);
+      const alertSignal = isReadyFailure
+        ? 'api.ready.failure'
+        : isLoginDenied
+          ? 'auth.login.denied'
+          : isApi5xx
+            ? 'api.5xx'
+            : null;
+
       console.log(JSON.stringify({
         ts: new Date().toISOString(),
         method: req.method,
         path: req.path,
-        status: res.statusCode,
+        status,
         duration,
+        ...(alertSignal ? { alertSignal } : {}),
       }));
     }
   });

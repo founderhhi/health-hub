@@ -38,6 +38,45 @@ export async function healthCheck(): Promise<boolean> {
 
 let ensureRuntimeSchemaPromise: Promise<void> | null = null;
 
+const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
+  { table: 'users', column: 'first_name' },
+  { table: 'users', column: 'last_name' },
+  { table: 'users', column: 'is_operating' },
+  { table: 'consult_requests', column: 'removed_at' },
+  { table: 'consult_requests', column: 'removed_reason' },
+  { table: 'consult_requests', column: 'removed_by' },
+  { table: 'consultations', column: 'completed_at' },
+  { table: 'consultations', column: 'gp_deleted' },
+  { table: 'consultations', column: 'gp_deleted_at' },
+  { table: 'referrals', column: 'consultation_id' },
+  { table: 'referrals', column: 'requested_info_note' },
+  { table: 'referrals', column: 'requested_info_at' },
+  { table: 'referrals', column: 'requested_info_by' },
+  { table: 'pharmacy_claims', column: 'dispensed_at' },
+  { table: 'pharmacy_claims', column: 'dispensed_items' },
+];
+
+async function findMissingSchemaColumns() {
+  const missing: string[] = [];
+
+  for (const item of REQUIRED_SCHEMA_COLUMNS) {
+    const result = await db.query(
+      `select 1
+       from information_schema.columns
+       where table_schema = 'public'
+         and table_name = $1
+         and column_name = $2`,
+      [item.table, item.column]
+    );
+
+    if (result.rows.length === 0) {
+      missing.push(`${item.table}.${item.column}`);
+    }
+  }
+
+  return missing;
+}
+
 export async function ensureRuntimeSchema(): Promise<void> {
   if (!connectionString) {
     return;
@@ -48,36 +87,16 @@ export async function ensureRuntimeSchema(): Promise<void> {
   }
 
   ensureRuntimeSchemaPromise = (async () => {
-    try {
-      // Runtime safety net for production incidents where predeploy migrations were not applied.
-      await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name text;`);
-      await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name text;`);
-      await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_operating boolean;`);
-      await db.query(`UPDATE users SET is_operating = true WHERE is_operating IS NULL;`);
-      await db.query(`ALTER TABLE users ALTER COLUMN is_operating SET DEFAULT true;`);
-      await db.query(`ALTER TABLE users ALTER COLUMN is_operating SET NOT NULL;`);
-
-      await db.query(`ALTER TABLE consult_requests ADD COLUMN IF NOT EXISTS removed_at timestamptz;`);
-      await db.query(`ALTER TABLE consult_requests ADD COLUMN IF NOT EXISTS removed_reason text;`);
-      await db.query(`ALTER TABLE consult_requests ADD COLUMN IF NOT EXISTS removed_by uuid;`);
-
-      await db.query(`ALTER TABLE consultations ADD COLUMN IF NOT EXISTS completed_at timestamptz;`);
-      await db.query(`ALTER TABLE consultations ADD COLUMN IF NOT EXISTS gp_deleted boolean NOT NULL DEFAULT false;`);
-      await db.query(`ALTER TABLE consultations ADD COLUMN IF NOT EXISTS gp_deleted_at timestamptz;`);
-
-      await db.query(`ALTER TABLE referrals ADD COLUMN IF NOT EXISTS consultation_id uuid;`);
-      await db.query(`ALTER TABLE referrals ADD COLUMN IF NOT EXISTS requested_info_note text;`);
-      await db.query(`ALTER TABLE referrals ADD COLUMN IF NOT EXISTS requested_info_at timestamptz;`);
-      await db.query(`ALTER TABLE referrals ADD COLUMN IF NOT EXISTS requested_info_by uuid;`);
-
-      await db.query(`ALTER TABLE pharmacy_claims ADD COLUMN IF NOT EXISTS dispensed_at timestamptz;`);
-      await db.query(`ALTER TABLE pharmacy_claims ADD COLUMN IF NOT EXISTS dispensed_items jsonb DEFAULT '[]'::jsonb;`);
-
-      await db.query(`CREATE INDEX IF NOT EXISTS idx_referrals_consultation_id ON referrals (consultation_id);`);
-      console.log('Runtime schema compatibility check complete.');
-    } catch (error) {
-      console.error('Runtime schema compatibility check failed:', error);
+    const missingColumns = await findMissingSchemaColumns();
+    if (missingColumns.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Missing columns: ${missingColumns.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
     }
+
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_referrals_consultation_id ON referrals (consultation_id);`);
+    console.log('Runtime schema compatibility check passed.');
   })();
 
   return ensureRuntimeSchemaPromise;

@@ -34,6 +34,11 @@
 
 /* Navigation Item */
 .hhi-bottom-nav__item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -48,9 +53,11 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 
-  /* Hover state */
-  &:hover {
-    color: #64748B;
+  /* Hover state (only on devices that support hover) */
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: #64748B;
+    }
   }
 
   /* Active/Pressed state */

@@ -28,7 +28,7 @@
   <ng-template #emptyState>
     <div class="empty-state">
       <p *ngIf="loading">Loading notifications...</p>
-      <p *ngIf="!loading">No notifications yet.</p>
+      <p *ngIf="!loading">{{ errorMessage || 'No notifications yet.' }}</p>
     </div>
   </ng-template>
 </section>

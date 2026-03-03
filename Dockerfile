@@ -10,7 +10,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 
 COPY . .
-RUN npx ng build
+RUN npm run typecheck && npm run build
 
 # --- Stage 2: Production ---
 FROM node:22-alpine AS production

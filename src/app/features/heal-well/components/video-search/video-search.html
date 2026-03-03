@@ -24,9 +24,14 @@
     </button>
   </div>
 
+  <p class="popup-warning" *ngIf="popupBlocked">
+    Pop-up blocked. Allow pop-ups for this site to open videos in a new tab.
+  </p>
+
   <div class="video-grid" *ngIf="filteredVideos.length > 0; else noResults">
-    <div class="video-card" *ngFor="let video of filteredVideos" (click)="openVideo(video)">
+    <button type="button" class="video-card" *ngFor="let video of filteredVideos" (click)="openVideo(video)">
       <div class="video-thumbnail">
+        <img class="video-thumbnail__image" [src]="getThumbnail(video)" [alt]="video.title + ' thumbnail'" loading="lazy" />
         <div class="play-icon">
           <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
             <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -41,7 +46,7 @@
           <span class="video-tag" *ngFor="let tag of video.tags">{{ tag }}</span>
         </div>
       </div>
-    </div>
+    </button>
   </div>
 
   <ng-template #noResults>

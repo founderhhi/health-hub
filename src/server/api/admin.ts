@@ -4,6 +4,11 @@ import { requireAuth, requireRole } from '../middleware/auth';
 
 export const adminRouter = Router();
 
+function isUndefinedColumnError(error: unknown): boolean {
+  const err = error as { code?: string };
+  return err?.code === '42703';
+}
+
 // API-14: List all users (paginated)
 adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) => {
   try {
@@ -13,42 +18,73 @@ adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) 
     const role = req.query['role'] as string | undefined;
     const search = req.query['search'] as string | undefined;
 
-    let query = `select id, role, phone, display_name, first_name, last_name, is_operating, created_at from users`;
-    const params: unknown[] = [];
-    const conditions: string[] = [];
+    const queryUsers = async (includeNameColumns: boolean, includeOperatingColumn: boolean) => {
+      const nameColumns = includeNameColumns
+        ? 'first_name, last_name'
+        : `null::text as first_name, null::text as last_name`;
+      const operatingColumn = includeOperatingColumn
+        ? 'is_operating'
+        : 'true as is_operating';
+      let query = `select id, role, phone, display_name, ${nameColumns}, ${operatingColumn}, created_at from users`;
+      const params: unknown[] = [];
+      const conditions: string[] = [];
 
-    if (role) {
-      params.push(role);
-      conditions.push(`role = $${params.length}`);
+      if (role) {
+        params.push(role);
+        conditions.push(`role = $${params.length}`);
+      }
+
+      if (search) {
+        params.push(`%${search}%`);
+        if (includeNameColumns) {
+          conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length} or first_name ilike $${params.length} or last_name ilike $${params.length})`);
+        } else {
+          conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length})`);
+        }
+      }
+
+      if (conditions.length > 0) {
+        query += ` where ${conditions.join(' and ')}`;
+      }
+
+      query += ` order by created_at desc`;
+
+      const countQuery = query.replace(/select[\s\S]+? from/, 'select count(*) from');
+      const countResult = await db.query(countQuery, params);
+      const total = parseInt(countResult.rows[0].count);
+
+      params.push(limit);
+      query += ` limit $${params.length}`;
+      params.push(offset);
+      query += ` offset $${params.length}`;
+
+      const result = await db.query(query, params);
+      return {
+        users: result.rows,
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      };
+    };
+
+    const variants = [
+      { includeNameColumns: true, includeOperatingColumn: true },
+      { includeNameColumns: false, includeOperatingColumn: true },
+      { includeNameColumns: false, includeOperatingColumn: false }
+    ];
+
+    let lastError: unknown = null;
+    for (const variant of variants) {
+      try {
+        const payload = await queryUsers(variant.includeNameColumns, variant.includeOperatingColumn);
+        return res.json(payload);
+      } catch (error) {
+        lastError = error;
+        if (!isUndefinedColumnError(error)) {
+          throw error;
+        }
+      }
     }
 
-    if (search) {
-      params.push(`%${search}%`);
-      conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length} or first_name ilike $${params.length} or last_name ilike $${params.length})`);
-    }
-
-    if (conditions.length > 0) {
-      query += ` where ${conditions.join(' and ')}`;
-    }
-
-    query += ` order by created_at desc`;
-
-    // Count total
-    const countQuery = query.replace(/select .+ from/, 'select count(*) from');
-    const countResult = await db.query(countQuery, params);
-    const total = parseInt(countResult.rows[0].count);
-
-    params.push(limit);
-    query += ` limit $${params.length}`;
-    params.push(offset);
-    query += ` offset $${params.length}`;
-
-    const result = await db.query(query, params);
-
-    return res.json({
-      users: result.rows,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
-    });
+    throw lastError;
   } catch (error) {
     console.error('Admin list users error', error);
     return res.status(500).json({ error: 'Unable to list users' });
@@ -59,11 +95,29 @@ adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) 
 adminRouter.get('/users/:id', requireAuth, requireRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await db.query(
-      `select id, role, phone, display_name, first_name, last_name, is_operating, created_at
-       from users where id = $1`,
-      [id]
-    );
+    const variants = [
+      `select id, role, phone, display_name, first_name, last_name, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, true as is_operating, created_at from users where id = $1`
+    ];
+
+    let result: { rows: any[] } | null = null;
+    let lastError: unknown = null;
+    for (const query of variants) {
+      try {
+        result = await db.query(query, [id]);
+        break;
+      } catch (error) {
+        lastError = error;
+        if (!isUndefinedColumnError(error)) {
+          throw error;
+        }
+      }
+    }
+
+    if (!result) {
+      throw lastError;
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });

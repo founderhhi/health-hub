@@ -1,14 +1,12 @@
 <nav class="hhi-bottom-nav" role="navigation" aria-label="Main navigation">
-  <a
+  <button
+    type="button"
     *ngFor="let tab of tabs"
     class="hhi-bottom-nav__item"
     [class.hhi-bottom-nav__item--active]="isActive(tab)"
     (click)="onTabClick(tab)"
-    (keydown.enter)="onTabClick(tab)"
-    role="button"
     [attr.aria-label]="tab.label"
     [attr.aria-current]="isActive(tab) ? 'page' : null"
-    tabindex="0"
   >
     <!-- Icon based on tab.icon type -->
     <svg 
@@ -105,5 +103,5 @@
     </svg>
 
     <span class="hhi-bottom-nav__label">{{ tab.label }}</span>
-  </a>
+  </button>
 </nav>

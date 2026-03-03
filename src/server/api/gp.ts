@@ -271,10 +271,19 @@ gpRouter.post('/status', requireAuth, requireRole(['gp', 'doctor']), async (req,
       return res.status(400).json({ error: 'operational field is required' });
     }
 
-    // Update user operational status
+    // Persist queue-availability status outside auth-critical account status.
+    // `users.is_operating` is reserved for account enable/disable controls.
     await db.query(
-      `update users set is_operating = $1 where id = $2`,
-      [operational, user.userId]
+      `insert into provider_profiles (user_id, notes)
+       values ($1, jsonb_build_object('operational', $2::boolean))
+       on conflict (user_id)
+       do update set notes = jsonb_set(
+         coalesce(provider_profiles.notes, '{}'::jsonb),
+         '{operational}',
+         to_jsonb($2::boolean),
+         true
+       )`,
+      [user.userId, operational]
     );
 
     // Broadcast status change

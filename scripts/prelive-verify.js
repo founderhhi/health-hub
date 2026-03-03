@@ -3,11 +3,20 @@ const { Pool } = require('pg');
 
 const requiredColumns = [
   { table: 'users', column: 'first_name' },
+  { table: 'users', column: 'last_name' },
   { table: 'users', column: 'is_operating' },
+  { table: 'consult_requests', column: 'removed_at' },
+  { table: 'consult_requests', column: 'removed_reason' },
+  { table: 'consult_requests', column: 'removed_by' },
+  { table: 'consultations', column: 'completed_at' },
+  { table: 'consultations', column: 'gp_deleted' },
+  { table: 'consultations', column: 'gp_deleted_at' },
   { table: 'referrals', column: 'consultation_id' },
   { table: 'referrals', column: 'requested_info_note' },
   { table: 'referrals', column: 'requested_info_at' },
-  { table: 'referrals', column: 'requested_info_by' }
+  { table: 'referrals', column: 'requested_info_by' },
+  { table: 'pharmacy_claims', column: 'dispensed_at' },
+  { table: 'pharmacy_claims', column: 'dispensed_items' }
 ];
 
 const requiredEndpoints = ['/api/healthz', '/api/health', '/api/ready'];

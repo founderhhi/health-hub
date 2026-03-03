@@ -15,7 +15,10 @@ import { Subscription } from 'rxjs';
 export class NotificationsComponent implements OnInit, OnDestroy {
   notifications: any[] = [];
   loading = true;
+  errorMessage = '';
   private wsSubscription?: Subscription;
+  private loadTimeoutRef?: ReturnType<typeof setTimeout>;
+  private readonly MAX_LOADING_MS = 8000;
 
   private platformId = inject(PLATFORM_ID);
 
@@ -32,7 +35,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       const userId = localStorage.getItem('hhi_user_id') || '';
       this.ws.connect('patient', userId);
-      this.wsSubscription = this.ws.events$.subscribe(() => {
+      this.wsSubscription = this.notificationsApi.refreshTriggers$.subscribe(() => {
         this.load();
       });
     }
@@ -40,6 +43,10 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
+    if (this.loadTimeoutRef) {
+      clearTimeout(this.loadTimeoutRef);
+      this.loadTimeoutRef = undefined;
+    }
   }
 
   goBack(): void {
@@ -68,13 +75,34 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
   private load(): void {
+    if (this.loadTimeoutRef) {
+      clearTimeout(this.loadTimeoutRef);
+      this.loadTimeoutRef = undefined;
+    }
+
     this.loading = true;
+    this.errorMessage = '';
+    this.loadTimeoutRef = setTimeout(() => {
+      this.loading = false;
+      this.errorMessage = 'No notifications yet.';
+    }, this.MAX_LOADING_MS);
+
     this.notificationsApi.list().subscribe({
       next: (response) => {
-        this.notifications = response.notifications;
+        if (this.loadTimeoutRef) {
+          clearTimeout(this.loadTimeoutRef);
+          this.loadTimeoutRef = undefined;
+        }
+        this.notifications = Array.isArray(response?.notifications) ? response.notifications : [];
         this.loading = false;
       },
       error: () => {
+        if (this.loadTimeoutRef) {
+          clearTimeout(this.loadTimeoutRef);
+          this.loadTimeoutRef = undefined;
+        }
+        this.notifications = [];
+        this.errorMessage = 'No notifications yet.';
         this.loading = false;
       }
     });
