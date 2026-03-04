@@ -38,6 +38,7 @@
         </span>
       </div>
       <p class="waiting-info">You will be connected when a GP is available. Please stay on this page.</p>
+      <p class="waiting-info waiting-info--hint">If it's taking a while, use the refresh button below to check for updates.</p>
     }
 
     <div class="waiting-actions">
@@ -60,6 +61,15 @@
             </svg>
             Join Chat Consultation
           }
+        </button>
+      }
+      @if (!roomUrl && !consultationId) {
+        <button class="btn btn-secondary" type="button" (click)="refreshStatus()" [disabled]="isRefreshing">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          {{ isRefreshing ? 'Checking...' : 'Refresh Status' }}
         </button>
       }
       <button class="btn btn-ghost" type="button" (click)="requestCancel()" [disabled]="cancelPending">

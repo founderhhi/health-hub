@@ -21,6 +21,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
   showConsultShell = false;
   showCancelConfirm = false;
   cancelPending = false;
+  isRefreshing = false;
   statusMessage = 'Waiting for a GP to accept your request...';
 
   private platformId = inject(PLATFORM_ID);
@@ -33,7 +34,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
     private ws: WsService,
     private router: Router,
     private patientApi: PatientApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -86,6 +87,30 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   joinConsult(): void {
     this.showConsultShell = true;
+  }
+
+  refreshStatus(): void {
+    if (this.isRefreshing) {
+      return;
+    }
+    this.isRefreshing = true;
+    this.patientApi.getActiveConsult().subscribe({
+      next: (response) => {
+        const active = response?.active;
+        if (active) {
+          this.requestId = active.id || this.requestId;
+          if (active.status === 'accepted') {
+            this.applyAcceptedConsultation(active);
+          }
+        } else {
+          this.statusMessage = 'No active consultation found. The GP may not have accepted yet.';
+        }
+        this.isRefreshing = false;
+      },
+      error: () => {
+        this.isRefreshing = false;
+      }
+    });
   }
 
   requestCancel(): void {
@@ -222,6 +247,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
       payload?.consultation?.consultationId ||
       payload?.consultation?.id ||
       payload?.consultationId ||
+      payload?.id ||
       ''
     );
   }
@@ -238,6 +264,12 @@ export class WaitingComponent implements OnInit, OnDestroy {
   }
 
   private extractRoomUrl(payload: any): string {
-    return payload?.daily_room_url || payload?.consultation?.daily_room_url || payload?.consultation?.roomUrl || payload?.roomUrl || '';
+    return (
+      payload?.daily_room_url ||
+      payload?.consultation?.daily_room_url ||
+      payload?.consultation?.roomUrl ||
+      payload?.roomUrl ||
+      ''
+    );
   }
 }

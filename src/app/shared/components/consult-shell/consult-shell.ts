@@ -58,7 +58,7 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   constructor(
     private ws: WsService,
     private api: ApiClientService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.status = 'active';
@@ -188,9 +188,10 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
 
     try {
       let resolvedRoomUrl = this.roomUrl;
-      const popup = window.open('', '_blank', 'noopener,noreferrer');
-      const popupBlocked = !popup;
 
+      // Step 1: Resolve the Daily.co room URL BEFORE opening the popup.
+      // This avoids the about:blank issue caused by opening a popup before
+      // we have a URL to navigate it to.
       if (this.consultationId) {
         try {
           const response = await firstValueFrom(
@@ -208,9 +209,6 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
           if (!resolvedRoomUrl) {
             this.errorMessage = fallbackError;
             this.callActive = false;
-            if (popup && !popup.closed) {
-              popup.close();
-            }
             return;
           }
           this.errorMessage = `${fallbackError} Using last known call link.`;
@@ -220,30 +218,19 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       if (!resolvedRoomUrl) {
         this.errorMessage = 'Consultation room is unavailable right now.';
         this.callActive = false;
-        if (popup && !popup.closed) {
-          popup.close();
-        }
         return;
       }
 
       this.fallbackRoomUrl = resolvedRoomUrl;
       this.roomUrl = resolvedRoomUrl;
 
-      if (popupBlocked) {
-        this.errorMessage = 'Popup blocked. Use Open Here or Copy Link to continue.';
-        this.callActive = false;
-        return;
-      }
+      // Step 2: Now open the popup with the URL ready.
+      const popup = window.open(resolvedRoomUrl, '_blank', 'noopener,noreferrer');
 
-      try {
-        popup.location.replace(resolvedRoomUrl);
-      } catch {
-        if (!popup.closed) {
-          popup.close();
-        }
-        this.callActive = true;
-        this.startElapsedTimer();
-        window.location.href = resolvedRoomUrl;
+      if (!popup) {
+        // Popup was blocked — show user-friendly error with fallback options.
+        this.errorMessage = 'Popup blocked. Use "Open Here" or "Copy Link" to continue.';
+        this.callActive = false;
         return;
       }
 
@@ -253,6 +240,7 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       this.joiningCall = false;
     }
   }
+
 
   openCallInSameTab(): void {
     if (!isPlatformBrowser(this.platformId) || !this.fallbackRoomUrl) {

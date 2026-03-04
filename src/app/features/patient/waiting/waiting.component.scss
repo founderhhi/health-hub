@@ -203,6 +203,29 @@
   }
 }
 
+.btn-secondary {
+  background: rgba(46, 204, 113, 0.1);
+  color: #2ECC71;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+
+  &:hover:not(:disabled) {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: rgba(46, 204, 113, 0.5);
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.waiting-info--hint {
+  color: #4B5563;
+  font-size: 0.75rem;
+  margin-top: -16px;
+  margin-bottom: 24px;
+}
+
 .waiting-mode-indicator {
   margin-bottom: v.$space-md;
 }

@@ -466,7 +466,16 @@ gpRouter.get('/consultations/history', requireAuth, requireRole(['gp', 'doctor']
         u.last_name as patient_last_name,
         c.notes as diagnosis,
         COALESCE(c.completed_at, c.ended_at) as completed_at,
-        extract(epoch from (COALESCE(c.completed_at, c.ended_at) - c.started_at))/60 as duration_minutes
+        CASE
+          WHEN c.started_at IS NOT NULL
+            AND COALESCE(c.completed_at, c.ended_at) IS NOT NULL
+            AND COALESCE(c.completed_at, c.ended_at) > c.started_at
+          THEN LEAST(
+            GREATEST(extract(epoch from (COALESCE(c.completed_at, c.ended_at) - c.started_at)) / 60, 0),
+            480
+          )
+          ELSE NULL
+        END as duration_minutes
        from consultations c
        join users u on u.id = c.patient_id
        where c.gp_id = $1 and c.status in ('completed', 'ended') and c.gp_deleted = false

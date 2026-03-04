@@ -155,7 +155,7 @@ export class Practitioner implements OnInit, OnDestroy {
     private prescriptionsApi: PrescriptionsApiService,
     private referralsApi: ReferralsApiService,
     private ws: WsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.startAutoRefresh();
@@ -693,7 +693,6 @@ export class Practitioner implements OnInit, OnDestroy {
     const previous = this.isOperating;
     const nextState = !previous;
     this.isOperating = nextState;
-    this.showHistory = !nextState;
 
     this.gpApi.updateOperationalStatus(nextState).subscribe({
       next: (response) => {
