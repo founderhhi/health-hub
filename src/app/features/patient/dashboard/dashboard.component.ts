@@ -7,7 +7,7 @@ import { NotificationsApiService } from '../../../core/api/notifications.service
 import { WsService } from '../../../core/realtime/ws.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { AiChatBubbleComponent } from '../../../shared/components/ai-chat-bubble/ai-chat-bubble.component';
-import { Subscription, catchError, forkJoin, of } from 'rxjs';
+import { Subscription, catchError, forkJoin, of, timeout } from 'rxjs';
 
 interface HealthStats {
   consultations: number;
@@ -197,15 +197,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     forkJoin({
       consults: this.patientApi.getConsults().pipe(
+        timeout(8000),
         catchError(() => of({ requests: [] as any[] }))
       ),
       activeConsult: this.patientApi.getActiveConsult().pipe(
+        timeout(8000),
         catchError(() => of({ active: null }))
       ),
       prescriptions: this.prescriptionsApi.listForPatient().pipe(
+        timeout(8000),
         catchError(() => of({ prescriptions: [] as any[] }))
       ),
       labs: this.patientApi.getLabOrders().pipe(
+        timeout(8000),
         catchError(() => of({ orders: [] as any[] }))
       )
     }).subscribe(({ consults, activeConsult, prescriptions, labs }) => {
@@ -226,7 +230,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private loadPrescriptions(): void {
     this.prescriptionsLoading = true;
-    this.prescriptionsApi.listForPatient().subscribe({
+    this.prescriptionsApi.listForPatient().pipe(timeout(8000)).subscribe({
       next: (response) => {
         const prescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
         this.recentPrescriptions = prescriptions.slice(0, 3);

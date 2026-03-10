@@ -3,16 +3,18 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
 import { WsService } from '../../../core/realtime/ws.service';
+import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-patient-notifications',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, BottomNavComponent],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss'
 })
 export class NotificationsComponent implements OnInit, OnDestroy {
+  PATIENT_TABS = PATIENT_TABS;
   notifications: any[] = [];
   loading = true;
   errorMessage = '';

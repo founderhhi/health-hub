@@ -32,4 +32,5 @@
       <button class="retry-btn" *ngIf="!loading && errorMessage" (click)="retry()">Retry</button>
     </div>
   </ng-template>
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
 </section>
