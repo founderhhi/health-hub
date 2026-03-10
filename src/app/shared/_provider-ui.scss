@@ -399,10 +399,10 @@
 }
 
 .hhi-input {
-  background: #1C2535;
-  border: 1px solid #2D3D54;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #F0F4F8;
+  color: var(--text-primary);
   height: 44px;
   padding: 0 12px;
   transition: border-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
@@ -415,7 +415,7 @@
 }
 
 .hhi-label {
-  color: #94A3B8;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 6px;
@@ -485,7 +485,7 @@
 
 .hhi-app-header--dark {
   background: rgba(11, 15, 20, 0.9);
-  border-bottom-color: #1E293B;
+  border-bottom-color: var(--border-color);
 }
 
 .hhi-app-header__container {
@@ -1656,14 +1656,12 @@
 /* ============================================
    Dark Mode Support
    ============================================ */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --hhi-surface: var(--hhi-dark-bg);
-    --hhi-white: var(--hhi-card-bg);
-    --hhi-text-primary: #F8FAFC;
-    --hhi-text-secondary: #94A3B8;
-    --hhi-border: var(--hhi-border-dark);
-  }
+[data-theme='dark'] {
+  --hhi-surface: var(--hhi-dark-bg);
+  --hhi-white: var(--hhi-card-bg);
+  --hhi-text-primary: #F8FAFC;
+  --hhi-text-secondary: #94A3B8;
+  --hhi-border: var(--hhi-border-dark);
 
   .hhi-bottom-nav {
     background: var(--hhi-card-bg);

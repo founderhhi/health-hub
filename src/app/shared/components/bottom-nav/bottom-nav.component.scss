@@ -56,7 +56,7 @@
   /* Hover state (only on devices that support hover) */
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      color: #64748B;
+      color: var(--text-primary);
     }
   }
 

@@ -5,23 +5,8 @@
 /* Import Provider UI Design System - Must be first */
 @use './app/shared/provider-ui' as *;
 
-/* Global Theme Tokens */
+/* Global Theme Tokens — light by default */
 :root {
-  color-scheme: dark;
-  --bg-primary: #0B0F14;
-  --bg-secondary: #111827;
-  --bg-card: #121826;
-  --text-primary: #F0F4F8;
-  --text-secondary: #A0AEC0;
-  --border-color: #1E293B;
-  --accent-primary: #2ECC71;
-  --accent-hover: #27AE60;
-  --success: #2ECC71;
-  --warning: #F59E0B;
-  --error: #EF4444;
-}
-
-[data-theme='light'] {
   color-scheme: light;
   --bg-primary: #FFFFFF;
   --bg-secondary: #F8FAFC;
@@ -29,6 +14,21 @@
   --text-primary: #0B0F14;
   --text-secondary: #475569;
   --border-color: #E2E8F0;
+  --accent-primary: #2ECC71;
+  --accent-hover: #27AE60;
+  --success: #2ECC71;
+  --warning: #F59E0B;
+  --error: #EF4444;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-primary: #0B0F14;
+  --bg-secondary: #111827;
+  --bg-card: #121826;
+  --text-primary: #F0F4F8;
+  --text-secondary: #A0AEC0;
+  --border-color: #1E293B;
   --accent-primary: #2ECC71;
   --accent-hover: #27AE60;
   --success: #2ECC71;

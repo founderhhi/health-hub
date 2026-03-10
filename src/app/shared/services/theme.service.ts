@@ -10,7 +10,7 @@ export class ThemeService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
 
-  private readonly currentThemeSubject = new BehaviorSubject<ThemeMode>('dark');
+  private readonly currentThemeSubject = new BehaviorSubject<ThemeMode>('light');
   readonly currentTheme$ = this.currentThemeSubject.asObservable();
 
   constructor() {
@@ -39,11 +39,11 @@ export class ThemeService {
 
   private getStoredTheme(): ThemeMode {
     if (!isPlatformBrowser(this.platformId)) {
-      return 'dark';
+      return 'light';
     }
 
     const savedTheme = localStorage.getItem(this.storageKey);
-    return savedTheme === 'light' ? 'light' : 'dark';
+    return savedTheme === 'dark' ? 'dark' : 'light';
   }
 
   private applyTheme(theme: ThemeMode): void {

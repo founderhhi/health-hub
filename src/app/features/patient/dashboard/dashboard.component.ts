@@ -7,6 +7,7 @@ import { NotificationsApiService } from '../../../core/api/notifications.service
 import { WsService } from '../../../core/realtime/ws.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { AiChatBubbleComponent } from '../../../shared/components/ai-chat-bubble/ai-chat-bubble.component';
+import { ThemeService, ThemeMode } from '../../../shared/services/theme.service';
 import { Subscription, catchError, forkJoin, of, timeout } from 'rxjs';
 
 interface HealthStats {
@@ -47,12 +48,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private platformId = inject(PLATFORM_ID);
 
+  currentTheme: ThemeMode = 'light';
+  private themeSubscription?: Subscription;
+
   constructor(
     private router: Router,
     private patientApi: PatientApiService,
     private prescriptionsApi: PrescriptionsApiService,
     private notificationsApi: NotificationsApiService,
-    private ws: WsService
+    private ws: WsService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +68,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       this.userName = 'Patient';
     }
+
+    this.themeSubscription = this.themeService.currentTheme$.subscribe(t => this.currentTheme = t);
 
     this.loadStats();
     this.loadPrescriptions();
@@ -92,6 +99,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
+    this.themeSubscription?.unsubscribe();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   // Get greeting based on time of day

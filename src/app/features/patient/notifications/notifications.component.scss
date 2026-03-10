@@ -1,7 +1,7 @@
 .notifications-page {
   min-height: 100vh;
-  background: #0B0F14;
-  color: #F0F4F8;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding: 20px;
 }
 
@@ -19,9 +19,9 @@
 }
 
 .back-btn {
-  background: #1E293B;
+  background: var(--border-color);
   border: none;
-  color: #FFFFFF;
+  color: var(--text-primary);
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -45,8 +45,8 @@
 }
 
 .notification-card {
-  background: #121826;
-  border: 1px solid #1E293B;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 12px;
   display: flex;
@@ -56,12 +56,12 @@
   transition: background 0.15s;
 
   &--unread {
-    background: #131D2E;
-    border-color: #2563EB33;
+    background: color-mix(in srgb, var(--accent-primary) 5%, var(--bg-card));
+    border-color: rgba(37, 99, 235, 0.2);
   }
 
   &:hover {
-    background: #1A2332;
+    background: var(--bg-secondary);
   }
 }
 
@@ -86,12 +86,12 @@
 .note-meta {
   display: flex;
   justify-content: space-between;
-  color: #94A3B8;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .empty-state {
-  color: #94A3B8;
+  color: var(--text-secondary);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
