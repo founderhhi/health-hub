@@ -197,8 +197,8 @@
 
     <!-- Action Buttons -->
     <div class="action-panel">
-      <button type="button" class="action-btn action-btn--primary" (click)="accept()">
-        Accept Referral
+      <button type="button" class="action-btn action-btn--primary" (click)="accept()" [disabled]="accepting">
+        {{ accepting ? 'Accepting...' : 'Accept Referral' }}
       </button>
       <button type="button" class="action-btn action-btn--primary" (click)="scheduleAppointment()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -210,24 +210,24 @@
         </svg>
         Schedule Appointment
       </button>
-      <button type="button" class="action-btn action-btn--secondary" (click)="orderTests()">
+      <button type="button" class="action-btn action-btn--secondary" (click)="orderTests()" [disabled]="orderingTests">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path
             d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
           </path>
         </svg>
-        Order Tests
+        {{ orderingTests ? 'Ordering...' : 'Order Tests' }}
       </button>
-      <button type="button" class="action-btn action-btn--secondary" (click)="prescribe()">
-        Prescribe
+      <button type="button" class="action-btn action-btn--secondary" (click)="prescribe()" [disabled]="prescribing">
+        {{ prescribing ? 'Prescribing...' : 'Prescribe' }}
       </button>
       <div class="secondary-actions">
         <button type="button" class="action-btn action-btn--ghost" (click)="requestMoreInfo()">
           {{ showRequestInfoForm ? 'Cancel Request' : 'Request More Info' }}
         </button>
-        <button type="button" class="action-btn action-btn--danger" (click)="decline()">
-          Decline
+        <button type="button" class="action-btn action-btn--danger" (click)="decline()" [disabled]="declining">
+          {{ declining ? 'Declining...' : 'Decline' }}
         </button>
       </div>
       <!-- [AGENT_SPECIALIST] ISS-14: textarea form for requesting additional info from referring GP -->
@@ -242,7 +242,7 @@
         ></textarea>
         <div class="request-info-actions">
           <button type="button" class="action-btn action-btn--ghost action-btn--sm" (click)="cancelRequestInfo()">Cancel</button>
-          <button type="button" class="action-btn action-btn--primary action-btn--sm" (click)="submitRequestInfo()" [disabled]="!requestInfoText.trim()">Send Request</button>
+          <button type="button" class="action-btn action-btn--primary action-btn--sm" (click)="submitRequestInfo()" [disabled]="!requestInfoText.trim() || submittingInfo">{{ submittingInfo ? 'Sending...' : 'Send Request' }}</button>
         </div>
       </div>
       <p class="inline-notice inline-notice--error" *ngIf="errorMessage">{{ errorMessage }}</p>

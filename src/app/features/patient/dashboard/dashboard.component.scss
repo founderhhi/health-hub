@@ -146,11 +146,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  transition: background 200ms ease-in-out, box-shadow 200ms ease-in-out;
+  transition: background 200ms ease-in-out, box-shadow 200ms ease-in-out, transform 200ms ease;
 
   &:hover {
     background: v.$color-surface-2;
     box-shadow: 0 0 0 1px rgba(46, 204, 113, 0.2);
+    transform: translateY(-2px);
   }
 
   .summary-icon {
@@ -197,6 +198,29 @@
     font-weight: v.$font-weight-regular;
     color: #A0AEC0;
   }
+}
+
+.summary-card--skeleton {
+  pointer-events: none;
+  gap: v.$space-sm;
+}
+
+.summary-skeleton-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.summary-skeleton-value {
+  width: 64px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.summary-skeleton-label {
+  width: 92px;
+  height: 14px;
+  border-radius: 8px;
 }
 
 /* Services Section */
@@ -498,10 +522,12 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: all v.$transition-fast;
+  transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
 
   &:hover {
     border-color: #2ECC71;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-primary) 12%, transparent);
   }
 }
 
@@ -564,6 +590,35 @@
   border: 1px solid #1E293B;
   border-radius: 10px;
   padding: v.$space-md;
+  transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+
+  &:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-primary) 12%, transparent);
+  }
+}
+
+.prescription-card--skeleton {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+}
+
+.rx-skeleton-line {
+  display: block;
+  border-radius: 8px;
+}
+
+.rx-skeleton-line--primary {
+  width: 52%;
+  height: 14px;
+}
+
+.rx-skeleton-line--secondary {
+  width: 78%;
+  height: 12px;
 }
 
 .rx-main {

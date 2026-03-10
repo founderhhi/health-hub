@@ -87,6 +87,12 @@ export const PATIENT_TABS: BottomNavTab[] = [
     icon: 'folder'
   },
   {
+    id: 'ai-chat',
+    route: '/patient/ai-chat',
+    label: 'HealthHub AI',
+    icon: 'robot'
+  },
+  {
     id: 'profile',
     route: '/patient/profile',
     label: 'Profile',
@@ -102,9 +108,9 @@ export const SPECIALIST_TABS: BottomNavTab[] = [
     icon: 'grid'
   },
   {
-    id: 'patients',
-    route: '/provider/specialist/patients',
-    label: 'Patients',
+    id: 'referrals',
+    route: '/specialist',
+    label: 'Referrals',
     icon: 'users'
   },
   {

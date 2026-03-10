@@ -5,9 +5,9 @@ import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
 import { WsService } from '../../../core/realtime/ws.service';
-import { PaymentMockComponent } from '../../../shared/components/payment-mock/payment-mock';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
-import { Subscription } from 'rxjs';
+import { AiChatBubbleComponent } from '../../../shared/components/ai-chat-bubble/ai-chat-bubble.component';
+import { Subscription, catchError, forkJoin, of } from 'rxjs';
 
 interface HealthStats {
   consultations: number;
@@ -18,7 +18,7 @@ interface HealthStats {
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, PaymentMockComponent, BottomNavComponent],
+  imports: [CommonModule, RouterModule, BottomNavComponent, AiChatBubbleComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -33,6 +33,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showModeSelector = false;
   selectedMode: 'video' | 'audio' | 'chat' = 'video';
   recentPrescriptions: any[] = [];
+  statsLoading = true;
+  prescriptionsLoading = true;
   showPaymentModal = false;
   private wsSubscription?: Subscription;
 
@@ -115,7 +117,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.router.navigate(['/patient/appointments']);
         break;
       case 'pharmacy':
-        this.router.navigate(['/patient/records']);
+        this.router.navigate(['/patient/records'], {
+          queryParams: { tab: 'prescriptions' }
+        });
         break;
       case 'diagnostics':
         // Coming soon - disabled
@@ -138,7 +142,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   viewRecords(): void {
-    this.router.navigate(['/patient/records']);
+    this.router.navigate(['/patient/records'], {
+      queryParams: { tab: 'prescriptions' }
+    });
   }
 
   openPayment(): void {
@@ -147,7 +153,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onPaymentComplete(result: { success: boolean }): void {
     if (result.success) {
-      setTimeout(() => { this.showPaymentModal = false; }, 2000);
+      // QOL-FIX: removed artificial delay.
+      this.showPaymentModal = false;
     }
   }
 
@@ -161,6 +168,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   requestWithMode(): void {
+    if (this.requestingConsult) {
+      return;
+    }
+
     this.showModeSelector = false;
     this.requestingConsult = true;
     this.requestError = '';
@@ -182,53 +193,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private loadStats(): void {
-    this.patientApi.getConsults().subscribe({
-      next: (response) => {
-        const requests = Array.isArray(response?.requests) ? response.requests : [];
-        this.stats.consultations = requests.filter((item: any) => {
-          const status = String(item?.status || '').toLowerCase();
-          return status !== 'removed' && status !== 'cancelled';
-        }).length;
-      },
-      error: () => {
-        this.stats.consultations = 0;
-      }
-    });
+    this.statsLoading = true;
 
-    // Keep consultation count in sync when an active consult exists but list endpoint lags.
-    this.patientApi.getActiveConsult().subscribe({
-      next: (response) => {
-        if (response?.active) {
-          this.stats.consultations = Math.max(this.stats.consultations, 1);
-        }
-      }
-    });
+    forkJoin({
+      consults: this.patientApi.getConsults().pipe(
+        catchError(() => of({ requests: [] as any[] }))
+      ),
+      activeConsult: this.patientApi.getActiveConsult().pipe(
+        catchError(() => of({ active: null }))
+      ),
+      prescriptions: this.prescriptionsApi.listForPatient().pipe(
+        catchError(() => of({ prescriptions: [] as any[] }))
+      ),
+      labs: this.patientApi.getLabOrders().pipe(
+        catchError(() => of({ orders: [] as any[] }))
+      )
+    }).subscribe(({ consults, activeConsult, prescriptions, labs }) => {
+      const requests = Array.isArray(consults?.requests) ? consults.requests : [];
+      const consultationsCount = requests.filter((item: any) => {
+        const status = String(item?.status || '').toLowerCase();
+        return status !== 'removed' && status !== 'cancelled';
+      }).length;
 
-    this.prescriptionsApi.listForPatient().subscribe({
-      next: (response) => {
-        const prescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
-        this.stats.prescriptions = prescriptions.length;
-      },
-      error: () => {
-        this.stats.prescriptions = 0;
-      }
-    });
-
-    this.patientApi.getLabOrders().subscribe({
-      next: (response) => {
-        const orders = Array.isArray(response?.orders) ? response.orders : [];
-        this.stats.records = orders.length;
-      },
-      error: () => {
-        this.stats.records = 0;
-      }
+      this.stats.consultations = activeConsult?.active
+        ? Math.max(consultationsCount, 1)
+        : consultationsCount;
+      this.stats.prescriptions = Array.isArray(prescriptions?.prescriptions) ? prescriptions.prescriptions.length : 0;
+      this.stats.records = Array.isArray(labs?.orders) ? labs.orders.length : 0;
+      this.statsLoading = false;
     });
   }
 
   private loadPrescriptions(): void {
+    this.prescriptionsLoading = true;
     this.prescriptionsApi.listForPatient().subscribe({
       next: (response) => {
-        this.recentPrescriptions = response.prescriptions.slice(0, 3);
+        const prescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
+        this.recentPrescriptions = prescriptions.slice(0, 3);
+        this.prescriptionsLoading = false;
+      },
+      error: () => {
+        this.recentPrescriptions = [];
+        this.prescriptionsLoading = false;
       }
     });
   }
@@ -237,6 +243,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.notificationsApi.list().subscribe({
       next: (response) => {
         this.notificationCount = response.notifications.filter((item) => !item.read).length;
+      },
+      error: () => {
+        this.notificationCount = 0;
       }
     });
   }

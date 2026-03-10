@@ -116,6 +116,21 @@
   margin-bottom: v.$space-xl;
 }
 
+.warning-banner {
+  margin-bottom: v.$space-md;
+  padding: v.$space-sm v.$space-md;
+  border-radius: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.12);
+
+  p {
+    margin: 0;
+    color: #FCD34D;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-sm;
+  }
+}
+
 .tab-btn {
   flex: 1;
   height: 44px;

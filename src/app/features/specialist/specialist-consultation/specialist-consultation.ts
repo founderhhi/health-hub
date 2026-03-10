@@ -21,6 +21,7 @@ export class SpecialistConsultationComponent implements OnInit {
   currentUserId = '';
   statusMessage = '';
   errorMessage = '';
+  loading = true;
   requestingLabs = false;
   creatingPrescription = false;
 
@@ -42,17 +43,21 @@ export class SpecialistConsultationComponent implements OnInit {
     if (id) {
       this.referralId = id;
       this.errorMessage = '';
+      this.loading = true;
       this.referralsApi.getReferral(id).subscribe({
         next: (response) => {
           this.referral = response.referral;
           this.consultationId = response.referral?.consultation_id || response.referral?.consultationId || '';
           this.dailyRoomUrl = response.referral?.daily_room_url || this.dailyRoomUrl;
+          this.loading = false;
           if (!this.consultationId && response.referral?.status === 'accepted') {
             this.errorMessage = 'Consultation is not linked yet. Please reopen this referral in a moment.';
           }
         },
-        error: (err) => { console.error('[AGENT_SPECIALIST] ISS-08: failed to load referral', err); this.errorMessage = 'Unable to load referral details.'; } // [AGENT_SPECIALIST] ISS-08: error handler
+        error: (err) => { this.loading = false; console.error('[AGENT_SPECIALIST] ISS-08: failed to load referral', err); this.errorMessage = 'Unable to load referral details.'; }
       });
+    } else {
+      this.loading = false;
     }
   }
 

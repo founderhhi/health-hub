@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
+import { timeout } from 'rxjs';
 
 interface Referral {
   id: string;
@@ -34,6 +35,7 @@ export class AppointmentsComponent implements OnInit {
   activeTab: 'upcoming' | 'past' = 'upcoming';
   loading = true;
   error: string | null = null;
+  private readonly REQUEST_TIMEOUT_MS = 8000;
 
   upcomingAppointments: Referral[] = [];
   pastAppointments: Referral[] = [];
@@ -51,7 +53,7 @@ export class AppointmentsComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.patientApi.getReferrals().subscribe({
+    this.patientApi.getReferrals().pipe(timeout(this.REQUEST_TIMEOUT_MS)).subscribe({
       next: (res) => {
         const referrals: Referral[] = res.referrals || [];
         this.upcomingAppointments = referrals.filter(
@@ -64,7 +66,9 @@ export class AppointmentsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load referrals:', err);
-        this.error = 'Failed to load appointments. Please try again.';
+        this.error = err?.name === 'TimeoutError'
+          ? 'Appointments are taking longer than expected. Please try again.'
+          : 'Failed to load appointments. Please try again.';
         this.loading = false;
       }
     });

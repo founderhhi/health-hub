@@ -16,7 +16,11 @@ const requiredColumns = [
   { table: 'referrals', column: 'requested_info_at' },
   { table: 'referrals', column: 'requested_info_by' },
   { table: 'pharmacy_claims', column: 'dispensed_at' },
-  { table: 'pharmacy_claims', column: 'dispensed_items' }
+  { table: 'pharmacy_claims', column: 'dispensed_items' },
+  { table: 'admin_activity', column: 'actor_user_id' },
+  { table: 'admin_activity', column: 'action' },
+  { table: 'admin_activity', column: 'metadata' },
+  { table: 'admin_activity', column: 'created_at' }
 ];
 const requiredConstraints = [
   {

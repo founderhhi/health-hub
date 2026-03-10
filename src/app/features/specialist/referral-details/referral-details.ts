@@ -20,6 +20,11 @@ export class ReferralDetailsComponent implements OnInit {
   requestInfoNotice: string | null = null;
   showRequestInfoForm = false; // [AGENT_SPECIALIST] ISS-14: toggle for request-info textarea
   requestInfoText = ''; // [AGENT_SPECIALIST] ISS-14: specialist's info request message
+  orderingTests = false;
+  prescribing = false;
+  accepting = false;
+  declining = false;
+  submittingInfo = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -60,28 +65,32 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   orderTests(): void {
-    if (!this.referral?.patient_id) {
+    if (!this.referral?.patient_id || this.orderingTests) {
       return;
     }
+    this.orderingTests = true;
+    this.errorMessage = '';
     const tests = ['CBC', 'Lipid Panel', 'HbA1c'];
     this.labsApi.createOrder(this.referral.patient_id, tests).subscribe({
-      next: () => { this.errorMessage = ''; }, // [AGENT_SPECIALIST] ISS-08: clear error on success
-      error: (err) => { console.error('[AGENT_SPECIALIST] ISS-08: lab order failed', err); this.errorMessage = 'Unable to order tests right now.'; }
+      next: () => { this.orderingTests = false; this.errorMessage = ''; },
+      error: (err) => { this.orderingTests = false; console.error('[AGENT_SPECIALIST] ISS-08: lab order failed', err); this.errorMessage = 'Unable to order tests right now.'; }
     });
   }
 
   accept(): void {
-    if (!this.referral?.id) {
+    if (!this.referral?.id || this.accepting) {
       return;
     }
+    this.accepting = true;
+    this.errorMessage = '';
     this.referralsApi.updateStatus(this.referral.id, 'accepted').subscribe({
       next: (response) => {
+        this.accepting = false;
         this.referral = response.referral;
         this.errorMessage = '';
-        // Keep consultation route parameter as referral ID and resolve consultation_id from referral payload.
         this.router.navigate(['/specialist/consultation', this.referral.id]);
       },
-      error: (err) => { console.error('[AGENT_SPECIALIST] ISS-08: accept referral failed', err); this.errorMessage = 'Unable to accept referral right now.'; } // [AGENT_SPECIALIST] ISS-08: error handler
+      error: (err) => { this.accepting = false; console.error('[AGENT_SPECIALIST] ISS-08: accept referral failed', err); this.errorMessage = 'Unable to accept referral right now.'; }
     });
   }
 
@@ -95,11 +104,13 @@ export class ReferralDetailsComponent implements OnInit {
   // [AGENT_SPECIALIST] ISS-14: submit request-info via API for persistence and notifications
   submitRequestInfo(): void {
     const message = this.requestInfoText.trim();
-    if (!message || !this.referral?.id) {
+    if (!message || !this.referral?.id || this.submittingInfo) {
       return;
     }
+    this.submittingInfo = true;
     this.referralsApi.requestMoreInfo(this.referral.id, message).subscribe({
       next: (response) => {
+        this.submittingInfo = false;
         this.referral = response.referral || this.referral;
         this.requestInfoNotice = 'Request sent to the referring provider.';
         this.showRequestInfoForm = false;
@@ -107,6 +118,7 @@ export class ReferralDetailsComponent implements OnInit {
         this.errorMessage = '';
       },
       error: (err) => {
+        this.submittingInfo = false;
         console.error('[AGENT_SPECIALIST] request more info failed', err);
         this.errorMessage = 'Unable to send request for more information right now.';
       }
@@ -121,23 +133,27 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   decline(): void {
-    if (!this.referral?.id) {
+    if (!this.referral?.id || this.declining) {
       return;
     }
+    this.declining = true;
+    this.errorMessage = '';
     this.referralsApi.updateStatus(this.referral.id, 'declined').subscribe({
-      next: (response) => (this.referral = response.referral),
-      error: (err) => { console.error('[AGENT_SPECIALIST] ISS-08: decline referral failed', err); this.errorMessage = 'Unable to decline referral right now.'; } // [AGENT_SPECIALIST] ISS-08: error handler
+      next: (response) => { this.declining = false; this.referral = response.referral; },
+      error: (err) => { this.declining = false; console.error('[AGENT_SPECIALIST] ISS-08: decline referral failed', err); this.errorMessage = 'Unable to decline referral right now.'; }
     });
   }
 
   prescribe(): void {
-    if (!this.referral?.patient_id) {
+    if (!this.referral?.patient_id || this.prescribing) {
       return;
     }
+    this.prescribing = true;
+    this.errorMessage = '';
     const items = [{ name: 'Vitamin D', dosage: '1000 IU', frequency: '1x/day', duration: '30 days' }];
     this.prescriptionsApi.create(this.referral.patient_id, items).subscribe({
-      next: () => { this.errorMessage = ''; }, // [AGENT_SPECIALIST] ISS-08: clear error on success
-      error: (err) => { console.error('[AGENT_SPECIALIST] ISS-08: prescription failed', err); this.errorMessage = 'Unable to create prescription right now.'; }
+      next: () => { this.prescribing = false; this.errorMessage = ''; },
+      error: (err) => { this.prescribing = false; console.error('[AGENT_SPECIALIST] ISS-08: prescription failed', err); this.errorMessage = 'Unable to create prescription right now.'; }
     });
   }
 }

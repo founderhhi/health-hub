@@ -1,4 +1,9 @@
 <section class="hhi-provider-page active-consultation">
+  @if (loading) {
+    <div class="loading-state" style="display: flex; align-items: center; justify-content: center; min-height: 200px; color: #6b7280;">
+      Loading consultation...
+    </div>
+  } @else {
   <!-- Session Timer with Progress Bar -->
   <div class="session-timer">
     <div class="timer-content">
@@ -161,4 +166,5 @@
 
   <p class="inline-notice" *ngIf="statusMessage">{{ statusMessage }}</p>
   <p class="inline-notice inline-notice--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  }
 </section>

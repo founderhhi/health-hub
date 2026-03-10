@@ -15,7 +15,8 @@ import {
   inject
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ApiClientService } from '../../../core/api/api-client.service';
 import { WsEvent, WsService } from '../../../core/realtime/ws.service';
 
@@ -69,11 +70,12 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   private shouldScrollToBottom = false;
   private wsSubscription?: Subscription;
   private knownMessageIds = new Set<string>();
+  private cancelLoad$ = new Subject<void>();
 
   constructor(
     private api: ApiClientService,
     private ws: WsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId) && !this.currentUserId) {
@@ -108,6 +110,8 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
 
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
+    this.cancelLoad$.next();
+    this.cancelLoad$.complete();
   }
 
   loadMessages(): void {
@@ -117,10 +121,11 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
       return;
     }
 
+    this.cancelLoad$.next();
     this.loading = true;
     this.error = '';
 
-    this.api.get<ChatListResponse>(`${this.endpointBase}/${this.consultationId}`).subscribe({
+    this.api.get<ChatListResponse>(`${this.endpointBase}/${this.consultationId}`).pipe(takeUntil(this.cancelLoad$)).subscribe({
       next: (response) => {
         this.messages = (response.messages || []).map((item) => this.decorateMessage(item));
         this.knownMessageIds = new Set(this.messages.map((item) => item.id));

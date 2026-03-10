@@ -18,26 +18,26 @@
    ============================================ */
 :root {
   /* Colors */
-  --hhi-emerald: #{v.$color-emerald};
+  --hhi-emerald: var(--accent-primary, #{v.$color-emerald});
   --hhi-emerald-light: #{v.$color-emerald-light};
   --hhi-emerald-dark: #{v.$color-emerald-dark};
   --hhi-bio-lime: #{v.$color-bio-lime};
-  --hbi-soft-charcoal: #{v.$color-soft-charcoal};
-  --hhi-dark-bg: #{v.$color-dark-bg};
-  --hhi-card-bg: #{v.$color-card-bg};
-  --hhi-border: #{v.$color-border};
-  --hhi-border-dark: #{v.$color-border-dark};
-  --hhi-surface: #{v.$color-surface};
-  --hhi-white: #{v.$color-white};
-  --hhi-text-primary: #{v.$color-text-primary};
-  --hhi-text-secondary: #{v.$color-text-secondary};
-  --hhi-text-muted: #{v.$color-text-muted};
-  --hhi-text-light: #{v.$color-text-light};
-  --hhi-link: #{v.$color-info};
-  --hhi-danger: #{v.$color-danger};
+  --hbi-soft-charcoal: var(--text-secondary, #{v.$color-soft-charcoal});
+  --hhi-dark-bg: var(--bg-primary, #{v.$color-dark-bg});
+  --hhi-card-bg: var(--bg-card, #{v.$color-card-bg});
+  --hhi-border: var(--border-color, #{v.$color-border});
+  --hhi-border-dark: var(--border-color, #{v.$color-border-dark});
+  --hhi-surface: var(--bg-secondary, #{v.$color-surface});
+  --hhi-white: var(--bg-card, #{v.$color-white});
+  --hhi-text-primary: var(--text-primary, #{v.$color-text-primary});
+  --hhi-text-secondary: var(--text-secondary, #{v.$color-text-secondary});
+  --hhi-text-muted: var(--text-secondary, #{v.$color-text-muted});
+  --hhi-text-light: var(--text-secondary, #{v.$color-text-light});
+  --hhi-link: var(--accent-primary, #{v.$color-info});
+  --hhi-danger: var(--error, #{v.$color-danger});
   --hhi-danger-light: #{v.$color-danger-light};
   --hhi-danger-dark: #{v.$color-danger-dark};
-  --hhi-warning: #{v.$color-warning};
+  --hhi-warning: var(--warning, #{v.$color-warning});
   --hhi-warning-light: #{v.$color-warning-light};
   --hhi-warning-dark: #{v.$color-warning-dark};
 
@@ -1749,6 +1749,12 @@
     width: 40px;
     border-radius: 50%;
   }
+}
+
+.skeleton {
+  border-radius: 8px;
+  display: block;
+  @include m.skeleton-shimmer;
 }
 
 .hhi-skip-link {

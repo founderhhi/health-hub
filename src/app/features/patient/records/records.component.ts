@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
+import { timeout } from 'rxjs';
 
 interface PrescriptionItem {
   name: string;
@@ -41,37 +42,52 @@ export class RecordsComponent implements OnInit {
   activeTab: 'prescriptions' | 'lab-results' = 'prescriptions';
   loading = true;
   error: string | null = null;
+  warningMessage: string | null = null;
   selectedRx: Prescription | null = null;
 
   prescriptions: Prescription[] = [];
   labOrders: LabOrder[] = [];
+  private readonly REQUEST_TIMEOUT_MS = 8000;
 
   constructor(
     public router: Router,
+    private route: ActivatedRoute,
     private patientApi: PatientApiService,
     private prescriptionsApi: PrescriptionsApiService
   ) { }
 
   ngOnInit(): void {
+    this.applyInitialTab();
     this.loadData();
   }
 
   loadData(): void {
     this.loading = true;
     this.error = null;
+    this.warningMessage = null;
 
     let prescriptionsLoaded = false;
     let labOrdersLoaded = false;
+    let prescriptionsFailed = false;
+    let labOrdersFailed = false;
 
     const checkDone = () => {
       if (prescriptionsLoaded && labOrdersLoaded) {
         this.loading = false;
+        if (prescriptionsFailed && labOrdersFailed) {
+          this.error = 'Failed to load health records. Please try again.';
+          return;
+        }
+        if (prescriptionsFailed || labOrdersFailed) {
+          this.warningMessage = 'Some records could not be loaded. Please try again.';
+        }
       }
     };
 
-    this.prescriptionsApi.listForPatient().subscribe({
+    this.prescriptionsApi.listForPatient().pipe(timeout(this.REQUEST_TIMEOUT_MS)).subscribe({
       next: (res) => {
-        this.prescriptions = (res.prescriptions || []).map(p => ({
+        const prescriptions = Array.isArray(res?.prescriptions) ? res.prescriptions : [];
+        this.prescriptions = prescriptions.map(p => ({
           ...p,
           items: this.parseJsonArray<PrescriptionItem>(p.items)
         }));
@@ -80,15 +96,17 @@ export class RecordsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load prescriptions:', err);
-        this.error = 'Failed to load health records. Please try again.';
+        prescriptionsFailed = true;
+        this.prescriptions = [];
         prescriptionsLoaded = true;
         checkDone();
       }
     });
 
-    this.patientApi.getLabOrders().subscribe({
+    this.patientApi.getLabOrders().pipe(timeout(this.REQUEST_TIMEOUT_MS)).subscribe({
       next: (res) => {
-        this.labOrders = (res.orders || []).map(o => ({
+        const orders = Array.isArray(res?.orders) ? res.orders : [];
+        this.labOrders = orders.map(o => ({
           ...o,
           tests: this.parseJsonArray<string>(o.tests)
         }));
@@ -97,7 +115,8 @@ export class RecordsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load lab orders:', err);
-        this.error = 'Failed to load health records. Please try again.';
+        labOrdersFailed = true;
+        this.labOrders = [];
         labOrdersLoaded = true;
         checkDone();
       }
@@ -106,6 +125,12 @@ export class RecordsComponent implements OnInit {
 
   setTab(tab: 'prescriptions' | 'lab-results'): void {
     this.activeTab = tab;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   getStatusClass(status: string): string {
@@ -176,6 +201,13 @@ export class RecordsComponent implements OnInit {
       return Array.isArray(parsed) ? (parsed as T[]) : [];
     } catch {
       return [];
+    }
+  }
+
+  private applyInitialTab(): void {
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'prescriptions' || tab === 'lab-results') {
+      this.activeTab = tab;
     }
   }
 }

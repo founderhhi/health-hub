@@ -22,6 +22,10 @@ export const PATIENT_ROUTES: Routes = [
     loadComponent: () => import('./notifications/notifications.component').then(m => m.NotificationsComponent)
   },
   {
+    path: 'ai-chat',
+    loadComponent: () => import('./ai-chat/ai-chat.component').then(m => m.AiChatComponent)
+  },
+  {
     path: 'profile',
     loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent)
   },

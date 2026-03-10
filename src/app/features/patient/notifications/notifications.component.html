@@ -29,6 +29,7 @@
     <div class="empty-state">
       <p *ngIf="loading">Loading notifications...</p>
       <p *ngIf="!loading">{{ errorMessage || 'No notifications yet.' }}</p>
+      <button class="retry-btn" *ngIf="!loading && errorMessage" (click)="retry()">Retry</button>
     </div>
   </ng-template>
 </section>

@@ -38,6 +38,12 @@
     </button>
   </div>
 
+  @if (warningMessage) {
+  <div class="warning-banner">
+    <p>{{ warningMessage }}</p>
+  </div>
+  }
+
   <!-- Content -->
   <div class="records-list">
     <!-- Prescriptions Tab -->

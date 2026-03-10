@@ -59,19 +59,30 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   markAsRead(notification: any): void {
     if (notification.read) return;
+    notification.read = true;
     this.notificationsApi.markRead(notification.id).subscribe({
-      next: () => {
-        notification.read = true;
+      next: () => {},
+      error: () => {
+        notification.read = false;
+        this.errorMessage = 'Unable to mark notification as read. Please try again.';
       }
     });
   }
 
   markAllAsRead(): void {
+    const previousStates = this.notifications.map(n => n.read);
+    this.notifications.forEach(n => n.read = true);
     this.notificationsApi.markAllRead().subscribe({
-      next: () => {
-        this.notifications.forEach(n => n.read = true);
+      next: () => {},
+      error: () => {
+        this.notifications.forEach((n, i) => n.read = previousStates[i]);
+        this.errorMessage = 'Unable to mark all as read. Please try again.';
       }
     });
+  }
+
+  retry(): void {
+    this.load();
   }
 
   private load(): void {
@@ -84,7 +95,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.loadTimeoutRef = setTimeout(() => {
       this.loading = false;
-      this.errorMessage = 'No notifications yet.';
+      this.errorMessage = 'Notifications are taking longer than expected. Please retry.';
     }, this.MAX_LOADING_MS);
 
     this.notificationsApi.list().subscribe({
@@ -102,7 +113,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
           this.loadTimeoutRef = undefined;
         }
         this.notifications = [];
-        this.errorMessage = 'No notifications yet.';
+        this.errorMessage = 'Unable to load notifications right now. Please retry.';
         this.loading = false;
       }
     });
