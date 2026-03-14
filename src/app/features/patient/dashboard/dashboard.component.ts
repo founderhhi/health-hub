@@ -231,51 +231,57 @@ export class DashboardComponent implements OnInit, OnDestroy {
         map((response) => ({ ok: true as const, response })),
         catchError(() => of({ ok: false as const, response: null }))
       )
-    }).subscribe(({ consults, activeConsult, prescriptions, labs }) => {
-      const nextStats = { ...this.stats };
-      let successfulCalls = 0;
+    }).subscribe({
+      next: ({ consults, activeConsult, prescriptions, labs }) => {
+        const nextStats = { ...this.stats };
+        let successfulCalls = 0;
 
-      const requests = Array.isArray(consults.response?.requests) ? consults.response?.requests : [];
-      if (consults.ok) {
-        const consultationsCount = requests.filter((item: any) => {
-          const status = String(item?.status || '').toLowerCase();
-          return status !== 'removed' && status !== 'cancelled';
-        }).length;
+        const requests = Array.isArray(consults.response?.requests) ? consults.response?.requests : [];
+        if (consults.ok) {
+          const consultationsCount = requests.filter((item: any) => {
+            const status = String(item?.status || '').toLowerCase();
+            return status !== 'removed' && status !== 'cancelled';
+          }).length;
 
-        nextStats.consultations = activeConsult.response?.active
-          ? Math.max(consultationsCount, 1)
-          : consultationsCount;
-        successfulCalls++;
-      } else if (activeConsult.ok && activeConsult.response?.active) {
-        nextStats.consultations = Math.max(nextStats.consultations, 1);
-      }
+          nextStats.consultations = activeConsult.response?.active
+            ? Math.max(consultationsCount, 1)
+            : consultationsCount;
+          successfulCalls++;
+        } else if (activeConsult.ok && activeConsult.response?.active) {
+          nextStats.consultations = Math.max(nextStats.consultations, 1);
+        }
 
-      if (prescriptions.ok) {
-        nextStats.prescriptions = Array.isArray(prescriptions.response?.prescriptions)
-          ? prescriptions.response.prescriptions.length
-          : 0;
-        successfulCalls++;
-      }
+        if (prescriptions.ok) {
+          nextStats.prescriptions = Array.isArray(prescriptions.response?.prescriptions)
+            ? prescriptions.response.prescriptions.length
+            : 0;
+          successfulCalls++;
+        }
 
-      if (labs.ok) {
-        nextStats.records = Array.isArray(labs.response?.orders)
-          ? labs.response.orders.length
-          : 0;
-        successfulCalls++;
-      }
+        if (labs.ok) {
+          nextStats.records = Array.isArray(labs.response?.orders)
+            ? labs.response.orders.length
+            : 0;
+          successfulCalls++;
+        }
 
-      if (activeConsult.ok) {
-        successfulCalls++;
-      }
+        if (activeConsult.ok) {
+          successfulCalls++;
+        }
 
-      if (successfulCalls === 0) {
+        if (successfulCalls === 0) {
+          this.statsNotice = 'Unable to refresh dashboard stats right now.';
+        } else if (successfulCalls < 4) {
+          this.statsNotice = 'Some dashboard stats may be temporarily outdated.';
+        }
+
+        this.stats = nextStats;
+        this.statsLoading = false;
+      },
+      error: () => {
         this.statsNotice = 'Unable to refresh dashboard stats right now.';
-      } else if (successfulCalls < 4) {
-        this.statsNotice = 'Some dashboard stats may be temporarily outdated.';
+        this.statsLoading = false;
       }
-
-      this.stats = nextStats;
-      this.statsLoading = false;
     });
   }
 
@@ -297,7 +303,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadNotifications(): void {
     this.notificationsApi.list().subscribe({
       next: (response) => {
-        this.notificationCount = response.notifications.filter((item) => !item.read).length;
+        this.notificationCount = (response?.notifications || []).filter((item: any) => !item.read).length;
       },
       error: () => {
         this.notificationCount = 0;

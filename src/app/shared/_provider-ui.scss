@@ -41,6 +41,12 @@
   --hhi-warning-light: #{v.$color-warning-light};
   --hhi-warning-dark: #{v.$color-warning-dark};
 
+  /* Chat bubble theming */
+  --hhi-chat-me-bg: rgba(59, 130, 246, 0.15);
+  --hhi-chat-me-color: #1E3A8A;
+  --hhi-chat-patient-bg: var(--hhi-surface);
+  --hhi-chat-patient-color: var(--hhi-text-primary);
+
   /* Spacing (8px base) */
   --hhi-space-xs: #{v.$space-xs};
   --hhi-space-sm: #{v.$space-sm};
@@ -323,7 +329,7 @@
 
 .hhi-button-primary {
   height: 44px;
-  background: linear-gradient(135deg, #2ECC71, #16A34A);
+  background: linear-gradient(135deg, var(--hhi-emerald), var(--hhi-emerald-dark));
   border: none;
   border-radius: 8px;
   color: white;
@@ -354,7 +360,7 @@
   background: rgba(46, 204, 113, 0.05);
   border: 1px solid rgba(46, 204, 113, 0.5);
   border-radius: 8px;
-  color: #4ADE80;
+  color: var(--hhi-emerald);
   transition: background 200ms ease-in-out;
 
   &:hover {
@@ -769,15 +775,15 @@
 }
 
 .hhi-chat-bubble--patient {
-  background: var(--hhi-surface);
-  color: var(--hhi-text-primary);
+  background: var(--hhi-chat-patient-bg);
+  color: var(--hhi-chat-patient-color);
   border-bottom-left-radius: 4px;
   align-self: flex-start;
 }
 
 .hhi-chat-bubble--me {
-  background: rgba(59, 130, 246, 0.15);
-  color: #1E3A8A;
+  background: var(--hhi-chat-me-bg);
+  color: var(--hhi-chat-me-color);
   border-bottom-right-radius: 4px;
   align-self: flex-end;
 }
@@ -1663,6 +1669,12 @@
   --hhi-text-secondary: #94A3B8;
   --hhi-border: var(--hhi-border-dark);
 
+  /* Chat bubble dark mode overrides */
+  --hhi-chat-patient-bg: var(--bg-secondary, #1E293B);
+  --hhi-chat-patient-color: var(--hhi-text-primary);
+  --hhi-chat-me-bg: #1E3A5F;
+  --hhi-chat-me-color: var(--hhi-text-primary);
+
   .hhi-bottom-nav {
     background: var(--hhi-card-bg);
     border-color: var(--hhi-border-dark);
@@ -1671,16 +1683,6 @@
   .hhi-app-header {
     background: var(--hhi-card-bg);
     border-color: var(--hhi-border-dark);
-  }
-
-  .hhi-chat-bubble--patient {
-    background: #1E293B;
-    color: var(--hhi-text-primary);
-  }
-
-  .hhi-chat-bubble--me {
-    background: #1E3A5F;
-    color: var(--hhi-text-primary);
   }
 
   .hhi-dropzone {

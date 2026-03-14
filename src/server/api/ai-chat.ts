@@ -61,10 +61,12 @@ interface AiModelPayload {
 const sessions = new Map<string, SessionState>();
 
 // Initialise the Anthropic client once at module load.
-// If ANTHROPIC_API_KEY is absent the SDK will throw on the first API call,
-// which surfaces as a 502 with a clear error log.
+const AI_KEY = process.env['ANTHROPIC_API_KEY'] || '';
+if (!AI_KEY) {
+  console.warn('[ai-chat] ANTHROPIC_API_KEY is not set — AI chat will return 502 for every request.');
+}
 const anthropic = new Anthropic({
-  apiKey: process.env['ANTHROPIC_API_KEY'],
+  apiKey: AI_KEY || undefined,
 });
 
 export const aiChatRouter = Router();

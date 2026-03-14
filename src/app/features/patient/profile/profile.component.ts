@@ -3,8 +3,9 @@ import {
   inject, PLATFORM_ID, ViewChild, ElementRef
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription, filter } from 'rxjs';
 import type { StripeCardElement, StripeElements } from '@stripe/stripe-js';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PaymentsApiService } from '../../../core/api/payments.service';
@@ -73,6 +74,7 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
   private cardMounted = false;
 
   private platformId = inject(PLATFORM_ID);
+  private routerSub?: Subscription;
 
   constructor(
     public router: Router,
@@ -83,10 +85,23 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnInit(): void {
     this.loadDetails();
+
+    // Reload data when navigating back to the profile route (component reuse)
+    this.routerSub = this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      filter((e) => e.urlAfterRedirects.includes('/profile'))
+    ).subscribe(() => {
+      if (this.loading) return;
+      this.loadDetails();
+      if (this.activeTab === 'billing') {
+        this.loadBilling();
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.destroyStripeCard();
+    this.routerSub?.unsubscribe();
   }
 
   ngAfterViewChecked(): void {

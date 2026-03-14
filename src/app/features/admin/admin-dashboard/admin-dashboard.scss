@@ -1,8 +1,8 @@
 .admin-dashboard {
   min-height: 100vh;
-  background: #0b0f14;
+  background: var(--bg-primary);
   padding: 24px;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .admin-header {
@@ -41,19 +41,19 @@
 }
 
 .tab {
-  background: #121826;
-  border: 1px solid #1e293b;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 8px 20px;
-  color: #a0aec0;
+  color: var(--text-secondary);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
 
   &.active {
-    background: #2ecc71;
-    color: #0b0f14;
-    border-color: #2ecc71;
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+    border-color: var(--accent-primary);
     font-weight: 600;
   }
 }
@@ -67,39 +67,39 @@
 
 .search-input {
   flex: 1;
-  background: #121826;
-  border: 1px solid #1e293b;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 10px 14px;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 14px;
   outline: none;
 
-  &:focus { border-color: #2ecc71; }
-  &::placeholder { color: #475569; }
+  &:focus { border-color: var(--accent-primary); }
+  &::placeholder { color: var(--text-secondary); }
 }
 
 .role-select, .inline-select {
-  background: #121826;
-  border: 1px solid #1e293b;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 8px 12px;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
 
-  &:focus { border-color: #2ecc71; }
+  &:focus { border-color: var(--accent-primary); }
 }
 
 .user-count {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 13px;
   margin-bottom: 12px;
 }
 
 .loading {
   text-align: center;
-  color: #64748b;
+  color: var(--text-secondary);
   padding: 48px;
 }
 
@@ -114,19 +114,19 @@
   th, td {
     text-align: left;
     padding: 12px;
-    border-bottom: 1px solid #1e293b;
+    border-bottom: 1px solid var(--border-color);
     font-size: 14px;
   }
 
   th {
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 500;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  td { color: #e2e8f0; }
+  td { color: var(--text-primary); }
 }
 
 .name-cell {
@@ -152,15 +152,15 @@
 }
 
 .action-btn {
-  background: #1e293b;
+  background: var(--border-color);
   border: none;
   border-radius: 6px;
   padding: 6px 14px;
-  color: #a0aec0;
+  color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
 
-  &:hover { background: #334155; color: #fff; }
+  &:hover { background: var(--bg-secondary); color: var(--text-primary); }
 
   &:disabled {
     opacity: 0.55;
@@ -169,19 +169,19 @@
 }
 
 .action-btn--primary {
-  background: #2ecc71;
-  color: #0b0f14;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
   font-weight: 600;
 
   &:hover:not(:disabled) {
-    background: #27ae60;
-    color: #0b0f14;
+    background: var(--accent-hover);
+    color: var(--bg-primary);
   }
 }
 
 .create-user-panel {
-  background: #121826;
-  border: 1px solid #1e293b;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 14px;
   margin-bottom: 16px;
@@ -208,20 +208,20 @@
 }
 
 .page-btn {
-  background: #121826;
-  border: 1px solid #1e293b;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 8px 16px;
-  color: #a0aec0;
+  color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
 
   &:disabled { opacity: 0.4; cursor: not-allowed; }
-  &:hover:not(:disabled) { border-color: #2ecc71; }
+  &:hover:not(:disabled) { border-color: var(--accent-primary); }
 }
 
 .page-info {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
@@ -233,14 +233,14 @@
 }
 
 .health-card {
-  background: #121826;
-  border: 1px solid #1e293b;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 20px;
 
   h3 {
     font-size: 13px;
-    color: #64748b;
+    color: var(--text-secondary);
     margin: 0 0 8px;
     font-weight: 500;
   }
@@ -249,7 +249,7 @@
 .health-value {
   font-size: 32px;
   font-weight: 700;
-  color: #2ecc71;
+  color: var(--accent-primary);
 }
 
 .role-breakdown {
@@ -274,20 +274,20 @@
 
 .role-label {
   font-size: 13px;
-  color: #a0aec0;
+  color: var(--text-secondary);
   text-transform: capitalize;
 }
 
 .role-bar {
   height: 8px;
-  background: #1e293b;
+  background: var(--border-color);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .role-bar-fill {
   height: 100%;
-  background: #2ecc71;
+  background: var(--accent-primary);
   border-radius: 4px;
   transition: width 0.3s;
   min-width: 4px;
@@ -295,6 +295,6 @@
 
 .role-count {
   font-size: 13px;
-  color: #e2e8f0;
+  color: var(--text-primary);
   text-align: right;
 }

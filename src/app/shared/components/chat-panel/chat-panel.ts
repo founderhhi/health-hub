@@ -116,7 +116,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   }
 
   loadMessages(): void {
-    if (!this.consultationId || this.disabled) {
+    if (!this.consultationId) {
       this.messages = [];
       this.knownMessageIds.clear();
       return;

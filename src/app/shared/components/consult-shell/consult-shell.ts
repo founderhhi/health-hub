@@ -64,9 +64,9 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.status = 'active';
+    this.startElapsedTimer();
     if (this.mode === 'chat') {
       void this.activateChatConsultation();
-      this.startElapsedTimer();
     }
 
     if (isPlatformBrowser(this.platformId)) {
@@ -327,5 +327,6 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
     }
+    this.startTime = 0;
   }
 }

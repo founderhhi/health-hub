@@ -70,3 +70,23 @@ join users u on u.phone = p.phone
 on conflict (user_id) do update set
   specialty = excluded.specialty,
   facility_name = excluded.facility_name;
+
+-- Seed notifications for demo patient accounts
+insert into notifications (user_id, type, message, read, created_at)
+select u.id, n.type, n.message, n.read, now() - (n.age_hours || ' hours')::interval
+from users u
+cross join (
+  values
+    ('appointment', 'Your GP consultation has been confirmed for tomorrow at 10:00 AM.', false, 2),
+    ('prescription', 'Your prescription for Amoxicillin 500mg is ready for pickup at HealthPlus Pharmacy - Westlands.', false, 5),
+    ('lab_result', 'Your blood test results are now available. Please check your records.', false, 8),
+    ('system', 'Welcome! Your account has been set up successfully. Explore our services to get started.', true, 24),
+    ('consultation', 'A summary of your recent consultation with Dr Demo GP One is now available.', false, 12),
+    ('reminder', 'Remember to take your prescribed medication today. Check your prescriptions for details.', false, 1),
+    ('system', 'Stay hydrated! Aim to drink at least 8 glasses of water daily for optimal health.', true, 48),
+    ('referral', 'You have been referred to a cardiologist. Check your appointments for details.', false, 6),
+    ('payment', 'Your payment of £25.00 for the GP consultation has been processed successfully.', true, 36),
+    ('appointment', 'Your follow-up appointment with Dr Demo GP Two is scheduled for next week.', false, 3)
+) as n(type, message, read, age_hours)
+where u.role = 'patient'
+on conflict do nothing;

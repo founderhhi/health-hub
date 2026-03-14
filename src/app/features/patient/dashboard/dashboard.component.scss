@@ -458,8 +458,8 @@
 }
 
 .free-beta-badge {
-  background: #064E3B;
-  color: #34D399;
+  background: rgba(46, 204, 113, 0.15);
+  color: var(--accent-primary);
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 11px;
@@ -603,7 +603,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: #AEEA00;
+  color: var(--accent-primary);
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   cursor: pointer;
@@ -835,20 +835,20 @@
   }
 
   &:hover {
-    border-color: #2ECC71;
-    background: #F0FDF4;
+    border-color: var(--accent-primary);
+    background: color-mix(in srgb, var(--accent-primary) 8%, var(--bg-secondary));
   }
 
   &.selected {
-    border-color: #2ECC71;
-    background: #F0FDF4;
+    border-color: var(--accent-primary);
+    background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-secondary));
 
     svg {
-      color: #2ECC71;
+      color: var(--accent-primary);
     }
 
     .mode-option-label {
-      color: #166534;
+      color: var(--accent-primary);
     }
   }
 }
@@ -896,17 +896,17 @@
 .btn-mode-confirm {
   height: 40px;
   padding: 0 v.$space-lg;
-  background: #2ECC71;
+  background: var(--accent-primary);
   border: none;
   border-radius: 8px;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-semibold;
-  color: var(--text-primary);
+  color: #FFFFFF;
   cursor: pointer;
   transition: all v.$transition-fast;
 
   &:hover {
-    background: #27AE60;
+    background: var(--accent-hover);
   }
 }

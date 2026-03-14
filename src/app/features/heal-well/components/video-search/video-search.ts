@@ -28,85 +28,94 @@ export class VideoSearch {
 
   readonly videos: HealthVideo[] = [
     {
-      id: 'nageshwar-1',
-      title: 'Healthy eating habits | Dr. D Nageshwar Reddy Daily Routine | Sakshi Life',
-      description: 'Quick Telugu wellness segment on daily eating habits and practical food choices for a healthier routine.',
-      youtubeId: 'ztZf8Os4aUg',
-      duration: '4:24',
-      channel: 'Sakshi Life',
+      id: 'vyakarnam-1',
+      title: 'Dr Vyakarnam Nageshwar | Importance of Gut Health | Tips to Improve Your Gut Health | SumanTV Health',
+      description: 'Interview on why gut health matters and practical ways to improve digestion and everyday wellness.',
+      youtubeId: 'oQJqndTSVMM',
+      duration: '11:06',
+      channel: 'SumanTV Health',
       tags: ['Nutrition']
     },
     {
-      id: 'nageshwar-2',
-      title: 'World best healthy diet plan | Mediterranean diet for better health| Dr Nageshwar Reddy |Sakshi Life',
-      description: 'Long-form Mediterranean diet explainer focused on gut-friendly eating patterns and better long-term wellness.',
-      youtubeId: 'kWXv7EvEEv8',
-      duration: '27:49',
-      channel: 'Sakshi Life',
-      tags: ['Nutrition', 'Heart Health']
-    },
-    {
-      id: 'nageshwar-3',
-      title: 'Probiotic foods and activities to support Gut health ||  Dr. D Nageshwar Reddy | Sakshi Life',
-      description: 'Short Telugu guide to probiotic foods and daily habits that support gut health.',
-      youtubeId: 'voVfR3yf_s0',
-      duration: '3:24',
-      channel: 'Sakshi Life',
-      tags: ['Nutrition']
-    },
-    {
-      id: 'nageshwar-4',
-      title: '150 నిముషాలు వాకింగ్ = మీ జీవితం మారిపోతుంది! Dr. D Nageshwar Reddy Abt Walking & Exercise | SumanTV',
-      description: 'Walking and exercise discussion built around the health benefits of reaching 150 minutes of movement each week.',
-      youtubeId: '_baP2_ZjnTg',
-      duration: '8:30',
-      channel: 'SumanTV Arogyam',
-      tags: ['Exercise', 'Heart Health']
-    },
-    {
-      id: 'nageshwar-5',
-      title: 'Gut brain connection | Gut heart connection | Gut health | Dr. D Nageshwar Reddy | Sakshi Life',
-      description: 'A short explainer on how gut health connects with brain function, heart health, and overall well-being.',
-      youtubeId: 'g0TrrqpQAh4',
-      duration: '3:23',
-      channel: 'Sakshi Life',
-      tags: ['Mental Health', 'Heart Health']
-    },
-    {
-      id: 'nageshwar-6',
-      title: 'Dr.D Nageshwar Reddy about GERD | Early Dinner Benefits | Sleep Disorders | Life Style | Sakshi Life',
-      description: 'Sleep-focused lifestyle talk covering GERD, the benefits of early dinners, and common sleep-disorder triggers.',
-      youtubeId: 'y4ExGGug9Ag',
-      duration: '15:10',
-      channel: 'Sakshi Life',
-      tags: ['Sleep', 'Nutrition']
-    },
-    {
-      id: 'nageshwar-7',
-      title: '300 ఉన్న షుగర్ 150 దిగుతుంది || Diabetes, sugar thaggalante #diabetes || Dr. D. Nageshwar Reddy',
-      description: 'Telugu diabetes discussion focused on lowering high sugar readings and improving day-to-day glucose control.',
-      youtubeId: 'jh2aTm2i2qo',
-      duration: '39:34',
-      channel: 'iD Health 360',
-      tags: ['Diabetes']
-    },
-    {
-      id: 'nageshwar-8',
-      title: 'ఈ ఇంజక్షన్ తో షుగర్ కంట్రోల్.. Dr Nageshwar Reddy About Mounjaro Injection | Diabetes Control',
-      description: 'Diabetes-management explainer on Mounjaro injection and how it is being discussed for blood sugar control.',
-      youtubeId: 't7985tDmf-w',
-      duration: '13:19',
+      id: 'vyakarnam-2',
+      title: 'Dr Vyakarnam Nageshwar About Gut Microbiota | Best Way to Improve Gut Health in Telugu | PlayEven',
+      description: 'Telugu explainer focused on gut microbiota and habits that support a healthier digestive system.',
+      youtubeId: 'gE_C6aCMmdI',
+      duration: '11:24',
       channel: 'PlayEven',
-      tags: ['Diabetes']
+      tags: ['Nutrition', 'Mental Health']
     },
     {
-      id: 'nageshwar-9',
-      title: 'Dr. Nageshwar Reddy About Diseases With Frozen & Junk Food Eating | World IBD Day @life.sakshi',
-      description: 'World IBD Day segment about the health risks linked to frozen and junk-food-heavy eating habits.',
-      youtubeId: 'oviXfOJlbww',
-      duration: '8:12',
-      channel: 'Sakshi Life',
+      id: 'vyakarnam-3',
+      title: 'Dr  Vyakarnam Nageshwar : How to improve gut health naturally | Gut health foods | Gut health',
+      description: 'Natural gut-health foods and routines discussed in a practical Telugu health segment.',
+      youtubeId: '_a5Rlfc_8WQ',
+      duration: '11:03',
+      channel: 'SumanTV Health',
+      tags: ['Nutrition']
+    },
+    {
+      id: 'vyakarnam-4',
+      title: 'Foods Good for Lungs and Breathing | Dr.Vyakarnam Nageshwar | Karun Media Health',
+      description: 'Quick doctor-led guide to foods that may support lungs, breathing comfort, and respiratory wellness.',
+      youtubeId: '2jFFvzoYENg',
+      duration: '2:50',
+      channel: 'karun media Health & Homeo',
       tags: ['Nutrition', 'Heart Health']
+    },
+    {
+      id: 'vyakarnam-5',
+      title: 'Dr Vyakarnam Nageshwar, On Yoga for life',
+      description: 'Short yoga-for-life segment featuring Dr. Vyakarnam Nageshwar on movement and overall well-being.',
+      youtubeId: 'GZaVSgxBbyA',
+      duration: '3:03',
+      channel: 'Iyer Kameshwaran',
+      tags: ['Exercise', 'Mental Health']
+    },
+    {
+      id: 'vyakarnam-6',
+      title: '#AllergistDesk | Dr Vyakarnam Nageshwar | Misdiagnosed Allergies Leads to Psychiatric Issues?',
+      description: 'Explains how missed allergy diagnoses can be mistaken for psychiatric issues and why proper evaluation matters.',
+      youtubeId: 'NRnxz7BmDTo',
+      duration: '1:43',
+      channel: 'Aswini Allergy Centre',
+      tags: ['Mental Health']
+    },
+    {
+      id: 'vyakarnam-7',
+      title: '#Aswiniallergy | Dr Vyakarnam Nageshwar | Allergic Rhinitis Treatment | Trichy Patient Testimonial',
+      description: 'Patient story about allergic rhinitis, bronchitis, and restless legs, showing how chronic allergies can disrupt rest.',
+      youtubeId: 'tDUZdqN_Vr4',
+      duration: '15:41',
+      channel: 'Aswini Allergy Centre',
+      tags: ['Sleep']
+    },
+    {
+      id: 'vyakarnam-8',
+      title: '#AllergistDesk | Boosting Immunity to Tackle Allergies in Viral Infection | Dr Vyakarnam Nageshwar',
+      description: 'Immunity-focused tips for allergy-prone patients during viral infection spikes, including diet and vitamin guidance.',
+      youtubeId: 't4RDnJe0o94',
+      duration: '3:04',
+      channel: 'Aswini Allergy Centre',
+      tags: ['Nutrition', 'Sleep']
+    },
+    {
+      id: 'vyakarnam-9',
+      title: 'Dr.Vyakarnam Nageshwar, Best Talk on Allergy & Asthma causes & Prevention 1800-425-0095.',
+      description: 'Longer talk on allergy and asthma causes, prevention, and overall respiratory care.',
+      youtubeId: 'Rpa5R7OZaz0',
+      duration: '22:05',
+      channel: 'DR.VYAKARNAM NAGESHWAR',
+      tags: ['Heart Health', 'Sleep']
+    },
+    {
+      id: 'vyakarnam-10',
+      title: '#AllergistDesk | Monsoon Allergies Alerts | Tips & Precautions by Dr Vyakarnam Nageshwar',
+      description: 'Monsoon-season precautions for allergy-prone patients, with practical steps to reduce symptoms and sleep disruption.',
+      youtubeId: 'LNgKLQB-wL8',
+      duration: '5:24',
+      channel: 'Aswini Allergy Centre',
+      tags: ['Sleep']
     },
   ];
 

@@ -9,6 +9,7 @@
   gap: 16px;
 }
 
+/* Card preview is always dark — styled like a physical credit card */
 .card-preview {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   border-radius: 12px;
@@ -58,22 +59,22 @@
 
   label {
     font-size: 13px;
-    color: #a0aec0;
+    color: var(--text-secondary, #a0aec0);
     font-weight: 500;
   }
 
   input {
-    background: #121826;
-    border: 1px solid #1e293b;
+    background: var(--bg-secondary, #121826);
+    border: 1px solid var(--border-color, #1e293b);
     border-radius: 8px;
     padding: 12px;
-    color: #fff;
+    color: var(--text-primary, #fff);
     font-size: 15px;
     outline: none;
     transition: border-color 0.2s;
 
     &:focus {
-      border-color: #2ecc71;
+      border-color: var(--accent-primary, #2ecc71);
     }
 
     &:disabled {
@@ -81,7 +82,7 @@
     }
 
     &::placeholder {
-      color: #475569;
+      color: var(--text-secondary, #475569);
     }
   }
 }
@@ -93,8 +94,8 @@
 }
 
 .btn-pay {
-  background: #2ecc71;
-  color: #0b0f14;
+  background: var(--accent-primary, #2ecc71);
+  color: #FFFFFF;
   border: none;
   border-radius: 10px;
   padding: 14px;
@@ -121,7 +122,7 @@
   width: 18px;
   height: 18px;
   border: 2px solid transparent;
-  border-top-color: #0b0f14;
+  border-top-color: #FFFFFF;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -133,7 +134,7 @@
 .mock-notice {
   text-align: center;
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   margin: 0;
 }
 
@@ -158,30 +159,30 @@
 
   &.success .result-icon {
     background: rgba(46, 204, 113, 0.15);
-    color: #2ecc71;
+    color: var(--accent-primary, #2ecc71);
   }
 
   &.error .result-icon {
     background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    color: var(--error, #ef4444);
   }
 
   h3 {
-    color: #fff;
+    color: var(--text-primary, #fff);
     font-size: 18px;
     margin: 0 0 8px;
   }
 
   p {
-    color: #a0aec0;
+    color: var(--text-secondary, #a0aec0);
     font-size: 14px;
     margin: 0 0 24px;
   }
 }
 
 .btn-primary {
-  background: #2ecc71;
-  color: #0b0f14;
+  background: var(--accent-primary, #2ecc71);
+  color: #FFFFFF;
   border: none;
   border-radius: 10px;
   padding: 12px 32px;
