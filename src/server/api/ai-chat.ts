@@ -31,8 +31,9 @@ const SYSTEM_PROMPT = [
   'Self-correct if you detect you have been asking too many narrow questions.',
   'Aim to deliver a triage summary by message 10-12 of the full session.',
   'Return ONLY valid JSON with this exact schema:',
-  '{ "showGpCta": boolean, "message": "string" }',
+  '{ "showGpCta": boolean, "showDiagnosticsCta": boolean, "message": "string" }',
   'Set showGpCta=true when you deliver the triage summary or when the patient clearly needs a doctor.',
+  'Set showDiagnosticsCta=true when you recommend the patient get lab tests, blood work, imaging, scans, or any other diagnostic procedure.',
 ].join('\n');
 
 type ChatRole = 'user' | 'assistant';
@@ -47,8 +48,13 @@ interface SessionState {
   triageDelivered: boolean;
 }
 
+// Number of total session messages (user + assistant) after which the GP CTA
+// is shown proactively, even if the model hasn't yet delivered a formal triage.
+const GP_CTA_MESSAGE_THRESHOLD = 10;
+
 interface AiModelPayload {
   showGpCta?: boolean;
+  showDiagnosticsCta?: boolean;
   message?: string;
 }
 
@@ -94,7 +100,11 @@ function detectTriageSummary(text: string): boolean {
   return hasConditions && hasNextStep;
 }
 
-function parseModelReply(raw: string): { reply: string; showGpCta: boolean } {
+function parseModelReply(raw: string): {
+  reply: string;
+  showGpCta: boolean;
+  showDiagnosticsCta: boolean;
+} {
   const jsonCandidate = extractJsonCandidate(raw);
 
   try {
@@ -103,6 +113,7 @@ function parseModelReply(raw: string): { reply: string; showGpCta: boolean } {
       return {
         reply: parsed.message.trim(),
         showGpCta: parsed.showGpCta === true,
+        showDiagnosticsCta: parsed.showDiagnosticsCta === true,
       };
     }
   } catch {
@@ -113,6 +124,7 @@ function parseModelReply(raw: string): { reply: string; showGpCta: boolean } {
   return {
     reply,
     showGpCta: detectTriageSummary(reply),
+    showDiagnosticsCta: false,
   };
 }
 
@@ -126,7 +138,7 @@ function ensureDisclaimerOnFirstAssistantMessage(reply: string, session: Session
 
 async function requestClaude(
   session: SessionState,
-): Promise<{ reply: string; showGpCta: boolean }> {
+): Promise<{ reply: string; showGpCta: boolean; showDiagnosticsCta: boolean }> {
   const messages: Anthropic.MessageParam[] = session.messages
     .slice(-CONTEXT_WINDOW_MESSAGES)
     .map((entry) => ({ role: entry.role, content: entry.content }));
@@ -201,19 +213,26 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
 
     reply = ensureDisclaimerOnFirstAssistantMessage(reply, session);
 
-    const showGpCta = session.triageDelivered || aiResponse.showGpCta;
-    session.triageDelivered = showGpCta;
-
     session.messages.push({ role: 'assistant', content: reply });
 
     const messageCount = session.messages.length;
     const limitReached = messageCount >= SESSION_MESSAGE_LIMIT;
 
+    // Show GP CTA when: triage delivered by model, model explicitly flags it,
+    // session has 10+ messages (proactive nudge), or limit reached.
+    const showGpCta =
+      session.triageDelivered ||
+      aiResponse.showGpCta ||
+      messageCount >= GP_CTA_MESSAGE_THRESHOLD ||
+      limitReached;
+    session.triageDelivered = showGpCta;
+
     return res.json({
       reply,
       messageCount,
       limitReached,
-      showGpCta: showGpCta || limitReached,
+      showGpCta,
+      showDiagnosticsCta: aiResponse.showDiagnosticsCta,
     });
   } catch (error) {
     console.error('AI chat message error', error);

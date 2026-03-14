@@ -35,7 +35,7 @@ patientRouter.post('/consults', requireAuth, requireRole(['patient']), async (re
               c.status as consultation_status,
               u.display_name as gp_name
        from consult_requests cr
-       left join consultations c on c.request_id = cr.id and c.status = 'active'
+       left join consultations c on c.request_id = cr.id and c.status in ('ready', 'active')
        left join users u on u.id = c.gp_id
        where cr.patient_id = $1
          and cr.status in ('waiting', 'accepted')
@@ -158,9 +158,18 @@ patientRouter.get('/referrals', requireAuth, requireRole(['patient']), async (re
   try {
     const user = (req as any).user;
     const result = await db.query(
-      `select r.*, u.display_name as specialist_name, u.phone as specialist_phone
+      `select r.*,
+              u.display_name as specialist_name,
+              u.phone as specialist_phone,
+              pp.specialty as specialist_specialty,
+              c.status as consultation_status,
+              c.started_at as consultation_started_at,
+              coalesce(c.completed_at, c.ended_at) as consultation_completed_at,
+              c.daily_room_url
        from referrals r
        left join users u on u.id = r.to_specialist_id
+       left join provider_profiles pp on pp.user_id = r.to_specialist_id
+       left join consultations c on c.id = r.consultation_id
        where r.patient_id = $1
        order by r.created_at desc`,
       [user.userId]
@@ -216,7 +225,7 @@ patientRouter.get('/consults/active', requireAuth, requireRole(['patient']), asy
               c.status as consultation_status,
               u.display_name as gp_name
        from consult_requests cr
-       left join consultations c on c.request_id = cr.id and c.status = 'active'
+       left join consultations c on c.request_id = cr.id and c.status in ('ready', 'active')
        left join users u on u.id = c.gp_id
        where cr.patient_id = $1
          and cr.status in ('waiting', 'accepted')
@@ -285,7 +294,7 @@ patientRouter.post('/consults/:id/cancel', requireAuth, requireRole(['patient'])
       const consultationResult = await client.query(
         `update consultations
          set status = 'ended', ended_at = now()
-         where request_id = $1 and patient_id = $2 and status = 'active'
+         where request_id = $1 and patient_id = $2 and status in ('ready', 'active')
          returning *`,
         [id, user.userId]
       );

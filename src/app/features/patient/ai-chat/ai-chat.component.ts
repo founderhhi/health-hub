@@ -72,4 +72,8 @@ export class AiChatComponent implements AfterViewChecked {
   bookGpConsultation(): void {
     this.router.navigate(['/patient/dashboard']);
   }
+
+  goDiagnostics(): void {
+    this.router.navigate(['/patient/waiting']);
+  }
 }

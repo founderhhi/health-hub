@@ -1,0 +1,65 @@
+@use '../../../shared/styles/variables' as v;
+
+.appointment-consultation-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: v.$space-lg;
+  padding-bottom: calc(v.$space-2xl + v.$safe-area-bottom);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-lg;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.page-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: v.$font-size-xl;
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: v.$font-size-sm;
+}
+
+.state-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: v.$space-xl;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.btn {
+  width: fit-content;
+}

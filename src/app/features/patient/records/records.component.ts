@@ -41,6 +41,7 @@ export class RecordsComponent implements OnInit {
   PATIENT_TABS = PATIENT_TABS;
   activeTab: 'prescriptions' | 'lab-results' = 'prescriptions';
   loading = true;
+  refreshing = false;
   error: string | null = null;
   warningMessage: string | null = null;
   selectedRx: Prescription | null = null;
@@ -58,11 +59,17 @@ export class RecordsComponent implements OnInit {
 
   ngOnInit(): void {
     this.applyInitialTab();
+    this.hydrateFromCache();
     this.loadData();
   }
 
   loadData(): void {
-    this.loading = true;
+    const hasCachedSnapshot =
+      this.prescriptionsApi.getCachedPatientPrescriptions() !== null ||
+      this.patientApi.getCachedLabOrders() !== null;
+
+    this.loading = !hasCachedSnapshot;
+    this.refreshing = hasCachedSnapshot;
     this.error = null;
     this.warningMessage = null;
 
@@ -74,8 +81,13 @@ export class RecordsComponent implements OnInit {
     const checkDone = () => {
       if (prescriptionsLoaded && labOrdersLoaded) {
         this.loading = false;
+        this.refreshing = false;
         if (prescriptionsFailed && labOrdersFailed) {
-          this.error = 'Failed to load health records. Please try again.';
+          if (hasCachedSnapshot) {
+            this.warningMessage = 'Showing your last loaded records. Refresh again when the network is stable.';
+          } else {
+            this.error = 'Failed to load health records. Please try again.';
+          }
           return;
         }
         if (prescriptionsFailed || labOrdersFailed) {
@@ -208,6 +220,26 @@ export class RecordsComponent implements OnInit {
     const tab = this.route.snapshot.queryParamMap.get('tab');
     if (tab === 'prescriptions' || tab === 'lab-results') {
       this.activeTab = tab;
+    }
+  }
+
+  private hydrateFromCache(): void {
+    const cachedPrescriptions = this.prescriptionsApi.getCachedPatientPrescriptions();
+    if (cachedPrescriptions !== null) {
+      this.prescriptions = cachedPrescriptions.map((item: any) => ({
+        ...item,
+        items: this.parseJsonArray<PrescriptionItem>(item.items)
+      }));
+      this.loading = false;
+    }
+
+    const cachedLabOrders = this.patientApi.getCachedLabOrders();
+    if (cachedLabOrders !== null) {
+      this.labOrders = cachedLabOrders.map((item: any) => ({
+        ...item,
+        tests: this.parseJsonArray<string>(item.tests)
+      }));
+      this.loading = false;
     }
   }
 }

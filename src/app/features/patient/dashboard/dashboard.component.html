@@ -41,6 +41,9 @@
   @if (requestError) {
   <div class="status-banner status-banner--error">{{ requestError }}</div>
   }
+  @if (statsNotice) {
+  <div class="status-banner status-banner--info">{{ statsNotice }}</div>
+  }
 
   <!-- Health Summary Cards (Horizontal Scroll) -->
   <section class="health-summary">

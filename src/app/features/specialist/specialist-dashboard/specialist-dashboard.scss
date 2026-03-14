@@ -461,6 +461,8 @@
     font-weight: 500;
     width: auto;
     align-self: center;
+    border: none;
+    cursor: pointer;
 
     @include m.mobile {
       align-self: flex-start;

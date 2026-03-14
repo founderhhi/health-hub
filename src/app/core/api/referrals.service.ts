@@ -32,6 +32,15 @@ export class ReferralsApiService {
     return this.api.post<{ referral: any }>(`/referrals/${id}/status`, { status });
   }
 
+  updateSchedule(id: string, schedule: {
+    appointmentDate?: string;
+    appointmentTime?: string;
+    consultationMode?: 'online' | 'offline';
+    location?: string;
+  }) {
+    return this.api.post<{ referral: any }>(`/referrals/${id}/schedule`, schedule);
+  }
+
   requestMoreInfo(id: string, message: string) {
     return this.api.post<{ referral: any; request: { message: string; requestedAt: string } }>(
       `/referrals/${id}/request-info`,

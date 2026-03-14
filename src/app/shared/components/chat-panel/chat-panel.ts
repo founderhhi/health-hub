@@ -28,6 +28,7 @@ export interface ChatPanelMessage {
   created_at: string;
   sender_name?: string | null;
   sender_role?: string | null;
+  senderLabel?: string;
   mine?: boolean;
 }
 
@@ -174,10 +175,45 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   }
 
   private decorateMessage(message: ChatPanelMessage): ChatPanelMessage {
+    const mine = Boolean(this.currentUserId && message.user_id === this.currentUserId);
     return {
       ...message,
-      mine: Boolean(this.currentUserId && message.user_id === this.currentUserId)
+      mine,
+      senderLabel: this.resolveSenderLabel(message, mine)
     };
+  }
+
+  private resolveSenderLabel(message: ChatPanelMessage, mine: boolean): string {
+    if (mine) {
+      return 'You';
+    }
+
+    const senderName = String(message.sender_name || '').trim();
+    const senderRole = String(message.sender_role || '').trim().toLowerCase();
+
+    if (senderRole === 'gp' || senderRole === 'doctor') {
+      if (senderName) {
+        return senderName.toLowerCase().startsWith('dr ') ? senderName : `Dr ${senderName}`;
+      }
+      return 'GP';
+    }
+
+    if (senderRole === 'specialist') {
+      if (senderName) {
+        return senderName.toLowerCase().startsWith('dr ') ? senderName : `Dr ${senderName}`;
+      }
+      return 'Specialist';
+    }
+
+    if (senderName) {
+      return senderName;
+    }
+
+    if (senderRole === 'patient') {
+      return 'Patient';
+    }
+
+    return 'Participant';
   }
 
   private upsertMessage(message: ChatPanelMessage): void {

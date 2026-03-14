@@ -1,0 +1,36 @@
+<section class="appointment-consultation-page">
+  <header class="page-header">
+    <button class="back-btn" type="button" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <div class="page-heading">
+      <h1 class="page-title">Specialist Consultation</h1>
+      @if (referral) {
+        <p class="page-subtitle">{{ specialistName }} • {{ appointmentSummary }}</p>
+      }
+    </div>
+  </header>
+
+  @if (loading) {
+    <div class="state-card">
+      <p>Loading appointment...</p>
+    </div>
+  } @else if (!canJoin) {
+    <div class="state-card">
+      <h2>Consultation not ready</h2>
+      <p>{{ errorMessage || 'Your specialist will appear here once the appointment is ready to join.' }}</p>
+      <button class="btn btn-primary" type="button" (click)="goBack()">Back to appointments</button>
+    </div>
+  } @else {
+    <app-consult-shell
+      [consultationId]="consultationId"
+      [roomUrl]="roomUrl"
+      [mode]="consultMode"
+      role="patient"
+      [gpName]="specialistName"
+      (leave)="goBack()"
+    ></app-consult-shell>
+  }
+</section>

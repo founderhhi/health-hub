@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, PLATFORM_ID, ViewChild
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { GpApiService } from '../../../../core/api/gp.service';
 import { ProviderProfileService } from '../../../../core/services/provider-profile.service';
 import { PrescriptionsApiService } from '../../../../core/api/prescriptions.service';
@@ -112,6 +113,8 @@ export class Practitioner implements OnInit, OnDestroy {
   // Consultation history
   consultationHistory: ConsultationHistory[] = [];
   showHistory = false;
+  private completedToday = 0;
+  private averageSessionToday = 0;
 
   // ── Patient Details Modal State ──
   showPatientDetailsModal = false;
@@ -283,64 +286,41 @@ export class Practitioner implements OnInit, OnDestroy {
 
   private refreshDashboard(): void {
     this.isRefreshing = true;
-    this.loadQueue();
-    this.loadConsultationHistory();
+    forkJoin({
+      queue: this.gpApi.getQueue().pipe(catchError((error) => {
+        console.error('Failed to load GP queue:', error);
+        return of(null);
+      })),
+      history: this.gpApi.getConsultationHistory().pipe(catchError((error) => {
+        console.error('Failed to load GP consultation history:', error);
+        return of(null);
+      }))
+    }).subscribe({
+      next: ({ queue, history }) => {
+        if (queue) {
+          this.applyQueueResponse(queue);
+        }
+
+        if (history) {
+          this.applyConsultationHistory(history.history || []);
+        }
+
+        this.syncStats();
+        this.applyFilters();
+        this.isRefreshing = false;
+        this.renderNow();
+      },
+      error: () => {
+        this.isRefreshing = false;
+        this.renderNow();
+      }
+    });
   }
 
   private loadQueue(): void {
     this.gpApi.getQueue().subscribe({
       next: (response) => {
-        const now = Date.now();
-        const sourceQueue = Array.isArray(response?.queue) ? response.queue : [];
-
-        // Render queue from backend response directly so UI stays aligned with API state.
-        this.queue = sourceQueue
-          .slice()
-          .sort((a: any, b: any) => {
-            const aCreatedAt = new Date(a?.created_at || 0).getTime();
-            const bCreatedAt = new Date(b?.created_at || 0).getTime();
-            return aCreatedAt - bCreatedAt;
-          })
-          .map((item: any) => {
-            const createdAt = new Date(item?.created_at || now).getTime();
-            const waitTimeMs = Math.max(0, now - createdAt);
-            const minutes = Math.max(1, Math.floor(waitTimeMs / 60000));
-            const displayName = this.formatPatientName(
-              item.first_name,
-              item.last_name,
-              item.display_name
-            );
-
-            return {
-              id: item.id,
-              patientId: item.patient_id,
-              name: displayName,
-              displayName: displayName,
-              firstName: item.first_name,
-              lastName: item.last_name,
-              priority: item.priority || 'routine',
-              waitTime: `${minutes} min`,
-              waitMinutes: minutes,
-              mode: item.mode || 'video',
-              aiSummary: item.symptoms?.complaint || item.ai_summary || 'Consultation request',
-              status: item.status || 'waiting',
-              createdAt: item.created_at,
-              symptoms: item.symptoms?.description || item.symptoms
-            } as QueuePatient;
-          });
-
-        const queueIds = new Set(this.queue.map((patient) => patient.id));
-        for (const deletingId of Array.from(this.deletingPatientIds)) {
-          if (!queueIds.has(deletingId)) {
-            this.deletingPatientIds.delete(deletingId);
-          }
-        }
-        for (const acceptingId of Array.from(this.acceptingPatientIds)) {
-          if (!queueIds.has(acceptingId)) {
-            this.acceptingPatientIds.delete(acceptingId);
-          }
-        }
-
+        this.applyQueueResponse(response);
         this.syncStats();
         this.isRefreshing = false;
         this.applyFilters();
@@ -351,6 +331,84 @@ export class Practitioner implements OnInit, OnDestroy {
         this.renderNow();
       }
     });
+  }
+
+  private applyQueueResponse(response: { queue: any[] } | null): void {
+    const now = Date.now();
+    const sourceQueue = Array.isArray(response?.queue) ? response.queue : [];
+
+    this.queue = sourceQueue
+      .slice()
+      .sort((a: any, b: any) => {
+        const aCreatedAt = new Date(a?.created_at || 0).getTime();
+        const bCreatedAt = new Date(b?.created_at || 0).getTime();
+        return aCreatedAt - bCreatedAt;
+      })
+      .map((item: any) => {
+        const createdAt = new Date(item?.created_at || now).getTime();
+        const waitTimeMs = Math.max(0, now - createdAt);
+        const minutes = Math.max(1, Math.floor(waitTimeMs / 60000));
+        const displayName = this.formatPatientName(
+          item.first_name,
+          item.last_name,
+          item.display_name
+        );
+
+        return {
+          id: item.id,
+          patientId: item.patient_id,
+          name: displayName,
+          displayName,
+          firstName: item.first_name,
+          lastName: item.last_name,
+          priority: item.priority || 'routine',
+          waitTime: `${minutes} min`,
+          waitMinutes: minutes,
+          mode: item.mode || 'video',
+          aiSummary: item.symptoms?.complaint || item.ai_summary || 'Consultation request',
+          status: item.status || 'waiting',
+          createdAt: item.created_at,
+          symptoms: item.symptoms?.description || item.symptoms
+        } as QueuePatient;
+      });
+
+    const queueIds = new Set(this.queue.map((patient) => patient.id));
+    for (const deletingId of Array.from(this.deletingPatientIds)) {
+      if (!queueIds.has(deletingId)) {
+        this.deletingPatientIds.delete(deletingId);
+      }
+    }
+    for (const acceptingId of Array.from(this.acceptingPatientIds)) {
+      if (!queueIds.has(acceptingId)) {
+        this.acceptingPatientIds.delete(acceptingId);
+      }
+    }
+  }
+
+  private applyConsultationHistory(history: ConsultationHistory[]): void {
+    this.consultationHistory = history;
+    this.recalculateTodayHistoryStats();
+  }
+
+  private recalculateTodayHistoryStats(): void {
+    const todayKey = new Date().toDateString();
+    const completedToday = this.consultationHistory.filter((entry) => {
+      if (!entry.completedAt) {
+        return false;
+      }
+
+      const completedAt = new Date(entry.completedAt);
+      return !Number.isNaN(completedAt.getTime()) && completedAt.toDateString() === todayKey;
+    });
+
+    const durations = completedToday
+      .map((entry) => Number(entry.duration || 0))
+      .filter((duration) => Number.isFinite(duration) && duration > 0);
+
+    this.completedToday = completedToday.length;
+    this.averageSessionToday = durations.length > 0
+      ? Math.round(durations.reduce((sum, duration) => sum + duration, 0) / durations.length)
+      : 0;
   }
 
   /**
@@ -409,19 +467,12 @@ export class Practitioner implements OnInit, OnDestroy {
     const waiting = this.queue.filter((patient) => patient.status !== 'active').length;
     const queuedActive = this.queue.filter((patient) => patient.status === 'active').length;
     const liveConsultActive = this.showConsultShell && this.activeConsultationId ? 1 : 0;
-    const completed = this.consultationHistory.length;
-    const durations = this.consultationHistory
-      .map((entry) => Number(entry.duration || 0))
-      .filter((duration) => Number.isFinite(duration) && duration > 0);
-    const avgTime = durations.length > 0
-      ? Math.round(durations.reduce((sum, duration) => sum + duration, 0) / durations.length)
-      : 0;
 
     this.stats = {
       waiting,
       active: Math.max(queuedActive, liveConsultActive),
-      completed,
-      avgTime
+      completed: this.completedToday,
+      avgTime: this.averageSessionToday
     };
   }
 
@@ -505,8 +556,7 @@ export class Practitioner implements OnInit, OnDestroy {
           ? 'Consultation ended. Notes saved.'
           : 'Consultation ended successfully.');
         this.syncStats();
-        this.loadQueue();
-        this.loadConsultationHistory();
+        this.refreshDashboard();
       },
       error: (err) => {
         console.error('Failed to end consultation:', err);
@@ -724,7 +774,7 @@ export class Practitioner implements OnInit, OnDestroy {
   private loadConsultationHistory(): void {
     this.gpApi.getConsultationHistory().subscribe({
       next: (response) => {
-        this.consultationHistory = response.history || [];
+        this.applyConsultationHistory(response.history || []);
         this.syncStats();
         this.renderNow();
       },
@@ -742,6 +792,7 @@ export class Practitioner implements OnInit, OnDestroy {
     this.gpApi.deleteConsultationRecord(recordId).subscribe({
       next: () => {
         this.consultationHistory = this.consultationHistory.filter(r => r.id !== recordId);
+        this.recalculateTodayHistoryStats();
         this.syncStats();
       },
       error: (err) => {

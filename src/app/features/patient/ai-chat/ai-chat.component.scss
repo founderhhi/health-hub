@@ -64,20 +64,44 @@
   transition: width 200ms ease;
 }
 
-.gp-cta {
+.cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gp-cta,
+.diagnostics-cta {
   min-height: 44px;
   border: none;
   border-radius: 10px;
-  background: var(--accent-primary);
-  color: var(--bg-primary);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: background 200ms ease, transform 200ms ease;
 
   &:hover {
-    background: var(--accent-hover);
     transform: translateY(-2px);
+  }
+}
+
+.gp-cta {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+
+  &:hover {
+    background: var(--accent-hover);
+  }
+}
+
+.diagnostics-cta {
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+  border: 2px solid var(--accent-primary);
+
+  &:hover {
+    background: var(--accent-primary);
+    color: var(--bg-primary);
   }
 }
 

@@ -1,12 +1,10 @@
 <section class="hhi-provider-page specialist-dashboard">
   <div class="hhi-provider-container">
-    <!-- Page Header -->
     <header class="hhi-page-header">
       <h1 class="hhi-page-title">Specialist Dashboard</h1>
-      <p class="hhi-page-subtitle">Overview of referrals, appointments, and consultations.</p>
+      <p class="hhi-page-subtitle">Track assigned referrals, today's appointments, and live consultations.</p>
     </header>
 
-    <!-- Stats Grid - 2x2 -->
     <div class="stats-grid">
       <div class="stat-card">
         <span class="stat-value">{{ stats.pending }}</span>
@@ -57,100 +55,119 @@
       </div>
     </div>
 
-    <!-- Tab Filters -->
-    <div class="tabs-scroll-container" style="position: relative;">
+    <div class="tabs-scroll-container">
       <div class="tab-filters">
-        <button class="tab-filter tab-filter--active">
+        <button class="tab-filter" [class.tab-filter--active]="selectedFilter === 'all'" (click)="selectFilter('all')">
           All <span class="tab-count-badge">{{ allCount }}</span>
         </button>
-        <button class="tab-filter">
+        <button class="tab-filter" [class.tab-filter--active]="selectedFilter === 'gp'" (click)="selectFilter('gp')">
           GP Referrals <span class="tab-count-badge">{{ gpCount }}</span>
         </button>
-        <button class="tab-filter">
+        <button class="tab-filter" [class.tab-filter--active]="selectedFilter === 'specialist'"
+          (click)="selectFilter('specialist')">
           Specialist Referrals <span class="tab-count-badge">{{ specialistCount }}</span>
         </button>
       </div>
     </div>
 
-    <!-- Referrals Section -->
     <section class="referrals-section">
-      <h2 class="section-title">New Referrals</h2>
+      <h2 class="section-title">Assigned Referrals</h2>
       <p class="referrals-error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-      <div class="referral-card" *ngFor="let referral of referrals"
-        [class]="'referral-card referral-card--' + referral.urgency">
-        <div class="referral-card__header">
-          <div class="referral-card__avatar">
-            {{ referral.patient_name ? (referral.patient_name | slice:0:1) : 'P' }}
-          </div>
-          <div class="referral-card__info">
-            <div class="referral-badges">
-              <span class="hhi-badge hhi-badge--neutral">{{ referral.status | uppercase }}</span>
-              <span class="hhi-badge" [ngClass]="{
-                'hhi-badge--warning': referral.urgency === 'pending' || referral.urgency === 'routine',
-                'hhi-badge--urgent': referral.urgency === 'urgent'
-              }">{{ referral.urgency | titlecase }}</span>
+      @if (loading) {
+        <div class="hhi-empty-state">
+          <h3 class="hhi-empty-state__title">Loading referrals...</h3>
+          <p class="hhi-empty-state__subtitle">Pulling your latest specialist queue.</p>
+        </div>
+      } @else if (displayReferrals.length === 0) {
+        <div class="hhi-empty-state">
+          <svg class="hhi-empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <h3 class="hhi-empty-state__title">No referrals in this view</h3>
+          <p class="hhi-empty-state__subtitle">New referrals assigned to you will appear here automatically.</p>
+        </div>
+      } @else {
+        <div class="referral-card" *ngFor="let referral of displayReferrals; trackBy: trackReferral"
+          [class]="'referral-card referral-card--' + referral.urgency">
+          <div class="referral-card__header">
+            <div class="referral-card__avatar">
+              {{ referral.patient_name ? (referral.patient_name | slice:0:1) : 'P' }}
             </div>
-            <h3 class="patient-name">{{ referral.patient_name || 'Patient' }}</h3>
+            <div class="referral-card__info">
+              <div class="referral-badges">
+                <span class="hhi-badge hhi-badge--neutral">{{ referral.status | uppercase }}</span>
+                <span class="hhi-badge" [ngClass]="{
+                  'hhi-badge--warning': referral.urgency === 'routine',
+                  'hhi-badge--urgent': referral.urgency === 'urgent' || referral.urgency === 'emergency'
+                }">{{ referral.urgency | titlecase }}</span>
+                @if (referral.consultation_status === 'active') {
+                  <span class="hhi-badge hhi-badge--success">LIVE</span>
+                }
+              </div>
+              <h3 class="patient-name">{{ referral.patient_name || 'Patient' }}</h3>
+              <p class="referral-meta">
+                {{ referral.specialty || 'General specialist review' }}
+                &bull; {{ timelineLabel(referral) }}
+              </p>
+            </div>
+          </div>
+
+          <div class="referral-card__body">
+            <p class="clinical-summary">{{ referral.reason || 'Specialist consultation requested.' }}</p>
             <p class="referral-meta">
-              Referred {{ referral.created_at | date:'short' }}
-              &bull; 2 hours ago
+              Referred by {{ referral.referring_provider_name || 'Referring clinician' }}
+              @if (referral.referring_provider_specialty) {
+                &bull; {{ referral.referring_provider_specialty }}
+              }
             </p>
+            <p class="referral-meta">{{ appointmentSummary(referral) }}</p>
+            @if (referral.requested_info_note) {
+              <p class="referral-meta">Awaiting info: {{ referral.requested_info_note }}</p>
+            }
+          </div>
+
+          <div class="referral-card__actions">
+            <button class="btn btn--primary" (click)="viewReferral(referral.id)">View</button>
+            @if (canAccept(referral)) {
+              <button class="btn btn--secondary" (click)="acceptReferral(referral.id)">Accept</button>
+            } @else if (canOpenConsultation(referral)) {
+              <button class="btn btn--secondary" (click)="openConsultation(referral.id)">Open Consultation</button>
+            }
           </div>
         </div>
-        <div class="referral-card__body">
-          <p class="clinical-summary">{{ referral.reason || 'Specialist consultation requested.' }}</p>
-        </div>
-        <div class="referral-card__actions">
-          <button class="btn btn--primary" (click)="viewReferral(referral.id)">View</button>
-          <button class="btn btn--secondary" (click)="acceptReferral(referral.id)">Accept</button>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div class="hhi-empty-state" *ngIf="referrals.length === 0">
-        <svg class="hhi-empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-          <polyline points="22,6 12,13 2,6"></polyline>
-        </svg>
-        <h3 class="hhi-empty-state__title">No pending referrals</h3>
-        <p class="hhi-empty-state__subtitle">You're all caught up! New referrals from GPs or other specialists will
-          appear here.</p>
-      </div>
+      }
     </section>
 
-    <!-- Upcoming Appointments Section -->
     <section class="appointments-section">
       <h2 class="section-title">Today's Appointments</h2>
-      <div class="appointment-card">
-        <div class="appointment-time">10:00 AM</div>
-        <div class="appointment-info">
-          <span class="appointment-patient">James Wilson</span>
-          <span class="appointment-type">Follow-up Consultation</span>
+
+      @if (todayAppointments.length === 0) {
+        <div class="hhi-empty-state">
+          <h3 class="hhi-empty-state__title">No appointments scheduled today</h3>
+          <p class="hhi-empty-state__subtitle">Accepted referrals with today's appointment date will show up here.</p>
         </div>
-        <span class="appointment-status appointment-status--confirmed">Confirmed</span>
-      </div>
-      <div class="appointment-card">
-        <div class="appointment-time">11:30 AM</div>
-        <div class="appointment-info">
-          <span class="appointment-patient">Maria Garcia</span>
-          <span class="appointment-type">Initial Consultation</span>
+      } @else {
+        <div class="appointment-card" *ngFor="let referral of todayAppointments; trackBy: trackReferral">
+          <div class="appointment-time">
+            {{ appointmentTimeLabel(referral) }}
+          </div>
+          <div class="appointment-info">
+            <span class="appointment-patient">{{ referral.patient_name || 'Patient' }}</span>
+            <span class="appointment-type">{{ referral.specialty || 'Specialist consultation' }}</span>
+          </div>
+          <button class="appointment-status"
+            [ngClass]="referral.consultation_status === 'active' ? 'appointment-status--confirmed' : 'appointment-status--pending'"
+            (click)="viewReferral(referral.id)">
+            {{ referral.consultation_status === 'active' ? 'Live' : 'Open' }}
+          </button>
         </div>
-        <span class="appointment-status appointment-status--confirmed">Confirmed</span>
-      </div>
-      <div class="appointment-card">
-        <div class="appointment-time">2:00 PM</div>
-        <div class="appointment-info">
-          <span class="appointment-patient">Robert Taylor</span>
-          <span class="appointment-type">Review Lab Results</span>
-        </div>
-        <span class="appointment-status appointment-status--pending">Pending</span>
-      </div>
+      }
     </section>
   </div>
 
-  <!-- Mobile Bottom Navigation -->
   <nav class="hhi-bottom-nav">
     <a class="hhi-bottom-nav__item hhi-bottom-nav__item--active" routerLink="/specialist">
       <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -171,7 +188,7 @@
       <span class="hhi-bottom-nav__label">Patients</span>
       <span class="hhi-bottom-nav__hint">Coming soon</span>
     </button>
-    <a class="hhi-bottom-nav__item" routerLink="/specialist">
+    <a class="hhi-bottom-nav__item" [routerLink]="consultRoute">
       <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
         <path

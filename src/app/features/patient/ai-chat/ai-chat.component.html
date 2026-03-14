@@ -13,10 +13,19 @@
       </div>
     </div>
 
-    @if (state.showGpCta) {
-    <button type="button" class="gp-cta" (click)="bookGpConsultation()">
-      📅 Book a GP Consultation
-    </button>
+    @if (state.showGpCta || state.showDiagnosticsCta) {
+    <div class="cta-row">
+      @if (state.showGpCta) {
+      <button type="button" class="gp-cta" (click)="bookGpConsultation()">
+        📅 Book a GP Consultation
+      </button>
+      }
+      @if (state.showDiagnosticsCta) {
+      <button type="button" class="diagnostics-cta" (click)="goDiagnostics()">
+        🧪 Go to Diagnostics Waiting
+      </button>
+      }
+    </div>
     }
 
     <div class="messages-list" #messagesList>

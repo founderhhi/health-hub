@@ -458,6 +458,66 @@
   background: v.$color-surface;
 }
 
+.schedule-actions {
+  margin-top: v.$space-md;
+}
+
+.schedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+  margin-top: v.$space-md;
+  padding: v.$space-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  background: v.$color-surface;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: v.$space-md;
+}
+
+.schedule-field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-xs;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.schedule-label {
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
+}
+
+.schedule-input {
+  width: 100%;
+  min-height: 44px;
+  padding: v.$space-sm v.$space-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-base;
+  font-family: inherit;
+  color: v.$color-text-primary;
+  background: v.$color-white;
+
+  &:focus {
+    outline: none;
+    border-color: v.$color-emerald;
+  }
+}
+
+.schedule-form__actions {
+  display: flex;
+  gap: v.$space-sm;
+  justify-content: flex-end;
+}
+
 .request-info-label {
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-semibold;
@@ -627,6 +687,10 @@
   }
 
   .clinical-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-grid {
     grid-template-columns: 1fr;
   }
 

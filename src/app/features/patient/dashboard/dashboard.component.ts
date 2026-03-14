@@ -8,7 +8,7 @@ import { WsService } from '../../../core/realtime/ws.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { AiChatBubbleComponent } from '../../../shared/components/ai-chat-bubble/ai-chat-bubble.component';
 import { ThemeService, ThemeMode } from '../../../shared/services/theme.service';
-import { Subscription, catchError, forkJoin, of, timeout } from 'rxjs';
+import { Subscription, catchError, forkJoin, map, of, timeout } from 'rxjs';
 
 interface HealthStats {
   consultations: number;
@@ -36,6 +36,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   recentPrescriptions: any[] = [];
   statsLoading = true;
   prescriptionsLoading = true;
+  statsNotice = '';
   showPaymentModal = false;
   private wsSubscription?: Subscription;
 
@@ -74,6 +75,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadStats();
     this.loadPrescriptions();
     this.loadNotifications();
+    this.prefetchPatientNavigationData();
 
     // SSR safety: only connect WebSocket in browser
     if (isPlatformBrowser(this.platformId)) {
@@ -206,36 +208,73 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private loadStats(): void {
     this.statsLoading = true;
+    this.statsNotice = '';
 
     forkJoin({
       consults: this.patientApi.getConsults().pipe(
         timeout(8000),
-        catchError(() => of({ requests: [] as any[] }))
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
       ),
       activeConsult: this.patientApi.getActiveConsult().pipe(
         timeout(8000),
-        catchError(() => of({ active: null }))
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
       ),
       prescriptions: this.prescriptionsApi.listForPatient().pipe(
         timeout(8000),
-        catchError(() => of({ prescriptions: [] as any[] }))
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
       ),
       labs: this.patientApi.getLabOrders().pipe(
         timeout(8000),
-        catchError(() => of({ orders: [] as any[] }))
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
       )
     }).subscribe(({ consults, activeConsult, prescriptions, labs }) => {
-      const requests = Array.isArray(consults?.requests) ? consults.requests : [];
-      const consultationsCount = requests.filter((item: any) => {
-        const status = String(item?.status || '').toLowerCase();
-        return status !== 'removed' && status !== 'cancelled';
-      }).length;
+      const nextStats = { ...this.stats };
+      let successfulCalls = 0;
 
-      this.stats.consultations = activeConsult?.active
-        ? Math.max(consultationsCount, 1)
-        : consultationsCount;
-      this.stats.prescriptions = Array.isArray(prescriptions?.prescriptions) ? prescriptions.prescriptions.length : 0;
-      this.stats.records = Array.isArray(labs?.orders) ? labs.orders.length : 0;
+      const requests = Array.isArray(consults.response?.requests) ? consults.response?.requests : [];
+      if (consults.ok) {
+        const consultationsCount = requests.filter((item: any) => {
+          const status = String(item?.status || '').toLowerCase();
+          return status !== 'removed' && status !== 'cancelled';
+        }).length;
+
+        nextStats.consultations = activeConsult.response?.active
+          ? Math.max(consultationsCount, 1)
+          : consultationsCount;
+        successfulCalls++;
+      } else if (activeConsult.ok && activeConsult.response?.active) {
+        nextStats.consultations = Math.max(nextStats.consultations, 1);
+      }
+
+      if (prescriptions.ok) {
+        nextStats.prescriptions = Array.isArray(prescriptions.response?.prescriptions)
+          ? prescriptions.response.prescriptions.length
+          : 0;
+        successfulCalls++;
+      }
+
+      if (labs.ok) {
+        nextStats.records = Array.isArray(labs.response?.orders)
+          ? labs.response.orders.length
+          : 0;
+        successfulCalls++;
+      }
+
+      if (activeConsult.ok) {
+        successfulCalls++;
+      }
+
+      if (successfulCalls === 0) {
+        this.statsNotice = 'Unable to refresh dashboard stats right now.';
+      } else if (successfulCalls < 4) {
+        this.statsNotice = 'Some dashboard stats may be temporarily outdated.';
+      }
+
+      this.stats = nextStats;
       this.statsLoading = false;
     });
   }
@@ -264,5 +303,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.notificationCount = 0;
       }
     });
+  }
+
+  private prefetchPatientNavigationData(): void {
+    this.patientApi.getReferrals().pipe(
+      timeout(8000),
+      catchError(() => of(null))
+    ).subscribe();
+
+    this.patientApi.getProfile().pipe(
+      timeout(8000),
+      catchError(() => of(null))
+    ).subscribe();
   }
 }

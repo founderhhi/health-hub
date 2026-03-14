@@ -169,7 +169,7 @@
 .summary-card {
   flex: 0 0 auto;
   min-width: 140px;
-  background: v.$color-surface-1;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: v.$space-md;
@@ -179,7 +179,7 @@
   transition: background 200ms ease-in-out, box-shadow 200ms ease-in-out, transform 200ms ease;
 
   &:hover {
-    background: v.$color-surface-2;
+    background: var(--bg-secondary);
     box-shadow: 0 0 0 1px rgba(46, 204, 113, 0.2);
     transform: translateY(-2px);
   }
@@ -283,7 +283,7 @@
 
 .service-card {
   position: relative;
-  background: v.$color-surface-1;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-left: 3px solid rgba(46, 204, 113, 0.25);
   border-radius: 12px;
@@ -293,7 +293,7 @@
 
   &:hover:not(.coming-soon) {
     border-left-color: v.$color-emerald;
-    background: v.$color-surface-2;
+    background: var(--bg-secondary);
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(46, 204, 113, 0.08);
   }

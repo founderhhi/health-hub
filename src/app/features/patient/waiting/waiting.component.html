@@ -2,7 +2,7 @@
   <app-consult-shell
     [consultationId]="consultationId"
     [roomUrl]="roomUrl"
-    [autoStartCall]="true"
+    [autoStartCall]="false"
     [mode]="consultMode"
     role="patient"
     [gpName]="gpName"
@@ -42,7 +42,7 @@
     }
 
     <div class="waiting-actions">
-      @if (roomUrl || consultationId) {
+      @if (canJoinConsultation) {
         <button class="btn btn-primary" type="button" (click)="joinConsult()">
           @if (consultMode === 'video') {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
@@ -63,7 +63,7 @@
           }
         </button>
       }
-      @if (!roomUrl && !consultationId) {
+      @if (showRefreshButton) {
         <button class="btn btn-secondary" type="button" (click)="refreshStatus()" [disabled]="isRefreshing">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
             <polyline points="23 4 23 10 17 10"/>

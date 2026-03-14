@@ -8,6 +8,7 @@ export interface AiChatMessageResponse {
   messageCount: number;
   limitReached: boolean;
   showGpCta: boolean;
+  showDiagnosticsCta: boolean;
 }
 
 export interface AiChatMessage {
@@ -21,6 +22,7 @@ export interface AiChatState {
   messages: AiChatMessage[];
   messagesUsed: number;
   showGpCta: boolean;
+  showDiagnosticsCta: boolean;
   limitReached: boolean;
 }
 
@@ -62,6 +64,7 @@ export class AiChatService {
         messageCount,
         limitReached: messageCount >= this.sessionLimit,
         showGpCta: this.stateSubject.value.showGpCta,
+        showDiagnosticsCta: this.stateSubject.value.showDiagnosticsCta,
       });
     }
 
@@ -97,6 +100,7 @@ export class AiChatService {
             ],
             messagesUsed: response.messageCount,
             showGpCta: response.showGpCta,
+            showDiagnosticsCta: response.showDiagnosticsCta,
             limitReached: response.limitReached,
           });
         })
@@ -112,6 +116,7 @@ export class AiChatService {
       messages: [],
       messagesUsed: 0,
       showGpCta: false,
+      showDiagnosticsCta: false,
       limitReached: false,
     };
   }

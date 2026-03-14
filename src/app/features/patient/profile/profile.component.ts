@@ -28,11 +28,12 @@ export class ProfileComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.hydrateFromCache();
     this.loadProfile();
   }
 
   loadProfile(): void {
-    this.loading = true;
+    this.loading = this.user === null;
 
     this.patientApi.getProfile().subscribe({
       next: (res) => {
@@ -81,5 +82,28 @@ export class ProfileComponent implements OnInit {
       localStorage.removeItem('hhi_display_name');
     }
     this.router.navigate(['/landing']);
+  }
+
+  private hydrateFromCache(): void {
+    const cachedProfile = this.patientApi.getCachedProfile();
+    if (cachedProfile) {
+      this.user = {
+        name: cachedProfile.display_name || cachedProfile.full_name || cachedProfile.name || 'Patient',
+        phone: cachedProfile.phone || '',
+        avatar: this.getInitials(cachedProfile.display_name || cachedProfile.full_name || cachedProfile.name || 'Patient')
+      };
+      this.loading = false;
+      return;
+    }
+
+    if (isPlatformBrowser(this.platformId)) {
+      const displayName = localStorage.getItem('hhi_display_name') || 'Patient';
+      this.user = {
+        name: displayName,
+        phone: '',
+        avatar: this.getInitials(displayName)
+      };
+      this.loading = false;
+    }
   }
 }

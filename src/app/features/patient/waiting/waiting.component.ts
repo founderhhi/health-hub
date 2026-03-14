@@ -26,7 +26,6 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   private platformId = inject(PLATFORM_ID);
   private requestId = '';
-  private autoOpenedConsultationId = '';
   private activeConsultPollTimer?: ReturnType<typeof setInterval>;
   private wsSubscription?: Subscription;
 
@@ -59,7 +58,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
             this.showConsultShell = false;
             this.roomUrl = '';
             this.consultationId = '';
-            this.autoOpenedConsultationId = '';
+            this.requestId = '';
+            this.gpName = '';
           }
         }
         if (event.event === 'consult.removed') {
@@ -67,7 +67,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
           this.showConsultShell = false;
           this.roomUrl = '';
           this.consultationId = '';
-          this.autoOpenedConsultationId = '';
+          this.requestId = '';
+          this.gpName = '';
         }
       });
 
@@ -86,6 +87,13 @@ export class WaitingComponent implements OnInit, OnDestroy {
   }
 
   joinConsult(): void {
+    if (!this.canJoinConsultation) {
+      return;
+    }
+
+    this.statusMessage = this.gpName
+      ? `${this.gpName} is ready. Joining consultation...`
+      : 'Your GP is ready. Joining consultation...';
     this.showConsultShell = true;
   }
 
@@ -129,6 +137,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   onLeaveConsultShell(): void {
     this.showConsultShell = false;
+    if (this.hasAcceptedConsultation && !this.cancelPending) {
+      this.statusMessage = this.gpName
+        ? `${this.gpName} is still available. Tap join when you are ready.`
+        : 'Your consultation is ready. Tap join when you are ready.';
+    }
   }
 
   confirmCancel(): void {
@@ -192,21 +205,16 @@ export class WaitingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.consultationId && this.consultationId !== nextConsultationId && this.autoOpenedConsultationId === this.consultationId) {
+    if (this.cancelPending) {
       return;
     }
 
     this.roomUrl = nextRoomUrl;
     this.consultationId = nextConsultationId;
     this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
-
-    this.statusMessage = 'GP accepted. Joining consultation...';
-
-    // Auto-open consultation shell once per consultation so handoff does not stall on waiting page.
-    if (this.autoOpenedConsultationId !== this.consultationId) {
-      this.showConsultShell = true;
-      this.autoOpenedConsultationId = this.consultationId;
-    }
+    this.statusMessage = this.gpName
+      ? `${this.gpName} accepted your request. Tap join when you are ready.`
+      : 'A GP accepted your request. Tap join when you are ready.';
   }
 
   private pollActiveConsult(): void {
@@ -221,7 +229,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
             this.consultationId = '';
             this.roomUrl = '';
             this.requestId = '';
-            this.autoOpenedConsultationId = '';
+            this.gpName = '';
           }
           return;
         }
@@ -271,5 +279,17 @@ export class WaitingComponent implements OnInit, OnDestroy {
       payload?.roomUrl ||
       ''
     );
+  }
+
+  get hasAcceptedConsultation(): boolean {
+    return Boolean(this.consultationId || this.roomUrl);
+  }
+
+  get canJoinConsultation(): boolean {
+    return this.hasAcceptedConsultation && !this.cancelPending;
+  }
+
+  get showRefreshButton(): boolean {
+    return !this.hasAcceptedConsultation && !this.cancelPending;
   }
 }

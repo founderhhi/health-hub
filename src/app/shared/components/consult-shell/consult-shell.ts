@@ -7,7 +7,7 @@ import { WsService } from '../../../core/realtime/ws.service';
 import { ApiClientService } from '../../../core/api/api-client.service';
 
 export type ConsultMode = 'video' | 'audio' | 'chat';
-export type ConsultRole = 'gp' | 'patient';
+export type ConsultRole = 'gp' | 'patient' | 'specialist';
 export type ConsultStatus = 'connecting' | 'active' | 'completed' | 'error';
 
 interface JoinLinkResponse {
@@ -24,6 +24,7 @@ interface JoinLinkResponse {
 })
 export class ConsultShellComponent implements OnInit, OnDestroy {
   private static readonly JOIN_LINK_TIMEOUT_MS = 8000;
+  private static readonly ACTIVATE_TIMEOUT_MS = 5000;
 
   @Input() consultationId = '';
   @Input() roomUrl = '';
@@ -36,6 +37,7 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   @Output() endConsultation = new EventEmitter<{ notes: string }>();
   @Output() prescribe = new EventEmitter<void>();
   @Output() refer = new EventEmitter<void>();
+  @Output() requestLabs = new EventEmitter<void>();
   @Output() leave = new EventEmitter<void>();
 
   status: ConsultStatus = 'connecting';
@@ -63,6 +65,7 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.status = 'active';
     if (this.mode === 'chat') {
+      void this.activateChatConsultation();
       this.startElapsedTimer();
     }
 
@@ -110,7 +113,9 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   }
 
   get otherPartyName(): string {
-    return this.role === 'gp' ? (this.patientName || 'Patient') : (this.gpName || 'Your GP');
+    return this.role === 'patient'
+      ? (this.gpName || 'Your clinician')
+      : (this.patientName || 'Patient');
   }
 
   get canStartCall(): boolean {
@@ -129,6 +134,14 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
 
   get isGp(): boolean {
     return this.role === 'gp';
+  }
+
+  get isProvider(): boolean {
+    return this.role === 'gp' || this.role === 'specialist';
+  }
+
+  get isSpecialist(): boolean {
+    return this.role === 'specialist';
   }
 
   startCall(): void {
@@ -159,6 +172,10 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
 
   onRefer(): void {
     this.refer.emit();
+  }
+
+  onRequestLabs(): void {
+    this.requestLabs.emit();
   }
 
   onEndComplete(): void {
@@ -238,6 +255,23 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       this.startElapsedTimer();
     } finally {
       this.joiningCall = false;
+    }
+  }
+
+  private async activateChatConsultation(): Promise<void> {
+    if (!this.consultationId) {
+      return;
+    }
+
+    try {
+      await firstValueFrom(
+        this.api
+          .post(`/consultations/${this.consultationId}/activate`, {})
+          .pipe(timeout(ConsultShellComponent.ACTIVATE_TIMEOUT_MS))
+      );
+    } catch (error: any) {
+      const backendError = String(error?.error?.error || '');
+      this.errorMessage = backendError || 'Unable to start the consultation chat right now.';
     }
   }
 

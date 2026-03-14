@@ -10,6 +10,10 @@ export const PATIENT_ROUTES: Routes = [
     loadComponent: () => import('./appointments/appointments.component').then(m => m.AppointmentsComponent)
   },
   {
+    path: 'appointments/:id/consultation',
+    loadComponent: () => import('./appointment-consultation/appointment-consultation.component').then(m => m.AppointmentConsultationComponent)
+  },
+  {
     path: 'records',
     loadComponent: () => import('./records/records.component').then(m => m.RecordsComponent)
   },

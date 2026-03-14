@@ -49,14 +49,6 @@ export class BottomNavComponent {
   constructor(private router: Router) { }
 
   /**
-   * Navigate to the selected tab route
-   */
-  onTabClick(tab: BottomNavTab): void {
-    this.activeTab = tab.id;
-    this.router.navigate([tab.route]);
-  }
-
-  /**
    * Check if a tab is currently active
    */
   isActive(tab: BottomNavTab): boolean {

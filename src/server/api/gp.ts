@@ -155,6 +155,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
   try {
     const { id } = req.params;
     const user = (req as any).user;
+    let gpName = 'GP';
 
     const client = await db.connect();
     let request: any = null;
@@ -181,7 +182,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
           const existingConsultationResult = await client.query(
             `select *
              from consultations
-             where request_id = $1 and status = 'active'
+             where request_id = $1 and status in ('ready', 'active')
              order by created_at desc
              limit 1`,
             [id]
@@ -216,8 +217,8 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
         );
 
         const consultResult = await client.query(
-          `insert into consultations (request_id, patient_id, gp_id, daily_room_url)
-           values ($1, $2, $3, $4)
+          `insert into consultations (request_id, patient_id, gp_id, daily_room_url, status, started_at)
+           values ($1, $2, $3, $4, 'ready', null)
            returning *`,
           [request.id, request.patient_id, user.userId, roomUrl]
         );
@@ -247,13 +248,25 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
       client.release();
     }
 
+    try {
+      const gpResult = await db.query(
+        `select display_name from users where id = $1 limit 1`,
+        [user.userId]
+      );
+      gpName = gpResult.rows[0]?.display_name || gpName;
+    } catch (error) {
+      console.error('Unable to resolve GP display name for consult accept', error);
+    }
+
     const roomUrl = consultation.daily_room_url || null;
 
     if (!reused) {
       broadcastToUser(request.patient_id, 'consult.accepted', {
         requestId: request.id,
         consultation,
-        roomUrl
+        consultationId: consultation.id,
+        roomUrl,
+        gpName
       });
       broadcastToRole('gp', 'queue.updated', { acceptedId: request.id });
       broadcastToRole('doctor', 'queue.updated', { acceptedId: request.id });
@@ -261,7 +274,9 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
 
     return res.json({
       consultation,
+      consultationId: consultation.id,
       roomUrl,
+      gpName,
       reused
     });
   } catch (error) {
