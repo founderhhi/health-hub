@@ -1,16 +1,16 @@
 /**
  * README: HealthHub AI Diagnostic Chatbot
  *
- * Model: claude-opus-4-6 via Anthropic API.
- * Override with CLAUDE_MODEL env var if a different model is preferred.
- * Requires ANTHROPIC_API_KEY to be set.
+ * Primary provider: Anthropic Messages API.
+ * Override the model with CLAUDE_MODEL if needed.
  *
- * Previous backend (Ollama/meditron:7b) removed because no Ollama instance
- * was reachable at runtime, causing every request to 502.
+ * If Anthropic is unavailable at runtime, the route falls back to a
+ * deterministic triage flow so patients still receive a safe response.
  */
 import { Router } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/auth';
+import { buildFallbackTriageReply } from './ai-chat-fallback';
 
 const CLAUDE_MODEL = process.env['CLAUDE_MODEL'] || 'claude-opus-4-6';
 const SESSION_MESSAGE_LIMIT = 15;
@@ -58,12 +58,18 @@ interface AiModelPayload {
   message?: string;
 }
 
+interface AiChatReply {
+  reply: string;
+  showGpCta: boolean;
+  showDiagnosticsCta: boolean;
+}
+
 const sessions = new Map<string, SessionState>();
 
 // Initialise the Anthropic client once at module load.
 const AI_KEY = process.env['ANTHROPIC_API_KEY'] || '';
 if (!AI_KEY) {
-  console.warn('[ai-chat] ANTHROPIC_API_KEY is not set — AI chat will return 502 for every request.');
+  console.warn('[ai-chat] ANTHROPIC_API_KEY is not set — using deterministic triage fallback.');
 }
 const anthropic = new Anthropic({
   apiKey: AI_KEY || undefined,
@@ -140,7 +146,7 @@ function ensureDisclaimerOnFirstAssistantMessage(reply: string, session: Session
 
 async function requestClaude(
   session: SessionState,
-): Promise<{ reply: string; showGpCta: boolean; showDiagnosticsCta: boolean }> {
+): Promise<AiChatReply> {
   const messages: Anthropic.MessageParam[] = session.messages
     .slice(-CONTEXT_WINDOW_MESSAGES)
     .map((entry) => ({ role: entry.role, content: entry.content }));
@@ -163,6 +169,26 @@ async function requestClaude(
   }
 
   return parseModelReply(textBlock.text);
+}
+
+async function getAiReply(session: SessionState): Promise<AiChatReply> {
+  if (!AI_KEY) {
+    return buildFallbackTriageReply(session.messages);
+  }
+
+  try {
+    return await requestClaude(session);
+  } catch (error) {
+    const status = typeof (error as { status?: unknown })?.status === 'number'
+      ? (error as { status: number }).status
+      : undefined;
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.warn('[ai-chat] Anthropic unavailable, using deterministic fallback.', {
+      status,
+      message,
+    });
+    return buildFallbackTriageReply(session.messages);
+  }
 }
 
 aiChatRouter.post('/message', requireAuth, async (req, res) => {
@@ -192,6 +218,7 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
         messageCount: session.messages.length,
         limitReached: true,
         showGpCta: true,
+        showDiagnosticsCta: false,
       });
     }
 
@@ -203,10 +230,11 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
         messageCount: session.messages.length,
         limitReached: true,
         showGpCta: true,
+        showDiagnosticsCta: false,
       });
     }
 
-    const aiResponse = await requestClaude(session);
+    const aiResponse = await getAiReply(session);
     let reply = aiResponse.reply;
 
     if (!reply) {
