@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { requireAuth, requireRole } from '../middleware/auth';
-import { createMeetingToken, deleteRoom } from '../integrations/daily';
+import { createDailyRoom, createMeetingToken, deleteRoom } from '../integrations/daily';
 import { broadcastToRole, broadcastToUser } from '../realtime/ws';
 
 type JoinRole = 'gp' | 'patient' | 'specialist';
@@ -154,6 +154,18 @@ consultationsRouter.get('/:id/join-link', requireAuth, async (req, res) => {
 
     if (consultation.status !== 'active') {
       return res.status(409).json({ error: 'Consultation is not active', code: 'NOT_ACTIVE' });
+    }
+
+    if (!consultation.daily_room_url) {
+      const fallbackRoomUrl = await createDailyRoom();
+      const roomUpdateResult = await db.query(
+        `update consultations
+         set daily_room_url = coalesce(daily_room_url, $2)
+         where id = $1
+         returning id, patient_id, gp_id, specialist_id, status, daily_room_url`,
+        [id, fallbackRoomUrl]
+      );
+      consultation = (roomUpdateResult.rows[0] as typeof consultation) || consultation;
     }
 
     if (!consultation.daily_room_url) {

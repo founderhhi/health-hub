@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { requireAuth, requireRole } from '../middleware/auth';
-import { deleteRoom } from '../integrations/daily';
+import { createDailyRoom, deleteRoom } from '../integrations/daily';
 import { broadcastToRole, broadcastToUser } from '../realtime/ws';
 
 export const referralsRouter = Router();
@@ -218,6 +218,7 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
     // Create and persist consultation link exactly once when accepting referral.
     if (resolvedStatus === 'accepted') {
       if (!consultationId) {
+        const roomUrl = await createDailyRoom();
         const consult = await client.query(
           `insert into consultations (patient_id, specialist_id, status, notes, daily_room_url, started_at)
            values ($1, $2, 'ready', $3, $4, null)
@@ -226,7 +227,7 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
             referral.patient_id,
             user.userId,
             JSON.stringify({ referral_id: referral.id }),
-            process.env['DAILY_FALLBACK_ROOM'] || null
+            roomUrl
           ]
         );
         consultationId = consult.rows[0].id as string;
@@ -416,6 +417,7 @@ referralsRouter.post('/:id/schedule', requireAuth, requireRole(['specialist']), 
       roomToCleanup = consultation.daily_room_url;
       nextConsultationId = null;
     } else if (nextMode === 'online' && !consultation) {
+      const roomUrl = await createDailyRoom();
       const consult = await client.query(
         `insert into consultations (patient_id, specialist_id, status, notes, daily_room_url, started_at)
          values ($1, $2, 'ready', $3, $4, null)
@@ -424,7 +426,7 @@ referralsRouter.post('/:id/schedule', requireAuth, requireRole(['specialist']), 
           referral.patient_id,
           user.userId,
           JSON.stringify({ referral_id: referral.id }),
-          process.env['DAILY_FALLBACK_ROOM'] || null
+          roomUrl
         ]
       );
       nextConsultationId = consult.rows[0].id as string;
