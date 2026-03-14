@@ -31,10 +31,10 @@ services:
         sync: false
       - key: DAILY_FALLBACK_ROOM
         value: https://healthhub.daily.co/demo
-      - key: OLLAMA_BASE_URL
+      - key: ANTHROPIC_API_KEY
         sync: false
-      - key: OLLAMA_MODEL
-        value: meditron:7b
+      - key: CLAUDE_MODEL
+        value: claude-opus-4-6
 
   - <<: *health_hub_service
     name: health-hub
@@ -62,10 +62,10 @@ services:
         sync: false
       - key: DAILY_FALLBACK_ROOM
         value: https://healthhub.daily.co/demo
-      - key: OLLAMA_BASE_URL
+      - key: ANTHROPIC_API_KEY
         sync: false
-      - key: OLLAMA_MODEL
-        value: meditron:7b
+      - key: CLAUDE_MODEL
+        value: claude-opus-4-6
 
 databases:
   - name: health-hub-staging-db

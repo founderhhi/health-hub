@@ -44,6 +44,7 @@
     "@angular/platform-server": "^21.0.0",
     "@angular/router": "^21.0.0",
     "@angular/ssr": "^21.0.4",
+    "@anthropic-ai/sdk": "^0.78.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.962.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

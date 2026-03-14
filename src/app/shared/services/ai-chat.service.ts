@@ -67,6 +67,14 @@ export class AiChatService {
 
     this.activeSessionId = sessionId;
 
+    // Optimistically add the user message so it appears in the UI immediately,
+    // before the server round-trip completes.
+    const stateBeforeSend = this.stateSubject.value;
+    this.stateSubject.next({
+      ...stateBeforeSend,
+      messages: [...stateBeforeSend.messages, this.createMessage('user', message)],
+    });
+
     return this.api
       .post<AiChatMessageResponse>('/ai-chat/message', {
         sessionId,
@@ -80,11 +88,11 @@ export class AiChatService {
             return;
           }
 
-          const currentState = this.stateSubject.value;
+          // User message already in state from optimistic update; only append the AI reply.
+          const latestState = this.stateSubject.value;
           this.stateSubject.next({
             messages: [
-              ...currentState.messages,
-              this.createMessage('user', message),
+              ...latestState.messages,
               this.createMessage('assistant', response.reply),
             ],
             messagesUsed: response.messageCount,

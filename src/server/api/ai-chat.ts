@@ -1,19 +1,18 @@
 /**
  * README: HealthHub AI Diagnostic Chatbot
  *
- * Model choice:
- * - Default model is `meditron:7b` via `OLLAMA_MODEL`.
- * - Justification: when validating medical-focused models across Ollama setups,
- *   `meditron:7b` is the safest default fallback from the requested priority list
- *   and is purpose-built for clinical/guideline-style reasoning.
- * - Override with `OLLAMA_MODEL` after validating a preferred Ollama medical model
- *   such as `medalpaca`, `llama3-med42`, `biomistral`, or `openbiollm`.
+ * Model: claude-opus-4-6 via Anthropic API.
+ * Override with CLAUDE_MODEL env var if a different model is preferred.
+ * Requires ANTHROPIC_API_KEY to be set.
+ *
+ * Previous backend (Ollama/meditron:7b) removed because no Ollama instance
+ * was reachable at runtime, causing every request to 502.
  */
 import { Router } from 'express';
+import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/auth';
 
-const OLLAMA_BASE_URL = process.env['OLLAMA_BASE_URL'] || 'http://localhost:11434';
-const OLLAMA_MODEL = process.env['OLLAMA_MODEL'] || 'meditron:7b';
+const CLAUDE_MODEL = process.env['CLAUDE_MODEL'] || 'claude-opus-4-6';
 const SESSION_MESSAGE_LIMIT = 15;
 const CONTEXT_WINDOW_MESSAGES = 12;
 const DISCLAIMER_TEXT =
@@ -33,7 +32,7 @@ const SYSTEM_PROMPT = [
   'Aim to deliver a triage summary by message 10-12 of the full session.',
   'Return ONLY valid JSON with this exact schema:',
   '{ "showGpCta": boolean, "message": "string" }',
-  'Set showGpCta=true when you deliver the triage summary.',
+  'Set showGpCta=true when you deliver the triage summary or when the patient clearly needs a doctor.',
 ].join('\n');
 
 type ChatRole = 'user' | 'assistant';
@@ -48,18 +47,19 @@ interface SessionState {
   triageDelivered: boolean;
 }
 
-interface OllamaResponse {
-  message?: {
-    content?: string;
-  };
-}
-
 interface AiModelPayload {
   showGpCta?: boolean;
   message?: string;
 }
 
 const sessions = new Map<string, SessionState>();
+
+// Initialise the Anthropic client once at module load.
+// If ANTHROPIC_API_KEY is absent the SDK will throw on the first API call,
+// which surfaces as a 502 with a clear error log.
+const anthropic = new Anthropic({
+  apiKey: process.env['ANTHROPIC_API_KEY'],
+});
 
 export const aiChatRouter = Router();
 
@@ -69,10 +69,7 @@ function getOrCreateSession(sessionId: string): SessionState {
     return existing;
   }
 
-  const nextSession: SessionState = {
-    messages: [],
-    triageDelivered: false,
-  };
+  const nextSession: SessionState = { messages: [], triageDelivered: false };
   sessions.set(sessionId, nextSession);
   return nextSession;
 }
@@ -91,7 +88,8 @@ function extractJsonCandidate(raw: string): string {
 
 function detectTriageSummary(text: string): boolean {
   const normalized = text.toLowerCase();
-  const hasConditions = normalized.includes('possible condition') || normalized.includes('possible conditions');
+  const hasConditions =
+    normalized.includes('possible condition') || normalized.includes('possible conditions');
   const hasNextStep = normalized.includes('recommended next step');
   return hasConditions && hasNextStep;
 }
@@ -108,7 +106,7 @@ function parseModelReply(raw: string): { reply: string; showGpCta: boolean } {
       };
     }
   } catch {
-    // Fallback to plain text handling.
+    // Fallback to plain-text handling.
   }
 
   const reply = raw.trim();
@@ -119,52 +117,38 @@ function parseModelReply(raw: string): { reply: string; showGpCta: boolean } {
 }
 
 function ensureDisclaimerOnFirstAssistantMessage(reply: string, session: SessionState): string {
-  const hasAssistantMessage = session.messages.some((message) => message.role === 'assistant');
+  const hasAssistantMessage = session.messages.some((m) => m.role === 'assistant');
   if (hasAssistantMessage || reply.includes(DISCLAIMER_TEXT)) {
     return reply;
   }
-
   return `${DISCLAIMER_TEXT}\n\n${reply}`;
 }
 
-async function requestOllama(session: SessionState): Promise<{ reply: string; showGpCta: boolean }> {
-  const messages = session.messages.slice(-CONTEXT_WINDOW_MESSAGES).map((entry) => ({
-    role: entry.role,
-    content: entry.content,
-  }));
+async function requestClaude(
+  session: SessionState,
+): Promise<{ reply: string; showGpCta: boolean }> {
+  const messages: Anthropic.MessageParam[] = session.messages
+    .slice(-CONTEXT_WINDOW_MESSAGES)
+    .map((entry) => ({ role: entry.role, content: entry.content }));
 
-  const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: OLLAMA_MODEL,
-      stream: false,
-      format: 'json',
-      messages: [
-        {
-          role: 'system',
-          content: SYSTEM_PROMPT,
-        },
-        ...messages,
-      ],
-    }),
+  // Use streaming + finalMessage() so adaptive thinking tokens do not hit
+  // the Express request timeout on longer responses.
+  const stream = anthropic.messages.stream({
+    model: CLAUDE_MODEL,
+    max_tokens: 1024,
+    thinking: { type: 'adaptive' },
+    system: SYSTEM_PROMPT,
+    messages,
   });
 
-  if (!response.ok) {
-    const details = await response.text().catch(() => '');
-    throw new Error(`Ollama request failed (${response.status}) ${details}`.trim());
+  const finalMessage = await stream.finalMessage();
+  const textBlock = finalMessage.content.find((b) => b.type === 'text');
+
+  if (!textBlock || textBlock.type !== 'text' || !textBlock.text.trim()) {
+    throw new Error('Claude response missing text content');
   }
 
-  const payload = (await response.json()) as OllamaResponse;
-  const raw = payload.message?.content;
-
-  if (!raw || !raw.trim()) {
-    throw new Error('Ollama response missing message content');
-  }
-
-  return parseModelReply(raw);
+  return parseModelReply(textBlock.text);
 }
 
 aiChatRouter.post('/message', requireAuth, async (req, res) => {
@@ -208,8 +192,8 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
       });
     }
 
-    const aiResponse = await requestOllama(session);
-    let reply = aiResponse.reply.trim();
+    const aiResponse = await requestClaude(session);
+    let reply = aiResponse.reply;
 
     if (!reply) {
       reply = 'I could not complete triage right now. Please book a GP consultation.';
@@ -217,8 +201,7 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
 
     reply = ensureDisclaimerOnFirstAssistantMessage(reply, session);
 
-    const detectedSummary = detectTriageSummary(reply);
-    const showGpCta = session.triageDelivered || aiResponse.showGpCta || detectedSummary;
+    const showGpCta = session.triageDelivered || aiResponse.showGpCta;
     session.triageDelivered = showGpCta;
 
     session.messages.push({ role: 'assistant', content: reply });
@@ -234,6 +217,11 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('AI chat message error', error);
+
+    if (error instanceof Anthropic.AuthenticationError) {
+      console.error('ANTHROPIC_API_KEY is missing or invalid — set it in environment variables');
+    }
+
     return res.status(502).json({
       error: 'AI service unavailable',
       code: 'AI_CHAT_UNAVAILABLE',

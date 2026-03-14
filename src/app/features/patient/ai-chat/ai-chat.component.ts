@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
@@ -12,7 +12,9 @@ import { AiChatService } from '../../../shared/services/ai-chat.service';
   templateUrl: './ai-chat.component.html',
   styleUrl: './ai-chat.component.scss'
 })
-export class AiChatComponent {
+export class AiChatComponent implements AfterViewChecked {
+  @ViewChild('messagesList') messagesList?: ElementRef<HTMLDivElement>;
+
   private readonly aiChatService = inject(AiChatService);
   private readonly router = inject(Router);
 
@@ -22,6 +24,19 @@ export class AiChatComponent {
 
   draftMessage = '';
   sending = false;
+  sendError = '';
+  private shouldScrollToBottom = false;
+
+  ngAfterViewChecked(): void {
+    if (!this.shouldScrollToBottom) {
+      return;
+    }
+    const el = this.messagesList?.nativeElement;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+    this.shouldScrollToBottom = false;
+  }
 
   sendMessage(): void {
     if (this.sending) {
@@ -34,14 +49,22 @@ export class AiChatComponent {
     }
 
     this.sending = true;
+    this.sendError = '';
+    this.shouldScrollToBottom = true;
 
     this.aiChatService.sendMessage(input).subscribe({
       next: () => {
         this.draftMessage = '';
         this.sending = false;
+        this.shouldScrollToBottom = true;
       },
-      error: () => {
+      error: (err) => {
         this.sending = false;
+        const code = String(err?.error?.code || '').toUpperCase();
+        this.sendError =
+          code === 'AI_CHAT_UNAVAILABLE'
+            ? 'HealthHub AI is temporarily unavailable. Please try again in a moment.'
+            : 'Message failed to send. Please check your connection and try again.';
       }
     });
   }

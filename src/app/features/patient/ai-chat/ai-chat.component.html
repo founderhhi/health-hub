@@ -19,13 +19,25 @@
     </button>
     }
 
-    <div class="messages-list">
+    <div class="messages-list" #messagesList>
       @for (message of state.messages; track message.id) {
       <article class="message" [class.message--assistant]="message.role === 'assistant'">
         {{ message.content }}
       </article>
       }
+
+      @if (sending) {
+      <div class="message message--assistant message--typing" aria-label="HealthHub AI is thinking">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+      }
     </div>
+
+    @if (sendError) {
+    <p class="send-error" role="alert">{{ sendError }}</p>
+    }
 
     @if (state.limitReached) {
     <p class="limit-message">
