@@ -96,7 +96,15 @@ export async function createReferral(
   api: APIRequestContext,
   auth: ApiWithAuth,
   patientId: string,
-  reason: string
+  reason: string,
+  options?: {
+    specialty?: string;
+    toSpecialistId?: string;
+    appointmentDate?: string;
+    appointmentTime?: string;
+    consultationMode?: 'online' | 'offline';
+    location?: string;
+  }
 ): Promise<any> {
   const response = await api.post('/api/referrals', {
     headers: authHeader(auth),
@@ -104,7 +112,12 @@ export async function createReferral(
       patientId,
       urgency: 'routine',
       reason,
-      specialty: 'Cardiology'
+      specialty: options?.specialty || 'Cardiology',
+      toSpecialistId: options?.toSpecialistId,
+      appointmentDate: options?.appointmentDate,
+      appointmentTime: options?.appointmentTime,
+      consultationMode: options?.consultationMode,
+      location: options?.location
     }
   });
 
