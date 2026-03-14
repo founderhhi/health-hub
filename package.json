@@ -46,6 +46,7 @@
     "@angular/ssr": "^21.0.4",
     "@anthropic-ai/sdk": "^0.78.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.962.0",
+    "@stripe/stripe-js": "^8.9.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
@@ -55,6 +56,7 @@
     "pg": "^8.13.1",
     "redis": "^5.11.0",
     "rxjs": "~7.8.0",
+    "stripe": "^20.4.1",
     "tslib": "^2.3.0",
     "ws": "^8.18.0"
   },

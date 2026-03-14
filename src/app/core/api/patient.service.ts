@@ -64,6 +64,41 @@ export class PatientApiService {
     return this.api.get<ConsultationJoinLinkResponse>(`/consultations/${consultationId}/join-link?role=patient`);
   }
 
+  getDetails() {
+    return this.api.get<{ details: any }>('/patient/details');
+  }
+
+  updateDetails(data: {
+    displayName?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    address?: string;
+    emergencyContact?: Record<string, unknown>;
+  }) {
+    return this.api.put<{ details: any }>('/patient/details', data);
+  }
+
+  getBilling() {
+    return this.api.get<{ paymentMethods: any[]; transactions: any[] }>('/patient/billing');
+  }
+
+  addPaymentMethod(data: {
+    cardBrand: string;
+    cardLast4: string;
+    cardExpiry: string;
+    cardHolder?: string;
+    makeDefault?: boolean;
+  }) {
+    return this.api.post<{ paymentMethod: any }>('/patient/billing/methods', data);
+  }
+
+  removePaymentMethod(id: string) {
+    return this.api.delete<{ ok: boolean }>(`/patient/billing/methods/${id}`);
+  }
+
   getCachedProfile() {
     return this.profileCache;
   }

@@ -11,6 +11,7 @@ import { chatRouter } from './chat';
 import { adminRouter } from './admin';
 import { consultationsRouter } from './consultations';
 import { aiChatRouter } from './ai-chat';
+import { paymentsRouter } from './payments';
 
 export const apiRouter = Router();
 
@@ -33,3 +34,4 @@ apiRouter.use('/chat', chatRouter);
 apiRouter.use('/ai-chat', aiChatRouter);
 apiRouter.use('/consultations', consultationsRouter);
 apiRouter.use('/admin', adminRouter);
+apiRouter.use('/payments', paymentsRouter);
