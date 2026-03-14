@@ -37,6 +37,7 @@ describe('AiChatService', () => {
       messageCount: 2,
       limitReached: false,
       showGpCta: false,
+      showDiagnosticsCta: false,
     };
     apiClientMock.post.mockReturnValue(of(response));
 
