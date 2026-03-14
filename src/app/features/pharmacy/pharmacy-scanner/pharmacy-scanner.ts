@@ -160,7 +160,7 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.recentScans.some((scan) => scan.code.toUpperCase() === trimmedCode.toUpperCase())) {
-      this.showInlineMessage('Order dispensed', 'info');
+      this.showInlineMessage('This prescription was already processed in this session.', 'info'); // [AGENT_PHARMACY] ISS-16: neutral copy — recent scans include claimed (not yet dispensed) items
       return;
     }
 
@@ -170,8 +170,12 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
         const prescription = response.prescription;
         const status = String(prescription?.status || '').toLowerCase();
 
-        if (status === 'claimed' || status === 'dispensed') {
-          this.showInlineMessage('This prescription has already been dispensed', 'info');
+        if (status === 'fulfilled') { // [AGENT_PHARMACY] ISS-16: 'fulfilled' is the terminal dispensed state; 'claimed' means in-progress, not yet dispensed
+          this.showInlineMessage('This prescription has already been dispensed.', 'info');
+          return;
+        }
+        if (status === 'claimed') { // [AGENT_PHARMACY] ISS-16: claimed means another pharmacy has claimed it
+          this.showInlineMessage('This prescription has already been claimed by a pharmacy.', 'info');
           return;
         }
 
@@ -193,7 +197,7 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.selectedPrescription.isDemo) {
-      this.showToast('Demo prescription dispensed (test mode)');
+      this.showToast('Demo prescription claimed (test mode)'); // [AGENT_PHARMACY] ISS-16: consistent with claim action
       this.addRecentScan(this.selectedPrescription.code, true);
       this.closePrescriptionDialog();
       return;
@@ -204,14 +208,14 @@ export class PharmacyScannerComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.pharmacyApi.claim(this.selectedPrescription.id).subscribe({
+    this.pharmacyApi.claim(this.selectedPrescription.id).subscribe({ // [AGENT_PHARMACY] ISS-16: claim is the correct first action from scanner
       next: () => {
         this.addRecentScan(this.selectedPrescription!.code);
-        this.showToast('Prescription dispensed successfully');
+        this.showToast('Prescription claimed successfully'); // [AGENT_PHARMACY] ISS-16: say 'claimed' not 'dispensed' — dispensing is a separate step
         this.closePrescriptionDialog();
       },
       error: () => {
-        this.showInlineMessage('Unable to mark this prescription as dispensed.', 'error');
+        this.showInlineMessage('Unable to claim this prescription.', 'error'); // [AGENT_PHARMACY] ISS-16: consistent copy
       }
     });
   }

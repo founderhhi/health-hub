@@ -6,17 +6,17 @@
 @use '../../../../shared/styles/variables' as v;
 @use '../../../../shared/styles/mixins' as m;
 
-// Light theme color variables
-$bg-primary: #FFFFFF;
-$bg-secondary: #F5F5F5;
-$text-primary: #34495E;
-$text-secondary: #7F8C8D;
-$primary: #2ECC71;
-$primary-light: #2ED573;
-$primary-pressed: #27AE60;
+// Theme-aware color variables (mapped to CSS custom properties)
+$bg-primary: var(--bg-primary);
+$bg-secondary: var(--bg-secondary);
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$primary: var(--accent-primary);
+$primary-light: var(--accent-primary);
+$primary-pressed: var(--accent-hover);
 $accent: #AEEA00;
-$border: #E0E0E0;
-$border-light: #BDC3C7;
+$border: var(--border-color);
+$border-light: var(--border-color);
 $shadow-color: rgba(0, 0, 0, 0.08);
 $shadow-hover: rgba(46, 204, 113, 0.2);
 
@@ -106,7 +106,7 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
   &__option {
     padding: 16px;
     border-radius: 8px;
-    border: 2px solid #E2E8F0;
+    border: 2px solid var(--border-color);
     text-align: center;
     cursor: pointer;
     transition: border-color 200ms ease-in-out, background 200ms ease-in-out;
@@ -117,7 +117,7 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
     }
 
     &.selected {
-      border-color: #2ECC71;
+      border-color: var(--accent-primary);
       background: rgba(46, 204, 113, 0.05);
     }
 
@@ -130,7 +130,7 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
     &__label {
       font-size: 13px;
       font-weight: 600;
-      color: #1E293B;
+      color: var(--text-primary);
     }
   }
 }
@@ -270,7 +270,7 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
   }
 
   &.ng-touched.ng-invalid {
-    border-color: #EF4444;
+    border-color: var(--error);
     animation: shake 0.4s ease-in-out;
   }
 
@@ -282,14 +282,14 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
 .error-message {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
-  color: #EF4444;
+  color: var(--error);
   animation: slideInUp 0.3s ease-out;
 }
 
 .form-error {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
-  color: #EF4444;
+  color: var(--error);
   text-align: center;
   padding: v.$space-sm;
   background: rgba(239, 68, 68, 0.1);
@@ -316,11 +316,11 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
   transition: all 0.3s ease;
 
   &.weak {
-    background: #EF4444;
+    background: var(--error);
   }
 
   &.fair {
-    background: #F59E0B;
+    background: var(--warning);
   }
 
   &.strong {
@@ -335,11 +335,11 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
   font-weight: v.$font-weight-medium;
 
   &.weak {
-    color: #EF4444;
+    color: var(--error);
   }
 
   &.fair {
-    color: #F59E0B;
+    color: var(--warning);
   }
 
   &.strong {

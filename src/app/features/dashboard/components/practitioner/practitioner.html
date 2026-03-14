@@ -40,7 +40,8 @@
     Live Consultation — with {{ activeConsultPatientName }}
   </div>
   <app-consult-shell [consultationId]="activeConsultationId" [roomUrl]="activeConsultRoomUrl" [mode]="activeConsultMode"
-    role="gp" [patientName]="activeConsultPatientName" (endConsultation)="onEndConsultation($event)"
+    role="gp" [patientName]="activeConsultPatientName" (prescribe)="onConsultPrescribe()" (refer)="onConsultRefer()"
+    (endConsultation)="onEndConsultation($event)"
     (leave)="onLeaveConsultShell()"></app-consult-shell>
   }
 
@@ -219,10 +220,12 @@
           </div>
 
           <div class="queue-actions">
-            <button class="btn btn-primary" (click)="acceptPatient(patient.id)" [disabled]="patient.accepted">
-              {{ patient.accepted ? 'Accepted' : 'Accept' }}
+            <button class="btn btn-primary" (click)="acceptPatient(patient.id)"
+              [disabled]="patient.accepted || isDeletePending(patient.id) || isAcceptPending(patient.id)">
+              {{ isAcceptPending(patient.id) ? 'Accepting...' : (patient.accepted ? 'Accepted' : 'Accept') }}
             </button>
             <button class="btn btn-icon btn-prescription" (click)="prescribe(patient.patientId)"
+              [disabled]="isDeletePending(patient.id)"
               title="Prescribe Medication">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M10.5 20.5l-6-6a4.5 4.5 0 0 1 6.5-6.5l6 6a4.5 4.5 0 0 1-6.5 6.5z" />
@@ -230,19 +233,22 @@
               </svg>
             </button>
             <button class="btn btn-icon btn-referral" (click)="referToSpecialist(patient.patientId)"
+              [disabled]="isDeletePending(patient.id)"
               title="Refer to Specialist">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
             </button>
-            <button class="btn btn-icon" (click)="viewDetails(patient)" title="View Details">
+            <button class="btn btn-icon" (click)="viewDetails(patient)" [disabled]="isDeletePending(patient.id)"
+              title="View Details">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
             </button>
-            <button class="btn btn-icon btn-danger" (click)="deletePatient(patient.id)" title="Remove from queue">
+            <button class="btn btn-icon btn-danger" [class.is-pending]="isDeletePending(patient.id)"
+              [disabled]="isDeletePending(patient.id)" (click)="deletePatient(patient.id)" title="Remove from queue">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -267,8 +273,8 @@
       </div>
       }
 
-      <!-- Consultation History Section (shown when on break) -->
-      @if (showHistory && !isOperating) {
+      <!-- Consultation History Section -->
+      @if (showHistory) {
       <div class="history-section">
         <h3 class="section-title">Past Consultations</h3>
         @if (consultationHistory.length > 0) {
@@ -329,13 +335,12 @@
             </svg>
             My Patients
           </button>
-          <button class="quick-action-btn" type="button" (click)="openSettings()">
+          <button class="quick-action-btn" type="button" (click)="viewProfile()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09A1.65 1.65 0 0 0 19.4 15z" />
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
-            Settings
+            Profile
           </button>
         </div>
       </div>
@@ -464,8 +469,9 @@
 
     <div class="modal-footer">
       <button class="btn btn-ghost" (click)="closePatientDetailsModal()">Close</button>
-      <button class="btn btn-primary" (click)="acceptPatient(selectedPatient.id); closePatientDetailsModal()">
-        Accept Patient
+      <button class="btn btn-primary" (click)="acceptPatient(selectedPatient.id); closePatientDetailsModal()"
+        [disabled]="selectedPatient.accepted || isDeletePending(selectedPatient.id) || isAcceptPending(selectedPatient.id)">
+        {{ isAcceptPending(selectedPatient.id) ? 'Accepting...' : 'Accept Patient' }}
       </button>
     </div>
   </div>

@@ -21,6 +21,7 @@ export class DiagnosticsResultUploadComponent implements OnInit {
   orderId: string | null = null;
   resultNotes = '';
   draftStatusMessage: string | null = null;
+  errorMessage: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -68,11 +69,16 @@ export class DiagnosticsResultUploadComponent implements OnInit {
 
   submitResults(): void {
     if (!this.orderId) {
+      this.errorMessage = 'Order ID is missing.';
       return;
     }
+    this.errorMessage = null;
     this.labsApi.updateOrderStatus(this.orderId, 'completed', this.resultNotes).subscribe({
       next: () => {
         this.router.navigate(['/diagnostics']);
+      },
+      error: () => {
+        this.errorMessage = 'Unable to submit results right now. Please try again.';
       }
     });
   }

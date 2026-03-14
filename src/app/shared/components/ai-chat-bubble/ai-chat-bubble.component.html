@@ -1,0 +1,38 @@
+<div class="ai-chat-bubble">
+  @if (isOpen) {
+  <section class="ai-chat-panel" role="dialog" aria-label="HealthHub AI quick chat">
+    <header class="panel-header">
+      <div>
+        <h3 class="panel-title">HealthHub AI</h3>
+        <p class="panel-subtitle">Quick symptom guidance</p>
+      </div>
+      <button type="button" class="close-btn" (click)="closePanel()" aria-label="Close chat">
+        ✕
+      </button>
+    </header>
+
+    <div class="panel-body">
+      @for (message of previewMessages$ | async; track message.id) {
+      <p class="preview-message" [class.preview-message--assistant]="message.role === 'assistant'">
+        {{ message.content }}
+      </p>
+      }
+    </div>
+
+    <footer class="panel-footer">
+      <a class="open-full-chat" routerLink="/patient/ai-chat" (click)="closePanel()">Open Full Chat</a>
+    </footer>
+  </section>
+  }
+
+  <button
+    type="button"
+    class="bubble-btn"
+    (click)="togglePanel()"
+    [attr.aria-expanded]="isOpen"
+    aria-label="Toggle HealthHub AI chat"
+  >
+    <span class="bubble-icon">🤖</span>
+    <span class="bubble-label">HealthHub AI</span>
+  </button>
+</div>

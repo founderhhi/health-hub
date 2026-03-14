@@ -12,7 +12,7 @@ describe('SpecialistDashboardComponent', () => {
   let fixture: ComponentFixture<SpecialistDashboardComponent>;
 
   const referralsApiMock = {
-    listForSpecialist: vi.fn(() => of({ referrals: [] }))
+    listForSpecialist: vi.fn(() => of({ referrals: [] as any[] }))
   };
 
   const wsMock = {
@@ -21,6 +21,9 @@ describe('SpecialistDashboardComponent', () => {
   };
 
   beforeEach(async () => {
+    referralsApiMock.listForSpecialist.mockReset();
+    referralsApiMock.listForSpecialist.mockReturnValue(of({ referrals: [] }));
+
     await TestBed.configureTestingModule({
       imports: [SpecialistDashboardComponent],
       providers: [
@@ -51,5 +54,48 @@ describe('SpecialistDashboardComponent', () => {
     expect(disabledPatientsNav).toBeTruthy();
     expect(disabledPatientsNav?.disabled).toBe(true);
     expect(disabledPatientsNav?.textContent).toContain('Coming soon');
+  });
+
+  it('computes live specialist stats from referral data', async () => {
+    referralsApiMock.listForSpecialist.mockReturnValue(of({
+      referrals: [
+        {
+          id: 'ref-1',
+          patient_id: 'patient-1',
+          patient_name: 'John Doe',
+          urgency: 'routine',
+          status: 'new',
+          created_at: new Date().toISOString(),
+          appointment_date: new Date().toISOString(),
+          appointment_time: '10:00:00',
+          referring_provider_role: 'gp',
+          consultation_status: null
+        },
+        {
+          id: 'ref-2',
+          patient_id: 'patient-2',
+          patient_name: 'Jane Doe',
+          urgency: 'urgent',
+          status: 'accepted',
+          created_at: new Date().toISOString(),
+          appointment_date: new Date().toISOString(),
+          appointment_time: '11:30:00',
+          referring_provider_role: 'specialist',
+          consultation_status: 'active'
+        }
+      ]
+    }));
+
+    fixture = TestBed.createComponent(SpecialistDashboardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.stats.pending).toBe(1);
+    expect(component.stats.appointments).toBe(2);
+    expect(component.stats.active).toBe(1);
+    expect(component.stats.patients).toBe(2);
+    expect(component.gpCount).toBe(1);
+    expect(component.specialistCount).toBe(1);
   });
 });

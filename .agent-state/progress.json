@@ -1,0 +1,37 @@
+{
+  "last_updated": "2026-02-24T12:00:00.000Z",
+  "agents": {
+    "AGENT_AUTH": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-01 DONE: restored auth.guard.ts and role.guard.ts", "ISS-02 DONE: SSR guards added to auth services", "ISS-09 DONE: is_operating check added to login and refresh"] },
+    "AGENT_DB": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-04 DONE: reordered db-init.js to run migrations before seed"] },
+    "AGENT_INFRA": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-05 DONE: EXEMPT_PATHS skip for health endpoints", "ISS-06 DONE: trust proxy set to 1"] },
+    "AGENT_ROLES": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-07 DONE: canonical roles enforced, removed legacy doctor role"] },
+    "AGENT_SPECIALIST": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-08 DONE: error handlers added to all subscribe calls", "ISS-12 DONE: consultation created on referral acceptance", "ISS-13 DONE: video panel has coming-soon state", "ISS-14 DONE: request-info form with local state"] },
+    "AGENT_PHARMACY": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-15 DONE: completeDispensing now calls dispense()", "ISS-16 DONE: UI copy aligned with backend state machine"] },
+    "AGENT_DIAGNOSTICS": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-17 DONE: bottom-nav routes aligned with route config", "ISS-19 DONE: removed silent demo fallback, shows error message"] },
+    "AGENT_PATIENT": { "status": "done", "current_task": null, "files_locked": [], "log": ["ISS-10 DONE: legacy /dashboard routes redirect to /patient/dashboard", "ISS-11 DONE: frontend password validators match backend policy"] },
+    "AGENT_QA": { "status": "done", "current_task": null, "files_locked": [], "log": ["QA-01 PASS", "QA-02 PASS", "QA-03 PASS", "QA-04 PASS", "QA-05 PASS", "QA-06 PASS", "QA-07 PASS", "QA-08 PASS", "QA-09 PASS", "QA-10 PASS"] }
+  },
+  "issues": {
+    "ISS-01": { "priority": "P0", "status": "verified", "owner_agent": "AGENT_AUTH", "depends_on": [], "files_touched": ["src/app/shared/guards/auth.guard.ts", "src/app/shared/guards/role.guard.ts"], "notes": "QA-01, QA-02 PASS" },
+    "ISS-02": { "priority": "P0", "status": "verified", "owner_agent": "AGENT_AUTH", "depends_on": ["ISS-01"], "files_touched": ["src/app/features/auth/services/auth.service.ts", "src/app/core/api/auth.service.ts"], "notes": "QA-02 PASS" },
+    "ISS-03": { "priority": "P0", "status": "verified", "owner_agent": "AGENT_DB", "depends_on": [], "files_touched": ["db/schema.sql", "db/migrations/001-fix-schema-mismatches.sql"], "notes": "QA-03 PASS" },
+    "ISS-04": { "priority": "P0", "status": "verified", "owner_agent": "AGENT_DB", "depends_on": ["ISS-03"], "files_touched": ["scripts/db-init.js"], "notes": "QA-03 PASS" },
+    "ISS-05": { "priority": "P0", "status": "verified", "owner_agent": "AGENT_INFRA", "depends_on": [], "files_touched": ["src/server.ts"], "notes": "QA-08 PASS" },
+    "ISS-06": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_INFRA", "depends_on": ["ISS-05"], "files_touched": ["src/server.ts"], "notes": "QA-08 PASS" },
+    "ISS-07": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_ROLES", "depends_on": ["ISS-01"], "files_touched": ["src/app/app.routes.ts", "src/server/api/referrals.ts"], "notes": "QA-09 PASS" },
+    "ISS-08": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_SPECIALIST", "depends_on": ["ISS-01"], "files_touched": ["src/app/features/specialist/referral-details/referral-details.ts"], "notes": "QA-05 PASS" },
+    "ISS-09": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_AUTH", "depends_on": ["ISS-03"], "files_touched": ["src/server/api/auth.ts"], "notes": "QA-01 PASS" },
+    "ISS-10": { "priority": "P2", "status": "verified", "owner_agent": "AGENT_PATIENT", "depends_on": ["ISS-07"], "files_touched": ["src/app/app.routes.ts"], "notes": "Route redirects verified" },
+    "ISS-11": { "priority": "P2", "status": "verified", "owner_agent": "AGENT_PATIENT", "depends_on": [], "files_touched": ["src/app/features/auth/components/signup/signup.ts", "src/app/features/auth/components/signup/signup.html"], "notes": "QA-10 PASS" },
+    "ISS-12": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_SPECIALIST", "depends_on": ["ISS-07"], "files_touched": ["src/app/features/specialist/referral-details/referral-details.ts", "src/server/api/referrals.ts"], "notes": "QA-05 PASS" },
+    "ISS-13": { "priority": "P2", "status": "verified", "owner_agent": "AGENT_SPECIALIST", "depends_on": ["ISS-12"], "files_touched": ["src/app/features/specialist/specialist-consultation/specialist-consultation.html", "src/app/features/specialist/specialist-consultation/specialist-consultation.scss"], "notes": "Video panel verified" },
+    "ISS-14": { "priority": "P2", "status": "verified", "owner_agent": "AGENT_SPECIALIST", "depends_on": ["ISS-12"], "files_touched": ["src/app/features/specialist/referral-details/referral-details.ts"], "notes": "Request-info form verified" },
+    "ISS-15": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_PHARMACY", "depends_on": [], "files_touched": ["src/app/features/pharmacy/prescription-details/prescription-details.ts"], "notes": "QA-06 PASS" },
+    "ISS-16": { "priority": "P2", "status": "verified", "owner_agent": "AGENT_PHARMACY", "depends_on": ["ISS-15"], "files_touched": ["src/app/features/pharmacy/pharmacy-scanner/pharmacy-scanner.ts", "src/app/features/pharmacy/pharmacy-scanner/pharmacy-scanner.html"], "notes": "QA-06 PASS" },
+    "ISS-17": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_DIAGNOSTICS", "depends_on": [], "files_touched": ["src/app/shared/components/bottom-nav/bottom-nav.component.ts"], "notes": "QA-07 PASS" },
+    "ISS-18": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_DIAGNOSTICS", "depends_on": [], "files_touched": [], "notes": "QA-07 PASS" },
+    "ISS-19": { "priority": "P1", "status": "verified", "owner_agent": "AGENT_DIAGNOSTICS", "depends_on": [], "files_touched": ["src/app/features/diagnostics/diagnostics-orders/diagnostics-orders.ts", "src/app/features/diagnostics/diagnostics-orders/diagnostics-orders.html"], "notes": "QA-07 PASS" }
+  },
+  "file_locks": {},
+  "deployment_gate": "ready"
+}

@@ -17,12 +17,24 @@ describe('ReferralDetailsComponent', () => {
     patient_name: 'Patient',
     urgency: 'routine',
     status: 'new',
+    consultation_mode: 'online',
     created_at: new Date().toISOString()
   };
 
   const referralsApiMock = {
     getReferral: () => of({ referral }),
-    updateStatus: () => of({ referral })
+    updateStatus: () => of({ referral }),
+    updateSchedule: () => of({
+      referral: {
+        ...referral,
+        status: 'confirmed',
+        consultation_mode: 'offline',
+        appointment_date: '2026-03-17',
+        appointment_time: '10:30:00',
+        location: 'Majolly Clinic Room 12'
+      }
+    }),
+    requestMoreInfo: () => of({ referral })
   };
 
   const labsApiMock = {
@@ -62,16 +74,28 @@ describe('ReferralDetailsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('disables patient nav shortcut in bottom navigation', () => {
+  it('renders specialist bottom navigation links', () => {
     const root = fixture.nativeElement as HTMLElement;
 
-    expect(root.querySelector('a[routerLink="/specialist/patients"]')).toBeNull();
-    const disabledPatientsNav = root.querySelector<HTMLButtonElement>(
-      '.hhi-bottom-nav__item.hhi-bottom-nav__item--disabled'
-    );
+    expect(root.querySelector('a[routerLink="/specialist"]')).toBeTruthy();
+    expect(root.querySelector('a[routerLink="/specialist/profile"]')).toBeTruthy();
+  });
 
-    expect(disabledPatientsNav).toBeTruthy();
-    expect(disabledPatientsNav?.disabled).toBe(true);
-    expect(disabledPatientsNav?.textContent).toContain('Coming soon');
+  it('shows a success notice after saving updated appointment details', () => {
+    component.openScheduleEditor();
+    component.scheduleForm = {
+      appointmentDate: '2026-03-17',
+      appointmentTime: '10:30',
+      consultationMode: 'offline',
+      location: 'Majolly Clinic Room 12'
+    };
+
+    component.saveSchedule();
+    fixture.detectChanges();
+
+    expect(component.actionNotice).toBe('Appointment details updated successfully.');
+    expect(component.showScheduleForm).toBe(false);
+    expect(component.referral.status).toBe('confirmed');
+    expect(component.referral.consultation_mode).toBe('offline');
   });
 });

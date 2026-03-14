@@ -1,0 +1,245 @@
+:host {
+  display: block;
+}
+
+.ai-chat-page {
+  min-height: 100vh;
+  padding: 24px;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.chat-shell {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--hhi-shadow-sm);
+}
+
+.usage-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.usage-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.usage-bar {
+  height: 6px;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.usage-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent-primary);
+  border-radius: 999px;
+  transition: width 200ms ease;
+}
+
+.cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gp-cta,
+.diagnostics-cta {
+  min-height: 44px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.gp-cta {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+
+  &:hover {
+    background: var(--accent-hover);
+  }
+}
+
+.diagnostics-cta {
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+  border: 2px solid var(--accent-primary);
+
+  &:hover {
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+  }
+}
+
+.messages-list {
+  height: min(52vh, 520px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+}
+
+.message {
+  align-self: flex-end;
+  max-width: min(85%, 640px);
+  border-radius: 14px 14px 6px 14px;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  padding: 10px 12px;
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+.message--assistant {
+  align-self: flex-start;
+  border-radius: 14px 14px 14px 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.limit-message {
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.send-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 13px;
+  border: 1px solid #fca5a5;
+}
+
+// Animated three-dot typing indicator shown while waiting for AI response.
+.message--typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 16px;
+}
+
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  animation: typing-bounce 1.2s infinite ease-in-out;
+
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px);
+  }
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 0 12px;
+  font-size: 14px;
+
+  &::placeholder {
+    color: var(--text-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 1px;
+  }
+}
+
+.send-btn {
+  min-width: 86px;
+  min-height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 200ms ease;
+
+  &:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 640px) {
+  .ai-chat-page {
+    padding: 16px;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .messages-list {
+    height: min(56vh, 520px);
+  }
+}

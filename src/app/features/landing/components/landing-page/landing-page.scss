@@ -1,16 +1,16 @@
 @use '../../../../shared/styles/variables' as v;
 @use '../../../../shared/styles/mixins' as m;
 
-$bg-primary: v.$color-white;
-$bg-secondary: v.$color-surface;
-$text-primary: v.$color-text-primary;
-$text-secondary: v.$color-text-secondary;
-$primary: v.$color-emerald;
-$primary-light: v.$color-emerald-light;
-$primary-pressed: v.$color-emerald-dark;
+$bg-primary: var(--bg-primary);
+$bg-secondary: var(--bg-secondary);
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$primary: var(--accent-primary);
+$primary-light: var(--accent-primary);
+$primary-pressed: var(--accent-hover);
 $accent: v.$color-bio-lime;
-$border: v.$color-border;
-$border-light: v.$color-border-light;
+$border: var(--border-color);
+$border-light: var(--border-color);
 
 // Haptic animation keyframes moved to mixins
 
@@ -52,7 +52,7 @@ $border-light: v.$color-border-light;
 }
 
 .hero-section {
-  background: radial-gradient(circle at 50% -10%, rgba(46, 204, 113, 0.09), rgba(255, 255, 255, 0) 45%), $bg-primary;
+  background: radial-gradient(circle at 50% -10%, rgba(46, 204, 113, 0.09), transparent 45%), $bg-primary;
   padding: 72px 24px 56px;
 }
 
@@ -117,7 +117,7 @@ $border-light: v.$color-border-light;
   font-family: v.$font-family-primary;
   font-size: 18px;
   font-weight: v.$font-weight-semibold;
-  color: #34495E;
+  color: var(--text-primary);
   display: inline-block;
   background: rgba(174, 234, 0, 0.15);
   padding: 4px 12px;
@@ -496,7 +496,7 @@ $border-light: v.$color-border-light;
   top: 16px;
   right: 16px;
   background: $accent;
-  color: #34495E;
+  color: var(--text-primary);
   font-size: 12px;
   font-weight: v.$font-weight-semibold;
   padding: 4px 10px;
@@ -548,9 +548,9 @@ $border-light: v.$color-border-light;
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--bg-primary) 90%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-color);
 }
 
 // Social proof strip
@@ -561,7 +561,7 @@ $border-light: v.$color-border-light;
   padding: 12px 0;
   font-size: 13px;
   font-weight: 600;
-  color: #64748B;
+  color: var(--text-secondary);
 
   span {
     display: flex;
@@ -573,7 +573,7 @@ $border-light: v.$color-border-light;
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: v.$color-emerald;
+    background: var(--accent-primary);
   }
 }
 

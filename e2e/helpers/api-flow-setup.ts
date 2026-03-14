@@ -96,7 +96,15 @@ export async function createReferral(
   api: APIRequestContext,
   auth: ApiWithAuth,
   patientId: string,
-  reason: string
+  reason: string,
+  options?: {
+    specialty?: string;
+    toSpecialistId?: string;
+    appointmentDate?: string;
+    appointmentTime?: string;
+    consultationMode?: 'online' | 'offline';
+    location?: string;
+  }
 ): Promise<any> {
   const response = await api.post('/api/referrals', {
     headers: authHeader(auth),
@@ -104,7 +112,12 @@ export async function createReferral(
       patientId,
       urgency: 'routine',
       reason,
-      specialty: 'Cardiology'
+      specialty: options?.specialty || 'Cardiology',
+      toSpecialistId: options?.toSpecialistId,
+      appointmentDate: options?.appointmentDate,
+      appointmentTime: options?.appointmentTime,
+      consultationMode: options?.consultationMode,
+      location: options?.location
     }
   });
 
@@ -134,6 +147,61 @@ export async function updateReferralStatus(
 
   const payload = await readJson<{ referral: any }>(response, 'Update referral status');
   return payload.referral;
+}
+
+export async function getReferral(
+  api: APIRequestContext,
+  auth: ApiWithAuth,
+  referralId: string
+): Promise<any> {
+  const response = await api.get(`/api/referrals/${referralId}`, {
+    headers: authHeader(auth)
+  });
+
+  const payload = await readJson<{ referral: any }>(response, 'Get referral');
+  return payload.referral;
+}
+
+export async function updateReferralSchedule(
+  api: APIRequestContext,
+  auth: ApiWithAuth,
+  referralId: string,
+  schedule: {
+    appointmentDate?: string;
+    appointmentTime?: string;
+    consultationMode?: 'online' | 'offline';
+    location?: string;
+  }
+): Promise<any> {
+  const response = await api.post(`/api/referrals/${referralId}/schedule`, {
+    headers: authHeader(auth),
+    data: schedule
+  });
+
+  const payload = await readJson<{ referral: any }>(response, 'Update referral schedule');
+  return payload.referral;
+}
+
+export async function listPatientReferrals(api: APIRequestContext, auth: ApiWithAuth): Promise<any[]> {
+  const response = await api.get('/api/patient/referrals', {
+    headers: authHeader(auth)
+  });
+
+  const payload = await readJson<{ referrals: any[] }>(response, 'List patient referrals');
+  return payload.referrals;
+}
+
+export async function getConsultationJoinLink(
+  api: APIRequestContext,
+  auth: ApiWithAuth,
+  consultationId: string,
+  role: 'patient' | 'gp' | 'specialist'
+): Promise<{ consultationId: string; roomUrl: string }> {
+  const response = await api.get(`/api/consultations/${consultationId}/join-link?role=${role}`, {
+    headers: authHeader(auth)
+  });
+
+  return readJson<{ consultationId: string; roomUrl: string }>(response, 'Get consultation join link');
 }
 
 export async function createLabOrder(

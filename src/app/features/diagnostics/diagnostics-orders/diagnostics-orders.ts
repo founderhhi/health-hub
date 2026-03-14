@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { LabsApiService } from '../../../core/api/labs.service';
 import { BottomNavComponent, DIAGNOSTICS_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { WsService } from '../../../core/realtime/ws.service';
+import { Subscription } from 'rxjs';
 import { ProfileButtonComponent } from '../../../shared/components/profile-button/profile-button';
 
 interface DiagnosticsOrderView {
@@ -86,15 +87,17 @@ const DEMO_ORDERS: DiagnosticsOrderView[] = [
   templateUrl: './diagnostics-orders.html',
   styleUrl: './diagnostics-orders.scss',
 })
-export class DiagnosticsOrdersComponent implements OnInit {
+export class DiagnosticsOrdersComponent implements OnInit, OnDestroy {
   DIAGNOSTICS_TABS = DIAGNOSTICS_TABS;
   orders: DiagnosticsOrderView[] = [];
+  errorMessage = ''; // [AGENT_DIAGNOSTICS] ISS-19: surface API errors to user
 
   filtersExpanded = false;
   orderIdSearch = '';
   statusFilter: 'All Status' | 'Pending' | 'In Progress' | 'Completed' = 'All Status';
   profileInitials = '';
   private platformId = inject(PLATFORM_ID);
+  private wsSubscription?: Subscription;
 
   get hasActiveFilters(): boolean {
     return this.orderIdSearch.trim().length > 0 || this.statusFilter !== 'All Status';
@@ -118,11 +121,15 @@ export class DiagnosticsOrdersComponent implements OnInit {
     }
     this.loadOrders();
     this.ws.connect('lab_tech');
-    this.ws.events$.subscribe((event) => {
+    this.wsSubscription = this.ws.events$.subscribe((event) => {
       if (event.event === 'lab.status.updated') {
         this.loadOrders();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.wsSubscription?.unsubscribe();
   }
 
   toggleFilters(): void {
@@ -156,6 +163,7 @@ export class DiagnosticsOrdersComponent implements OnInit {
   }
 
   private loadOrders(): void {
+    this.errorMessage = ''; // [AGENT_DIAGNOSTICS] ISS-19: clear previous errors on reload
     this.labsApi.listDiagnosticsOrders().subscribe({
       next: (response) => {
         const sourceOrders = Array.isArray(response.orders) ? response.orders : [];
@@ -174,10 +182,11 @@ export class DiagnosticsOrdersComponent implements OnInit {
             isDemo: false
           };
         });
-        this.orders = mappedOrders.length > 0 ? mappedOrders : DEMO_ORDERS;
+        this.orders = mappedOrders; // [AGENT_DIAGNOSTICS] ISS-19: removed silent DEMO_ORDERS fallback when API returns empty
       },
       error: () => {
-        this.orders = DEMO_ORDERS;
+        this.errorMessage = 'Failed to load diagnostic orders. Please try again later.'; // [AGENT_DIAGNOSTICS] ISS-19: surface error to user instead of silent demo fallback
+        this.orders = []; // [AGENT_DIAGNOSTICS] ISS-19: empty array instead of DEMO_ORDERS
       }
     });
   }

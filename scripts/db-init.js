@@ -26,9 +26,7 @@ async function run() {
   console.log('Applying schema...');
   await pool.query(schema);
 
-  console.log('Applying seed data...');
-  await pool.query(seed);
-
+  // [AGENT_DB] ISS-04: migrations must run before seed
   if (fs.existsSync(migrationsDir)) {
     const migrationFiles = fs.readdirSync(migrationsDir)
       .filter((file) => file.endsWith('.sql'))
@@ -42,6 +40,9 @@ async function run() {
 
     console.log(`Applied ${migrationFiles.length} migration(s).`);
   }
+
+  console.log('Applying seed data...');
+  await pool.query(seed);
 
   console.log('Database initialized.');
   await pool.end();

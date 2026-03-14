@@ -38,6 +38,14 @@
     </button>
   </div>
 
+  @if (refreshing || warningMessage) {
+  <div class="sync-banner">
+    <span>
+      {{ refreshing ? 'Refreshing appointments...' : warningMessage }}
+    </span>
+  </div>
+  }
+
   <!-- Appointments List -->
   <div class="appointments-list">
     @if (activeTab === 'upcoming') {
@@ -63,8 +71,8 @@
             <p class="doctor-specialty">{{ apt.specialty }}</p>
           </div>
         </div>
-        <span class="status-badge" [ngClass]="getStatusClass(apt.status)">
-          {{ getStatusLabel(apt.status) }}
+        <span class="status-badge" [ngClass]="getStatusClass(apt.display_status || apt.status)">
+          {{ getStatusLabel(apt.display_status || apt.status) }}
         </span>
       </div>
 
@@ -119,6 +127,12 @@
         <span class="reason-label">Reason:</span> {{ apt.reason }}
       </div>
       }
+
+      @if (canJoinConsultation(apt)) {
+      <div class="appointment-actions">
+        <button class="btn btn-primary" (click)="openConsultation(apt)">Join Consultation</button>
+      </div>
+      }
     </div>
     }
     }
@@ -145,8 +159,8 @@
             <p class="doctor-specialty">{{ apt.specialty }}</p>
           </div>
         </div>
-        <span class="status-badge" [ngClass]="getStatusClass(apt.status)">
-          {{ getStatusLabel(apt.status) }}
+        <span class="status-badge" [ngClass]="getStatusClass(apt.display_status || apt.status)">
+          {{ getStatusLabel(apt.display_status || apt.status) }}
         </span>
       </div>
 
@@ -188,5 +202,5 @@
   </div>
   }
 
-  <app-bottom-nav [tabs]="PATIENT_TABS" activeTabId="appointments"></app-bottom-nav>
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="appointments"></app-bottom-nav>
 </section>

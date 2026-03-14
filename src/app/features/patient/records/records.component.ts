@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
+import { timeout } from 'rxjs';
 
 interface PrescriptionItem {
   name: string;
@@ -40,64 +41,94 @@ export class RecordsComponent implements OnInit {
   PATIENT_TABS = PATIENT_TABS;
   activeTab: 'prescriptions' | 'lab-results' = 'prescriptions';
   loading = true;
+  refreshing = false;
   error: string | null = null;
+  warningMessage: string | null = null;
   selectedRx: Prescription | null = null;
 
   prescriptions: Prescription[] = [];
   labOrders: LabOrder[] = [];
+  private readonly REQUEST_TIMEOUT_MS = 8000;
 
   constructor(
     public router: Router,
+    private route: ActivatedRoute,
     private patientApi: PatientApiService,
     private prescriptionsApi: PrescriptionsApiService
   ) { }
 
   ngOnInit(): void {
+    this.applyInitialTab();
+    this.hydrateFromCache();
     this.loadData();
   }
 
   loadData(): void {
-    this.loading = true;
+    const hasCachedSnapshot =
+      this.prescriptionsApi.getCachedPatientPrescriptions() !== null ||
+      this.patientApi.getCachedLabOrders() !== null;
+
+    this.loading = !hasCachedSnapshot;
+    this.refreshing = hasCachedSnapshot;
     this.error = null;
+    this.warningMessage = null;
 
     let prescriptionsLoaded = false;
     let labOrdersLoaded = false;
+    let prescriptionsFailed = false;
+    let labOrdersFailed = false;
 
     const checkDone = () => {
       if (prescriptionsLoaded && labOrdersLoaded) {
         this.loading = false;
+        this.refreshing = false;
+        if (prescriptionsFailed && labOrdersFailed) {
+          if (hasCachedSnapshot) {
+            this.warningMessage = 'Showing your last loaded records. Refresh again when the network is stable.';
+          } else {
+            this.error = 'Failed to load health records. Please try again.';
+          }
+          return;
+        }
+        if (prescriptionsFailed || labOrdersFailed) {
+          this.warningMessage = 'Some records could not be loaded. Please try again.';
+        }
       }
     };
 
-    this.prescriptionsApi.listForPatient().subscribe({
+    this.prescriptionsApi.listForPatient().pipe(timeout(this.REQUEST_TIMEOUT_MS)).subscribe({
       next: (res) => {
-        this.prescriptions = (res.prescriptions || []).map(p => ({
+        const prescriptions = Array.isArray(res?.prescriptions) ? res.prescriptions : [];
+        this.prescriptions = prescriptions.map(p => ({
           ...p,
-          items: typeof p.items === 'string' ? JSON.parse(p.items) : (p.items || [])
+          items: this.parseJsonArray<PrescriptionItem>(p.items)
         }));
         prescriptionsLoaded = true;
         checkDone();
       },
       error: (err) => {
         console.error('Failed to load prescriptions:', err);
-        this.error = 'Failed to load health records. Please try again.';
+        prescriptionsFailed = true;
+        this.prescriptions = [];
         prescriptionsLoaded = true;
         checkDone();
       }
     });
 
-    this.patientApi.getLabOrders().subscribe({
+    this.patientApi.getLabOrders().pipe(timeout(this.REQUEST_TIMEOUT_MS)).subscribe({
       next: (res) => {
-        this.labOrders = (res.orders || []).map(o => ({
+        const orders = Array.isArray(res?.orders) ? res.orders : [];
+        this.labOrders = orders.map(o => ({
           ...o,
-          tests: typeof o.tests === 'string' ? JSON.parse(o.tests) : (o.tests || [])
+          tests: this.parseJsonArray<string>(o.tests)
         }));
         labOrdersLoaded = true;
         checkDone();
       },
       error: (err) => {
         console.error('Failed to load lab orders:', err);
-        this.error = 'Failed to load health records. Please try again.';
+        labOrdersFailed = true;
+        this.labOrders = [];
         labOrdersLoaded = true;
         checkDone();
       }
@@ -106,6 +137,12 @@ export class RecordsComponent implements OnInit {
 
   setTab(tab: 'prescriptions' | 'lab-results'): void {
     this.activeTab = tab;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   getStatusClass(status: string): string {
@@ -161,5 +198,48 @@ export class RecordsComponent implements OnInit {
 
   closePrescription(): void {
     this.selectedRx = null;
+  }
+
+  private parseJsonArray<T>(value: unknown): T[] {
+    if (Array.isArray(value)) {
+      return value as T[];
+    }
+    if (typeof value !== 'string' || !value.trim()) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? (parsed as T[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private applyInitialTab(): void {
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'prescriptions' || tab === 'lab-results') {
+      this.activeTab = tab;
+    }
+  }
+
+  private hydrateFromCache(): void {
+    const cachedPrescriptions = this.prescriptionsApi.getCachedPatientPrescriptions();
+    if (cachedPrescriptions !== null) {
+      this.prescriptions = cachedPrescriptions.map((item: any) => ({
+        ...item,
+        items: this.parseJsonArray<PrescriptionItem>(item.items)
+      }));
+      this.loading = false;
+    }
+
+    const cachedLabOrders = this.patientApi.getCachedLabOrders();
+    if (cachedLabOrders !== null) {
+      this.labOrders = cachedLabOrders.map((item: any) => ({
+        ...item,
+        tests: this.parseJsonArray<string>(item.tests)
+      }));
+      this.loading = false;
+    }
   }
 }

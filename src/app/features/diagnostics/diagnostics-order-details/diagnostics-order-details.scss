@@ -405,6 +405,12 @@
   border-radius: v.$radius-md;
   padding: v.$space-sm v.$space-md;
   font-size: v.$font-size-sm;
+
+  &--error {
+    background: v.$color-danger-light;
+    border-color: v.$color-danger-border;
+    color: v.$color-danger-dark;
+  }
 }
 
 .coming-soon-label {

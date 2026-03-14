@@ -2,7 +2,7 @@
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_PASSWORD = 'demo1234';
-const DEFAULT_RETRY_ATTEMPTS = 12;
+const DEFAULT_RETRY_ATTEMPTS = 36;
 const DEFAULT_RETRY_DELAY_MS = 5_000;
 
 const roleCredentials = [

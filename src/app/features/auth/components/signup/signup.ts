@@ -1,8 +1,19 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms'; // [AGENT_PATIENT] ISS-11: import AbstractControl, ValidationErrors for custom validators
 import { AuthApiService } from '../../../../core/api/auth.service';
+
+// [AGENT_PATIENT] ISS-11: Custom validators to match backend password policy (auth.ts validatePassword)
+function requireUppercase(control: AbstractControl): ValidationErrors | null {
+  return /[A-Z]/.test(control.value || '') ? null : { requireUppercase: true };
+}
+function requireLowercase(control: AbstractControl): ValidationErrors | null {
+  return /[a-z]/.test(control.value || '') ? null : { requireLowercase: true };
+}
+function requireDigit(control: AbstractControl): ValidationErrors | null {
+  return /\d/.test(control.value || '') ? null : { requireDigit: true };
+}
 
 @Component({
   selector: 'app-signup',
@@ -26,7 +37,7 @@ export class SignupComponent {
       displayName: ['', [Validators.required, Validators.minLength(2)]],
       countryCode: ['+1', Validators.required],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      password: ['', [Validators.required, Validators.minLength(8), requireUppercase, requireLowercase, requireDigit]] // [AGENT_PATIENT] ISS-11: align frontend validators with backend password policy
     });
   }
 
@@ -58,9 +69,9 @@ export class SignupComponent {
         this.submitting.set(false);
         this.router.navigate(['/patient/dashboard']);
       },
-      error: () => {
+      error: (err: any) => { // [AGENT_PATIENT] ISS-11: surface backend-specific password policy errors
         this.submitting.set(false);
-        this.errorMessage = 'Unable to create account. Try a different phone number.';
+        this.errorMessage = err?.error?.error || 'Unable to create account. Try a different phone number.';
       }
     });
   }

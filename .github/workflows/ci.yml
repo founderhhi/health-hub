@@ -44,11 +44,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Initialize database
         run: npm run db:init
@@ -77,36 +80,66 @@ jobs:
           echo "Health check did not pass in time"
           exit 1
 
+      - name: Verify readiness contract
+        env:
+          BASE_URL: http://127.0.0.1:4000
+        run: npm run verify:prelive
+
+      - name: Deploy gate smoke checks
+        env:
+          DEPLOY_BASE_URL: http://127.0.0.1:4000
+        run: npm run deploy:smoke
+
       - name: Run e2e tests
         run: npm run e2e:ci
 
-      - name: Trigger Render staging deploy hook
+      - name: Deploy + verify Render staging (auto-rollback on failure)
         if: github.event_name == 'push' && github.ref == 'refs/heads/health-hub-test'
         env:
           RENDER_DEPLOY_HOOK_URL_STAGING: ${{ secrets.RENDER_DEPLOY_HOOK_URL_STAGING }}
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          DEPLOY_BASE_URL_STAGING: ${{ secrets.RENDER_BASE_URL_STAGING }}
+          DEPLOY_BASE_URL: ${{ secrets.DEPLOY_BASE_URL_STAGING }}
+          RENDER_SERVICE_ID_STAGING: ${{ secrets.RENDER_SERVICE_ID_STAGING }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_ENV_LABEL: staging
+          RENDER_ROLLBACK_ON_FAILURE: 'true'
         run: |
-          HOOK_URL="${RENDER_DEPLOY_HOOK_URL_STAGING:-$RENDER_DEPLOY_HOOK_URL}"
-          if [ -z "$HOOK_URL" ]; then
-            echo "No staging deploy hook secret found; skipping staging trigger."
+          export RENDER_DEPLOY_HOOK_URL="${RENDER_DEPLOY_HOOK_URL_STAGING:-$RENDER_DEPLOY_HOOK_URL}"
+          export DEPLOY_BASE_URL="${DEPLOY_BASE_URL_STAGING:-$DEPLOY_BASE_URL}"
+          export RENDER_SERVICE_ID="${RENDER_SERVICE_ID_STAGING:-$RENDER_SERVICE_ID}"
+
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ] || [ -z "$DEPLOY_BASE_URL" ]; then
+            echo "Staging deploy hook or base URL not configured; skipping."
             exit 0
           fi
 
-          curl --fail --show-error --silent -X POST "$HOOK_URL"
+          npm run deploy:postcheck
 
-      - name: Trigger Render production deploy hook
+      - name: Deploy + verify Render production (auto-rollback on failure)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           RENDER_DEPLOY_HOOK_URL_PROD: ${{ secrets.RENDER_DEPLOY_HOOK_URL_PROD }}
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          DEPLOY_BASE_URL_PROD: ${{ secrets.RENDER_BASE_URL_PROD }}
+          DEPLOY_BASE_URL: ${{ secrets.DEPLOY_BASE_URL_PROD }}
+          RENDER_SERVICE_ID_PROD: ${{ secrets.RENDER_SERVICE_ID_PROD }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_ENV_LABEL: production
+          RENDER_ROLLBACK_ON_FAILURE: 'true'
         run: |
-          HOOK_URL="${RENDER_DEPLOY_HOOK_URL_PROD:-$RENDER_DEPLOY_HOOK_URL}"
-          if [ -z "$HOOK_URL" ]; then
-            echo "No production deploy hook secret found; skipping production trigger."
+          export RENDER_DEPLOY_HOOK_URL="${RENDER_DEPLOY_HOOK_URL_PROD:-$RENDER_DEPLOY_HOOK_URL}"
+          export DEPLOY_BASE_URL="${DEPLOY_BASE_URL_PROD:-$DEPLOY_BASE_URL}"
+          export RENDER_SERVICE_ID="${RENDER_SERVICE_ID_PROD:-$RENDER_SERVICE_ID}"
+
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ] || [ -z "$DEPLOY_BASE_URL" ]; then
+            echo "Production deploy hook or base URL not configured; skipping."
             exit 0
           fi
 
-          curl --fail --show-error --silent -X POST "$HOOK_URL"
+          npm run deploy:postcheck
 
       - name: Upload Playwright artifacts
         if: always()

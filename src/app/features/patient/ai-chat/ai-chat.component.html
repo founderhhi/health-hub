@@ -1,0 +1,78 @@
+<section class="ai-chat-page">
+  <header class="page-header">
+    <h1 class="page-title">HealthHub AI</h1>
+    <p class="page-subtitle">Ask health questions and get quick guidance.</p>
+  </header>
+
+  @if (state$ | async; as state) {
+  <section class="chat-shell">
+    <div class="usage-row">
+      <span class="usage-text">{{ state.messagesUsed }}/{{ sessionLimit }} messages used</span>
+      <div class="usage-bar" role="progressbar" [attr.aria-valuenow]="state.messagesUsed" aria-valuemin="0" [attr.aria-valuemax]="sessionLimit">
+        <span class="usage-fill" [style.width.%]="(state.messagesUsed / sessionLimit) * 100"></span>
+      </div>
+    </div>
+
+    @if (state.showGpCta || state.showDiagnosticsCta) {
+    <div class="cta-row">
+      @if (state.showGpCta) {
+      <button type="button" class="gp-cta" (click)="bookGpConsultation()">
+        📅 Book a GP Consultation
+      </button>
+      }
+      @if (state.showDiagnosticsCta) {
+      <button type="button" class="diagnostics-cta" (click)="goDiagnostics()">
+        🧪 Go to Diagnostics Waiting
+      </button>
+      }
+    </div>
+    }
+
+    <div class="messages-list" #messagesList>
+      @for (message of state.messages; track message.id) {
+      <article class="message" [class.message--assistant]="message.role === 'assistant'">
+        {{ message.content }}
+      </article>
+      }
+
+      @if (sending) {
+      <div class="message message--assistant message--typing" aria-label="HealthHub AI is thinking">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+      }
+    </div>
+
+    @if (sendError) {
+    <p class="send-error" role="alert">{{ sendError }}</p>
+    }
+
+    @if (state.limitReached) {
+    <p class="limit-message">
+      You've reached the session limit. Book a GP for a full consultation.
+    </p>
+    }
+
+    <form class="input-row" (ngSubmit)="sendMessage()">
+      <input
+        type="text"
+        name="chatMessage"
+        class="chat-input"
+        placeholder="Describe your symptoms..."
+        [(ngModel)]="draftMessage"
+        [disabled]="state.limitReached || sending"
+      />
+      <button
+        type="submit"
+        class="send-btn"
+        [disabled]="state.limitReached || sending || !draftMessage.trim()"
+      >
+        Send
+      </button>
+    </form>
+  </section>
+  }
+
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="ai-chat"></app-bottom-nav>
+</section>

@@ -2,113 +2,178 @@
   <header class="admin-header">
     <h1>Admin Dashboard</h1>
     <div class="tab-bar">
-      <button class="tab" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">Users</button>
-      <button class="tab" [class.active]="activeTab === 'health'" (click)="activeTab = 'health'">System Health</button>
+      <button class="tab" [class.active]="activeTab === 'users'" (click)="setTab('users')">Users</button>
+      <button class="tab" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">Activity</button>
+      <button class="tab" [class.active]="activeTab === 'health'" (click)="setTab('health')">System Health</button>
     </div>
   </header>
 
+  @if (actionNotice) {
+  <div class="notice success">{{ actionNotice }}</div>
+  }
+  @if (actionError) {
+  <div class="notice error">{{ actionError }}</div>
+  }
+
   @if (activeTab === 'users') {
-    <div class="controls">
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Search by name or phone..."
-        [(ngModel)]="searchQuery"
-        (keyup.enter)="onSearch()"
-      />
-      <select class="role-select" [(ngModel)]="roleFilter" (ngModelChange)="onRoleFilter()">
-        <option value="">All Roles</option>
+  <div class="controls">
+    <input type="text" class="search-input" placeholder="Search by name or phone..." [(ngModel)]="searchQuery"
+      (keyup.enter)="onSearch()" />
+    <select class="role-select" [(ngModel)]="roleFilter" (ngModelChange)="onRoleFilter()">
+      <option value="">All Roles</option>
+      @for (role of roles; track role) {
+      <option [value]="role">{{ role }}</option>
+      }
+    </select>
+    <button class="action-btn action-btn--primary" (click)="toggleCreateUserPanel()">
+      {{ showCreateUser ? 'Cancel' : 'Create User' }}
+    </button>
+  </div>
+
+  @if (showCreateUser) {
+  <div class="create-user-panel">
+    <div class="create-user-grid">
+      <input class="search-input" type="text" placeholder="Phone (e.g. +17000000010)" [(ngModel)]="createUserForm.phone" />
+      <input class="search-input" type="text" placeholder="Display name" [(ngModel)]="createUserForm.displayName" />
+      <input class="search-input" type="text" placeholder="First name" [(ngModel)]="createUserForm.firstName" />
+      <input class="search-input" type="text" placeholder="Last name" [(ngModel)]="createUserForm.lastName" />
+      <input class="search-input" type="password" placeholder="Password (min 8 chars)" [(ngModel)]="createUserForm.password" minlength="8" />
+      <select class="role-select" [(ngModel)]="createUserForm.role">
         @for (role of roles; track role) {
-          <option [value]="role">{{ role }}</option>
+        <option [value]="role">{{ role }}</option>
         }
       </select>
     </div>
+    <div class="create-user-actions">
+      <button class="action-btn action-btn--primary" [disabled]="creatingUser" (click)="createUser()">
+        {{ creatingUser ? 'Creating...' : 'Create Account' }}
+      </button>
+    </div>
+  </div>
+  }
 
-    @if (loading) {
-      <div class="loading">Loading users...</div>
-    } @else {
-      <div class="user-count">{{ totalUsers }} users found</div>
+  @if (loading) {
+  <div class="loading">Loading users...</div>
+  } @else {
+  <div class="user-count">{{ totalUsers }} users found</div>
 
-      <div class="user-table-wrap">
-        <table class="user-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of users; track user.id) {
-              <tr>
-                <td class="name-cell">{{ user.display_name || (user.first_name || '') + ' ' + (user.last_name || '') }}</td>
-                <td>{{ user.phone }}</td>
-                <td>
-                  <select class="inline-select" [ngModel]="user.role" (ngModelChange)="updateRole(user, $event)">
-                    @for (r of roles; track r) {
-                      <option [value]="r">{{ r }}</option>
-                    }
-                  </select>
-                </td>
-                <td>
-                  <span class="status-badge" [class.active]="user.is_operating" [class.disabled]="!user.is_operating">
-                    {{ user.is_operating ? 'Active' : 'Disabled' }}
-                  </span>
-                </td>
-                <td>
-                  <button class="action-btn" (click)="toggleStatus(user)">
-                    {{ user.is_operating ? 'Disable' : 'Enable' }}
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users; track user.id) {
+        <tr>
+          <td class="name-cell">{{ user.display_name || (user.first_name || '') + ' ' + (user.last_name || '') }}</td>
+          <td>{{ user.phone }}</td>
+          <td>
+            <select class="inline-select" [ngModel]="user.role" (ngModelChange)="updateRole(user, $event)">
+              @for (r of roles; track r) {
+              <option [value]="r">{{ r }}</option>
+              }
+            </select>
+          </td>
+          <td>
+            <span class="status-badge" [class.active]="user.is_operating" [class.disabled]="!user.is_operating">
+              {{ user.is_operating ? 'Active' : 'Disabled' }}
+            </span>
+          </td>
+          <td>
+            <button class="action-btn" (click)="toggleStatus(user)">
+              {{ user.is_operating ? 'Disable' : 'Enable' }}
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
-      <div class="pagination">
-        <button class="page-btn" [disabled]="currentPage <= 1" (click)="prevPage()">Previous</button>
-        <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button class="page-btn" [disabled]="currentPage >= totalPages" (click)="nextPage()">Next</button>
-      </div>
-    }
+  <div class="pagination">
+    <button class="page-btn" [disabled]="currentPage <= 1" (click)="prevPage()">Previous</button>
+    <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="page-btn" [disabled]="currentPage >= totalPages" (click)="nextPage()">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'activity') {
+  @if (activityLoading) {
+  <div class="loading">Loading activity...</div>
+  } @else if (activities.length === 0) {
+  <div class="loading">No admin activity recorded yet.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Actor</th>
+          <th>Action</th>
+          <th>Target</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (event of activities; track event.id) {
+        <tr>
+          <td>{{ event.created_at | date:'short' }}</td>
+          <td>{{ event.actor_name || event.actor_phone || 'Admin' }}</td>
+          <td>{{ formatActivityAction(event.action) }}</td>
+          <td>{{ getActivityTarget(event) }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="page-btn" [disabled]="activityPage <= 1" (click)="prevActivityPage()">Previous</button>
+    <span class="page-info">Page {{ activityPage }} of {{ activityTotalPages }}</span>
+    <button class="page-btn" [disabled]="activityPage >= activityTotalPages" (click)="nextActivityPage()">Next</button>
+  </div>
+  }
   }
 
   @if (activeTab === 'health') {
-    @if (systemHealth) {
-      <div class="health-grid">
-        <div class="health-card">
-          <h3>Total Users</h3>
-          <span class="health-value">{{ systemHealth.users.total }}</span>
-        </div>
-        <div class="health-card">
-          <h3>Consultations (24h)</h3>
-          <span class="health-value">{{ systemHealth.activity.consultationsLast24h }}</span>
-        </div>
-        <div class="health-card">
-          <h3>Queue Size</h3>
-          <span class="health-value">{{ systemHealth.activity.pendingQueueSize }}</span>
-        </div>
-      </div>
+  @if (systemHealth) {
+  <div class="health-grid">
+    <div class="health-card">
+      <h3>Total Users</h3>
+      <span class="health-value">{{ systemHealth.users.total }}</span>
+    </div>
+    <div class="health-card">
+      <h3>Consultations (24h)</h3>
+      <span class="health-value">{{ systemHealth.activity.consultationsLast24h }}</span>
+    </div>
+    <div class="health-card">
+      <h3>Queue Size</h3>
+      <span class="health-value">{{ systemHealth.activity.pendingQueueSize }}</span>
+    </div>
+  </div>
 
-      <div class="role-breakdown">
-        <h2>Users by Role</h2>
-        <div class="role-bars">
-          @for (item of healthRoles; track item.role) {
-            <div class="role-bar-row">
-              <span class="role-label">{{ item.role }}</span>
-              <div class="role-bar">
-                <div class="role-bar-fill" [style.width.%]="(item.count / systemHealth.users.total) * 100"></div>
-              </div>
-              <span class="role-count">{{ item.count }}</span>
-            </div>
-          }
+  <div class="role-breakdown">
+    <h2>Users by Role</h2>
+    <div class="role-bars">
+      @for (item of healthRoles; track item.role) {
+      <div class="role-bar-row">
+        <span class="role-label">{{ item.role }}</span>
+        <div class="role-bar">
+          <div class="role-bar-fill" [style.width.%]="(item.count / systemHealth.users.total) * 100"></div>
         </div>
+        <span class="role-count">{{ item.count }}</span>
       </div>
-    } @else {
-      <div class="loading">Loading system health...</div>
-    }
+      }
+    </div>
+  </div>
+  } @else {
+  <div class="loading">Loading system health...</div>
+  }
   }
 </section>

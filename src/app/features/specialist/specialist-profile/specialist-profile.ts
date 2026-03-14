@@ -39,6 +39,10 @@ export class SpecialistProfileComponent implements OnInit {
       next: () => {
         this.authApi.clearSession();
         this.router.navigate(['/landing']);
+      },
+      error: () => {
+        this.authApi.clearSession();
+        this.router.navigate(['/landing']);
       }
     });
   }

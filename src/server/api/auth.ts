@@ -33,6 +33,11 @@ type TokenSubject = {
   phone: string;
 };
 
+function isUndefinedColumnError(error: unknown, columnName: string): boolean {
+  const err = error as { code?: string; message?: string };
+  return err?.code === '42703' && (err.message || '').includes(columnName);
+}
+
 function mintAccessToken(user: TokenSubject): string {
   return jwt.sign(
     { userId: user.id, role: user.role, phone: user.phone, tokenType: 'access' },
@@ -90,10 +95,22 @@ authRouter.post('/login', loginRateLimit, async (req, res) => {
       return res.status(400).json({ error: 'phone and password required' });
     }
 
-    const result = await db.query(
-      'select id, role, phone, password_hash, display_name from users where phone = $1',
-      [phone]
-    );
+    let result;
+    try {
+      result = await db.query(
+        'select id, role, phone, password_hash, display_name, is_operating from users where phone = $1', // [AGENT_AUTH] ISS-09: include is_operating
+        [phone]
+      );
+    } catch (error) {
+      if (!isUndefinedColumnError(error, 'is_operating')) {
+        throw error;
+      }
+      // Backward compatibility for environments where schema updates lag.
+      result = await db.query(
+        'select id, role, phone, password_hash, display_name from users where phone = $1',
+        [phone]
+      );
+    }
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -110,6 +127,10 @@ authRouter.post('/login', loginRateLimit, async (req, res) => {
 
     if (!valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    if (user.is_operating === false) {
+      return res.status(403).json({ error: 'Account is disabled' }); // [AGENT_AUTH] ISS-09: block disabled users at login
     }
 
     const token = mintAccessToken(user);
@@ -162,12 +183,25 @@ authRouter.post('/refresh', async (req, res) => {
       return res.status(401).json({ error: 'Invalid refresh token' });
     }
 
-    const result = await db.query('select id, role, phone from users where id = $1', [payload.userId]);
+    let result;
+    try {
+      result = await db.query('select id, role, phone, is_operating from users where id = $1', [payload.userId]); // [AGENT_AUTH] ISS-09: include is_operating
+    } catch (error) {
+      if (!isUndefinedColumnError(error, 'is_operating')) {
+        throw error;
+      }
+      result = await db.query('select id, role, phone from users where id = $1', [payload.userId]);
+    }
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid refresh token' });
     }
 
     const user = result.rows[0] as TokenSubject;
+
+    if ((user as any).is_operating === false) {
+      return res.status(403).json({ error: 'Account is disabled' }); // [AGENT_AUTH] ISS-09: block disabled users at token refresh
+    }
+
     const token = mintAccessToken(user);
     return res.json({ token });
   } catch (error) {

@@ -159,6 +159,9 @@
       <div class="status-banner" *ngIf="draftStatusMessage" role="status" aria-live="polite">
         {{ draftStatusMessage }}
       </div>
+      <div class="status-banner status-banner--error" *ngIf="errorMessage" role="alert">
+        {{ errorMessage }}
+      </div>
       <button type="button" class="btn btn-secondary btn-full" (click)="saveAsDraft()">
         Save as Draft
       </button>
@@ -172,5 +175,5 @@
     </div>
   </div>
 
-  <app-bottom-nav [tabs]="DIAGNOSTICS_TABS" activeTabId="upload"></app-bottom-nav>
+  <app-bottom-nav [tabs]="DIAGNOSTICS_TABS" activeTab="orders"></app-bottom-nav>
 </section>

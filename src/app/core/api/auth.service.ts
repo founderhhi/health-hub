@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { catchError, of, tap } from 'rxjs';
 import { ApiClientService } from './api-client.service';
 
@@ -21,6 +22,7 @@ interface ForgotPasswordResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
+  private readonly platformId = inject(PLATFORM_ID); // [AGENT_AUTH] ISS-02: SSR guard
   constructor(private api: ApiClientService) {}
 
   signup(phone: string, password: string, displayName?: string) {
@@ -50,6 +52,8 @@ export class AuthApiService {
   }
 
   clearSession() {
+    // [AGENT_AUTH] ISS-02: SSR guard — only access localStorage in the browser
+    if (!isPlatformBrowser(this.platformId)) return;
     localStorage.removeItem('access_token');
     localStorage.removeItem('hhi_auth_token');
     localStorage.removeItem('hhi_user_role');
@@ -58,6 +62,8 @@ export class AuthApiService {
   }
 
   private persistSession(response: AuthResponse) {
+    // [AGENT_AUTH] ISS-02: SSR guard — only access localStorage in the browser
+    if (!isPlatformBrowser(this.platformId)) return;
     localStorage.setItem('access_token', response.token);
     localStorage.setItem('hhi_auth_token', response.token);
     localStorage.setItem('hhi_user_role', response.user.role);

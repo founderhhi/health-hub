@@ -18,7 +18,7 @@
       [class.chat-panel__message--mine]="item.mine"
     >
       <p class="chat-panel__meta">
-        <span class="chat-panel__sender">{{ item.sender_name || item.sender_role || 'Participant' }}</span>
+        <span class="chat-panel__sender">{{ item.senderLabel || 'Participant' }}</span>
         <time class="chat-panel__time">{{ item.created_at | date: 'shortTime' }}</time>
       </p>
       <p class="chat-panel__text">{{ item.message }}</p>

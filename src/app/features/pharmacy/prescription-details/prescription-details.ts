@@ -16,7 +16,7 @@ export class PrescriptionDetailsComponent implements OnInit {
   prescription: any;
   loading = true;
   errorMessage = '';
-  readonly unavailableActionsReason = 'Not available yet: backend dispense tracking is still in development.';
+  readonly unavailableActionsReason = 'Individual item check-off is not yet available. Use "Complete Dispensing" to dispense all items at once.'; // [AGENT_PHARMACY] ISS-16: accurate reason — dispense endpoint works, but per-item tracking is not yet implemented
   PHARMACY_TABS = PHARMACY_TABS;
 
   constructor(
@@ -54,7 +54,7 @@ export class PrescriptionDetailsComponent implements OnInit {
 
   completeDispensing(): void {
     if (!this.prescription?.id) return;
-    this.pharmacyApi.claim(this.prescription.id).subscribe({
+    this.pharmacyApi.dispense(this.prescription.id).subscribe({ // [AGENT_PHARMACY] ISS-15: call dispense, not claim
       next: (response) => {
         this.prescription = response.prescription;
       },

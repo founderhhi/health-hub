@@ -42,7 +42,7 @@ export class Patient {
    * Navigate to specific service
    */
   navigateToService(service: string): void {
-    switch(service) {
+    switch (service) {
       case 'gp':
         this.router.navigate(['/patient-services/connect']);
         break;
@@ -77,25 +77,25 @@ export class Patient {
 
   // Legacy method - keeping for compatibility
   navigate(page: number) {
-    switch(page) {
-       case 1:
+    switch (page) {
+      case 1:
         this.router.navigate(['/heal-well/videos']);
         break;
-       case 2:
+      case 2:
         this.router.navigate(['/patient-services/connect']);
         break;
-       case 3:
+      case 3:
         this.router.navigate(['/specialist']);
         break;
-       case 4:
+      case 4:
         this.router.navigate(['/pharmacy']);
         break;
-       case 5:
+      case 5:
         this.showComingSoon('Diagnostics booking is coming soon.');
         break;
-       case 6:
+      case 6:
         this.showComingSoon('Travel and insurance is coming soon.');
-        break;       
+        break;
     }
   }
 }

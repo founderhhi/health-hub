@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #F8FAFC;
+  background: var(--bg-secondary, #F8FAFC);
 
   &.completed {
     .shell-header {
@@ -22,8 +22,8 @@
   align-items: center;
   gap: v.$space-md;
   padding: v.$space-md v.$space-lg;
-  background: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
+  background: var(--bg-card, #FFFFFF);
+  border-bottom: 1px solid var(--border-color, #E2E8F0);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -45,7 +45,7 @@
   width: 36px;
   height: 36px;
   background: transparent;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--border-color, #E2E8F0);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -56,12 +56,12 @@
   svg {
     width: 18px;
     height: 18px;
-    color: #475569;
+    color: var(--text-secondary, #475569);
   }
 
   &:hover {
-    background: #F8FAFC;
-    border-color: #CBD5E1;
+    background: var(--bg-secondary, #F8FAFC);
+    border-color: var(--border-color, #CBD5E1);
   }
 }
 
@@ -75,20 +75,20 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-lg;
   font-weight: v.$font-weight-semibold;
-  color: #0B0F14;
+  color: var(--text-primary, #0B0F14);
 }
 
 .shell-party {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
-  color: #64748B;
+  color: var(--text-secondary, #64748B);
 }
 
 .shell-timer {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-md;
   font-weight: v.$font-weight-semibold;
-  color: #0B0F14;
+  color: var(--text-primary, #0B0F14);
   font-variant-numeric: tabular-nums;
 }
 
@@ -161,7 +161,7 @@
 
   &.status-completed {
     background: rgba(100, 116, 139, 0.1);
-    color: #475569;
+    color: var(--text-secondary, #475569);
 
     &::before {
       background: #64748B;
@@ -191,6 +191,12 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
 
+  &__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: v.$space-sm;
+  }
+
   button {
     background: transparent;
     border: none;
@@ -200,6 +206,11 @@
     padding: 0;
     font-family: v.$font-family-primary;
     font-size: v.$font-size-sm;
+    text-decoration: underline;
+
+    &:hover {
+      opacity: 0.85;
+    }
   }
 }
 
@@ -230,7 +241,7 @@
   svg {
     width: 48px;
     height: 48px;
-    color: #2ECC71;
+    color: var(--accent-primary, #2ECC71);
   }
 
   h3 {
@@ -245,14 +256,14 @@
     margin: 0;
     font-family: v.$font-family-primary;
     font-size: v.$font-size-base;
-    color: #475569;
+    color: var(--text-secondary, #475569);
   }
 }
 
 /* ── Call Panel ── */
 .shell-call-panel {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card, #FFFFFF);
+  border: 1px solid var(--border-color, #E2E8F0);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -270,14 +281,14 @@
     font-family: v.$font-family-primary;
     font-size: v.$font-size-lg;
     font-weight: v.$font-weight-semibold;
-    color: #0B0F14;
+    color: var(--text-primary, #0B0F14);
   }
 
   p {
     margin: 0;
     font-family: v.$font-family-primary;
     font-size: v.$font-size-base;
-    color: #64748B;
+    color: var(--text-secondary, #64748B);
     max-width: 400px;
   }
 }
@@ -309,7 +320,7 @@
 .call-pulse {
   width: 10px;
   height: 10px;
-  background: #2ECC71;
+  background: var(--accent-primary, #2ECC71);
   border-radius: 50%;
   animation: pulse-dot 1.5s ease-in-out infinite;
   flex-shrink: 0;
@@ -321,12 +332,12 @@
   align-items: center;
   justify-content: space-between;
   padding: v.$space-sm v.$space-md;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card, #FFFFFF);
+  border: 1px solid var(--border-color, #E2E8F0);
   border-radius: 8px;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
-  color: #475569;
+  color: var(--text-secondary, #475569);
 
   .btn svg {
     width: 14px;
@@ -338,8 +349,8 @@
 .shell-chat-area {
   flex: 1;
   min-height: 300px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card, #FFFFFF);
+  border: 1px solid var(--border-color, #E2E8F0);
   border-radius: 12px;
   overflow: hidden;
 
@@ -353,7 +364,7 @@
 /* ── Footer (GP Actions) ── */
 .shell-footer {
   padding: v.$space-md 0 0;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid var(--border-color, #E2E8F0);
 
   &__actions {
     display: flex;
@@ -390,37 +401,37 @@
 }
 
 .btn-primary {
-  background: #2ECC71;
-  color: #0B0F14;
+  background: var(--accent-primary, #2ECC71);
+  color: #FFFFFF;
 
   &:hover:not(:disabled) {
-    background: #27AE60;
+    background: var(--accent-hover, #27AE60);
   }
 }
 
 .btn-secondary {
-  background: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  color: #0B0F14;
+  background: var(--bg-card, #FFFFFF);
+  border: 1px solid var(--border-color, #CBD5E1);
+  color: var(--text-primary, #0B0F14);
 
   &:hover:not(:disabled) {
-    background: #F8FAFC;
+    background: var(--bg-secondary, #F8FAFC);
   }
 }
 
 .btn-ghost {
   background: transparent;
-  color: #64748B;
-  border: 1px solid #E2E8F0;
+  color: var(--text-secondary, #64748B);
+  border: 1px solid var(--border-color, #E2E8F0);
 
   &:hover:not(:disabled) {
-    background: #F8FAFC;
-    color: #0B0F14;
+    background: var(--bg-secondary, #F8FAFC);
+    color: var(--text-primary, #0B0F14);
   }
 }
 
 .btn-danger {
-  background: #EF4444;
+  background: var(--error, #EF4444);
   color: #FFFFFF;
 
   &:hover:not(:disabled) {
@@ -431,11 +442,11 @@
 .btn-danger-outline {
   background: transparent;
   border: 1px solid #FCA5A5;
-  color: #EF4444;
+  color: var(--error, #EF4444);
 
   &:hover:not(:disabled) {
     background: #FEF2F2;
-    border-color: #EF4444;
+    border-color: var(--error, #EF4444);
   }
 }
 
@@ -468,7 +479,7 @@
 }
 
 .modal-card {
-  background: #FFFFFF;
+  background: var(--bg-card, #FFFFFF);
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
@@ -484,13 +495,13 @@
   justify-content: space-between;
   align-items: center;
   padding: v.$space-lg v.$space-xl;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid var(--border-color, #E2E8F0);
 
   .modal-title {
     font-family: v.$font-family-primary;
     font-size: v.$font-size-xl;
     font-weight: v.$font-weight-semibold;
-    color: #0B0F14;
+    color: var(--text-primary, #0B0F14);
     margin: 0;
   }
 }
@@ -499,7 +510,7 @@
   width: 36px;
   height: 36px;
   background: transparent;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--border-color, #E2E8F0);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -510,12 +521,12 @@
   svg {
     width: 18px;
     height: 18px;
-    color: #64748B;
+    color: var(--text-secondary, #64748B);
   }
 
   &:hover {
-    background: #F8FAFC;
-    border-color: #CBD5E1;
+    background: var(--bg-secondary, #F8FAFC);
+    border-color: var(--border-color, #CBD5E1);
   }
 }
 
@@ -530,14 +541,14 @@
   justify-content: flex-end;
   gap: v.$space-md;
   padding: v.$space-md v.$space-xl v.$space-lg;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid var(--border-color, #E2E8F0);
 }
 
 .end-confirm-text {
   margin: 0 0 v.$space-lg 0;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-base;
-  color: #475569;
+  color: var(--text-secondary, #475569);
   line-height: 1.6;
 }
 
@@ -551,28 +562,28 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-medium;
-  color: #475569;
+  color: var(--text-secondary, #475569);
 }
 
 .form-input {
   height: 40px;
   padding: 0 v.$space-md;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--border-color, #E2E8F0);
   border-radius: 8px;
   font-family: v.$font-family-primary;
   font-size: v.$font-size-base;
-  color: #0B0F14;
-  background: #FFFFFF;
+  color: var(--text-primary, #0B0F14);
+  background: var(--bg-primary, #FFFFFF);
   transition: border-color v.$transition-fast;
 
   &:focus {
     outline: none;
-    border-color: #2ECC71;
+    border-color: var(--accent-primary, #2ECC71);
     box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
   }
 
   &::placeholder {
-    color: #94A3B8;
+    color: var(--text-secondary, #94A3B8);
   }
 }
 

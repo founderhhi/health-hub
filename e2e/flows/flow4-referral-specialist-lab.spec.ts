@@ -20,7 +20,16 @@ test.describe('Flow 4: referral, specialist accept, lab order', () => {
     const gpAuth = await loginProvider(request, env, 'gp');
     const specialistAuth = await loginProvider(request, env, 'specialist');
 
-    const referral = await createReferral(request, gpAuth, patientAuth.user.id, `Specialist referral ${patient.runTag}`);
+    const referral = await createReferral(
+      request,
+      gpAuth,
+      patientAuth.user.id,
+      `Specialist referral ${patient.runTag}`,
+      {
+        specialty: 'Cardiology',
+        toSpecialistId: specialistAuth.user.id
+      }
+    );
     expect(referral.patient_id).toBe(patientAuth.user.id);
 
     const specialistReferral = await retry(async () => {

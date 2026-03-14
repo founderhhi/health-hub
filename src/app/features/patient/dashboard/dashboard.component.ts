@@ -5,8 +5,10 @@ import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
 import { WsService } from '../../../core/realtime/ws.service';
-import { PaymentMockComponent } from '../../../shared/components/payment-mock/payment-mock';
-import { Subscription } from 'rxjs';
+import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
+import { AiChatBubbleComponent } from '../../../shared/components/ai-chat-bubble/ai-chat-bubble.component';
+import { ThemeService, ThemeMode } from '../../../shared/services/theme.service';
+import { Subscription, catchError, forkJoin, map, of, timeout } from 'rxjs';
 
 interface HealthStats {
   consultations: number;
@@ -17,11 +19,13 @@ interface HealthStats {
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, PaymentMockComponent],
+  imports: [CommonModule, RouterModule, BottomNavComponent, AiChatBubbleComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  PATIENT_TABS = PATIENT_TABS;
+
   // User data
   userName: string = '';
   notificationCount: number = 0;
@@ -30,6 +34,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showModeSelector = false;
   selectedMode: 'video' | 'audio' | 'chat' = 'video';
   recentPrescriptions: any[] = [];
+  statsLoading = true;
+  prescriptionsLoading = true;
+  statsNotice = '';
   showPaymentModal = false;
   private wsSubscription?: Subscription;
 
@@ -42,12 +49,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private platformId = inject(PLATFORM_ID);
 
+  currentTheme: ThemeMode = 'light';
+  private themeSubscription?: Subscription;
+
   constructor(
     private router: Router,
     private patientApi: PatientApiService,
     private prescriptionsApi: PrescriptionsApiService,
     private notificationsApi: NotificationsApiService,
-    private ws: WsService
+    private ws: WsService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
@@ -59,9 +70,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.userName = 'Patient';
     }
 
+    this.themeSubscription = this.themeService.currentTheme$.subscribe(t => this.currentTheme = t);
+
     this.loadStats();
     this.loadPrescriptions();
     this.loadNotifications();
+    this.prefetchPatientNavigationData();
 
     // SSR safety: only connect WebSocket in browser
     if (isPlatformBrowser(this.platformId)) {
@@ -87,6 +101,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
+    this.themeSubscription?.unsubscribe();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   // Get greeting based on time of day
@@ -112,7 +131,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.router.navigate(['/patient/appointments']);
         break;
       case 'pharmacy':
-        this.router.navigate(['/patient/records']);
+        this.router.navigate(['/patient/records'], {
+          queryParams: { tab: 'prescriptions' }
+        });
         break;
       case 'diagnostics':
         // Coming soon - disabled
@@ -135,7 +156,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   viewRecords(): void {
-    this.router.navigate(['/patient/records']);
+    this.router.navigate(['/patient/records'], {
+      queryParams: { tab: 'prescriptions' }
+    });
   }
 
   openPayment(): void {
@@ -144,7 +167,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onPaymentComplete(result: { success: boolean }): void {
     if (result.success) {
-      setTimeout(() => { this.showPaymentModal = false; }, 2000);
+      // QOL-FIX: removed artificial delay.
+      this.showPaymentModal = false;
     }
   }
 
@@ -158,6 +182,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   requestWithMode(): void {
+    if (this.requestingConsult) {
+      return;
+    }
+
     this.showModeSelector = false;
     this.requestingConsult = true;
     this.requestError = '';
@@ -179,27 +207,95 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private loadStats(): void {
-    this.patientApi.getConsults().subscribe({
-      next: (response) => {
-        this.stats.consultations = response.requests.length;
-      }
-    });
-    this.prescriptionsApi.listForPatient().subscribe({
-      next: (response) => {
-        this.stats.prescriptions = response.prescriptions.length;
-      }
-    });
-    this.patientApi.getLabOrders().subscribe({
-      next: (response) => {
-        this.stats.records = response.orders.length;
+    this.statsLoading = true;
+    this.statsNotice = '';
+
+    forkJoin({
+      consults: this.patientApi.getConsults().pipe(
+        timeout(8000),
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
+      ),
+      activeConsult: this.patientApi.getActiveConsult().pipe(
+        timeout(8000),
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
+      ),
+      prescriptions: this.prescriptionsApi.listForPatient().pipe(
+        timeout(8000),
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
+      ),
+      labs: this.patientApi.getLabOrders().pipe(
+        timeout(8000),
+        map((response) => ({ ok: true as const, response })),
+        catchError(() => of({ ok: false as const, response: null }))
+      )
+    }).subscribe({
+      next: ({ consults, activeConsult, prescriptions, labs }) => {
+        const nextStats = { ...this.stats };
+        let successfulCalls = 0;
+
+        const requests = Array.isArray(consults.response?.requests) ? consults.response?.requests : [];
+        if (consults.ok) {
+          const consultationsCount = requests.filter((item: any) => {
+            const status = String(item?.status || '').toLowerCase();
+            return status !== 'removed' && status !== 'cancelled';
+          }).length;
+
+          nextStats.consultations = activeConsult.response?.active
+            ? Math.max(consultationsCount, 1)
+            : consultationsCount;
+          successfulCalls++;
+        } else if (activeConsult.ok && activeConsult.response?.active) {
+          nextStats.consultations = Math.max(nextStats.consultations, 1);
+        }
+
+        if (prescriptions.ok) {
+          nextStats.prescriptions = Array.isArray(prescriptions.response?.prescriptions)
+            ? prescriptions.response.prescriptions.length
+            : 0;
+          successfulCalls++;
+        }
+
+        if (labs.ok) {
+          nextStats.records = Array.isArray(labs.response?.orders)
+            ? labs.response.orders.length
+            : 0;
+          successfulCalls++;
+        }
+
+        if (activeConsult.ok) {
+          successfulCalls++;
+        }
+
+        if (successfulCalls === 0) {
+          this.statsNotice = 'Unable to refresh dashboard stats right now.';
+        } else if (successfulCalls < 4) {
+          this.statsNotice = 'Some dashboard stats may be temporarily outdated.';
+        }
+
+        this.stats = nextStats;
+        this.statsLoading = false;
+      },
+      error: () => {
+        this.statsNotice = 'Unable to refresh dashboard stats right now.';
+        this.statsLoading = false;
       }
     });
   }
 
   private loadPrescriptions(): void {
-    this.prescriptionsApi.listForPatient().subscribe({
+    this.prescriptionsLoading = true;
+    this.prescriptionsApi.listForPatient().pipe(timeout(8000)).subscribe({
       next: (response) => {
-        this.recentPrescriptions = response.prescriptions.slice(0, 3);
+        const prescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
+        this.recentPrescriptions = prescriptions.slice(0, 3);
+        this.prescriptionsLoading = false;
+      },
+      error: () => {
+        this.recentPrescriptions = [];
+        this.prescriptionsLoading = false;
       }
     });
   }
@@ -207,8 +303,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadNotifications(): void {
     this.notificationsApi.list().subscribe({
       next: (response) => {
-        this.notificationCount = response.notifications.filter((item) => !item.read).length;
+        this.notificationCount = (response?.notifications || []).filter((item: any) => !item.read).length;
+      },
+      error: () => {
+        this.notificationCount = 0;
       }
     });
+  }
+
+  private prefetchPatientNavigationData(): void {
+    this.patientApi.getReferrals().pipe(
+      timeout(8000),
+      catchError(() => of(null))
+    ).subscribe();
+
+    this.patientApi.getProfile().pipe(
+      timeout(8000),
+      catchError(() => of(null))
+    ).subscribe();
   }
 }

@@ -4,7 +4,7 @@ This runbook documents the quickest path to deploy the app for shareholder flow 
 
 ## Target baseline
 
-- Runtime: Node 20+
+- Runtime: Node 22.12.x (LTS) everywhere (`.nvmrc`, CI, Render)
 - Process command: `npm run serve:ssr:health-hub`
 - Health check: `GET /api/health`
 - Required services: PostgreSQL
@@ -15,6 +15,7 @@ This runbook documents the quickest path to deploy the app for shareholder flow 
 
 ```bash
 npm ci
+npm run typecheck
 npm run build
 ```
 
@@ -35,13 +36,19 @@ npm run db:init
 
 If deploying via `render.yaml`, this is automated through `preDeployCommand: npm run db:init`.
 
-4. Start app:
+4. Verify database schema compatibility (must pass before boot):
+
+```bash
+npm run verify:prelive
+```
+
+5. Start app:
 
 ```bash
 npm run serve:ssr:health-hub
 ```
 
-5. Verify health:
+6. Verify health:
 
 ```bash
 curl -fsS http://127.0.0.1:4000/api/health
@@ -50,6 +57,7 @@ curl -fsS http://127.0.0.1:4000/api/health
 ## Smoke checks after deploy
 
 - `GET /api/health` returns `{ "ok": true }`.
+- `GET /api/ready` returns `{ "ok": true, "db": { "ok": true } }`.
 - Login succeeds for seeded accounts:
   - GP: `+17000000001`
   - Specialist: `+17000000002`
@@ -65,6 +73,16 @@ Use the built-in smoke script against staging or production:
 
 ```bash
 DEPLOY_BASE_URL=https://<your-app>.onrender.com npm run deploy:smoke
+```
+
+For automated Render deploy + post-deploy guard + rollback:
+
+```bash
+RENDER_DEPLOY_HOOK_URL=<render-deploy-hook> \
+DEPLOY_BASE_URL=https://<your-app>.onrender.com \
+RENDER_API_KEY=<render-api-key> \
+RENDER_SERVICE_ID=<render-service-id> \
+npm run deploy:postcheck
 ```
 
 Optional overrides:

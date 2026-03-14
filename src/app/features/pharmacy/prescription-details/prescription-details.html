@@ -97,8 +97,9 @@
         Mark All as Dispensed
       </button>
       <p class="action-unavailable-reason">{{ unavailableActionsReason }}</p>
+      <!-- [AGENT_PHARMACY] ISS-16: dispensing is only valid when status is 'claimed'; disable otherwise -->
       <button type="button" class="action-button action-button--primary" (click)="completeDispensing()"
-        [disabled]="!prescription || prescription?.status === 'claimed'">
+        [disabled]="!prescription || prescription?.status !== 'claimed'">
         Complete Dispensing
       </button>
     </div>

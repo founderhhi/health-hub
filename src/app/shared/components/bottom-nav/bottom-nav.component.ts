@@ -49,14 +49,6 @@ export class BottomNavComponent {
   constructor(private router: Router) { }
 
   /**
-   * Navigate to the selected tab route
-   */
-  onTabClick(tab: BottomNavTab): void {
-    this.activeTab = tab.id;
-    this.router.navigate([tab.route]);
-  }
-
-  /**
    * Check if a tab is currently active
    */
   isActive(tab: BottomNavTab): boolean {
@@ -87,6 +79,12 @@ export const PATIENT_TABS: BottomNavTab[] = [
     icon: 'folder'
   },
   {
+    id: 'ai-chat',
+    route: '/patient/ai-chat',
+    label: 'HealthHub AI',
+    icon: 'robot'
+  },
+  {
     id: 'profile',
     route: '/patient/profile',
     label: 'Profile',
@@ -102,9 +100,9 @@ export const SPECIALIST_TABS: BottomNavTab[] = [
     icon: 'grid'
   },
   {
-    id: 'patients',
-    route: '/provider/specialist/patients',
-    label: 'Patients',
+    id: 'referrals',
+    route: '/specialist',
+    label: 'Referrals',
     icon: 'users'
   },
   {
@@ -145,20 +143,14 @@ export const PHARMACY_TABS: BottomNavTab[] = [
 export const DIAGNOSTICS_TABS: BottomNavTab[] = [
   {
     id: 'orders',
-    route: '/provider/diagnostics/orders',
+    route: '/provider/diagnostics', // [AGENT_DIAGNOSTICS] ISS-17: was '/provider/diagnostics/orders' but default route '' serves orders
     label: 'Orders',
     icon: 'grid'
   },
   {
-    id: 'upload',
-    route: '/provider/diagnostics/upload',
-    label: 'Upload',
-    icon: 'upload'
-  },
-  {
-    id: 'reports',
-    route: '/provider/diagnostics/reports',
-    label: 'Reports',
-    icon: 'file'
+    id: 'profile',
+    route: '/provider/diagnostics/profile', // [AGENT_DIAGNOSTICS] ISS-17: was '/provider/diagnostics/upload' (requires :id param, not a standalone tab); replaced with profile route
+    label: 'Profile',
+    icon: 'user'
   }
 ];

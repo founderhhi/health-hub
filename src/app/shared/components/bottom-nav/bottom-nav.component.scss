@@ -5,10 +5,10 @@
 /* CSS Custom Properties for the component */
 :host {
   --bottom-nav-height: 64px;
-  --bottom-nav-bg: #FFFFFF;
-  --bottom-nav-border: #E2E8F0;
-  --bottom-nav-active-color: #2ECC71;
-  --bottom-nav-inactive-color: #A0AEC0;
+  --bottom-nav-bg: var(--bg-card);
+  --bottom-nav-border: var(--border-color);
+  --bottom-nav-active-color: var(--accent-primary);
+  --bottom-nav-inactive-color: var(--text-secondary);
   --bottom-nav-label-size: 10px;
   --bottom-nav-icon-size: 22px;
   --bottom-nav-safe-area: env(safe-area-inset-bottom, 0px);
@@ -34,6 +34,11 @@
 
 /* Navigation Item */
 .hhi-bottom-nav__item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -48,9 +53,11 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 
-  /* Hover state */
-  &:hover {
-    color: #64748B;
+  /* Hover state (only on devices that support hover) */
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--text-primary);
+    }
   }
 
   /* Active/Pressed state */
@@ -95,7 +102,8 @@
   font-weight: 500;
   line-height: 1.2;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 72px;
   transition: all 150ms ease;
 }
 
@@ -130,15 +138,3 @@
   }
 }
 */
-
-/* ============================================
-   Dark Mode Support
-   ============================================ */
-@media (prefers-color-scheme: dark) {
-  :host {
-    --bottom-nav-bg: #111827;
-    --bottom-nav-border: #1E293B;
-    --bottom-nav-active-color: #2ECC71;
-    --bottom-nav-inactive-color: #A0AEC0;
-  }
-}

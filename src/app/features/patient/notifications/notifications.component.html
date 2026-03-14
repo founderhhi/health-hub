@@ -28,7 +28,9 @@
   <ng-template #emptyState>
     <div class="empty-state">
       <p *ngIf="loading">Loading notifications...</p>
-      <p *ngIf="!loading">No notifications yet.</p>
+      <p *ngIf="!loading">{{ errorMessage || 'No notifications yet.' }}</p>
+      <button class="retry-btn" *ngIf="!loading && errorMessage" (click)="retry()">Retry</button>
     </div>
   </ng-template>
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
 </section>

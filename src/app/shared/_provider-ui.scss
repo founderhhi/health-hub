@@ -18,28 +18,34 @@
    ============================================ */
 :root {
   /* Colors */
-  --hhi-emerald: #{v.$color-emerald};
+  --hhi-emerald: var(--accent-primary, #{v.$color-emerald});
   --hhi-emerald-light: #{v.$color-emerald-light};
   --hhi-emerald-dark: #{v.$color-emerald-dark};
   --hhi-bio-lime: #{v.$color-bio-lime};
-  --hbi-soft-charcoal: #{v.$color-soft-charcoal};
-  --hhi-dark-bg: #{v.$color-dark-bg};
-  --hhi-card-bg: #{v.$color-card-bg};
-  --hhi-border: #{v.$color-border};
-  --hhi-border-dark: #{v.$color-border-dark};
-  --hhi-surface: #{v.$color-surface};
-  --hhi-white: #{v.$color-white};
-  --hhi-text-primary: #{v.$color-text-primary};
-  --hhi-text-secondary: #{v.$color-text-secondary};
-  --hhi-text-muted: #{v.$color-text-muted};
-  --hhi-text-light: #{v.$color-text-light};
-  --hhi-link: #{v.$color-info};
-  --hhi-danger: #{v.$color-danger};
+  --hbi-soft-charcoal: var(--text-secondary, #{v.$color-soft-charcoal});
+  --hhi-dark-bg: var(--bg-primary, #{v.$color-dark-bg});
+  --hhi-card-bg: var(--bg-card, #{v.$color-card-bg});
+  --hhi-border: var(--border-color, #{v.$color-border});
+  --hhi-border-dark: var(--border-color, #{v.$color-border-dark});
+  --hhi-surface: var(--bg-secondary, #{v.$color-surface});
+  --hhi-white: var(--bg-card, #{v.$color-white});
+  --hhi-text-primary: var(--text-primary, #{v.$color-text-primary});
+  --hhi-text-secondary: var(--text-secondary, #{v.$color-text-secondary});
+  --hhi-text-muted: var(--text-secondary, #{v.$color-text-muted});
+  --hhi-text-light: var(--text-secondary, #{v.$color-text-light});
+  --hhi-link: var(--accent-primary, #{v.$color-info});
+  --hhi-danger: var(--error, #{v.$color-danger});
   --hhi-danger-light: #{v.$color-danger-light};
   --hhi-danger-dark: #{v.$color-danger-dark};
-  --hhi-warning: #{v.$color-warning};
+  --hhi-warning: var(--warning, #{v.$color-warning});
   --hhi-warning-light: #{v.$color-warning-light};
   --hhi-warning-dark: #{v.$color-warning-dark};
+
+  /* Chat bubble theming */
+  --hhi-chat-me-bg: rgba(59, 130, 246, 0.15);
+  --hhi-chat-me-color: #1E3A8A;
+  --hhi-chat-patient-bg: var(--hhi-surface);
+  --hhi-chat-patient-color: var(--hhi-text-primary);
 
   /* Spacing (8px base) */
   --hhi-space-xs: #{v.$space-xs};
@@ -323,7 +329,7 @@
 
 .hhi-button-primary {
   height: 44px;
-  background: linear-gradient(135deg, #2ECC71, #16A34A);
+  background: linear-gradient(135deg, var(--hhi-emerald), var(--hhi-emerald-dark));
   border: none;
   border-radius: 8px;
   color: white;
@@ -354,7 +360,7 @@
   background: rgba(46, 204, 113, 0.05);
   border: 1px solid rgba(46, 204, 113, 0.5);
   border-radius: 8px;
-  color: #4ADE80;
+  color: var(--hhi-emerald);
   transition: background 200ms ease-in-out;
 
   &:hover {
@@ -399,10 +405,10 @@
 }
 
 .hhi-input {
-  background: #1C2535;
-  border: 1px solid #2D3D54;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #F0F4F8;
+  color: var(--text-primary);
   height: 44px;
   padding: 0 12px;
   transition: border-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
@@ -415,7 +421,7 @@
 }
 
 .hhi-label {
-  color: #94A3B8;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 6px;
@@ -485,7 +491,7 @@
 
 .hhi-app-header--dark {
   background: rgba(11, 15, 20, 0.9);
-  border-bottom-color: #1E293B;
+  border-bottom-color: var(--border-color);
 }
 
 .hhi-app-header__container {
@@ -769,15 +775,15 @@
 }
 
 .hhi-chat-bubble--patient {
-  background: var(--hhi-surface);
-  color: var(--hhi-text-primary);
+  background: var(--hhi-chat-patient-bg);
+  color: var(--hhi-chat-patient-color);
   border-bottom-left-radius: 4px;
   align-self: flex-start;
 }
 
 .hhi-chat-bubble--me {
-  background: rgba(59, 130, 246, 0.15);
-  color: #1E3A8A;
+  background: var(--hhi-chat-me-bg);
+  color: var(--hhi-chat-me-color);
   border-bottom-right-radius: 4px;
   align-self: flex-end;
 }
@@ -1656,14 +1662,18 @@
 /* ============================================
    Dark Mode Support
    ============================================ */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --hhi-surface: var(--hhi-dark-bg);
-    --hhi-white: var(--hhi-card-bg);
-    --hhi-text-primary: #F8FAFC;
-    --hhi-text-secondary: #94A3B8;
-    --hhi-border: var(--hhi-border-dark);
-  }
+[data-theme='dark'] {
+  --hhi-surface: var(--hhi-dark-bg);
+  --hhi-white: var(--hhi-card-bg);
+  --hhi-text-primary: #F8FAFC;
+  --hhi-text-secondary: #94A3B8;
+  --hhi-border: var(--hhi-border-dark);
+
+  /* Chat bubble dark mode overrides */
+  --hhi-chat-patient-bg: var(--bg-secondary, #1E293B);
+  --hhi-chat-patient-color: var(--hhi-text-primary);
+  --hhi-chat-me-bg: #1E3A5F;
+  --hhi-chat-me-color: var(--hhi-text-primary);
 
   .hhi-bottom-nav {
     background: var(--hhi-card-bg);
@@ -1673,16 +1683,6 @@
   .hhi-app-header {
     background: var(--hhi-card-bg);
     border-color: var(--hhi-border-dark);
-  }
-
-  .hhi-chat-bubble--patient {
-    background: #1E293B;
-    color: var(--hhi-text-primary);
-  }
-
-  .hhi-chat-bubble--me {
-    background: #1E3A5F;
-    color: var(--hhi-text-primary);
   }
 
   .hhi-dropzone {
@@ -1749,6 +1749,12 @@
     width: 40px;
     border-radius: 50%;
   }
+}
+
+.skeleton {
+  border-radius: 8px;
+  display: block;
+  @include m.skeleton-shimmer;
 }
 
 .hhi-skip-link {

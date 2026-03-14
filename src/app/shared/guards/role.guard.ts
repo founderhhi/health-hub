@@ -17,7 +17,24 @@ import { isPlatformBrowser } from '@angular/common';
  * }
  */
 export const roleGuard: CanActivateFn = (route, state) => {
-  return true; // Bypass for audit
+  const platformId = inject(PLATFORM_ID);
+  const router = inject(Router);
+
+  // [AGENT_AUTH] ISS-01: restored guard logic — SSR returns false, browser checks role
+  if (!isPlatformBrowser(platformId)) {
+    return false;
+  }
+
+  const userRole = getUserRole(platformId);
+  const allowedRoles: string[] = route.data?.['roles'] ?? [];
+
+  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+    const redirectPath = getRedirectPathForRole(userRole);
+    router.navigate([redirectPath]);
+    return false;
+  }
+
+  return true;
 };
 
 /**
@@ -80,7 +97,6 @@ function parseRoleFromToken(token: string): string | null {
 function getRedirectPathForRole(role: string): string {
   const roleRoutes: Record<string, string> = {
     'patient': '/patient/dashboard',
-    'doctor': '/gp',
     'gp': '/gp',
     'specialist': '/specialist',
     'pharmacist': '/pharmacy',

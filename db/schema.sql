@@ -16,6 +16,11 @@ create table if not exists users (
 
 create table if not exists patient_profiles (
   user_id uuid primary key references users(id) on delete cascade,
+  email text,
+  date_of_birth date,
+  gender text,
+  address text,
+  emergency_contact jsonb default '{}'::jsonb,
   notes jsonb default '{}'::jsonb
 );
 
@@ -46,9 +51,9 @@ create table if not exists consultations (
   gp_id uuid references users(id) on delete set null,
   specialist_id uuid references users(id) on delete set null,
   daily_room_url text,
-  status text not null default 'active' check (status in ('active','ended','completed')),
+  status text not null default 'ready' check (status in ('ready','active','ended','completed')),
   notes jsonb default '{}'::jsonb,
-  started_at timestamptz not null default now(),
+  started_at timestamptz,
   ended_at timestamptz,
   completed_at timestamptz,
   gp_deleted boolean not null default false,
@@ -68,6 +73,10 @@ create table if not exists referrals (
   consultation_mode text default 'online' check (consultation_mode in ('online','offline')),
   location text,
   specialty text,
+  consultation_id uuid references consultations(id) on delete set null,
+  requested_info_note text,
+  requested_info_at timestamptz,
+  requested_info_by uuid references users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -120,3 +129,48 @@ create table if not exists notifications (
   read boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+create table if not exists admin_activity (
+  id uuid primary key default uuid_generate_v4(),
+  actor_user_id uuid references users(id) on delete set null,
+  action text not null,
+  target_user_id uuid references users(id) on delete set null,
+  target_phone text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_admin_activity_created_at
+  on admin_activity (created_at desc);
+
+create index if not exists idx_admin_activity_target_user_id
+  on admin_activity (target_user_id);
+
+-- Migration 009: Patient billing tables (added via 009-patient-billing.sql)
+
+create table if not exists patient_payment_methods (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references users(id) on delete cascade,
+  card_brand text not null default 'visa' check (card_brand in ('visa', 'mastercard', 'amex', 'discover', 'other')),
+  card_last4 text not null,
+  card_expiry text not null,
+  card_holder text,
+  is_default boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists payment_transactions (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references users(id) on delete cascade,
+  amount_cents integer not null,
+  currency text not null default 'GBP',
+  description text,
+  service_type text check (service_type in ('consultation', 'prescription', 'lab', 'referral', 'other')),
+  status text not null default 'completed' check (status in ('pending', 'completed', 'failed', 'refunded')),
+  card_last4 text,
+  payment_method_id uuid references patient_payment_methods(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_payment_methods_user on patient_payment_methods(user_id);
+create index if not exists idx_payment_transactions_user on payment_transactions(user_id, created_at desc);

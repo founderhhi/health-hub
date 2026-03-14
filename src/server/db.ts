@@ -35,3 +35,216 @@ export async function healthCheck(): Promise<boolean> {
     return false;
   }
 }
+
+let ensureRuntimeSchemaPromise: Promise<void> | null = null;
+
+const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
+  { table: 'users', column: 'first_name' },
+  { table: 'users', column: 'last_name' },
+  { table: 'users', column: 'is_operating' },
+  { table: 'consult_requests', column: 'removed_at' },
+  { table: 'consult_requests', column: 'removed_reason' },
+  { table: 'consult_requests', column: 'removed_by' },
+  { table: 'consultations', column: 'completed_at' },
+  { table: 'consultations', column: 'gp_deleted' },
+  { table: 'consultations', column: 'gp_deleted_at' },
+  { table: 'referrals', column: 'consultation_id' },
+  { table: 'referrals', column: 'requested_info_note' },
+  { table: 'referrals', column: 'requested_info_at' },
+  { table: 'referrals', column: 'requested_info_by' },
+  { table: 'pharmacy_claims', column: 'dispensed_at' },
+  { table: 'pharmacy_claims', column: 'dispensed_items' },
+];
+const REQUIRED_SCHEMA_CONSTRAINTS: Array<{
+  table: string;
+  constraint: string;
+  mustInclude: string;
+}> = [
+  {
+    table: 'consult_requests',
+    constraint: 'consult_requests_status_check',
+    mustInclude: "'removed'"
+  }
+];
+const REQUIRED_SCHEMA_TABLES = ['chat_messages'];
+const REQUIRED_SCHEMA_INDEXES = [
+  'idx_chat_messages_consultation_created_at',
+  'idx_referrals_consultation_id'
+];
+
+async function findMissingSchemaColumns() {
+  const missing: string[] = [];
+
+  for (const item of REQUIRED_SCHEMA_COLUMNS) {
+    const result = await db.query(
+      `select 1
+       from information_schema.columns
+       where table_schema = 'public'
+         and table_name = $1
+         and column_name = $2`,
+      [item.table, item.column]
+    );
+
+    if (result.rows.length === 0) {
+      missing.push(`${item.table}.${item.column}`);
+    }
+  }
+
+  return missing;
+}
+
+async function findInvalidSchemaConstraints() {
+  const invalid: string[] = [];
+
+  for (const item of REQUIRED_SCHEMA_CONSTRAINTS) {
+    const result = await db.query(
+      `select pg_get_constraintdef(c.oid) as definition
+       from pg_constraint c
+       join pg_class t on t.oid = c.conrelid
+       join pg_namespace n on n.oid = t.relnamespace
+       where n.nspname = 'public'
+         and t.relname = $1
+         and c.conname = $2
+       limit 1`,
+      [item.table, item.constraint]
+    );
+
+    if (result.rows.length === 0) {
+      invalid.push(`${item.table}.${item.constraint} missing`);
+      continue;
+    }
+
+    const definition = String(result.rows[0].definition || '');
+    if (!definition.includes(item.mustInclude)) {
+      invalid.push(`${item.table}.${item.constraint} missing ${item.mustInclude}`);
+    }
+  }
+
+  return invalid;
+}
+
+async function findMissingSchemaTables() {
+  const missing: string[] = [];
+
+  for (const tableName of REQUIRED_SCHEMA_TABLES) {
+    const result = await db.query(
+      `select to_regclass($1) as table_ref`,
+      [`public.${tableName}`]
+    );
+
+    if (!result.rows[0]?.table_ref) {
+      missing.push(tableName);
+    }
+  }
+
+  return missing;
+}
+
+async function findMissingSchemaIndexes() {
+  const missing: string[] = [];
+
+  for (const indexName of REQUIRED_SCHEMA_INDEXES) {
+    const result = await db.query(
+      `select to_regclass($1) as index_ref`,
+      [`public.${indexName}`]
+    );
+
+    if (!result.rows[0]?.index_ref) {
+      missing.push(indexName);
+    }
+  }
+
+  return missing;
+}
+
+async function ensureConsultRequestStatusConstraintIncludesRemoved(): Promise<void> {
+  const result = await db.query(
+    `select pg_get_constraintdef(c.oid) as definition
+     from pg_constraint c
+     join pg_class t on t.oid = c.conrelid
+     join pg_namespace n on n.oid = t.relnamespace
+     where n.nspname = 'public'
+       and t.relname = 'consult_requests'
+       and c.conname = 'consult_requests_status_check'
+     limit 1`
+  );
+
+  const definition = String(result.rows[0]?.definition || '');
+  if (definition.includes("'removed'")) {
+    return;
+  }
+
+  console.warn(
+    'Runtime schema repair: updating consult_requests_status_check to include removed status.'
+  );
+  await db.query(`ALTER TABLE consult_requests DROP CONSTRAINT IF EXISTS consult_requests_status_check;`);
+  await db.query(
+    `ALTER TABLE consult_requests
+     ADD CONSTRAINT consult_requests_status_check
+     CHECK (status IN ('waiting', 'accepted', 'cancelled', 'completed', 'removed'));`
+  );
+}
+
+async function ensureChatMessagesTableAndIndexes(): Promise<void> {
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS chat_messages (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      consultation_id uuid NOT NULL REFERENCES consultations(id) ON DELETE CASCADE,
+      user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      message text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );`
+  );
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
+}
+
+export async function ensureRuntimeSchema(): Promise<void> {
+  if (!connectionString) {
+    return;
+  }
+
+  if (ensureRuntimeSchemaPromise) {
+    return ensureRuntimeSchemaPromise;
+  }
+
+  ensureRuntimeSchemaPromise = (async () => {
+    await ensureConsultRequestStatusConstraintIncludesRemoved();
+    await ensureChatMessagesTableAndIndexes();
+
+    const missingColumns = await findMissingSchemaColumns();
+    const invalidConstraints = await findInvalidSchemaConstraints();
+    const missingTables = await findMissingSchemaTables();
+    const missingIndexes = await findMissingSchemaIndexes();
+    if (missingColumns.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Missing columns: ${missingColumns.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
+    }
+    if (invalidConstraints.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Invalid constraints: ${invalidConstraints.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
+    }
+    if (missingTables.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Missing tables: ${missingTables.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
+    }
+    if (missingIndexes.length > 0) {
+      throw new Error(
+        `Database schema is incompatible. Missing indexes: ${missingIndexes.join(', ')}. ` +
+        'Run migrations before starting the app.'
+      );
+    }
+
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_referrals_consultation_id ON referrals (consultation_id);`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
+    console.log('Runtime schema compatibility check passed.');
+  })();
+
+  return ensureRuntimeSchemaPromise;
+}

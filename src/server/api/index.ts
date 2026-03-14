@@ -9,6 +9,9 @@ import { labsRouter } from './labs';
 import { notificationsRouter } from './notifications';
 import { chatRouter } from './chat';
 import { adminRouter } from './admin';
+import { consultationsRouter } from './consultations';
+import { aiChatRouter } from './ai-chat';
+import { paymentsRouter } from './payments';
 
 export const apiRouter = Router();
 
@@ -28,4 +31,7 @@ apiRouter.use('/referrals', referralsRouter);
 apiRouter.use('/labs', labsRouter);
 apiRouter.use('/notifications', notificationsRouter);
 apiRouter.use('/chat', chatRouter);
+apiRouter.use('/ai-chat', aiChatRouter);
+apiRouter.use('/consultations', consultationsRouter);
 apiRouter.use('/admin', adminRouter);
+apiRouter.use('/payments', paymentsRouter);

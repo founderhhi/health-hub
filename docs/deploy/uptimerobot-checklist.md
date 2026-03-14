@@ -6,7 +6,7 @@ Use this checklist to set up basic uptime monitoring against production.
 
 - Monitor type: `HTTP(s)`
 - Friendly name: `health-hub-prod-api-health`
-- URL: `https://<your-production-domain>/api/health`
+- URL: `https://<your-production-domain>/api/ready`
 - Monitoring interval: `5 minutes`
 - Timeout: default is acceptable
 
@@ -30,6 +30,6 @@ Use this checklist to set up basic uptime monitoring against production.
 
 ## Troubleshooting
 
-- If monitor is **Down**, open `https://<your-production-domain>/api/health` in browser or curl.
+- If monitor is **Down**, open `https://<your-production-domain>/api/ready` in browser or curl.
 - If response returns `ok: false`, verify database connectivity and `DATABASE_URL` in deploy environment.
 - If `ws.status` is `unavailable`, this does not block uptime checks; it indicates WS helper metrics are not exported.

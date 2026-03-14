@@ -1,6 +1,5 @@
 <section class="hhi-provider-page referral-details">
   <div class="hhi-provider-container">
-    <!-- Back Button & Header -->
     <div class="referral-details__header">
       <button class="back-button" (click)="goBack()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -11,230 +10,229 @@
       </button>
     </div>
 
-    <!-- Section Header -->
-    <h1 class="page-title">REFERRAL DETAILS</h1>
-
-    <!-- Referral Lifecycle Stepper (SP-8) -->
-    <div class="referral-stepper">
-      <div class="referral-stepper__line">
-        <div class="referral-stepper__line-fill"></div>
-      </div>
-
-      <div class="referral-stepper__step referral-stepper__step--complete">
-        <div class="referral-stepper__step-dot">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" style="width: 14px; height: 14px; color: white;">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <span class="referral-stepper__step-label">Received</span>
-      </div>
-
-      <div class="referral-stepper__step referral-stepper__step--complete">
-        <div class="referral-stepper__step-dot">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" style="width: 14px; height: 14px; color: white;">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <span class="referral-stepper__step-label">Reviewed</span>
-      </div>
-
-      <div class="referral-stepper__step referral-stepper__step--active">
-        <div class="referral-stepper__step-dot"></div>
-        <span class="referral-stepper__step-label">Scheduled</span>
-      </div>
-
-      <div class="referral-stepper__step">
-        <div class="referral-stepper__step-dot"></div>
-        <span class="referral-stepper__step-label">Completed</span>
-      </div>
-    </div>
-
-    <!-- Patient Info Card -->
-    <div class="info-card patient-info-card">
-      <div class="patient-info-header">
-        <div class="patient-avatar">SJ</div>
-        <div class="patient-info-main">
-          <h2 class="patient-name">{{ referral?.patient_name || 'Patient' }}</h2>
-          <p class="patient-meta">ID: {{ referral?.id || 'Pending' }}</p>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="patient-info-grid">
-        <div class="info-item">
-          <span class="info-label">Phone</span>
-          <span class="info-value">{{ referral?.patient_phone || 'N/A' }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Email</span>
-          <span class="info-value">Not provided</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Insurance</span>
-          <span class="info-value">Demo Plan</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Emergency Contact</span>
-          <span class="info-value">Not on file</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Clinical Summary Box -->
-    <div class="section-wrapper">
-      <h3 class="section-title">Clinical Summary</h3>
-      <div class="clinical-box">
-        <p class="clinical-text">
-          {{ referral?.reason || 'Specialist consultation requested.' }}
-        </p>
-      </div>
-    </div>
-
-    <!-- Clinical Details -->
-    <div class="section-wrapper">
-      <h3 class="section-title">Clinical Indication</h3>
+    @if (loading) {
       <div class="info-card">
-        <div class="clinical-grid">
-          <div class="clinical-item">
-            <span class="clinical-label">Chief Complaint</span>
-            <span class="clinical-value">{{ referral?.reason || 'General consult' }}</span>
+        <h1 class="page-title">Loading referral...</h1>
+      </div>
+    } @else {
+      <h1 class="page-title">Referral Details</h1>
+
+      <div class="referral-stepper">
+        <div class="referral-stepper__line">
+          <div class="referral-stepper__line-fill"></div>
+        </div>
+
+        <div class="referral-stepper__step"
+          [class.referral-stepper__step--complete]="isStepComplete(1)"
+          [class.referral-stepper__step--active]="isStepActive(1)">
+          <div class="referral-stepper__step-dot"></div>
+          <span class="referral-stepper__step-label">Received</span>
+        </div>
+
+        <div class="referral-stepper__step"
+          [class.referral-stepper__step--complete]="isStepComplete(2)"
+          [class.referral-stepper__step--active]="isStepActive(2)">
+          <div class="referral-stepper__step-dot"></div>
+          <span class="referral-stepper__step-label">Reviewed</span>
+        </div>
+
+        <div class="referral-stepper__step"
+          [class.referral-stepper__step--complete]="isStepComplete(3)"
+          [class.referral-stepper__step--active]="isStepActive(3)">
+          <div class="referral-stepper__step-dot"></div>
+          <span class="referral-stepper__step-label">Scheduled</span>
+        </div>
+
+        <div class="referral-stepper__step"
+          [class.referral-stepper__step--complete]="isStepComplete(4)"
+          [class.referral-stepper__step--active]="isStepActive(4)">
+          <div class="referral-stepper__step-dot"></div>
+          <span class="referral-stepper__step-label">Completed</span>
+        </div>
+      </div>
+
+      <div class="info-card patient-info-card">
+        <div class="patient-info-header">
+          <div class="patient-avatar">{{ patientInitials }}</div>
+          <div class="patient-info-main">
+            <h2 class="patient-name">{{ referral?.patient_name || 'Patient' }}</h2>
+            <p class="patient-meta">Referral ID: {{ referral?.id || 'Pending' }}</p>
           </div>
-          <div class="clinical-item">
-            <span class="clinical-label">Duration</span>
-            <span class="clinical-value">Recent</span>
+        </div>
+        <div class="divider"></div>
+        <div class="patient-info-grid">
+          <div class="info-item">
+            <span class="info-label">Phone</span>
+            <span class="info-value">{{ referral?.patient_phone || 'N/A' }}</span>
           </div>
-          <div class="clinical-item">
-            <span class="clinical-label">Vital Signs</span>
-            <span class="clinical-value">Unavailable</span>
+          <div class="info-item">
+            <span class="info-label">Specialty</span>
+            <span class="info-value">{{ referral?.specialty || 'General specialist review' }}</span>
           </div>
-          <div class="clinical-item">
-            <span class="clinical-label">Severity</span>
-            <span class="clinical-value">
-              <span class="urgency-badge" [class]="'urgency-badge--' + (referral?.urgency || 'routine')">
-                {{ referral?.urgency || 'routine' | titlecase }}
-              </span>
-            </span>
+          <div class="info-item">
+            <span class="info-label">Urgency</span>
+            <span class="info-value">{{ referral?.urgency | titlecase }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Consultation</span>
+            <span class="info-value">{{ consultationStatusLabel }}</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Attachments -->
-    <div class="section-wrapper">
-      <h3 class="section-title">Attachments <span class="attachment-count">(0)</span></h3>
-      <div class="info-card">
-        <div class="attachments-list">
-          <a href="#" class="attachment-item">
-            <div class="attachment-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-            </div>
-            <div class="attachment-details">
-              <span class="attachment-name">ECG_Report_Jan2024.pdf</span>
-              <span class="attachment-meta">PDF • 2.4 MB • Jan 15, 2024</span>
-            </div>
-            <svg class="attachment-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </a>
-          <a href="#" class="attachment-item">
-            <div class="attachment-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-            </div>
-            <div class="attachment-details">
-              <span class="attachment-name">Chest_XRay_Initial.jpg</span>
-              <span class="attachment-meta">Image • 4.1 MB • Jan 15, 2024</span>
-            </div>
-            <svg class="attachment-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </a>
-          <a href="#" class="attachment-item">
-            <div class="attachment-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-            </div>
-            <div class="attachment-details">
-              <span class="attachment-name">Previous_Medical_History.pdf</span>
-              <span class="attachment-meta">PDF • 1.2 MB • Jan 15, 2024</span>
-            </div>
-            <svg class="attachment-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </a>
+      <div class="section-wrapper">
+        <h3 class="section-title">Clinical Summary</h3>
+        <div class="clinical-box">
+          <p class="clinical-text">
+            {{ referral?.reason || 'Specialist consultation requested.' }}
+          </p>
         </div>
       </div>
-    </div>
 
-    <!-- Referring Physician -->
-    <div class="section-wrapper">
-      <h3 class="section-title">Referring Physician</h3>
-      <div class="info-card">
-        <div class="physician-info">
-          <div class="physician-avatar">DS</div>
-          <div class="physician-details">
-            <span class="physician-name">Referring GP</span>
-            <span class="physician-specialty">Primary Care</span>
-            <span class="physician-date">Referred on {{ referral?.created_at | date:'medium' }}</span>
+      <div class="section-wrapper">
+        <h3 class="section-title">Scheduling & Referral Context</h3>
+        <div class="info-card">
+          <div class="clinical-grid">
+            <div class="clinical-item">
+              <span class="clinical-label">Appointment</span>
+              <span class="clinical-value">{{ appointmentSummary }}</span>
+            </div>
+            <div class="clinical-item">
+              <span class="clinical-label">Mode</span>
+              <span class="clinical-value">{{ referral?.consultation_mode === 'offline' ? 'In-person' : 'Online' }}</span>
+            </div>
+            <div class="clinical-item">
+              <span class="clinical-label">Status</span>
+              <span class="clinical-value">{{ referral?.status | titlecase }}</span>
+            </div>
+            <div class="clinical-item">
+              <span class="clinical-label">Consult Link</span>
+              <span class="clinical-value">{{ referral?.consultation_id ? 'Ready' : 'Pending' }}</span>
+            </div>
+          </div>
+        </div>
+        @if (canEditSchedule) {
+          <div class="schedule-actions">
+            <button type="button" class="action-btn action-btn--secondary" (click)="openScheduleEditor()">
+              {{ showScheduleForm ? 'Close Schedule Editor' : 'Edit Appointment Details' }}
+            </button>
+          </div>
+        }
+        <div class="schedule-form" *ngIf="showScheduleForm">
+          <div class="schedule-grid">
+            <label class="schedule-field">
+              <span class="schedule-label">Appointment Date</span>
+              <input class="schedule-input" type="date" [(ngModel)]="scheduleForm.appointmentDate" />
+            </label>
+            <label class="schedule-field">
+              <span class="schedule-label">Appointment Time</span>
+              <input class="schedule-input" type="time" [(ngModel)]="scheduleForm.appointmentTime" />
+            </label>
+            <label class="schedule-field">
+              <span class="schedule-label">Visit Mode</span>
+              <select class="schedule-input" [(ngModel)]="scheduleForm.consultationMode">
+                <option value="online">Online</option>
+                <option value="offline">In-person</option>
+              </select>
+            </label>
+            @if (scheduleForm.consultationMode === 'offline') {
+              <label class="schedule-field schedule-field--full">
+                <span class="schedule-label">Location</span>
+                <input class="schedule-input" type="text" [(ngModel)]="scheduleForm.location"
+                  placeholder="Clinic address or meeting location" />
+              </label>
+            }
+          </div>
+          <div class="schedule-form__actions">
+            <button type="button" class="action-btn action-btn--ghost action-btn--sm" (click)="cancelScheduleEditor()">Cancel</button>
+            <button type="button" class="action-btn action-btn--primary action-btn--sm" (click)="saveSchedule()"
+              [disabled]="savingSchedule">
+              {{ savingSchedule ? 'Saving...' : 'Save Appointment Details' }}
+            </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Action Buttons -->
-    <div class="action-panel">
-      <button type="button" class="action-btn action-btn--primary" (click)="accept()">
-        Accept Referral
-      </button>
-      <button type="button" class="action-btn action-btn--primary" (click)="scheduleAppointment()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        Schedule Appointment
-      </button>
-      <button type="button" class="action-btn action-btn--secondary" (click)="orderTests()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path
-            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
-          </path>
-        </svg>
-        Order Tests
-      </button>
-      <button type="button" class="action-btn action-btn--secondary" (click)="prescribe()">
-        Prescribe
-      </button>
-      <div class="secondary-actions">
-        <button type="button" class="action-btn action-btn--ghost" (click)="requestMoreInfo()">
-          Request More Info
+      @if (referral?.requested_info_note) {
+        <div class="section-wrapper">
+          <h3 class="section-title">Requested Follow-up</h3>
+          <div class="info-card">
+            <p class="clinical-text">{{ referral.requested_info_note }}</p>
+            @if (referral?.requested_info_at) {
+              <p class="patient-meta">Requested {{ referral.requested_info_at | date:'medium' }}</p>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="section-wrapper">
+        <h3 class="section-title">Referring Clinician</h3>
+        <div class="info-card">
+          <div class="physician-info">
+            <div class="physician-avatar">{{ (referral?.referring_provider_name || 'R') | slice:0:1 }}</div>
+            <div class="physician-details">
+              <span class="physician-name">{{ referral?.referring_provider_name || 'Referring clinician' }}</span>
+              <span class="physician-specialty">{{ referringProviderDiscipline }}</span>
+              <span class="physician-date">Referred on {{ referral?.created_at | date:'medium' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-panel">
+        @if (canAccept) {
+          <button type="button" class="action-btn action-btn--primary" (click)="accept()" [disabled]="accepting">
+            {{ accepting ? 'Accepting...' : 'Accept Referral' }}
+          </button>
+        } @else if (canOpenConsultation) {
+          <button type="button" class="action-btn action-btn--primary" (click)="openConsultation()">
+            Open Consultation
+          </button>
+        }
+
+        <button type="button" class="action-btn action-btn--secondary" (click)="orderTests()"
+          [disabled]="orderingTests || !canManageClinicalActions">
+          {{ orderingTests ? 'Ordering...' : 'Order Tests' }}
         </button>
-        <button type="button" class="action-btn action-btn--danger" (click)="decline()">
-          Decline
+        <button type="button" class="action-btn action-btn--secondary" (click)="prescribe()"
+          [disabled]="prescribing || !canManageClinicalActions">
+          {{ prescribing ? 'Prescribing...' : 'Prescribe' }}
         </button>
+
+        <div class="secondary-actions">
+          <button type="button" class="action-btn action-btn--ghost" (click)="requestMoreInfo()">
+            {{ showRequestInfoForm ? 'Cancel Request' : 'Request More Info' }}
+          </button>
+          <button type="button" class="action-btn action-btn--danger" (click)="decline()" [disabled]="declining">
+            {{ declining ? 'Declining...' : 'Decline' }}
+          </button>
+        </div>
+
+        <div class="request-info-form" *ngIf="showRequestInfoForm">
+          <label class="request-info-label" for="requestInfoText">What additional information do you need?</label>
+          <textarea
+            id="requestInfoText"
+            class="request-info-textarea"
+            [(ngModel)]="requestInfoText"
+            placeholder="Describe the additional information you need from the referring clinician..."
+            rows="3"
+          ></textarea>
+          <div class="request-info-actions">
+            <button type="button" class="action-btn action-btn--ghost action-btn--sm" (click)="cancelRequestInfo()">Cancel</button>
+            <button type="button" class="action-btn action-btn--primary action-btn--sm" (click)="submitRequestInfo()"
+              [disabled]="!requestInfoText.trim() || submittingInfo">
+              {{ submittingInfo ? 'Sending...' : 'Send Request' }}
+            </button>
+          </div>
+        </div>
+
+        <p class="inline-notice inline-notice--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="inline-notice" *ngIf="actionNotice">{{ actionNotice }}</p>
+        <p class="inline-notice" *ngIf="requestInfoNotice">{{ requestInfoNotice }}</p>
       </div>
-      <p class="inline-notice" *ngIf="requestInfoNotice">{{ requestInfoNotice }}</p>
-    </div>
+    }
   </div>
 
-  <!-- Mobile Bottom Navigation -->
   <nav class="hhi-bottom-nav">
     <a class="hhi-bottom-nav__item" routerLink="/specialist">
       <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -245,24 +243,6 @@
         <rect x="3" y="14" width="7" height="7"></rect>
       </svg>
       <span class="hhi-bottom-nav__label">Dashboard</span>
-    </a>
-    <button type="button" class="hhi-bottom-nav__item hhi-bottom-nav__item--disabled" disabled aria-disabled="true">
-      <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-      <span class="hhi-bottom-nav__label">Patients</span>
-      <span class="hhi-bottom-nav__hint">Coming soon</span>
-    </button>
-    <a class="hhi-bottom-nav__item" routerLink="/specialist">
-      <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
-        <path
-          d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
-        </path>
-      </svg>
-      <span class="hhi-bottom-nav__label">Consult</span>
     </a>
     <a class="hhi-bottom-nav__item" routerLink="/specialist/profile">
       <svg class="hhi-bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

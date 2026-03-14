@@ -11,7 +11,7 @@ import rateLimit from 'express-rate-limit';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
 import { apiRouter } from './server/api';
-import { healthCheck as dbHealthCheck } from './server/db';
+import { ensureRuntimeSchema, healthCheck as dbHealthCheck } from './server/db';
 import { initWebSocketServer } from './server/realtime/ws';
 import * as wsModule from './server/realtime/ws';
 
@@ -130,7 +130,7 @@ function normalizeHostHeader(rawHost: string | undefined): string {
   return (rawHost || '').trim().toLowerCase().replace(/\.$/, '').replace(/:\d+$/, '');
 }
 
-app.set('trust proxy', true);
+app.set('trust proxy', 1); // [AGENT_INFRA] ISS-06: trust only first proxy hop (Render)
 
 // Canonical custom-domain redirect: apex -> www for production traffic.
 app.use((req, res, next) => {
@@ -156,12 +156,25 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const duration = Date.now() - start;
     if (req.path.startsWith('/api')) {
+      const status = res.statusCode;
+      const isApi5xx = status >= 500;
+      const isReadyFailure = req.path === '/api/ready' && status >= 500;
+      const isLoginDenied = req.path === '/api/auth/login' && (status === 401 || status === 403);
+      const alertSignal = isReadyFailure
+        ? 'api.ready.failure'
+        : isLoginDenied
+          ? 'auth.login.denied'
+          : isApi5xx
+            ? 'api.5xx'
+            : null;
+
       console.log(JSON.stringify({
         ts: new Date().toISOString(),
         method: req.method,
         path: req.path,
-        status: res.statusCode,
+        status,
         duration,
+        ...(alertSignal ? { alertSignal } : {}),
       }));
     }
   });
@@ -171,6 +184,8 @@ app.use((req, res, next) => {
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
+const EXEMPT_PATHS = ['/api/healthz', '/api/health', '/api/ready']; // [AGENT_INFRA] ISS-05: exempt health endpoints from rate limiting
+
 // INF-03: Global rate limiter (100 req / 15 min per IP)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -178,7 +193,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' },
-  skip: () => isTestEnv,
+  skip: (req) => isTestEnv || EXEMPT_PATHS.includes(req.path), // [AGENT_INFRA] ISS-05: skip rate limiting for health endpoints
 });
 
 // AUTH-04: Strict login limiter (5 req / 1 min per IP)
@@ -282,32 +297,40 @@ if (
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
   const port = process.env['PORT'] || 4000;
   const server = createServer(app);
-  initWebSocketServer(server);
+  const startServer = async () => {
+    await ensureRuntimeSchema();
+    initWebSocketServer(server);
 
-  server.on('error', (error) => {
-    throw error;
-  });
-
-  server.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
-
-  // INF-05: Graceful shutdown handler
-  function shutdown(signal: string) {
-    console.log(`${signal} received. Shutting down gracefully...`);
-    server.close(() => {
-      console.log('HTTP server closed.');
-      process.exit(0);
+    server.on('error', (error) => {
+      throw error;
     });
-    // Force exit after 10 seconds if connections don't close
-    setTimeout(() => {
-      console.error('Forced shutdown after timeout.');
-      process.exit(1);
-    }, 10_000).unref();
-  }
 
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT', () => shutdown('SIGINT'));
+    server.listen(port, () => {
+      console.log(`Node Express server listening on http://localhost:${port}`);
+    });
+
+    // INF-05: Graceful shutdown handler
+    function shutdown(signal: string) {
+      console.log(`${signal} received. Shutting down gracefully...`);
+      server.close(() => {
+        console.log('HTTP server closed.');
+        process.exit(0);
+      });
+      // Force exit after 10 seconds if connections don't close
+      setTimeout(() => {
+        console.error('Forced shutdown after timeout.');
+        process.exit(1);
+      }, 10_000).unref();
+    }
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+  };
+
+  startServer().catch((error) => {
+    console.error('Server startup failed', error);
+    process.exit(1);
+  });
 }
 
 /**

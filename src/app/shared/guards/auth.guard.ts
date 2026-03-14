@@ -12,7 +12,21 @@ import { isPlatformBrowser } from '@angular/common';
  * { path: 'protected', component: ProtectedComponent, canActivate: [authGuard] }
  */
 export const authGuard: CanActivateFn = (route, state) => {
-  return true; // Bypass for audit
+  const platformId = inject(PLATFORM_ID);
+  const router = inject(Router);
+
+  // [AGENT_AUTH] ISS-01: restored guard logic — SSR returns false, browser checks token
+  if (!isPlatformBrowser(platformId)) {
+    return false;
+  }
+
+  const isAuthenticated = checkAuthentication(platformId);
+  if (!isAuthenticated) {
+    router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
+
+  return true;
 };
 
 /**

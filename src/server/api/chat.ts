@@ -1,11 +1,16 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { requireAuth } from '../middleware/auth';
-import { broadcastToUser } from '../realtime/ws';
+import { broadcastToRole, broadcastToUser } from '../realtime/ws';
 
-const CHAT_PARTICIPANT_ROLES = ['patient', 'gp', 'specialist'];
+const CHAT_PARTICIPANT_ROLES = ['patient', 'gp', 'doctor', 'specialist'];
 
 export const chatRouter = Router();
+
+function isSchemaError(error: unknown): boolean {
+  const dbError = error as { code?: string };
+  return dbError.code === '42P01' || dbError.code === '42703';
+}
 
 chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
   try {
@@ -14,11 +19,11 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
     const { message } = req.body as { message?: string };
 
     if (!CHAT_PARTICIPANT_ROLES.includes(user.role)) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json({ error: 'Forbidden', code: 'FORBIDDEN' });
     }
 
     if (!message || !message.trim()) {
-      return res.status(400).json({ error: 'message is required' });
+      return res.status(400).json({ error: 'message is required', code: 'INVALID_MESSAGE' });
     }
 
     const consultationResult = await db.query(
@@ -30,12 +35,53 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
     );
 
     if (consultationResult.rows.length === 0) {
-      return res.status(403).json({ error: 'Not a consultation participant' });
+      return res.status(403).json({ error: 'Not a consultation participant', code: 'NOT_PARTICIPANT' });
     }
 
-    const consultation = consultationResult.rows[0];
+    let consultation = consultationResult.rows[0] as {
+      id: string;
+      patient_id: string | null;
+      gp_id: string | null;
+      specialist_id: string | null;
+      status: string;
+    };
+
+    if (consultation.status === 'ready') {
+      const activatedResult = await db.query(
+        `update consultations
+         set status = 'active',
+             started_at = coalesce(started_at, now())
+         where id = $1 and status = 'ready'
+         returning id, patient_id, gp_id, specialist_id, status`,
+        [consultationId]
+      );
+      if (activatedResult.rows[0]) {
+        consultation = activatedResult.rows[0] as typeof consultation;
+      } else {
+        const refreshed = await db.query(
+          `select id, patient_id, gp_id, specialist_id, status
+           from consultations
+           where id = $1
+           limit 1`,
+          [consultationId]
+        );
+        consultation = (refreshed.rows[0] as typeof consultation) || consultation;
+      }
+
+      const participantIds = Array.from(
+        new Set([consultation.patient_id, consultation.gp_id, consultation.specialist_id].filter(Boolean))
+      ) as string[];
+      for (const participantId of participantIds) {
+        broadcastToUser(participantId, 'consult.started', { consultation });
+      }
+      if (consultation.gp_id) {
+        broadcastToRole('gp', 'queue.updated', { activeId: consultation.id });
+        broadcastToRole('doctor', 'queue.updated', { activeId: consultation.id });
+      }
+    }
+
     if (consultation.status !== 'active') {
-      return res.status(409).json({ error: 'Consultation chat is closed' });
+      return res.status(409).json({ error: 'Consultation chat is closed', code: 'NOT_ACTIVE' });
     }
 
     const insertResult = await db.query(
@@ -58,7 +104,7 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
       consultation.patient_id,
       consultation.gp_id,
       consultation.specialist_id
-    ].filter((participantId) => participantId && participantId !== user.userId);
+    ].filter((participantId) => participantId && participantId !== user.userId) as string[];
 
     for (const participantId of participants) {
       broadcastToUser(participantId, 'chat.message', {
@@ -70,7 +116,10 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
     return res.json({ message: chatMessage });
   } catch (error) {
     console.error('Send chat message error', error);
-    return res.status(500).json({ error: 'Unable to send message' });
+    if (isSchemaError(error)) {
+      return res.status(503).json({ error: 'Chat storage is not ready', code: 'SCHEMA_ERROR' });
+    }
+    return res.status(500).json({ error: 'Unable to send message', code: 'UNKNOWN' });
   }
 });
 
@@ -80,7 +129,7 @@ chatRouter.get('/:consultationId', requireAuth, async (req, res) => {
     const { consultationId } = req.params;
 
     if (!CHAT_PARTICIPANT_ROLES.includes(user.role)) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json({ error: 'Forbidden', code: 'FORBIDDEN' });
     }
 
     const consultationResult = await db.query(
@@ -92,7 +141,7 @@ chatRouter.get('/:consultationId', requireAuth, async (req, res) => {
     );
 
     if (consultationResult.rows.length === 0) {
-      return res.status(403).json({ error: 'Not a consultation participant' });
+      return res.status(403).json({ error: 'Not a consultation participant', code: 'NOT_PARTICIPANT' });
     }
 
     const result = await db.query(
@@ -107,6 +156,9 @@ chatRouter.get('/:consultationId', requireAuth, async (req, res) => {
     return res.json({ messages: result.rows });
   } catch (error) {
     console.error('Get chat messages error', error);
-    return res.status(500).json({ error: 'Unable to fetch messages' });
+    if (isSchemaError(error)) {
+      return res.status(503).json({ error: 'Chat storage is not ready', code: 'SCHEMA_ERROR' });
+    }
+    return res.status(500).json({ error: 'Unable to fetch messages', code: 'UNKNOWN' });
   }
 });

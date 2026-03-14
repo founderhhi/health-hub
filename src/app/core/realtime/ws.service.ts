@@ -24,7 +24,7 @@ export class WsService {
 
   readonly MAX_RECONNECT_ATTEMPTS = 10;
   readonly BASE_DELAY = 1000;
-  readonly NOTIFICATION_FALLBACK_INTERVAL = 30_000;
+  readonly NOTIFICATION_FALLBACK_INTERVAL = 5_000;
 
   events$ = this.eventsSubject.asObservable();
   connectionState$ = this.connectionStateSubject.asObservable();
@@ -110,13 +110,10 @@ export class WsService {
   private startFallbackRefresh() {
     if (this.fallbackTimer || this.intentionalDisconnect) return;
 
+    this.emitFallbackRefreshEvent();
+
     this.fallbackTimer = setInterval(() => {
-      this.zone.run(() => {
-        this.eventsSubject.next({
-          event: WS_NOTIFICATIONS_FALLBACK_EVENT,
-          data: { source: 'ws-disconnect', ts: Date.now() }
-        });
-      });
+      this.emitFallbackRefreshEvent();
     }, this.NOTIFICATION_FALLBACK_INTERVAL);
   }
 
@@ -124,6 +121,15 @@ export class WsService {
     if (!this.fallbackTimer) return;
     clearInterval(this.fallbackTimer);
     this.fallbackTimer = null;
+  }
+
+  private emitFallbackRefreshEvent() {
+    this.zone.run(() => {
+      this.eventsSubject.next({
+        event: WS_NOTIFICATIONS_FALLBACK_EVENT,
+        data: { source: 'ws-disconnect', ts: Date.now() }
+      });
+    });
   }
 
   // WS-01: Exponential backoff reconnection

@@ -2,6 +2,7 @@
   <app-consult-shell
     [consultationId]="consultationId"
     [roomUrl]="roomUrl"
+    [autoStartCall]="false"
     [mode]="consultMode"
     role="patient"
     [gpName]="gpName"
@@ -24,7 +25,7 @@
     <h1 class="waiting-title">Waiting Room</h1>
     <p class="waiting-status">{{ statusMessage }}</p>
 
-    @if (!roomUrl) {
+    @if (!roomUrl && !consultationId && !consultationFinished) {
       <div class="waiting-mode-indicator">
         <span class="mode-badge" [class]="'mode-' + consultMode">
           @if (consultMode === 'video') {
@@ -37,10 +38,11 @@
         </span>
       </div>
       <p class="waiting-info">You will be connected when a GP is available. Please stay on this page.</p>
+      <p class="waiting-info waiting-info--hint">If it's taking a while, use the refresh button below to check for updates.</p>
     }
 
     <div class="waiting-actions">
-      @if (roomUrl) {
+      @if (canJoinConsultation) {
         <button class="btn btn-primary" type="button" (click)="joinConsult()">
           @if (consultMode === 'video') {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
@@ -61,10 +63,40 @@
           }
         </button>
       }
-      <button class="btn btn-ghost" type="button" (click)="cancel()">
-        Cancel & Go Back
-      </button>
+      @if (showRefreshButton) {
+        <button class="btn btn-secondary" type="button" (click)="refreshStatus()" [disabled]="isRefreshing">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          {{ isRefreshing ? 'Checking...' : 'Refresh Status' }}
+        </button>
+      }
+      @if (consultationFinished) {
+        <button class="btn btn-primary" type="button" (click)="requestCancel()">
+          Back to Dashboard
+        </button>
+      } @else {
+        <button class="btn btn-ghost" type="button" (click)="requestCancel()" [disabled]="cancelPending">
+          {{ cancelPending ? 'Cancelling...' : 'Cancel & Go Back' }}
+        </button>
+      }
     </div>
   </div>
   </section>
+}
+
+@if (showCancelConfirm) {
+  <div class="cancel-modal-overlay" (click)="closeCancelConfirm()">
+    <div class="cancel-modal" (click)="$event.stopPropagation()">
+      <h2>Cancel Request?</h2>
+      <p>Canceling now will remove your request from the GP queue.</p>
+      <div class="cancel-modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="closeCancelConfirm()">Keep Waiting</button>
+        <button class="btn btn-danger" type="button" (click)="confirmCancel()">
+          Yes, Cancel Request
+        </button>
+      </div>
+    </div>
+  </div>
 }

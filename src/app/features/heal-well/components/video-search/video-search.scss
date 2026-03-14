@@ -1,7 +1,7 @@
 .healwell-page {
   min-height: 100vh;
-  background: #0B0F14;
-  color: #FFFFFF;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding: 20px;
   max-width: 900px;
   margin: 0 auto;
@@ -18,7 +18,7 @@
 }
 
 .page-subtitle {
-  color: #94A3B8;
+  color: var(--text-secondary);
   font-size: 14px;
   margin: 0;
 }
@@ -31,9 +31,9 @@
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #1E293B;
-  background: #121826;
-  color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
   font-size: 14px;
   outline: none;
   box-sizing: border-box;
@@ -53,9 +53,9 @@
 .tag-chip {
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid #1E293B;
-  background: #121826;
-  color: #94A3B8;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
@@ -74,8 +74,12 @@
 }
 
 .video-card {
-  background: #121826;
-  border: 1px solid #1E293B;
+  appearance: none;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  width: 100%;
+  padding: 0;
+  background: var(--bg-card);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
@@ -88,11 +92,20 @@
 
 .video-thumbnail {
   height: 140px;
-  background: linear-gradient(135deg, #1A2332, #0B0F14);
+  background: var(--bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+}
+
+.video-thumbnail__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.8);
 }
 
 .play-icon {
@@ -123,6 +136,12 @@
   font-size: 11px;
 }
 
+.popup-warning {
+  margin: 0 0 12px;
+  color: #FCD34D;
+  font-size: 12px;
+}
+
 .video-info {
   padding: 12px;
 }
@@ -133,9 +152,16 @@
   margin: 0 0 6px;
 }
 
+.video-source {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563EB;
+  margin: 0 0 6px;
+}
+
 .video-desc {
   font-size: 13px;
-  color: #94A3B8;
+  color: var(--text-secondary);
   margin: 0 0 8px;
   line-height: 1.4;
 }
@@ -149,13 +175,13 @@
 .video-tag {
   padding: 2px 8px;
   border-radius: 12px;
-  background: #1E293B;
-  color: #94A3B8;
+  background: var(--border-color);
+  color: var(--text-secondary);
   font-size: 11px;
 }
 
 .empty-state {
   text-align: center;
-  color: #94A3B8;
+  color: var(--text-secondary);
   padding: 40px 0;
 }

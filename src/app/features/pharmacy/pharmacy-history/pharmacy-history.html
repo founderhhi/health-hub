@@ -24,8 +24,9 @@
         <div class="filter-group">
           <select class="filter-select" [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()">
             <option value="">All Statuses</option>
-            <option value="completed">Completed</option>
-            <option value="pending">Pending</option>
+            <!-- [AGENT_PHARMACY] ISS-16: labels match backend state machine (fulfilled=Dispensed, claimed=Claimed) -->
+            <option value="completed">Dispensed</option>
+            <option value="pending">Claimed</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>

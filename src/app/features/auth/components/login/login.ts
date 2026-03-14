@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthApiService } from '../../../../core/api/auth.service';
@@ -64,8 +65,16 @@ export class LoginComponent {
         this.submitting.set(false);
         redirectAfterLogin(response.user.role, this.router);
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
+        if (err.status === 403 && err.error?.error === 'Account is disabled') {
+          this.errorMessage = 'This account is disabled. Please contact support.';
+          return;
+        }
+        if (err.status === 429) {
+          this.errorMessage = 'Too many login attempts. Please try again in a minute.';
+          return;
+        }
         this.errorMessage = 'Invalid phone or password';
       }
     });

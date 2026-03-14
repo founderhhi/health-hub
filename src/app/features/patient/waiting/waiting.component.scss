@@ -1,13 +1,13 @@
 /* ============================================
    Waiting Room Styles
-   Dark Theme - Health Hub Design
+   Theme-aware - Health Hub Design
    ============================================ */
 
 @use '../../../shared/styles/variables' as v;
 
 .embedded-consult-section {
   min-height: 100vh;
-  background: #0B0F14;
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -37,7 +37,7 @@
 
 .embedded-consult-title {
   margin: 0;
-  color: #E2E8F0;
+  color: var(--text-primary);
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-semibold;
@@ -50,17 +50,17 @@
 
 .waiting-page {
   min-height: 100vh;
-  background: #0B0F14;
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  color: #F0F4F8;
+  color: var(--text-primary);
 }
 
 .waiting-card {
-  background: #121826;
-  border: 1px solid #1E293B;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 40px 32px;
   max-width: 420px;
@@ -121,21 +121,21 @@
   font-family: v.$font-family-primary;
   font-size: v.$font-size-xl;
   font-weight: v.$font-weight-semibold;
-  color: #FFFFFF;
+  color: var(--text-primary);
   margin: 0 0 8px;
 }
 
 .waiting-status {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-base;
-  color: #A0AEC0;
+  color: var(--text-secondary);
   margin: 0 0 8px;
 }
 
 .waiting-info {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
-  color: #64748B;
+  color: var(--text-secondary);
   margin: 0 0 24px;
   line-height: 1.5;
 }
@@ -162,11 +162,16 @@
   justify-content: center;
   gap: 8px;
   transition: all 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn-primary {
   background: #2ECC71;
-  color: #0B0F14;
+  color: var(--bg-primary);
 
   &:hover {
     background: #27AE60;
@@ -180,13 +185,45 @@
 
 .btn-ghost {
   background: transparent;
-  color: #A0AEC0;
-  border: 1px solid #1E293B;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 
   &:hover {
-    color: #FFFFFF;
-    border-color: #475569;
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
   }
+}
+
+.btn-danger {
+  background: #EF4444;
+  color: #FFFFFF;
+
+  &:hover {
+    background: #DC2626;
+  }
+}
+
+.btn-secondary {
+  background: rgba(46, 204, 113, 0.1);
+  color: #2ECC71;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+
+  &:hover:not(:disabled) {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: rgba(46, 204, 113, 0.5);
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.waiting-info--hint {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin-top: -16px;
+  margin-bottom: 24px;
 }
 
 .waiting-mode-indicator {
@@ -217,4 +254,48 @@
     background: rgba(46, 204, 113, 0.15);
     color: #6EE7B7;
   }
+}
+
+.cancel-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  background: rgba(11, 15, 20, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.cancel-modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 24px;
+  text-align: left;
+
+  h2 {
+    margin: 0 0 10px;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-semibold;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0;
+    font-family: v.$font-family-primary;
+    font-size: v.$font-size-base;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+}
+
+.cancel-modal__actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
