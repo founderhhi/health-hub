@@ -22,11 +22,13 @@ export class WaitingComponent implements OnInit, OnDestroy {
   showCancelConfirm = false;
   cancelPending = false;
   isRefreshing = false;
+  consultationFinished = false;
   statusMessage = 'Waiting for a GP to accept your request...';
 
   private platformId = inject(PLATFORM_ID);
   private requestId = '';
   private activeConsultPollTimer?: ReturnType<typeof setInterval>;
+  private dashboardRedirectTimer?: ReturnType<typeof setTimeout>;
   private wsSubscription?: Subscription;
 
   constructor(
@@ -54,21 +56,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
           const data = event.data as any;
           const id = data?.consultationId || data?.consultation?.id;
           if (id === this.consultationId) {
-            this.statusMessage = 'Consultation has been completed by your GP.';
-            this.showConsultShell = false;
-            this.roomUrl = '';
-            this.consultationId = '';
-            this.requestId = '';
-            this.gpName = '';
+            this.handleConsultationCompleted('Consultation has been completed by your GP.');
           }
         }
         if (event.event === 'consult.removed') {
-          this.statusMessage = 'Your request was removed from the queue.';
-          this.showConsultShell = false;
-          this.roomUrl = '';
-          this.consultationId = '';
-          this.requestId = '';
-          this.gpName = '';
+          this.finishWaitingFlow('Your request was removed from the queue.');
         }
       });
 
@@ -84,6 +76,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
       clearInterval(this.activeConsultPollTimer);
       this.activeConsultPollTimer = undefined;
     }
+    this.clearDashboardRedirectTimer();
   }
 
   joinConsult(): void {
@@ -111,7 +104,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
             this.applyAcceptedConsultation(active);
           }
         } else {
-          this.statusMessage = 'No active consultation found. The GP may not have accepted yet.';
+          if (this.hasAcceptedConsultation || this.showConsultShell || this.consultationFinished) {
+            this.finishWaitingFlow('Consultation is no longer active.');
+          } else {
+            this.statusMessage = 'No active consultation found. The GP may not have accepted yet.';
+          }
         }
         this.isRefreshing = false;
       },
@@ -123,6 +120,10 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   requestCancel(): void {
     if (this.cancelPending) {
+      return;
+    }
+    if (this.consultationFinished) {
+      this.navigateToDashboard();
       return;
     }
     this.showCancelConfirm = true;
@@ -137,6 +138,10 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   onLeaveConsultShell(): void {
     this.showConsultShell = false;
+    if (this.consultationFinished) {
+      this.navigateToDashboard();
+      return;
+    }
     if (this.hasAcceptedConsultation && !this.cancelPending) {
       this.statusMessage = this.gpName
         ? `${this.gpName} is still available. Tap join when you are ready.`
@@ -209,6 +214,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.clearDashboardRedirectTimer();
+    this.consultationFinished = false;
     this.roomUrl = nextRoomUrl;
     this.consultationId = nextConsultationId;
     this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
@@ -223,13 +230,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
         const active = response?.active;
 
         if (!active) {
+          if (this.consultationFinished && this.showConsultShell) {
+            return;
+          }
           if (this.consultationId || this.roomUrl) {
-            this.statusMessage = 'Consultation is no longer active.';
-            this.showConsultShell = false;
-            this.consultationId = '';
-            this.roomUrl = '';
-            this.requestId = '';
-            this.gpName = '';
+            this.finishWaitingFlow('Consultation is no longer active.');
           }
           return;
         }
@@ -281,6 +286,55 @@ export class WaitingComponent implements OnInit, OnDestroy {
     );
   }
 
+  private handleConsultationCompleted(message: string): void {
+    this.consultationFinished = true;
+    this.showCancelConfirm = false;
+    this.cancelPending = false;
+    this.statusMessage = message;
+
+    if (this.showConsultShell) {
+      return;
+    }
+
+    this.finishWaitingFlow(message);
+  }
+
+  private finishWaitingFlow(message: string): void {
+    this.consultationFinished = true;
+    this.showConsultShell = false;
+    this.showCancelConfirm = false;
+    this.cancelPending = false;
+    this.clearConsultationState();
+    this.statusMessage = `${message} Returning you to dashboard...`;
+    this.scheduleDashboardRedirect();
+  }
+
+  private clearConsultationState(): void {
+    this.roomUrl = '';
+    this.consultationId = '';
+    this.requestId = '';
+    this.gpName = '';
+  }
+
+  private scheduleDashboardRedirect(): void {
+    this.clearDashboardRedirectTimer();
+    this.dashboardRedirectTimer = setTimeout(() => {
+      this.navigateToDashboard();
+    }, 1500);
+  }
+
+  private clearDashboardRedirectTimer(): void {
+    if (this.dashboardRedirectTimer) {
+      clearTimeout(this.dashboardRedirectTimer);
+      this.dashboardRedirectTimer = undefined;
+    }
+  }
+
+  private navigateToDashboard(): void {
+    this.clearDashboardRedirectTimer();
+    void this.router.navigate(['/patient/dashboard']);
+  }
+
   get hasAcceptedConsultation(): boolean {
     return Boolean(this.consultationId || this.roomUrl);
   }
@@ -290,6 +344,6 @@ export class WaitingComponent implements OnInit, OnDestroy {
   }
 
   get showRefreshButton(): boolean {
-    return !this.hasAcceptedConsultation && !this.cancelPending;
+    return !this.hasAcceptedConsultation && !this.cancelPending && !this.consultationFinished;
   }
 }

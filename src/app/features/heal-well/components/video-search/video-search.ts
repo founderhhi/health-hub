@@ -8,6 +8,7 @@ interface HealthVideo {
   description: string;
   youtubeId: string;
   duration: string;
+  channel: string;
   tags: string[];
 }
 
@@ -27,52 +28,85 @@ export class VideoSearch {
 
   readonly videos: HealthVideo[] = [
     {
-      id: '1', title: 'Understanding Blood Pressure',
-      description: 'Learn what blood pressure numbers mean and how to keep them in a healthy range.',
-      youtubeId: 'rAwliNWe1bI', duration: '8:24',
-      tags: ['Heart Health']
-    },
-    {
-      id: '2', title: 'Balanced Diet Basics',
-      description: 'A practical guide to building balanced meals for better health.',
-      youtubeId: 'v6u7hJPE4J8', duration: '12:10',
+      id: 'nageshwar-1',
+      title: 'Healthy eating habits | Dr. D Nageshwar Reddy Daily Routine | Sakshi Life',
+      description: 'Quick Telugu wellness segment on daily eating habits and practical food choices for a healthier routine.',
+      youtubeId: 'ztZf8Os4aUg',
+      duration: '4:24',
+      channel: 'Sakshi Life',
       tags: ['Nutrition']
     },
     {
-      id: '3', title: '10-Minute Morning Stretch Routine',
-      description: 'Start your day with this gentle stretch routine suitable for all fitness levels.',
-      youtubeId: 'I-4NZ9PM3gQ', duration: '10:00',
-      tags: ['Exercise']
+      id: 'nageshwar-2',
+      title: 'World best healthy diet plan | Mediterranean diet for better health| Dr Nageshwar Reddy |Sakshi Life',
+      description: 'Long-form Mediterranean diet explainer focused on gut-friendly eating patterns and better long-term wellness.',
+      youtubeId: 'kWXv7EvEEv8',
+      duration: '27:49',
+      channel: 'Sakshi Life',
+      tags: ['Nutrition', 'Heart Health']
     },
     {
-      id: '4', title: 'Managing Stress and Anxiety',
-      description: 'Evidence-based techniques for managing everyday stress and anxiety.',
-      youtubeId: 'yju9639nANg', duration: '15:32',
-      tags: ['Mental Health']
+      id: 'nageshwar-3',
+      title: 'Probiotic foods and activities to support Gut health ||  Dr. D Nageshwar Reddy | Sakshi Life',
+      description: 'Short Telugu guide to probiotic foods and daily habits that support gut health.',
+      youtubeId: 'voVfR3yf_s0',
+      duration: '3:24',
+      channel: 'Sakshi Life',
+      tags: ['Nutrition']
     },
     {
-      id: '5', title: 'Type 2 Diabetes Prevention',
-      description: 'Simple lifestyle changes that can significantly reduce your diabetes risk.',
-      youtubeId: '3k3uj6hTzBI', duration: '11:45',
-      tags: ['Diabetes', 'Nutrition']
-    },
-    {
-      id: '6', title: 'Better Sleep Habits',
-      description: 'Improve your sleep quality with these science-backed tips.',
-      youtubeId: '5MuIMqhT8DM', duration: '9:18',
-      tags: ['Sleep', 'Mental Health']
-    },
-    {
-      id: '7', title: 'Home Cardio Workout',
-      description: 'A 20-minute cardio session you can do at home with no equipment.',
-      youtubeId: 'J9qjK2RZ8dU', duration: '20:00',
+      id: 'nageshwar-4',
+      title: '150 నిముషాలు వాకింగ్ = మీ జీవితం మారిపోతుంది! Dr. D Nageshwar Reddy Abt Walking & Exercise | SumanTV',
+      description: 'Walking and exercise discussion built around the health benefits of reaching 150 minutes of movement each week.',
+      youtubeId: '_baP2_ZjnTg',
+      duration: '8:30',
+      channel: 'SumanTV Arogyam',
       tags: ['Exercise', 'Heart Health']
     },
     {
-      id: '8', title: 'Understanding Your Lab Results',
-      description: 'A simple guide to common blood test results and what they mean.',
-      youtubeId: 'rAwliNWe1bI', duration: '14:20',
-      tags: ['Heart Health', 'Diabetes']
+      id: 'nageshwar-5',
+      title: 'Gut brain connection | Gut heart connection | Gut health | Dr. D Nageshwar Reddy | Sakshi Life',
+      description: 'A short explainer on how gut health connects with brain function, heart health, and overall well-being.',
+      youtubeId: 'g0TrrqpQAh4',
+      duration: '3:23',
+      channel: 'Sakshi Life',
+      tags: ['Mental Health', 'Heart Health']
+    },
+    {
+      id: 'nageshwar-6',
+      title: 'Dr.D Nageshwar Reddy about GERD | Early Dinner Benefits | Sleep Disorders | Life Style | Sakshi Life',
+      description: 'Sleep-focused lifestyle talk covering GERD, the benefits of early dinners, and common sleep-disorder triggers.',
+      youtubeId: 'y4ExGGug9Ag',
+      duration: '15:10',
+      channel: 'Sakshi Life',
+      tags: ['Sleep', 'Nutrition']
+    },
+    {
+      id: 'nageshwar-7',
+      title: '300 ఉన్న షుగర్ 150 దిగుతుంది || Diabetes, sugar thaggalante #diabetes || Dr. D. Nageshwar Reddy',
+      description: 'Telugu diabetes discussion focused on lowering high sugar readings and improving day-to-day glucose control.',
+      youtubeId: 'jh2aTm2i2qo',
+      duration: '39:34',
+      channel: 'iD Health 360',
+      tags: ['Diabetes']
+    },
+    {
+      id: 'nageshwar-8',
+      title: 'ఈ ఇంజక్షన్ తో షుగర్ కంట్రోల్.. Dr Nageshwar Reddy About Mounjaro Injection | Diabetes Control',
+      description: 'Diabetes-management explainer on Mounjaro injection and how it is being discussed for blood sugar control.',
+      youtubeId: 't7985tDmf-w',
+      duration: '13:19',
+      channel: 'PlayEven',
+      tags: ['Diabetes']
+    },
+    {
+      id: 'nageshwar-9',
+      title: 'Dr. Nageshwar Reddy About Diseases With Frozen & Junk Food Eating | World IBD Day @life.sakshi',
+      description: 'World IBD Day segment about the health risks linked to frozen and junk-food-heavy eating habits.',
+      youtubeId: 'oviXfOJlbww',
+      duration: '8:12',
+      channel: 'Sakshi Life',
+      tags: ['Nutrition', 'Heart Health']
     },
   ];
 

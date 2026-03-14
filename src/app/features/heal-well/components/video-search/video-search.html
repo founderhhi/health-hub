@@ -1,7 +1,7 @@
 <section class="healwell-page">
   <header class="page-header">
     <h1 class="page-title">HealWell</h1>
-    <p class="page-subtitle">Health education videos and resources</p>
+    <p class="page-subtitle">Health education videos and resources featuring Dr. D. Nageshwar Reddy</p>
   </header>
 
   <div class="search-bar">
@@ -41,6 +41,7 @@
       </div>
       <div class="video-info">
         <h3 class="video-title">{{ video.title }}</h3>
+        <p class="video-source">{{ video.channel }}</p>
         <p class="video-desc">{{ video.description }}</p>
         <div class="video-tags">
           <span class="video-tag" *ngFor="let tag of video.tags">{{ tag }}</span>
