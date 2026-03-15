@@ -199,6 +199,29 @@ async function ensureChatMessagesTableAndIndexes(): Promise<void> {
   await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
 }
 
+async function ensureServiceRequestsTableAndIndexes(): Promise<void> {
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS service_requests (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      patient_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type text NOT NULL,
+      status text NOT NULL DEFAULT 'new'
+        CHECK (status IN ('new', 'contacted', 'closed')),
+      region text,
+      city text,
+      hospital_name text,
+      notes text,
+      handled_by uuid REFERENCES users(id) ON DELETE SET NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );`
+  );
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_service_requests_created_at ON service_requests (created_at desc);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_service_requests_status ON service_requests (status, created_at desc);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_service_requests_patient_id ON service_requests (patient_id, created_at desc);`);
+}
+
 export async function ensureRuntimeSchema(): Promise<void> {
   if (!connectionString) {
     return;
@@ -211,6 +234,7 @@ export async function ensureRuntimeSchema(): Promise<void> {
   ensureRuntimeSchemaPromise = (async () => {
     await ensureConsultRequestStatusConstraintIncludesRemoved();
     await ensureChatMessagesTableAndIndexes();
+    await ensureServiceRequestsTableAndIndexes();
 
     const missingColumns = await findMissingSchemaColumns();
     const invalidConstraints = await findInvalidSchemaConstraints();

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiClientService } from '../../../core/api/api-client.service';
@@ -37,6 +37,31 @@ interface AdminActivityEvent {
   created_at: string;
 }
 
+interface ServiceRequestRecord {
+  id: string;
+  type: string;
+  status: 'new' | 'contacted' | 'closed';
+  region: string | null;
+  city: string | null;
+  hospital_name: string | null;
+  notes: string | null;
+  patient_name: string | null;
+  patient_phone: string | null;
+  handled_by_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface PrescriptionRecord {
+  id: string;
+  code: string;
+  items: Array<{ name?: string; medication?: string; dosage?: string }>;
+  status: 'active' | 'claimed' | 'fulfilled';
+  created_at: string;
+  patient_name: string;
+  patient_phone: string;
+}
+
 interface CreateUserForm {
   phone: string;
   password: string;
@@ -56,9 +81,13 @@ interface CreateUserForm {
 export class AdminDashboardComponent implements OnInit, OnDestroy {
   users: UserRecord[] = [];
   activities: AdminActivityEvent[] = [];
+  requests: ServiceRequestRecord[] = [];
+  prescriptions: PrescriptionRecord[] = [];
   systemHealth: SystemHealth | null = null;
   loading = true;
   activityLoading = false;
+  requestsLoading = false;
+  pharmacyLoading = false;
   creatingUser = false;
   searchQuery = '';
   roleFilter = '';
@@ -67,7 +96,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   totalUsers = 0;
   activityPage = 1;
   activityTotalPages = 1;
-  activeTab: 'users' | 'activity' | 'health' = 'users';
+  pharmacyPage = 1;
+  pharmacyTotalPages = 1;
+  activeTab: 'users' | 'pharmacy' | 'activity' | 'requests' | 'health' = 'users';
   actionNotice = '';
   actionError = '';
   showCreateUser = false;
@@ -82,11 +113,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   };
 
   readonly roles = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
+  readonly requestStatuses: Array<ServiceRequestRecord['status']> = ['new', 'contacted', 'closed'];
 
   private noticeTimer?: ReturnType<typeof setTimeout>;
   private errorTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private api: ApiClientService) { }
+  constructor(private api: ApiClientService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -97,7 +129,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (this.errorTimer) clearTimeout(this.errorTimer);
   }
 
-  setTab(tab: 'users' | 'activity' | 'health'): void {
+  setTab(tab: 'users' | 'pharmacy' | 'activity' | 'requests' | 'health'): void {
     this.activeTab = tab;
     this.actionError = '';
     this.actionNotice = '';
@@ -107,8 +139,18 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (tab === 'pharmacy') {
+      this.loadPrescriptions();
+      return;
+    }
+
     if (tab === 'activity') {
       this.loadActivity();
+      return;
+    }
+
+    if (tab === 'requests') {
+      this.loadRequests();
       return;
     }
 
@@ -133,19 +175,25 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.totalPages = res.pagination.pages;
         this.totalUsers = res.pagination.total;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.loading = false;
         this.showError(this.extractApiError(error, 'Unable to load users right now.'));
+        this.cdr.detectChanges();
       }
     });
   }
 
   loadSystemHealth(): void {
     this.api.get<SystemHealth>('/admin/system/health').subscribe({
-      next: (res) => { this.systemHealth = res; },
+      next: (res) => {
+        this.systemHealth = res;
+        this.cdr.detectChanges();
+      },
       error: (error) => {
         this.showError(this.extractApiError(error, 'Unable to load system health right now.'));
+        this.cdr.detectChanges();
       }
     });
   }
@@ -163,10 +211,51 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.activities = Array.isArray(res.events) ? res.events : [];
         this.activityTotalPages = res.pagination?.pages || 1;
         this.activityLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.activityLoading = false;
         this.showError(this.extractApiError(error, 'Unable to load activity history right now.'));
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadRequests(): void {
+    this.requestsLoading = true;
+    this.api.get<{ requests: ServiceRequestRecord[] }>('/admin/service-requests').subscribe({
+      next: (res) => {
+        this.requests = Array.isArray(res.requests) ? res.requests : [];
+        this.requestsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.requestsLoading = false;
+        this.showError(this.extractApiError(error, 'Unable to load service requests right now.'));
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadPrescriptions(): void {
+    this.pharmacyLoading = true;
+    const params = new URLSearchParams();
+    params.set('page', String(this.pharmacyPage));
+    params.set('limit', '25');
+
+    this.api.get<{ prescriptions: PrescriptionRecord[]; pagination: Pagination }>(
+      `/admin/prescriptions?${params.toString()}`
+    ).subscribe({
+      next: (res) => {
+        this.prescriptions = Array.isArray(res.prescriptions) ? res.prescriptions : [];
+        this.pharmacyTotalPages = res.pagination?.pages || 1;
+        this.pharmacyLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.pharmacyLoading = false;
+        this.showError(this.extractApiError(error, 'Unable to load prescriptions right now.'));
+        this.cdr.detectChanges();
       }
     });
   }
@@ -209,6 +298,25 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  prevPharmacyPage(): void {
+    if (this.pharmacyPage > 1) {
+      this.pharmacyPage--;
+      this.loadPrescriptions();
+    }
+  }
+
+  nextPharmacyPage(): void {
+    if (this.pharmacyPage < this.pharmacyTotalPages) {
+      this.pharmacyPage++;
+      this.loadPrescriptions();
+    }
+  }
+
+  formatRxItems(items: PrescriptionRecord['items']): string {
+    if (!Array.isArray(items) || items.length === 0) return 'No items';
+    return items.map(i => i.name || i.medication || 'Unknown').join(', ');
+  }
+
   updateRole(user: UserRecord, newRole: string): void {
     this.actionError = '';
     this.api.patch<{ user: UserRecord }>(`/admin/users/${user.id}/role`, { role: newRole }).subscribe({
@@ -232,6 +340,26 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.showError(this.extractApiError(error, 'Unable to update user status.'));
+      }
+    });
+  }
+
+  updateRequestStatus(request: ServiceRequestRecord, status: ServiceRequestRecord['status']): void {
+    if (request.status === status) {
+      return;
+    }
+
+    this.actionError = '';
+    this.api.patch<{ request: ServiceRequestRecord }>(`/admin/service-requests/${request.id}`, { status }).subscribe({
+      next: (res) => {
+        request.status = res.request.status;
+        request.updated_at = res.request.updated_at;
+        request.handled_by_name = res.request.handled_by_name;
+        this.showNotice('Request status updated successfully.');
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update request status.'));
+        this.loadRequests();
       }
     });
   }
@@ -296,6 +424,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         return 'Updated role';
       case 'user.status.updated':
         return 'Updated status';
+      case 'service_request.status.updated':
+        return 'Updated request status';
       default:
         return action;
     }
@@ -303,6 +433,23 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   getActivityTarget(event: AdminActivityEvent): string {
     return event.target_name || event.target_phone || 'Unknown user';
+  }
+
+  formatRequestType(type: string): string {
+    switch (type) {
+      case 'travel_flights':
+        return 'Travel: Flights';
+      case 'travel_stay':
+        return 'Travel: Stay';
+      case 'healwell_callback':
+        return 'Heal Well Callback';
+      default:
+        return type.replace(/_/g, ' ').replace(/\b\w/g, (value) => value.toUpperCase());
+    }
+  }
+
+  getRequestDestination(request: ServiceRequestRecord): string {
+    return [request.region, request.city, request.hospital_name].filter(Boolean).join(' / ') || request.notes || 'General callback';
   }
 
   private resetCreateUserForm(): void {

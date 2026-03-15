@@ -1,0 +1,153 @@
+@use '../../../../app/shared/styles/variables' as v;
+
+.pharmacy-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: v.$space-lg;
+  padding-bottom: calc(80px + v.$safe-area-bottom);
+  color: var(--text-primary);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-xl;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: v.$radius-full;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg { width: 20px; height: 20px; color: var(--text-primary); }
+  &:hover { border-color: var(--accent-primary); }
+}
+
+.page-title {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-semibold;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.toast-banner {
+  margin-bottom: v.$space-md;
+  padding: v.$space-sm v.$space-md;
+  border-radius: 8px;
+  font-size: v.$font-size-sm;
+  color: var(--text-primary);
+  background: rgba(46, 204, 113, 0.15);
+  border: 1px solid rgba(46, 204, 113, 0.35);
+}
+
+.pharmacy-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-md;
+}
+
+.pharmacy-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: v.$space-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-md;
+  transition: border-color 200ms ease, transform 200ms ease;
+
+  &:hover {
+    border-color: #2ECC71;
+    transform: translateY(-1px);
+  }
+}
+
+.pharmacy-info {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-md;
+  flex: 1;
+  min-width: 0;
+}
+
+.pharmacy-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(46, 204, 113, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg { width: 20px; height: 20px; color: #2ECC71; }
+}
+
+.pharmacy-details {
+  min-width: 0;
+}
+
+.pharmacy-name {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.pharmacy-address {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: var(--text-secondary);
+  margin: 0 0 6px 0;
+}
+
+.pharmacy-meta {
+  display: flex;
+  gap: v.$space-md;
+  font-family: v.$font-family-primary;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.pharmacy-hours {
+  color: #2ECC71;
+}
+
+.directions-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: v.$font-family-primary;
+  font-size: 12px;
+  font-weight: v.$font-weight-medium;
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 200ms ease;
+
+  svg { width: 14px; height: 14px; }
+  &:hover { border-color: var(--accent-primary); }
+}

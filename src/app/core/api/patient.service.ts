@@ -99,6 +99,14 @@ export class PatientApiService {
     return this.api.delete<{ ok: boolean }>(`/patient/billing/methods/${id}`);
   }
 
+  requestCallback(data: Record<string, unknown>) {
+    return this.api.post<{ ok: boolean; request: any }>('/patient/service-requests', data);
+  }
+
+  getSpecialists() {
+    return this.api.get<{ specialists: any[] }>('/patient/specialists');
+  }
+
   getCachedProfile() {
     return this.profileCache;
   }

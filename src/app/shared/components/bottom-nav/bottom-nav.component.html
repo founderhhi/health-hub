@@ -114,3 +114,7 @@
     <span class="hhi-bottom-nav__label">{{ tab.label }}</span>
   </a>
 </nav>
+
+@if (shouldShowAiChatBubble()) {
+<app-ai-chat-bubble></app-ai-chat-bubble>
+}

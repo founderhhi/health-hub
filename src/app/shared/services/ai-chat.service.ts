@@ -9,6 +9,7 @@ export interface AiChatMessageResponse {
   limitReached: boolean;
   showGpCta: boolean;
   showDiagnosticsCta: boolean;
+  triage?: AiTriageData | null;
 }
 
 export interface AiChatMessage {
@@ -18,12 +19,20 @@ export interface AiChatMessage {
   createdAt: number;
 }
 
+export interface AiTriageData {
+  complaint: string;
+  triageAnswers: string[];
+  triageSummary: string;
+  recommendedNextStep: string;
+}
+
 export interface AiChatState {
   messages: AiChatMessage[];
   messagesUsed: number;
   showGpCta: boolean;
   showDiagnosticsCta: boolean;
   limitReached: boolean;
+  triage: AiTriageData | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -65,6 +74,7 @@ export class AiChatService {
         limitReached: messageCount >= this.sessionLimit,
         showGpCta: this.stateSubject.value.showGpCta,
         showDiagnosticsCta: this.stateSubject.value.showDiagnosticsCta,
+        triage: this.stateSubject.value.triage,
       });
     }
 
@@ -102,9 +112,14 @@ export class AiChatService {
             showGpCta: response.showGpCta,
             showDiagnosticsCta: response.showDiagnosticsCta,
             limitReached: response.limitReached,
+            triage: this.mergeTriage(latestState.triage, response.triage),
           });
         })
       );
+  }
+
+  getCurrentState(): AiChatState {
+    return this.stateSubject.value;
   }
 
   getMessageCount(sessionId: string): number {
@@ -118,6 +133,22 @@ export class AiChatService {
       showGpCta: false,
       showDiagnosticsCta: false,
       limitReached: false,
+      triage: null,
+    };
+  }
+
+  private mergeTriage(current: AiTriageData | null, next: AiTriageData | null | undefined): AiTriageData | null {
+    if (!next) {
+      return current;
+    }
+
+    return {
+      complaint: next.complaint || current?.complaint || '',
+      triageAnswers: Array.isArray(next.triageAnswers) && next.triageAnswers.length > 0
+        ? next.triageAnswers
+        : current?.triageAnswers || [],
+      triageSummary: next.triageSummary || current?.triageSummary || '',
+      recommendedNextStep: next.recommendedNextStep || current?.recommendedNextStep || '',
     };
   }
 

@@ -19,23 +19,22 @@ describe('buildFallbackTriageReply', () => {
 
     expect(result.showGpCta).toBe(false);
     expect(result.showDiagnosticsCta).toBe(false);
-    expect(result.reply).toContain('Please reply with these details in one message:');
-    expect(result.reply).toContain('1.');
-    expect(result.reply).toContain('2.');
-    expect(result.reply).toContain('3.');
+    expect(result.reply).toContain('Let me ask a few questions one at a time.');
+    expect(result.reply).toContain('When did this start');
   });
 
   it('produces a triage summary and diagnostics CTA after enough urinary context', () => {
     const result = buildFallbackTriageReply([
       { role: 'user', content: 'It burns when I pee and I keep needing to go.' },
-      { role: 'assistant', content: 'Please tell me more.' },
       { role: 'user', content: 'It started two days ago and I also have a little flank pain.' },
+      { role: 'user', content: 'I also have a mild fever and no chance of pregnancy.' },
+      { role: 'user', content: 'There is no blood, but it is getting worse today.' },
     ]);
 
     expect(result.showGpCta).toBe(true);
     expect(result.showDiagnosticsCta).toBe(true);
     expect(result.reply).toContain('Possible conditions:');
-    expect(result.reply).toContain('urinary tract infection');
     expect(result.reply).toContain('urine dipstick');
+    expect(result.reply).toContain('Recommended next step:');
   });
 });

@@ -1,0 +1,61 @@
+<section class="specialist-page">
+  <header class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
+    </button>
+    <h1 class="page-title">Specialists</h1>
+  </header>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by name or specialty..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearch()"
+    />
+  </div>
+
+  @if (loading) {
+  <div class="specialist-list">
+    @for (i of [1, 2, 3]; track i) {
+    <div class="specialist-card specialist-card--skeleton">
+      <span class="skeleton avatar-skeleton"></span>
+      <div class="skeleton-lines">
+        <span class="skeleton line-skeleton line-skeleton--primary"></span>
+        <span class="skeleton line-skeleton line-skeleton--secondary"></span>
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="specialist-list">
+    @for (specialist of filteredSpecialists; track specialist.display_name) {
+    <div class="specialist-card">
+      <div class="specialist-avatar">{{ getInitials(specialist.display_name) }}</div>
+      <div class="specialist-info">
+        <h3 class="specialist-name">{{ specialist.display_name }}</h3>
+        <span class="specialist-specialty">{{ specialist.specialty }}</span>
+        @if (specialist.bio) {
+        <p class="specialist-bio">{{ specialist.bio }}</p>
+        }
+        @if (specialist.facility_name) {
+        <span class="specialist-facility">{{ specialist.facility_name }}</span>
+        }
+      </div>
+    </div>
+    }
+
+    @if (filteredSpecialists.length === 0) {
+    <p class="no-results">No specialists found matching "{{ searchQuery }}"</p>
+    }
+  </div>
+  }
+
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
+</section>

@@ -1,16 +1,34 @@
 import { Component, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ConsultationsApiService } from '../../../core/api/consultations.service';
 import { LabsApiService } from '../../../core/api/labs.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { ReferralsApiService } from '../../../core/api/referrals.service';
 import { ConsultMode, ConsultShellComponent } from '../../../shared/components/consult-shell/consult-shell';
 
+interface PrescriptionItem {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+}
+
+interface ReferralFormData {
+  specialty: string;
+  urgency: string;
+  reason: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  consultationMode: 'online' | 'offline';
+  location: string;
+}
+
 @Component({
   selector: 'app-specialist-consultation',
   standalone: true,
-  imports: [CommonModule, RouterModule, ConsultShellComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ConsultShellComponent],
   templateUrl: './specialist-consultation.html',
   styleUrl: './specialist-consultation.scss'
 })
@@ -27,8 +45,32 @@ export class SpecialistConsultationComponent implements OnInit {
   errorMessage = '';
   loading = true;
   accepting = false;
-  requestingLabs = false;
-  creatingPrescription = false;
+
+  // Lab order dialog
+  showLabModal = false;
+  labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
+  selectedTests: string[] = [];
+  customTest = '';
+  submittingLabs = false;
+
+  // Prescription dialog
+  showPrescriptionModal = false;
+  prescriptionItems: PrescriptionItem[] = [{ name: '', dosage: '', frequency: '', duration: '' }];
+  submittingPrescription = false;
+
+  // Referral dialog
+  showReferralModal = false;
+  referralSubmitError = '';
+  referralForm: ReferralFormData = {
+    specialty: '',
+    urgency: 'routine',
+    reason: '',
+    appointmentDate: '',
+    appointmentTime: '',
+    consultationMode: 'online',
+    location: ''
+  };
+  SPECIALTIES = ['Cardiology', 'Dermatology', 'Orthopedics', 'Neurology', 'Pediatrics', 'Oncology', 'ENT', 'Ophthalmology'];
 
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -154,48 +196,158 @@ export class SpecialistConsultationComponent implements OnInit {
     });
   }
 
-  requestLabs(): void {
-    if (!this.referral?.patient_id || this.requestingLabs) {
+  // ── Lab Order Dialog ──
+
+  openLabModal(): void {
+    this.selectedTests = [];
+    this.customTest = '';
+    this.showLabModal = true;
+  }
+
+  toggleTest(test: string): void {
+    const idx = this.selectedTests.indexOf(test);
+    if (idx === -1) {
+      this.selectedTests.push(test);
+    } else {
+      this.selectedTests.splice(idx, 1);
+    }
+  }
+
+  isTestSelected(test: string): boolean {
+    return this.selectedTests.includes(test);
+  }
+
+  submitLabOrder(): void {
+    if (!this.referral?.patient_id || this.submittingLabs) {
       return;
     }
-
-    this.requestingLabs = true;
+    const tests = [...this.selectedTests];
+    if (this.customTest.trim()) {
+      tests.push(this.customTest.trim());
+    }
+    if (tests.length === 0) {
+      return;
+    }
+    this.submittingLabs = true;
     this.errorMessage = '';
     this.statusMessage = '';
-
-    const tests = ['CBC', 'CRP'];
     this.labsApi.createOrder(this.referral.patient_id, tests).subscribe({
       next: () => {
-        this.requestingLabs = false;
-        this.statusMessage = 'Lab request submitted successfully.';
+        this.submittingLabs = false;
+        this.showLabModal = false;
+        this.statusMessage = `Lab order submitted: ${tests.join(', ')}.`;
       },
       error: () => {
-        this.requestingLabs = false;
-        this.errorMessage = 'Unable to request labs right now.';
+        this.submittingLabs = false;
+        this.errorMessage = 'Unable to submit lab order right now.';
       }
     });
   }
 
-  prescribe(): void {
-    if (!this.referral?.patient_id || this.creatingPrescription) {
+  closeLabModal(): void {
+    this.showLabModal = false;
+    this.selectedTests = [];
+    this.customTest = '';
+  }
+
+  // ── Prescription Dialog ──
+
+  openPrescriptionModal(): void {
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
+    this.showPrescriptionModal = true;
+  }
+
+  addPrescriptionItem(): void {
+    this.prescriptionItems.push({ name: '', dosage: '', frequency: '', duration: '' });
+  }
+
+  removePrescriptionItem(index: number): void {
+    this.prescriptionItems.splice(index, 1);
+  }
+
+  submitPrescription(): void {
+    if (!this.referral?.patient_id || this.submittingPrescription) {
       return;
     }
-
-    this.creatingPrescription = true;
+    const items = this.prescriptionItems.filter(item => item.name.trim());
+    if (items.length === 0) {
+      return;
+    }
+    this.submittingPrescription = true;
     this.errorMessage = '';
     this.statusMessage = '';
-
-    const items = [{ name: 'Ibuprofen', dosage: '200mg', frequency: '2x/day', duration: '3 days' }];
     this.prescriptionsApi.create(this.referral.patient_id, items).subscribe({
       next: () => {
-        this.creatingPrescription = false;
+        this.submittingPrescription = false;
+        this.showPrescriptionModal = false;
         this.statusMessage = 'Prescription created successfully.';
       },
       error: () => {
-        this.creatingPrescription = false;
+        this.submittingPrescription = false;
         this.errorMessage = 'Unable to create prescription right now.';
       }
     });
+  }
+
+  closePrescriptionModal(): void {
+    this.showPrescriptionModal = false;
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
+  }
+
+  // ── Refer Another Specialist ──
+
+  onRefer(): void {
+    if (!this.referral?.patient_id) {
+      return;
+    }
+    this.referralForm = {
+      specialty: '',
+      urgency: 'routine',
+      reason: '',
+      appointmentDate: '',
+      appointmentTime: '',
+      consultationMode: 'online',
+      location: ''
+    };
+    this.referralSubmitError = '';
+    this.showReferralModal = true;
+  }
+
+  submitReferral(): void {
+    if (!this.referralForm.specialty) {
+      this.referralSubmitError = 'Please select a specialty.';
+      return;
+    }
+    if (!this.referralForm.reason.trim()) {
+      this.referralSubmitError = 'Please provide a reason for the referral.';
+      return;
+    }
+    this.referralSubmitError = '';
+    this.referralsApi.createReferral(
+      this.referral.patient_id,
+      this.referralForm.urgency,
+      this.referralForm.reason,
+      {
+        specialty: this.referralForm.specialty,
+        appointmentDate: this.referralForm.appointmentDate || undefined,
+        appointmentTime: this.referralForm.appointmentTime || undefined,
+        consultationMode: this.referralForm.consultationMode,
+        location: this.referralForm.consultationMode === 'offline' ? this.referralForm.location : undefined
+      }
+    ).subscribe({
+      next: () => {
+        this.showReferralModal = false;
+        this.statusMessage = 'Referral to specialist submitted successfully.';
+      },
+      error: (err) => {
+        this.referralSubmitError = err?.error?.error || 'Unable to submit referral right now.';
+      }
+    });
+  }
+
+  closeReferralModal(): void {
+    this.showReferralModal = false;
+    this.referralSubmitError = '';
   }
 
   onEndConsultation(event: { notes: string }): void {

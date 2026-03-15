@@ -344,22 +344,28 @@ function buildEmergencyReply(reason: string): FallbackAiReply {
   };
 }
 
-function buildQuestionReply(categories: SymptomCategory[]): FallbackAiReply {
+function getTriageQuestions(categories: SymptomCategory[]): string[] {
   const categoryQuestions = categories.map((category) => category.question);
-  const questions = uniqueItems([
+  return [
     'When did this start, and is it getting better, worse, or staying the same?',
     categoryQuestions[0] || 'What are the main symptoms, and how severe are they right now?',
-    categoryQuestions[1] || 'Do you have any red flags such as fever, blood, severe pain, fainting, or shortness of breath?',
-    'What is your age, any major medical conditions or regular medicines, and could you be pregnant?',
-  ]).slice(0, 3);
+    categoryQuestions[1] || 'Do you have any other symptoms such as fever, blood, severe pain, or shortness of breath?',
+  ];
+}
+
+function buildSingleQuestion(categories: SymptomCategory[], questionIndex: number): FallbackAiReply {
+  const questions = getTriageQuestions(categories);
+  const prefixes = [
+    'Thanks for sharing that. I can help with a brief triage. Let me ask a few questions one at a time.',
+    'Got it, thanks for that detail.',
+    'Thank you. One last question:',
+  ];
+
+  const prefix = prefixes[questionIndex] || prefixes[prefixes.length - 1];
+  const question = questions[questionIndex] || questions[questions.length - 1];
 
   return {
-    reply: [
-      'Thanks for sharing that. I can help with a brief triage.',
-      'Please reply with these details in one message:',
-      ...questions.map((question, index) => `${index + 1}. ${question}`),
-      'Seek urgent care sooner if you develop severe chest pain, trouble breathing, fainting, one-sided weakness, or heavy bleeding.',
-    ].join('\n'),
+    reply: `${prefix}\n\n${question}`,
     showGpCta: false,
     showDiagnosticsCta: false,
   };
@@ -435,9 +441,17 @@ export function buildFallbackTriageReply(messages: FallbackSessionMessage[]): Fa
 
   const categories = getMatchedCategories(combinedUserText);
 
+  // Sequential question flow: one question at a time
   if (userMessages.length <= 1) {
-    return buildQuestionReply(categories);
+    return buildSingleQuestion(categories, 0);
+  }
+  if (userMessages.length === 2) {
+    return buildSingleQuestion(categories, 1);
+  }
+  if (userMessages.length === 3) {
+    return buildSingleQuestion(categories, 2);
   }
 
+  // After all triage questions answered, deliver summary with GP CTA
   return buildSummaryReply(combinedUserText, categories);
 }

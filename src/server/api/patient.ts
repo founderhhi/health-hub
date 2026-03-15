@@ -6,6 +6,77 @@ import { deleteRoom } from '../integrations/daily';
 
 export const patientRouter = Router();
 
+function normalizeOptionalText(value: unknown): string | null {
+  const normalized = String(value || '').trim();
+  return normalized ? normalized : null;
+}
+
+function normalizeServiceRequestType(type: unknown, subType: unknown): string {
+  const normalizedType = String(type || '').trim().toLowerCase();
+  const normalizedSubType = String(subType || '').trim().toLowerCase();
+
+  if (normalizedType === 'travel' && normalizedSubType) {
+    return `travel_${normalizedSubType}`;
+  }
+
+  if (normalizedType) {
+    return normalizedType;
+  }
+
+  return 'general';
+}
+
+async function createPatientServiceRequest(
+  patientId: string,
+  payload: {
+    type?: unknown;
+    subType?: unknown;
+    region?: unknown;
+    city?: unknown;
+    hospital?: unknown;
+    hospitalName?: unknown;
+    notes?: unknown;
+  }
+) {
+  const type = normalizeServiceRequestType(payload.type, payload.subType);
+  const region = normalizeOptionalText(payload.region);
+  const city = normalizeOptionalText(payload.city);
+  const hospitalName = normalizeOptionalText(payload.hospitalName ?? payload.hospital);
+  const notes = normalizeOptionalText(payload.notes);
+
+  const result = await db.query(
+    `insert into service_requests (patient_id, type, region, city, hospital_name, notes)
+     values ($1, $2, $3, $4, $5, $6)
+     returning *`,
+    [patientId, type, region, city, hospitalName, notes]
+  );
+
+  const request = result.rows[0];
+  const admins = await db.query(`select id from users where role = 'admin'`);
+  const destination = [region, city, hospitalName].filter(Boolean).join(' / ');
+  const message = destination
+    ? `New service request: ${type.replace(/_/g, ' ')} (${destination})`
+    : `New service request: ${type.replace(/_/g, ' ')}`;
+  const notificationData = JSON.stringify({
+    patientId,
+    serviceRequestId: request.id,
+    type,
+    region,
+    city,
+    hospitalName,
+    notes,
+  });
+
+  for (const admin of admins.rows) {
+    await db.query(
+      `insert into notifications (user_id, type, message, data) values ($1, $2, $3, $4)`,
+      [admin.id, 'service_request.created', message, notificationData]
+    );
+  }
+
+  return request;
+}
+
 async function cleanupDailyRoom(roomUrl: string | null | undefined): Promise<void> {
   if (!roomUrl) {
     return;
@@ -532,5 +603,38 @@ patientRouter.post('/consults/:id/cancel', requireAuth, requireRole(['patient'])
     return res.status(500).json({ error: 'Unable to cancel request' });
   } finally {
     client.release();
+  }
+});
+
+// ── Service Requests / Callback Requests ────────────────────────────────────
+const createServiceRequestHandler = async (req: any, res: any) => {
+  try {
+    const user = req.user;
+    const request = await createPatientServiceRequest(user.userId, req.body || {});
+    return res.json({ ok: true, request });
+  } catch (error) {
+    console.error('Service request error', error);
+    return res.status(500).json({ error: 'Unable to submit service request' });
+  }
+};
+
+patientRouter.post('/service-requests', requireAuth, requireRole(['patient']), createServiceRequestHandler);
+patientRouter.post('/callback-request', requireAuth, requireRole(['patient']), createServiceRequestHandler);
+
+// ── Specialists List ─────────────────────────────────────────────────────────
+patientRouter.get('/specialists', requireAuth, requireRole(['patient']), async (_req, res) => {
+  try {
+    const result = await db.query(`
+      select u.id, u.display_name, u.first_name, u.last_name,
+             pp.specialty, pp.facility_name, pp.bio
+      from users u
+      left join provider_profiles pp on pp.user_id = u.id
+      where u.role = 'specialist' and u.is_operating = true
+      order by u.display_name
+    `);
+    return res.json({ specialists: result.rows });
+  } catch (error) {
+    console.error('Specialists list error', error);
+    return res.json({ specialists: [] });
   }
 });

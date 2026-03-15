@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { AiChatBubbleComponent } from '../ai-chat-bubble/ai-chat-bubble.component';
 
 /**
  * Tab interface for bottom navigation
@@ -35,7 +36,7 @@ export interface BottomNavTab {
 @Component({
   selector: 'app-bottom-nav',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AiChatBubbleComponent],
   templateUrl: './bottom-nav.component.html',
   styleUrl: './bottom-nav.component.scss'
 })
@@ -53,6 +54,11 @@ export class BottomNavComponent {
    */
   isActive(tab: BottomNavTab): boolean {
     return this.activeTab === tab.id || this.router.url.startsWith(tab.route);
+  }
+
+  shouldShowAiChatBubble(): boolean {
+    const isPatientNav = this.tabs.some((tab) => tab.route.startsWith('/patient/'));
+    return isPatientNav && this.router.url.startsWith('/patient/') && !this.router.url.startsWith('/patient/ai-chat');
   }
 }
 
@@ -77,12 +83,6 @@ export const PATIENT_TABS: BottomNavTab[] = [
     route: '/patient/records',
     label: 'Health Records',
     icon: 'folder'
-  },
-  {
-    id: 'ai-chat',
-    route: '/patient/ai-chat',
-    label: 'HealthHub AI',
-    icon: 'robot'
   },
   {
     id: 'profile',

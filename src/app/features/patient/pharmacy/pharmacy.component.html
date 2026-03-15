@@ -1,0 +1,47 @@
+<section class="pharmacy-page">
+  <header class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
+    </button>
+    <div>
+      <h1 class="page-title">Nearby Pharmacies</h1>
+      <p class="page-subtitle">Showing pharmacies near Nairobi</p>
+    </div>
+  </header>
+
+  @if (directionMessage) {
+  <div class="toast-banner">{{ directionMessage }}</div>
+  }
+
+  <div class="pharmacy-list">
+    @for (pharmacy of pharmacies; track pharmacy.name) {
+    <div class="pharmacy-card">
+      <div class="pharmacy-info">
+        <div class="pharmacy-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+            <line x1="12" y1="11" x2="12" y2="16" />
+            <line x1="9" y1="14" x2="15" y2="14" />
+          </svg>
+        </div>
+        <div class="pharmacy-details">
+          <h3 class="pharmacy-name">{{ pharmacy.name }}</h3>
+          <p class="pharmacy-address">{{ pharmacy.address }}</p>
+          <div class="pharmacy-meta">
+            <span class="pharmacy-hours">{{ pharmacy.hours }}</span>
+            <span class="pharmacy-distance">{{ pharmacy.distance }}</span>
+          </div>
+        </div>
+      </div>
+      <button class="directions-btn" (click)="getDirections(pharmacy)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="3 11 22 2 13 21 11 13 3 11" />
+        </svg>
+        Directions
+      </button>
+    </div>
+    }
+  </div>
+
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
+</section>

@@ -34,6 +34,28 @@ export const PATIENT_ROUTES: Routes = [
     loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent)
   },
   {
+    path: 'healwell-africa',
+    loadComponent: () => import('./healwell-region/healwell-region.component').then(m => m.HealwellRegionComponent),
+    data: { region: 'africa' }
+  },
+  {
+    path: 'healwell-india',
+    loadComponent: () => import('./healwell-region/healwell-region.component').then(m => m.HealwellRegionComponent),
+    data: { region: 'india' }
+  },
+  {
+    path: 'travel',
+    loadComponent: () => import('./travel/travel.component').then(m => m.TravelComponent)
+  },
+  {
+    path: 'pharmacy',
+    loadComponent: () => import('./pharmacy/pharmacy.component').then(m => m.PatientPharmacyComponent)
+  },
+  {
+    path: 'specialist',
+    loadComponent: () => import('./specialist/specialist.component').then(m => m.PatientSpecialistComponent)
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full'

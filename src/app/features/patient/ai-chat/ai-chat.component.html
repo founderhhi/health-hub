@@ -16,8 +16,8 @@
     @if (state.showGpCta || state.showDiagnosticsCta) {
     <div class="cta-row">
       @if (state.showGpCta) {
-      <button type="button" class="gp-cta" (click)="bookGpConsultation()">
-        📅 Book a GP Consultation
+      <button type="button" class="gp-cta" (click)="connectToGP()" [disabled]="connectingToGp">
+        @if (connectingToGp) { Connecting... } @else { Connect to GP }
       </button>
       }
       @if (state.showDiagnosticsCta) {

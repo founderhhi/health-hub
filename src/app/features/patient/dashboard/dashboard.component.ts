@@ -1,14 +1,13 @@
-import { Component, OnDestroy, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
 import { WsService } from '../../../core/realtime/ws.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
-import { AiChatBubbleComponent } from '../../../shared/components/ai-chat-bubble/ai-chat-bubble.component';
 import { ThemeService, ThemeMode } from '../../../shared/services/theme.service';
-import { Subscription, catchError, forkJoin, map, of, timeout } from 'rxjs';
+import { Subscription, catchError, filter, forkJoin, map, of, timeout } from 'rxjs';
 
 interface HealthStats {
   consultations: number;
@@ -16,15 +15,37 @@ interface HealthStats {
   records: number;
 }
 
+interface ServiceCard {
+  id: string;
+  title: string;
+  icon: string;
+  comingSoon?: boolean;
+}
+
+const GP_CONSULT_PRICE_USD = 25;
+
+const DASHBOARD_SERVICES: ServiceCard[] = [
+  { id: 'gp', title: 'Talk to GP', icon: 'pulse' },
+  { id: 'healwell', title: 'Heal Well at Home', icon: 'video' },
+  { id: 'specialist', title: 'Specialist', icon: 'user-md' },
+  { id: 'pharmacy', title: 'Pharmacy', icon: 'pharmacy' },
+  { id: 'diagnostics', title: 'Diagnostics', icon: 'lab', comingSoon: true },
+  { id: 'travel', title: 'Travel & Tourism', icon: 'globe' },
+  { id: 'healwell-africa', title: 'Heal Well in Africa', icon: 'africa' },
+  { id: 'healwell-india', title: 'Heal Well in India', icon: 'india' },
+  { id: 'insurance', title: 'Insurance', icon: 'shield', comingSoon: true },
+];
+
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, BottomNavComponent, AiChatBubbleComponent],
+  imports: [CommonModule, RouterModule, BottomNavComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   PATIENT_TABS = PATIENT_TABS;
+  services = DASHBOARD_SERVICES;
 
   // User data
   userName: string = '';
@@ -32,13 +53,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   requestingConsult = false;
   requestError = '';
   showModeSelector = false;
+  showPaymentConfirm = false;
+  consultationCost = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(GP_CONSULT_PRICE_USD);
   selectedMode: 'video' | 'audio' | 'chat' = 'video';
   recentPrescriptions: any[] = [];
   statsLoading = true;
   prescriptionsLoading = true;
   statsNotice = '';
   showPaymentModal = false;
+  comingSoonMessage = '';
   private wsSubscription?: Subscription;
+  private routerSub?: Subscription;
 
   // Health statistics
   stats: HealthStats = {
@@ -48,6 +77,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
 
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   currentTheme: ThemeMode = 'light';
   private themeSubscription?: Subscription;
@@ -77,6 +107,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadNotifications();
     this.prefetchPatientNavigationData();
 
+    // Reload data when navigating back to dashboard (component reuse)
+    this.routerSub = this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      filter((e) => e.urlAfterRedirects.includes('/patient/dashboard'))
+    ).subscribe(() => {
+      if (this.statsLoading) return;
+      this.loadStats();
+      this.loadPrescriptions();
+      this.loadNotifications();
+    });
+
     // SSR safety: only connect WebSocket in browser
     if (isPlatformBrowser(this.platformId)) {
       const userId = localStorage.getItem('hhi_user_id') || '';
@@ -102,6 +143,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
     this.themeSubscription?.unsubscribe();
+    this.routerSub?.unsubscribe();
   }
 
   toggleTheme(): void {
@@ -116,36 +158,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return 'Good Evening';
   }
 
-  /**
-   * Navigate to specific service
-   */
-  navigateToService(service: string): void {
-    switch(service) {
+  navigateToService(service: ServiceCard): void {
+    if (service.comingSoon) {
+      this.comingSoonMessage = `${service.title} is coming soon.`;
+      setTimeout(() => { this.comingSoonMessage = ''; }, 3000);
+      return;
+    }
+    switch (service.id) {
       case 'gp':
-        this.showModeSelector = true;
+        this.showPaymentConfirm = true;
         break;
       case 'healwell':
         this.router.navigate(['/heal-well/videos']);
         break;
       case 'specialist':
-        this.router.navigate(['/patient/appointments']);
+        this.router.navigate(['/patient/specialist']);
         break;
       case 'pharmacy':
-        this.router.navigate(['/patient/records'], {
-          queryParams: { tab: 'prescriptions' }
-        });
+        this.router.navigate(['/patient/pharmacy']);
         break;
-      case 'diagnostics':
-        // Coming soon - disabled
+      case 'travel':
+        this.router.navigate(['/patient/travel']);
+        break;
+      case 'healwell-africa':
+        this.router.navigate(['/patient/healwell-africa']);
+        break;
+      case 'healwell-india':
+        this.router.navigate(['/patient/healwell-india']);
         break;
     }
-  }
-
-  /**
-   * Show coming soon notification
-   */
-  showComingSoon(): void {
-    // No-op for disabled cards
   }
 
   /**
@@ -194,7 +235,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       sessionStorage.setItem('hhi_consult_mode', this.selectedMode);
     }
 
-    this.patientApi.requestConsult(this.selectedMode, { complaint: 'General consult' }).subscribe({
+    this.patientApi.requestConsult(this.selectedMode, {
+      complaint: 'General consult',
+      source: 'dashboard-gp',
+    }).subscribe({
       next: () => {
         this.requestingConsult = false;
         this.router.navigate(['/patient/waiting']);
@@ -204,6 +248,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.requestError = 'Unable to request a GP right now.';
       }
     });
+  }
+
+  confirmPayment(): void {
+    this.showPaymentConfirm = false;
+    this.showModeSelector = true;
+  }
+
+  cancelPayment(): void {
+    this.showPaymentConfirm = false;
+    this.selectedMode = 'video';
   }
 
   private loadStats(): void {
@@ -277,10 +331,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.stats = nextStats;
         this.statsLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.statsNotice = 'Unable to refresh dashboard stats right now.';
         this.statsLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -292,10 +348,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const prescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
         this.recentPrescriptions = prescriptions.slice(0, 3);
         this.prescriptionsLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.recentPrescriptions = [];
         this.prescriptionsLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -304,9 +362,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.notificationsApi.list().subscribe({
       next: (response) => {
         this.notificationCount = (response?.notifications || []).filter((item: any) => !item.read).length;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.notificationCount = 0;
+        this.cdr.detectChanges();
       }
     });
   }

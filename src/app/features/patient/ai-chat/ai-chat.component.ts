@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, ViewChild, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { AiChatService } from '../../../shared/services/ai-chat.service';
+import { PatientApiService } from '../../../core/api/patient.service';
 
 @Component({
   selector: 'app-ai-chat',
@@ -17,6 +19,8 @@ export class AiChatComponent implements AfterViewChecked {
 
   private readonly aiChatService = inject(AiChatService);
   private readonly router = inject(Router);
+  private readonly patientApi = inject(PatientApiService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly PATIENT_TABS = PATIENT_TABS;
   readonly sessionLimit = this.aiChatService.sessionLimit;
@@ -25,6 +29,7 @@ export class AiChatComponent implements AfterViewChecked {
   draftMessage = '';
   sending = false;
   sendError = '';
+  connectingToGp = false;
   private shouldScrollToBottom = false;
 
   ngAfterViewChecked(): void {
@@ -69,8 +74,51 @@ export class AiChatComponent implements AfterViewChecked {
     });
   }
 
+  connectToGP(): void {
+    if (this.connectingToGp) return;
+    this.connectingToGp = true;
+
+    const state = this.aiChatService.getCurrentState();
+    const userMessages = state.messages
+      .filter(m => m.role === 'user')
+      .map(m => m.content);
+    const assistantMessages = state.messages
+      .filter(m => m.role === 'assistant')
+      .map(m => m.content);
+    const complaint = state.triage?.complaint || userMessages[0] || 'General consult';
+    const triageAnswers = state.triage?.triageAnswers?.length
+      ? state.triage.triageAnswers
+      : userMessages.slice(1);
+    const triageSummary = state.triage?.triageSummary
+      || assistantMessages[assistantMessages.length - 1]
+      || 'Patient requested GP handoff after AI triage.';
+    const recommendedNextStep = state.triage?.recommendedNextStep
+      || 'Connect to GP for further assessment.';
+
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('hhi_consult_mode', 'video');
+    }
+
+    this.patientApi.requestConsult('video', {
+      source: 'ai-triage',
+      complaint,
+      triageAnswers,
+      triageSummary,
+      recommendedNextStep,
+    }).subscribe({
+      next: () => {
+        this.connectingToGp = false;
+        this.router.navigate(['/patient/waiting']);
+      },
+      error: () => {
+        this.connectingToGp = false;
+        this.sendError = 'Unable to connect to a GP right now. Please try again.';
+      }
+    });
+  }
+
   bookGpConsultation(): void {
-    this.router.navigate(['/patient/dashboard']);
+    this.connectToGP();
   }
 
   goDiagnostics(): void {

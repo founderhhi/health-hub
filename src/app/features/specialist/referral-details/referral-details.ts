@@ -23,11 +23,21 @@ export class ReferralDetailsComponent implements OnInit {
   showRequestInfoForm = false;
   requestInfoText = '';
   savingSchedule = false;
-  orderingTests = false;
-  prescribing = false;
   accepting = false;
   declining = false;
   submittingInfo = false;
+
+  // Lab order dialog
+  showLabModal = false;
+  labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
+  selectedTests: string[] = [];
+  customTest = '';
+  submittingLabs = false;
+
+  // Prescription dialog
+  showPrescriptionModal = false;
+  prescriptionItems: { name: string; dosage: string; frequency: string; duration: string }[] = [{ name: '', dosage: '', frequency: '', duration: '' }];
+  submittingPrescription = false;
   scheduleForm = {
     appointmentDate: '',
     appointmentTime: '',
@@ -174,26 +184,61 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   orderTests(): void {
-    if (!this.referral?.patient_id || this.orderingTests || !this.canManageClinicalActions) {
+    if (!this.canManageClinicalActions) {
       return;
     }
-    this.orderingTests = true;
+    this.selectedTests = [];
+    this.customTest = '';
+    this.showLabModal = true;
+  }
+
+  toggleTest(test: string): void {
+    const idx = this.selectedTests.indexOf(test);
+    if (idx === -1) {
+      this.selectedTests.push(test);
+    } else {
+      this.selectedTests.splice(idx, 1);
+    }
+  }
+
+  isTestSelected(test: string): boolean {
+    return this.selectedTests.includes(test);
+  }
+
+  submitLabOrder(): void {
+    if (!this.referral?.patient_id || this.submittingLabs) {
+      return;
+    }
+    const tests = [...this.selectedTests];
+    if (this.customTest.trim()) {
+      tests.push(this.customTest.trim());
+    }
+    if (tests.length === 0) {
+      return;
+    }
+    this.submittingLabs = true;
     this.errorMessage = '';
     this.actionNotice = '';
-    const tests = ['CBC', 'Lipid Panel', 'HbA1c'];
     this.labsApi.createOrder(this.referral.patient_id, tests).subscribe({
       next: () => {
-        this.orderingTests = false;
-        this.actionNotice = 'Lab orders created successfully.';
+        this.submittingLabs = false;
+        this.showLabModal = false;
+        this.actionNotice = `Lab order submitted: ${tests.join(', ')}.`;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.orderingTests = false;
+        this.submittingLabs = false;
         console.error('[AGENT_SPECIALIST] lab order failed', err);
         this.errorMessage = 'Unable to order tests right now.';
         this.cdr.detectChanges();
       }
     });
+  }
+
+  closeLabModal(): void {
+    this.showLabModal = false;
+    this.selectedTests = [];
+    this.customTest = '';
   }
 
   accept(): void {
@@ -343,26 +388,51 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   prescribe(): void {
-    if (!this.referral?.patient_id || this.prescribing || !this.canManageClinicalActions) {
+    if (!this.canManageClinicalActions) {
       return;
     }
-    this.prescribing = true;
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
+    this.showPrescriptionModal = true;
+  }
+
+  addPrescriptionItem(): void {
+    this.prescriptionItems.push({ name: '', dosage: '', frequency: '', duration: '' });
+  }
+
+  removePrescriptionItem(index: number): void {
+    this.prescriptionItems.splice(index, 1);
+  }
+
+  submitPrescription(): void {
+    if (!this.referral?.patient_id || this.submittingPrescription) {
+      return;
+    }
+    const items = this.prescriptionItems.filter(item => item.name.trim());
+    if (items.length === 0) {
+      return;
+    }
+    this.submittingPrescription = true;
     this.errorMessage = '';
     this.actionNotice = '';
-    const items = [{ name: 'Vitamin D', dosage: '1000 IU', frequency: '1x/day', duration: '30 days' }];
     this.prescriptionsApi.create(this.referral.patient_id, items).subscribe({
       next: () => {
-        this.prescribing = false;
+        this.submittingPrescription = false;
+        this.showPrescriptionModal = false;
         this.actionNotice = 'Prescription created successfully.';
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.prescribing = false;
+        this.submittingPrescription = false;
         console.error('[AGENT_SPECIALIST] prescription failed', err);
         this.errorMessage = 'Unable to create prescription right now.';
         this.cdr.detectChanges();
       }
     });
+  }
+
+  closePrescriptionModal(): void {
+    this.showPrescriptionModal = false;
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
   }
 
   isStepComplete(step: number): boolean {

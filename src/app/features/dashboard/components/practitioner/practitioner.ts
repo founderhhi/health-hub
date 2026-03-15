@@ -27,6 +27,8 @@ interface QueuePatient {
   createdAt: string;
   status?: 'waiting' | 'active' | 'completed' | 'paused';
   symptoms?: string;
+  triageAnswers?: string[];
+  recommendedNextStep?: string;
 }
 
 interface DashboardStats {
@@ -130,6 +132,7 @@ export class Practitioner implements OnInit, OnDestroy {
   // ── Referral Modal State ──
   showReferralModal = false;
   referralPatientId = '';
+  referralSubmitError = '';
   referralForm: ReferralFormData = {
     specialty: '',
     urgency: 'routine',
@@ -353,6 +356,7 @@ export class Practitioner implements OnInit, OnDestroy {
           item.last_name,
           item.display_name
         );
+        const triage = this.normalizeSymptomPayload(item.symptoms);
 
         return {
           id: item.id,
@@ -365,10 +369,12 @@ export class Practitioner implements OnInit, OnDestroy {
           waitTime: `${minutes} min`,
           waitMinutes: minutes,
           mode: item.mode || 'video',
-          aiSummary: item.symptoms?.complaint || item.ai_summary || 'Consultation request',
+          aiSummary: triage.triageSummary || triage.complaint || item.ai_summary || 'Consultation request',
           status: item.status || 'waiting',
           createdAt: item.created_at,
-          symptoms: item.symptoms?.description || item.symptoms
+          symptoms: triage.symptomsText,
+          triageAnswers: triage.triageAnswers,
+          recommendedNextStep: triage.recommendedNextStep,
         } as QueuePatient;
       });
 
@@ -597,6 +603,59 @@ export class Practitioner implements OnInit, OnDestroy {
     this.showPatientDetailsModal = true;
   }
 
+  private normalizeSymptomPayload(symptoms: unknown): {
+    complaint: string;
+    triageSummary: string;
+    triageAnswers: string[];
+    recommendedNextStep: string;
+    symptomsText: string;
+  } {
+    if (!symptoms) {
+      return {
+        complaint: '',
+        triageSummary: '',
+        triageAnswers: [],
+        recommendedNextStep: '',
+        symptomsText: ''
+      };
+    }
+
+    if (typeof symptoms === 'string') {
+      return {
+        complaint: '',
+        triageSummary: '',
+        triageAnswers: [],
+        recommendedNextStep: '',
+        symptomsText: symptoms
+      };
+    }
+
+    const payload = symptoms as {
+      complaint?: unknown;
+      description?: unknown;
+      triageSummary?: unknown;
+      triageAnswers?: unknown;
+      recommendedNextStep?: unknown;
+    };
+    const complaint = typeof payload.complaint === 'string' ? payload.complaint.trim() : '';
+    const description = typeof payload.description === 'string' ? payload.description.trim() : '';
+    const triageSummary = typeof payload.triageSummary === 'string' ? payload.triageSummary.trim() : '';
+    const triageAnswers = Array.isArray(payload.triageAnswers)
+      ? payload.triageAnswers.map((value) => String(value || '').trim()).filter(Boolean)
+      : [];
+    const recommendedNextStep = typeof payload.recommendedNextStep === 'string'
+      ? payload.recommendedNextStep.trim()
+      : '';
+
+    return {
+      complaint,
+      triageSummary,
+      triageAnswers,
+      recommendedNextStep,
+      symptomsText: description || complaint,
+    };
+  }
+
   /**
    * Close patient details modal
    */
@@ -671,9 +730,15 @@ export class Practitioner implements OnInit, OnDestroy {
   }
 
   submitReferral(): void {
-    if (!this.referralForm.specialty || !this.referralForm.reason.trim()) {
+    if (!this.referralForm.specialty) {
+      this.referralSubmitError = 'Please select a specialty.';
       return;
     }
+    if (!this.referralForm.reason.trim()) {
+      this.referralSubmitError = 'Please provide a reason for the referral.';
+      return;
+    }
+    this.referralSubmitError = '';
     this.referralsApi.createReferral(
       this.referralPatientId,
       this.referralForm.urgency,
@@ -702,6 +767,7 @@ export class Practitioner implements OnInit, OnDestroy {
   closeReferralModal(): void {
     this.showReferralModal = false;
     this.referralPatientId = '';
+    this.referralSubmitError = '';
     this.referralForm = {
       specialty: '',
       urgency: 'routine',

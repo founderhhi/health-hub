@@ -1,7 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, getTestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { NEVER, of } from 'rxjs';
-import { vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GpApiService } from '../../../../core/api/gp.service';
 import { ProviderProfileService } from '../../../../core/services/provider-profile.service';
@@ -10,6 +11,13 @@ import { ReferralsApiService } from '../../../../core/api/referrals.service';
 import { WsService } from '../../../../core/realtime/ws.service';
 
 import { Practitioner } from './practitioner';
+
+const ANGULAR_TEST_ENV_KEY = '__health_hub_angular_test_env__';
+
+if (!(globalThis as Record<string, unknown>)[ANGULAR_TEST_ENV_KEY]) {
+  getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+  (globalThis as Record<string, unknown>)[ANGULAR_TEST_ENV_KEY] = true;
+}
 
 describe('Practitioner', () => {
   let component: Practitioner;
@@ -113,5 +121,42 @@ describe('Practitioner', () => {
 
     expect(gpApiMock.getQueue).toHaveBeenCalledTimes(2);
     expect(gpApiMock.getConsultationHistory).toHaveBeenCalledTimes(2);
+  });
+
+  it('maps structured AI triage data into the provider queue', async () => {
+    gpApiMock.getQueue.mockReturnValueOnce(of({
+      queue: [
+        {
+          id: 'request-1',
+          patient_id: 'patient-1',
+          display_name: 'Jane Doe',
+          first_name: 'Jane',
+          last_name: 'Doe',
+          mode: 'video',
+          status: 'waiting',
+          created_at: new Date().toISOString(),
+          symptoms: {
+            source: 'ai-triage',
+            complaint: 'Persistent headache',
+            triageAnswers: ['Started yesterday', 'No weakness', 'Light sensitivity present'],
+            triageSummary: 'Possible conditions:\n- migraine\nRecommended next step:\n- Connect to GP today.',
+            recommendedNextStep: 'Connect to GP today.'
+          }
+        }
+      ]
+    }));
+
+    component.refreshQueue();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.queue[0]?.symptoms).toBe('Persistent headache');
+    expect(component.queue[0]?.aiSummary).toContain('Possible conditions:');
+    expect(component.queue[0]?.triageAnswers).toEqual([
+      'Started yesterday',
+      'No weakness',
+      'Light sensitivity present'
+    ]);
+    expect(component.queue[0]?.recommendedNextStep).toBe('Connect to GP today.');
   });
 });

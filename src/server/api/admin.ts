@@ -21,6 +21,45 @@ function isUniqueViolation(error: unknown): boolean {
 }
 
 const VALID_ROLES = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
+const VALID_SERVICE_REQUEST_STATUSES = ['new', 'contacted', 'closed'];
+
+function buildAdminUsersQueries(
+  role: string | undefined,
+  search: string | undefined,
+  includeNameColumns: boolean,
+  includeOperatingColumn: boolean
+) {
+  const nameColumns = includeNameColumns
+    ? 'first_name, last_name'
+    : `null::text as first_name, null::text as last_name`;
+  const operatingColumn = includeOperatingColumn
+    ? 'is_operating'
+    : 'true as is_operating';
+  const params: unknown[] = [];
+  const conditions: string[] = [];
+
+  if (role) {
+    params.push(role);
+    conditions.push(`role = $${params.length}`);
+  }
+
+  if (search) {
+    params.push(`%${search}%`);
+    if (includeNameColumns) {
+      conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length} or first_name ilike $${params.length} or last_name ilike $${params.length})`);
+    } else {
+      conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length})`);
+    }
+  }
+
+  const whereClause = conditions.length > 0 ? ` where ${conditions.join(' and ')}` : '';
+
+  return {
+    params,
+    countQuery: `select count(*) from users${whereClause}`,
+    listQuery: `select id, role, phone, display_name, ${nameColumns}, ${operatingColumn}, created_at from users${whereClause} order by created_at desc`
+  };
+}
 
 async function logAdminActivity(
   actorUserId: string | undefined,
@@ -53,46 +92,20 @@ adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) 
     const search = req.query['search'] as string | undefined;
 
     const queryUsers = async (includeNameColumns: boolean, includeOperatingColumn: boolean) => {
-      const nameColumns = includeNameColumns
-        ? 'first_name, last_name'
-        : `null::text as first_name, null::text as last_name`;
-      const operatingColumn = includeOperatingColumn
-        ? 'is_operating'
-        : 'true as is_operating';
-      let query = `select id, role, phone, display_name, ${nameColumns}, ${operatingColumn}, created_at from users`;
-      const params: unknown[] = [];
-      const conditions: string[] = [];
-
-      if (role) {
-        params.push(role);
-        conditions.push(`role = $${params.length}`);
-      }
-
-      if (search) {
-        params.push(`%${search}%`);
-        if (includeNameColumns) {
-          conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length} or first_name ilike $${params.length} or last_name ilike $${params.length})`);
-        } else {
-          conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length})`);
-        }
-      }
-
-      if (conditions.length > 0) {
-        query += ` where ${conditions.join(' and ')}`;
-      }
-
-      query += ` order by created_at desc`;
-
-      const countQuery = query.replace(/select[\s\S]+? from/, 'select count(*) from');
+      const { params, countQuery, listQuery } = buildAdminUsersQueries(
+        role,
+        search,
+        includeNameColumns,
+        includeOperatingColumn
+      );
       const countResult = await db.query(countQuery, params);
       const total = parseInt(countResult.rows[0].count);
 
-      params.push(limit);
-      query += ` limit $${params.length}`;
-      params.push(offset);
-      query += ` offset $${params.length}`;
-
-      const result = await db.query(query, params);
+      const listParams = [...params, limit, offset];
+      const result = await db.query(
+        `${listQuery} limit $${listParams.length - 1} offset $${listParams.length}`,
+        listParams
+      );
       return {
         users: result.rows,
         pagination: { page, limit, total, pages: Math.ceil(total / limit) }
@@ -355,6 +368,120 @@ adminRouter.get('/activity', requireAuth, requireRole(['admin']), async (req, re
   } catch (error) {
     console.error('Admin activity error', error);
     return res.status(500).json({ error: 'Unable to fetch admin activity' });
+  }
+});
+
+adminRouter.get('/service-requests', requireAuth, requireRole(['admin']), async (_req, res) => {
+  try {
+    const result = await db.query(
+      `select
+         sr.*,
+         patient.display_name as patient_name,
+         patient.phone as patient_phone,
+         handler.display_name as handled_by_name
+       from service_requests sr
+       join users patient on patient.id = sr.patient_id
+       left join users handler on handler.id = sr.handled_by
+       order by sr.created_at desc`
+    );
+
+    return res.json({ requests: result.rows });
+  } catch (error) {
+    console.error('Admin service requests error', error);
+    return res.status(500).json({ error: 'Unable to fetch service requests' });
+  }
+});
+
+adminRouter.patch('/service-requests/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { status } = req.body as { status?: string };
+
+    if (!status || !VALID_SERVICE_REQUEST_STATUSES.includes(status)) {
+      return res.status(400).json({
+        error: `Invalid status. Must be one of: ${VALID_SERVICE_REQUEST_STATUSES.join(', ')}`
+      });
+    }
+
+    const result = await db.query(
+      `update service_requests
+       set status = $2,
+           handled_by = $3,
+           updated_at = now()
+       where id = $1
+       returning id`,
+      [id, status, actor?.userId || null]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Service request not found' });
+    }
+
+    await logAdminActivity(actor?.userId, 'service_request.status.updated', null, null, {
+      requestId: id,
+      status,
+    });
+
+    const hydratedRequest = await db.query(
+      `select
+         sr.*,
+         patient.display_name as patient_name,
+         patient.phone as patient_phone,
+         handler.display_name as handled_by_name
+       from service_requests sr
+       join users patient on patient.id = sr.patient_id
+       left join users handler on handler.id = sr.handled_by
+       where sr.id = $1
+       limit 1`,
+      [id]
+    );
+
+    return res.json({ request: hydratedRequest.rows[0] });
+  } catch (error) {
+    console.error('Admin update service request error', error);
+    return res.status(500).json({ error: 'Unable to update service request' });
+  }
+});
+
+// Admin: List prescriptions (for Pharmacy tab)
+adminRouter.get('/prescriptions', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query['page'] as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query['limit'] as string) || 25));
+    const offset = (page - 1) * limit;
+
+    let total = 0;
+    try {
+      const countResult = await db.query('select count(*) from prescriptions');
+      total = parseInt(countResult.rows[0].count || '0');
+    } catch (error) {
+      if (!isUndefinedTableError(error)) {
+        throw error;
+      }
+      return res.json({
+        prescriptions: [],
+        pagination: { page, limit, total: 0, pages: 0 }
+      });
+    }
+
+    const result = await db.query(
+      `select p.id, p.code, p.items, p.status, p.created_at,
+              u.display_name as patient_name, u.phone as patient_phone
+       from prescriptions p
+       join users u on u.id = p.patient_id
+       order by p.created_at desc
+       limit $1 offset $2`,
+      [limit, offset]
+    );
+
+    return res.json({
+      prescriptions: result.rows,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    console.error('Admin prescriptions error', error);
+    return res.status(500).json({ error: 'Unable to fetch prescriptions' });
   }
 });
 

@@ -42,7 +42,7 @@ const REFERRAL_SELECT = `
     left join consultations c on c.id = r.consultation_id
 `;
 
-referralsRouter.post('/', requireAuth, requireRole(['gp']), async (req, res) => { // [AGENT_ROLES] ISS-07: only GPs create referrals, removed legacy 'doctor' and 'specialist'
+referralsRouter.post('/', requireAuth, requireRole(['gp', 'specialist']), async (req, res) => { // allow GPs and specialists to create referrals; specialists use this to refer patients to other specialists
   try {
     const user = (req as any).user;
     const { patientId, toSpecialistId, urgency, reason, appointmentDate, appointmentTime, consultationMode, location, specialty } = req.body as {

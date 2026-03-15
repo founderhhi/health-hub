@@ -191,12 +191,12 @@
         }
 
         <button type="button" class="action-btn action-btn--secondary" (click)="orderTests()"
-          [disabled]="orderingTests || !canManageClinicalActions">
-          {{ orderingTests ? 'Ordering...' : 'Order Tests' }}
+          [disabled]="!canManageClinicalActions">
+          Order Tests
         </button>
         <button type="button" class="action-btn action-btn--secondary" (click)="prescribe()"
-          [disabled]="prescribing || !canManageClinicalActions">
-          {{ prescribing ? 'Prescribing...' : 'Prescribe' }}
+          [disabled]="!canManageClinicalActions">
+          Prescribe
         </button>
 
         <div class="secondary-actions">
@@ -256,3 +256,102 @@
     </a>
   </nav>
 </section>
+
+<!-- ═══════════════════════════════════════════
+     Lab Order Modal
+     ═══════════════════════════════════════════ -->
+@if (showLabModal) {
+<div class="modal-overlay" (click)="closeLabModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Order Lab Tests</h2>
+      <button class="modal-close" type="button" (click)="closeLabModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="color:#94a3b8;font-size:0.875rem;margin:0 0 12px;">Select tests to order for {{ referral?.patient_name }}:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+        @for (test of labTestOptions; track test) {
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border-radius:6px;font-size:0.875rem;"
+            [style.background]="isTestSelected(test) ? '#1d4ed8' : '#1e293b'"
+            [style.border]="isTestSelected(test) ? '1px solid #3b82f6' : '1px solid #334155'"
+            [style.color]="'#e2e8f0'">
+            <input type="checkbox" [checked]="isTestSelected(test)" (change)="toggleTest(test)" style="display:none;" />
+            {{ test }}
+          </label>
+        }
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="font-size:0.8125rem;">Custom test (optional)</label>
+        <input type="text" class="form-input" placeholder="e.g. Thyroid Panel" [(ngModel)]="customTest" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" type="button" (click)="closeLabModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" (click)="submitLabOrder()"
+        [disabled]="submittingLabs || (selectedTests.length === 0 && !customTest.trim())">
+        {{ submittingLabs ? 'Submitting...' : 'Order Tests' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════════════════════════════
+     Prescription Modal
+     ═══════════════════════════════════════════ -->
+@if (showPrescriptionModal) {
+<div class="modal-overlay" (click)="closePrescriptionModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">New Prescription</h2>
+      <button class="modal-close" type="button" (click)="closePrescriptionModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      @for (item of prescriptionItems; track $index; let i = $index) {
+        <div class="prescription-item-card">
+          <div class="prescription-item-header">
+            <span class="item-number">Medication #{{ i + 1 }}</span>
+            @if (prescriptionItems.length > 1) {
+              <button class="remove-item-btn" type="button" (click)="removePrescriptionItem(i)">Remove</button>
+            }
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Medication Name</label>
+              <input type="text" class="form-input" placeholder="e.g. Amoxicillin" [(ngModel)]="item.name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dosage</label>
+              <input type="text" class="form-input" placeholder="e.g. 500mg" [(ngModel)]="item.dosage" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Frequency</label>
+              <input type="text" class="form-input" placeholder="e.g. 2x/day" [(ngModel)]="item.frequency" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration</label>
+              <input type="text" class="form-input" placeholder="e.g. 7 days" [(ngModel)]="item.duration" />
+            </div>
+          </div>
+        </div>
+      }
+      <button class="add-item-btn" type="button" (click)="addPrescriptionItem()">+ Add Another Medication</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" type="button" (click)="closePrescriptionModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" (click)="submitPrescription()"
+        [disabled]="submittingPrescription || prescriptionItems[0]?.name?.trim() === ''">
+        {{ submittingPrescription ? 'Submitting...' : 'Submit Prescription' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

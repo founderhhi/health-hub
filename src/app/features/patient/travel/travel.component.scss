@@ -1,0 +1,142 @@
+@use '../../../../app/shared/styles/variables' as v;
+
+.travel-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: v.$space-lg;
+  padding-bottom: calc(80px + v.$safe-area-bottom);
+  color: var(--text-primary);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-xl;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: v.$radius-full;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg { width: 20px; height: 20px; color: var(--text-primary); }
+  &:hover { border-color: var(--accent-primary); }
+}
+
+.page-title {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-xl;
+  font-weight: v.$font-weight-semibold;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: v.$space-xl;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 200ms ease;
+
+  &.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-weight: v.$font-weight-semibold;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.coming-soon-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: v.$space-xl;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$space-md;
+}
+
+.coming-soon-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(46, 204, 113, 0.1);
+  border-radius: v.$radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg { width: 32px; height: 32px; color: #2ECC71; }
+}
+
+.coming-soon-title {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-semibold;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.coming-soon-text {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+.callback-btn {
+  padding: 12px 32px;
+  background: var(--accent-primary);
+  border: none;
+  border-radius: 10px;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-base;
+  font-weight: v.$font-weight-semibold;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: background 200ms ease;
+
+  &:hover { background: var(--accent-hover); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.callback-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(46, 204, 113, 0.1);
+  border-radius: 8px;
+  color: #2ECC71;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+
+  svg { width: 16px; height: 16px; }
+}

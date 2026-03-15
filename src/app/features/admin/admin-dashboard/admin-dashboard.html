@@ -3,6 +3,8 @@
     <h1>Admin Dashboard</h1>
     <div class="tab-bar">
       <button class="tab" [class.active]="activeTab === 'users'" (click)="setTab('users')">Users</button>
+      <button class="tab" [class.active]="activeTab === 'pharmacy'" (click)="setTab('pharmacy')">Pharmacy</button>
+      <button class="tab" [class.active]="activeTab === 'requests'" (click)="setTab('requests')">Requests</button>
       <button class="tab" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">Activity</button>
       <button class="tab" [class.active]="activeTab === 'health'" (click)="setTab('health')">System Health</button>
     </div>
@@ -104,6 +106,54 @@
   }
   }
 
+  @if (activeTab === 'pharmacy') {
+  @if (pharmacyLoading) {
+  <div class="loading">Loading prescriptions...</div>
+  } @else if (prescriptions.length === 0) {
+  <div class="loading">No prescriptions found.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Phone</th>
+          <th>Rx Code</th>
+          <th>Items</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (rx of prescriptions; track rx.id) {
+        <tr>
+          <td class="name-cell">{{ rx.patient_name || 'Unknown' }}</td>
+          <td>{{ rx.patient_phone || '—' }}</td>
+          <td><code class="rx-code">{{ rx.code }}</code></td>
+          <td>{{ formatRxItems(rx.items) }}</td>
+          <td>
+            <span class="status-badge"
+              [class.active]="rx.status === 'active'"
+              [class.claimed]="rx.status === 'claimed'"
+              [class.fulfilled]="rx.status === 'fulfilled'">
+              {{ rx.status }}
+            </span>
+          </td>
+          <td>{{ rx.created_at | date:'short' }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="page-btn" [disabled]="pharmacyPage <= 1" (click)="prevPharmacyPage()">Previous</button>
+    <span class="page-info">Page {{ pharmacyPage }} of {{ pharmacyTotalPages }}</span>
+    <button class="page-btn" [disabled]="pharmacyPage >= pharmacyTotalPages" (click)="nextPharmacyPage()">Next</button>
+  </div>
+  }
+  }
+
   @if (activeTab === 'activity') {
   @if (activityLoading) {
   <div class="loading">Loading activity...</div>
@@ -137,6 +187,53 @@
     <button class="page-btn" [disabled]="activityPage <= 1" (click)="prevActivityPage()">Previous</button>
     <span class="page-info">Page {{ activityPage }} of {{ activityTotalPages }}</span>
     <button class="page-btn" [disabled]="activityPage >= activityTotalPages" (click)="nextActivityPage()">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'requests') {
+  @if (requestsLoading) {
+  <div class="loading">Loading requests...</div>
+  } @else if (requests.length === 0) {
+  <div class="loading">No service requests yet.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Submitted</th>
+          <th>Request</th>
+          <th>Patient</th>
+          <th>Destination</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of requests; track request.id) {
+        <tr>
+          <td>{{ request.created_at | date:'short' }}</td>
+          <td>
+            <div class="request-primary">{{ formatRequestType(request.type) }}</div>
+            @if (request.handled_by_name) {
+            <div class="request-secondary">Handled by {{ request.handled_by_name }}</div>
+            }
+          </td>
+          <td>
+            <div class="request-primary">{{ request.patient_name || 'Unknown patient' }}</div>
+            <div class="request-secondary">{{ request.patient_phone || 'No phone' }}</div>
+          </td>
+          <td>{{ getRequestDestination(request) }}</td>
+          <td>
+            <select class="inline-select" [ngModel]="request.status" (ngModelChange)="updateRequestStatus(request, $event)">
+              @for (status of requestStatuses; track status) {
+              <option [value]="status">{{ status }}</option>
+              }
+            </select>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
   </div>
   }
   }
