@@ -442,6 +442,12 @@
           <span class="detail-label">Mode:</span>
           <span class="detail-value">{{ selectedPatient.mode | titlecase }}</span>
         </div>
+        @if (selectedPatient.triageSource) {
+        <div class="detail-row">
+          <span class="detail-label">Source:</span>
+          <span class="detail-value">{{ getTriageSourceLabel(selectedPatient.triageSource) }}</span>
+        </div>
+        }
         @if (selectedPatient.symptoms) {
         <div class="detail-row">
           <span class="detail-label">Symptoms:</span>

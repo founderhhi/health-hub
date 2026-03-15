@@ -23,11 +23,11 @@ describe('Practitioner', () => {
   let component: Practitioner;
   let fixture: ComponentFixture<Practitioner>;
   const gpApiMock = {
-    getQueue: vi.fn(() => of({ queue: [] })),
+    getQueue: vi.fn(() => of<{ queue: any[] }>({ queue: [] })),
     acceptRequest: vi.fn(() => of({ consultation: null, roomUrl: '' })),
     deleteFromQueue: vi.fn(() => of({ success: true })),
     getOperationalStatus: vi.fn(() => of({ operational: true })),
-    getConsultationHistory: vi.fn(() => of({ history: [] })),
+    getConsultationHistory: vi.fn(() => of<{ history: any[] }>({ history: [] })),
     deleteConsultationRecord: vi.fn(() => of({ success: true })),
     updateOperationalStatus: vi.fn(() => of({ success: true, operational: true }))
   };
@@ -151,6 +151,7 @@ describe('Practitioner', () => {
     await fixture.whenStable();
 
     expect(component.queue[0]?.symptoms).toBe('Persistent headache');
+    expect(component.queue[0]?.triageSource).toBe('ai-triage');
     expect(component.queue[0]?.aiSummary).toContain('Possible conditions:');
     expect(component.queue[0]?.triageAnswers).toEqual([
       'Started yesterday',
