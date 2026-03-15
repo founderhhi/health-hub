@@ -1,25 +1,31 @@
 <section class="chat-panel">
   <header class="chat-panel__header">
-    <h3 class="chat-panel__title">{{ title }}</h3>
+    <div class="chat-panel__heading">
+      <h3 class="chat-panel__title">{{ title }}</h3>
+      <p class="chat-panel__presence" [class.chat-panel__presence--live]="connectionState === 'connected'">
+        {{ connectionState === 'connected' ? 'Realtime connected' : 'Realtime syncing' }}
+      </p>
+    </div>
     <button type="button" class="chat-panel__refresh" (click)="loadMessages()" [disabled]="loading || disabled">
       Refresh
     </button>
   </header>
 
-  <div class="chat-panel__status" *ngIf="loading">Loading messages...</div>
+  <div class="chat-panel__status" *ngIf="loading && messages.length === 0">Loading messages...</div>
   <div class="chat-panel__status chat-panel__status--error" *ngIf="!loading && error">{{ error }}</div>
 
-  <div #messagesContainer class="chat-panel__messages" *ngIf="!loading">
+  <div #messagesContainer class="chat-panel__messages">
     <div class="chat-panel__empty" *ngIf="messages.length === 0">No messages yet.</div>
 
     <article
       class="chat-panel__message"
       *ngFor="let item of messages; trackBy: trackMessage"
       [class.chat-panel__message--mine]="item.mine"
+      [class.chat-panel__message--pending]="item.pending"
     >
       <p class="chat-panel__meta">
         <span class="chat-panel__sender">{{ item.senderLabel || 'Participant' }}</span>
-        <time class="chat-panel__time">{{ item.created_at | date: 'shortTime' }}</time>
+        <time class="chat-panel__time">{{ item.pending ? 'Sending...' : (item.created_at | date: 'shortTime') }}</time>
       </p>
       <p class="chat-panel__text">{{ item.message }}</p>
     </article>

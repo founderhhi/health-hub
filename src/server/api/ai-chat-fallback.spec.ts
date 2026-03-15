@@ -37,4 +37,34 @@ describe('buildFallbackTriageReply', () => {
     expect(result.reply).toContain('urine dipstick');
     expect(result.reply).toContain('Recommended next step:');
   });
+
+  it('keeps urinary summaries focused even when generic symptoms overlap other categories', () => {
+    const result = buildFallbackTriageReply([
+      { role: 'user', content: 'I have burning when I pee and lower abdominal pain.' },
+      { role: 'user', content: 'It started 2 days ago and is getting worse.' },
+      { role: 'user', content: 'I also have fever and urgency.' },
+      { role: 'user', content: 'No back pain, but some nausea.' },
+    ]);
+
+    expect(result.showGpCta).toBe(true);
+    expect(result.showDiagnosticsCta).toBe(true);
+    expect(result.reply).toContain('a urinary tract infection');
+    expect(result.reply).toContain('urine dipstick');
+    expect(result.reply).not.toContain('viral upper respiratory infection');
+    expect(result.reply).not.toContain('viral swab');
+  });
+
+  it('prioritizes neurologic context for headache complaints', () => {
+    const result = buildFallbackTriageReply([
+      { role: 'user', content: 'I have headache with light sensitivity since this morning.' },
+      { role: 'user', content: 'It is getting worse and feels like my usual migraine.' },
+      { role: 'user', content: 'No weakness, numbness, or speech problems.' },
+      { role: 'user', content: 'A bit nauseous but no vomiting.' },
+    ]);
+
+    expect(result.showGpCta).toBe(true);
+    expect(result.reply).toContain('a tension headache or migraine');
+    expect(result.reply).not.toContain('a urinary tract infection');
+    expect(result.reply).not.toContain('a viral upper respiratory infection');
+  });
 });

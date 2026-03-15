@@ -68,7 +68,7 @@
         {{ selectedHospital?.name }} &mdash; {{ selectedCity?.name }}
       </p>
       @if (callbackLoading) {
-      <div class="callback-confirmation">
+      <div class="callback-confirmation callback-confirmation--pending">
         <span>Submitting your request...</span>
       </div>
       } @else if (callbackSent) {
@@ -77,9 +77,10 @@
         <span>Request submitted</span>
       </div>
       } @else if (callbackError) {
-      <div class="callback-confirmation">
+      <div class="callback-confirmation callback-confirmation--error">
         <span>{{ callbackError }}</span>
       </div>
+      <button class="callback-retry-btn" type="button" (click)="retryCallback()">Try Again</button>
       }
     </div>
     }

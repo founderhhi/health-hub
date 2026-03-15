@@ -72,6 +72,9 @@
 
         <div class="panel-card">
           <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()">Back to Referral</button>
+          @if (canOpenConsultationShell) {
+            <button class="btn btn--secondary btn--sm" type="button" (click)="onRefer()">Refer to Another Specialist</button>
+          }
         </div>
       </aside>
 

@@ -41,6 +41,9 @@
       <button class="callback-btn" (click)="requestCallback()" [disabled]="callbackLoading">
         @if (callbackLoading) { Sending... } @else { Request a Callback }
       </button>
+      @if (callbackError) {
+      <div class="callback-error" role="alert">{{ callbackError }}</div>
+      }
       }
     </div>
   </div>

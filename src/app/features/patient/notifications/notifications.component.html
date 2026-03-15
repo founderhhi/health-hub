@@ -1,10 +1,17 @@
 <section class="notifications-page">
   <header class="page-header">
-    <button class="back-btn" (click)="goBack()">Back</button>
-    <h1>Notifications</h1>
-    <button class="mark-all-btn" *ngIf="unreadCount > 0" (click)="markAllAsRead()">
-      Mark all read ({{ unreadCount }})
+    <button class="back-btn" (click)="goBack()" aria-label="Go back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
     </button>
+    <h1>Notifications</h1>
+    <button class="mark-all-btn" *ngIf="unreadCount > 0; else headerSpacer" (click)="markAllAsRead()">
+      Mark all read
+    </button>
+    <ng-template #headerSpacer>
+      <div class="header-spacer" aria-hidden="true"></div>
+    </ng-template>
   </header>
 
   <div class="notifications-list" *ngIf="!loading && notifications.length > 0; else emptyState">

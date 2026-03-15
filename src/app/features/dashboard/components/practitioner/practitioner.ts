@@ -10,6 +10,7 @@ import { PrescriptionsApiService } from '../../../../core/api/prescriptions.serv
 import { ReferralsApiService } from '../../../../core/api/referrals.service';
 import { WsService } from '../../../../core/realtime/ws.service';
 import { ConsultShellComponent, ConsultMode } from '../../../../shared/components/consult-shell/consult-shell';
+import { formatTriageSourceLabel, normalizeTriageHandoff } from './triage-handoff';
 
 interface QueuePatient {
   id: string;
@@ -27,6 +28,7 @@ interface QueuePatient {
   createdAt: string;
   status?: 'waiting' | 'active' | 'completed' | 'paused';
   symptoms?: string;
+  triageSource?: string;
   triageAnswers?: string[];
   recommendedNextStep?: string;
 }
@@ -356,7 +358,7 @@ export class Practitioner implements OnInit, OnDestroy {
           item.last_name,
           item.display_name
         );
-        const triage = this.normalizeSymptomPayload(item.symptoms);
+        const triage = normalizeTriageHandoff(item.symptoms);
 
         return {
           id: item.id,
@@ -373,6 +375,7 @@ export class Practitioner implements OnInit, OnDestroy {
           status: item.status || 'waiting',
           createdAt: item.created_at,
           symptoms: triage.symptomsText,
+          triageSource: triage.source,
           triageAnswers: triage.triageAnswers,
           recommendedNextStep: triage.recommendedNextStep,
         } as QueuePatient;
@@ -603,57 +606,8 @@ export class Practitioner implements OnInit, OnDestroy {
     this.showPatientDetailsModal = true;
   }
 
-  private normalizeSymptomPayload(symptoms: unknown): {
-    complaint: string;
-    triageSummary: string;
-    triageAnswers: string[];
-    recommendedNextStep: string;
-    symptomsText: string;
-  } {
-    if (!symptoms) {
-      return {
-        complaint: '',
-        triageSummary: '',
-        triageAnswers: [],
-        recommendedNextStep: '',
-        symptomsText: ''
-      };
-    }
-
-    if (typeof symptoms === 'string') {
-      return {
-        complaint: '',
-        triageSummary: '',
-        triageAnswers: [],
-        recommendedNextStep: '',
-        symptomsText: symptoms
-      };
-    }
-
-    const payload = symptoms as {
-      complaint?: unknown;
-      description?: unknown;
-      triageSummary?: unknown;
-      triageAnswers?: unknown;
-      recommendedNextStep?: unknown;
-    };
-    const complaint = typeof payload.complaint === 'string' ? payload.complaint.trim() : '';
-    const description = typeof payload.description === 'string' ? payload.description.trim() : '';
-    const triageSummary = typeof payload.triageSummary === 'string' ? payload.triageSummary.trim() : '';
-    const triageAnswers = Array.isArray(payload.triageAnswers)
-      ? payload.triageAnswers.map((value) => String(value || '').trim()).filter(Boolean)
-      : [];
-    const recommendedNextStep = typeof payload.recommendedNextStep === 'string'
-      ? payload.recommendedNextStep.trim()
-      : '';
-
-    return {
-      complaint,
-      triageSummary,
-      triageAnswers,
-      recommendedNextStep,
-      symptomsText: description || complaint,
-    };
+  getTriageSourceLabel(source: string | undefined): string {
+    return formatTriageSourceLabel(source);
   }
 
   /**
@@ -714,6 +668,7 @@ export class Practitioner implements OnInit, OnDestroy {
 
   referToSpecialist(patientId?: string): void {
     if (!patientId) {
+      this.showUnavailableNotice('Patient context is unavailable. Please accept a patient first.');
       return;
     }
     this.referralPatientId = patientId;

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
@@ -30,10 +30,14 @@ export class PatientPharmacyComponent {
   directionMessage = '';
 
   private location = inject(Location);
+  private cdr = inject(ChangeDetectorRef);
 
   getDirections(pharmacy: NearbyPharmacy): void {
     this.directionMessage = `Directions to ${pharmacy.name} coming soon.`;
-    setTimeout(() => { this.directionMessage = ''; }, 3000);
+    setTimeout(() => {
+      this.directionMessage = '';
+      this.cdr.detectChanges();
+    }, 3000);
   }
 
   goBack(): void {

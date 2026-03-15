@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
@@ -28,6 +28,7 @@ export class HealwellRegionComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private patientApi = inject(PatientApiService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     const region = this.route.snapshot.data['region'] || 'india';
@@ -43,6 +44,18 @@ export class HealwellRegionComponent implements OnInit {
     this.selectedHospital = hospital;
     this.view = 'callback';
     this.callbackSent = false;
+    this.submitCallbackRequest();
+  }
+
+  retryCallback(): void {
+    if (!this.selectedHospital || this.callbackLoading) {
+      return;
+    }
+
+    this.submitCallbackRequest();
+  }
+
+  private submitCallbackRequest(): void {
     this.callbackLoading = true;
     this.callbackError = '';
 
@@ -50,15 +63,17 @@ export class HealwellRegionComponent implements OnInit {
       type: 'healwell_callback',
       region: this.regionConfig.title,
       city: this.selectedCity?.name || '',
-      hospital: hospital.name,
+      hospital: this.selectedHospital?.name || '',
     }).subscribe({
       next: () => {
         this.callbackLoading = false;
         this.callbackSent = true;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.callbackLoading = false;
         this.callbackError = 'Unable to submit your request right now. Please try again shortly.';
+        this.cdr.detectChanges();
       }
     });
   }

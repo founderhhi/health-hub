@@ -20,6 +20,13 @@ interface SymptomCategory {
   diagnosticsCta: boolean;
 }
 
+interface RankedSymptomCategory {
+  category: SymptomCategory;
+  complaintMatches: number;
+  contextMatches: number;
+  score: number;
+}
+
 const EMERGENCY_SIGNALS: Array<{ reason: string; patterns: string[] }> = [
   {
     reason: 'severe chest pain or possible breathing difficulty',
@@ -322,8 +329,61 @@ function getUserMessages(messages: FallbackSessionMessage[]): string[] {
     .filter(Boolean);
 }
 
-function getMatchedCategories(text: string): SymptomCategory[] {
-  return CATEGORY_DEFINITIONS.filter((category) => includesAny(text, category.keywords));
+function getMatchedKeywordCount(text: string, keywords: string[]): number {
+  if (!text) {
+    return 0;
+  }
+
+  return keywords.reduce((count, keyword) => count + (text.includes(keyword) ? 1 : 0), 0);
+}
+
+function rankMatchedCategories(complaintText: string, combinedText: string): RankedSymptomCategory[] {
+  return CATEGORY_DEFINITIONS
+    .map((category) => {
+      const complaintMatches = getMatchedKeywordCount(complaintText, category.keywords);
+      const contextMatches = getMatchedKeywordCount(combinedText, category.keywords);
+      const score = (complaintMatches * 4) + Math.max(0, contextMatches - complaintMatches);
+
+      return {
+        category,
+        complaintMatches,
+        contextMatches,
+        score,
+      };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+      if (right.complaintMatches !== left.complaintMatches) {
+        return right.complaintMatches - left.complaintMatches;
+      }
+      return right.contextMatches - left.contextMatches;
+    });
+}
+
+function selectRelevantCategories(userMessages: string[]): SymptomCategory[] {
+  const complaintText = normalizeText(userMessages[0] || '');
+  const combinedText = normalizeText(userMessages.join(' '));
+  const ranked = rankMatchedCategories(complaintText, combinedText);
+
+  if (ranked.length === 0) {
+    return [];
+  }
+
+  const [primary, secondary] = ranked;
+  const selected = [primary.category];
+
+  if (
+    secondary &&
+    secondary.score >= Math.max(3, primary.score - 1) &&
+    (secondary.complaintMatches > 0 || secondary.score === primary.score)
+  ) {
+    selected.push(secondary.category);
+  }
+
+  return selected;
 }
 
 function getEmergencyReason(text: string): string | null {
@@ -439,7 +499,7 @@ export function buildFallbackTriageReply(messages: FallbackSessionMessage[]): Fa
     return buildEmergencyReply(emergencyReason);
   }
 
-  const categories = getMatchedCategories(combinedUserText);
+  const categories = selectRelevantCategories(userMessages);
 
   // Sequential question flow: one question at a time
   if (userMessages.length <= 1) {

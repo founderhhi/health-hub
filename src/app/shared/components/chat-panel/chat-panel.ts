@@ -16,9 +16,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { ApiClientService } from '../../../core/api/api-client.service';
-import { WsEvent, WsService } from '../../../core/realtime/ws.service';
+import { WsConnectionState, WsEvent, WsService } from '../../../core/realtime/ws.service';
 
 export interface ChatPanelMessage {
   id: string;
@@ -28,8 +28,10 @@ export interface ChatPanelMessage {
   created_at: string;
   sender_name?: string | null;
   sender_role?: string | null;
+  client_request_id?: string | null;
   senderLabel?: string;
   mine?: boolean;
+  pending?: boolean;
 }
 
 interface ChatListResponse {
@@ -48,6 +50,8 @@ interface ChatSendResponse {
   styleUrl: './chat-panel.scss'
 })
 export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
+  private static readonly FALLBACK_POLL_INTERVAL_MS = 2000;
+
   @Input() consultationId = '';
   @Input() currentUserId = '';
   @Input() endpointBase = '/chat';
@@ -66,12 +70,17 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   error = '';
   draft = '';
   messages: ChatPanelMessage[] = [];
+  connectionState: WsConnectionState = 'disconnected';
 
   private readonly platformId = inject(PLATFORM_ID);
   private shouldScrollToBottom = false;
   private wsSubscription?: Subscription;
+  private connectionStateSubscription?: Subscription;
   private knownMessageIds = new Set<string>();
   private cancelLoad$ = new Subject<void>();
+  private fallbackPollTimer: ReturnType<typeof setInterval> | null = null;
+  private loadInFlight = false;
+  private pendingRequestIds = new Set<string>();
 
   constructor(
     private api: ApiClientService,
@@ -83,20 +92,38 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
       this.currentUserId = localStorage.getItem('hhi_user_id') || '';
     }
 
+    if (isPlatformBrowser(this.platformId)) {
+      const accessToken = localStorage.getItem('access_token') || localStorage.getItem('hhi_auth_token');
+      if (accessToken) {
+        this.ws.connect('consultation-chat');
+      }
+    }
+
     this.wsSubscription = this.ws.events$.subscribe((event) => {
       this.handleRealtimeEvent(event);
+    });
+    this.connectionStateSubscription = this.ws.connectionState$.subscribe((state) => {
+      this.connectionState = state;
+      this.syncFallbackPolling();
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['consultationId'] && this.consultationId) {
       this.loadMessages();
+      this.syncFallbackPolling();
       return;
     }
 
     if (changes['consultationId'] && !this.consultationId) {
       this.messages = [];
       this.knownMessageIds.clear();
+      this.pendingRequestIds.clear();
+      this.stopFallbackPolling();
+    }
+
+    if (changes['disabled']) {
+      this.syncFallbackPolling();
     }
   }
 
@@ -111,32 +138,52 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
 
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
+    this.connectionStateSubscription?.unsubscribe();
     this.cancelLoad$.next();
     this.cancelLoad$.complete();
+    this.stopFallbackPolling();
   }
 
-  loadMessages(): void {
+  loadMessages(options: { silent?: boolean } = {}): void {
     if (!this.consultationId) {
       this.messages = [];
       this.knownMessageIds.clear();
       return;
     }
 
-    this.cancelLoad$.next();
-    this.loading = true;
-    this.error = '';
+    const silent = options.silent === true;
+    if (silent && this.loadInFlight) {
+      return;
+    }
 
-    this.api.get<ChatListResponse>(`${this.endpointBase}/${this.consultationId}`).pipe(takeUntil(this.cancelLoad$)).subscribe({
+    this.cancelLoad$.next();
+    this.loadInFlight = true;
+    if (!silent) {
+      this.loading = true;
+      this.error = '';
+    }
+
+    this.api.get<ChatListResponse>(`${this.endpointBase}/${this.consultationId}`).pipe(
+      takeUntil(this.cancelLoad$),
+      finalize(() => {
+        this.loadInFlight = false;
+        if (!silent) {
+          this.loading = false;
+        }
+      })
+    ).subscribe({
       next: (response) => {
-        this.messages = (response.messages || []).map((item) => this.decorateMessage(item));
+        this.messages = this.mergeLoadedMessages((response.messages || []).map((item) => this.decorateMessage(item)));
         this.knownMessageIds = new Set(this.messages.map((item) => item.id));
         this.messagesLoaded.emit(this.messages);
-        this.loading = false;
-        this.shouldScrollToBottom = true;
+        if (this.messages.length > 0) {
+          this.shouldScrollToBottom = true;
+        }
       },
       error: (error) => {
-        this.loading = false;
-        this.error = this.resolveChatError(error, 'load');
+        if (!silent) {
+          this.error = this.resolveChatError(error, 'load');
+        }
       }
     });
   }
@@ -153,17 +200,28 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
 
     this.sending = true;
     this.error = '';
+    this.draft = '';
 
-    this.api.post<ChatSendResponse>(`${this.endpointBase}/${this.consultationId}`, { message }).subscribe({
+    const clientRequestId = this.createClientRequestId();
+    this.pendingRequestIds.add(clientRequestId);
+    this.appendPendingMessage(this.createPendingMessage(message, clientRequestId));
+
+    this.api.post<ChatSendResponse>(`${this.endpointBase}/${this.consultationId}`, {
+      message,
+      clientRequestId
+    }).subscribe({
       next: (response) => {
         const savedMessage = this.decorateMessage(response.message);
-        this.upsertMessage(savedMessage);
+        this.pendingRequestIds.delete(clientRequestId);
+        this.reconcileIncomingMessage(savedMessage);
         this.messageSent.emit(savedMessage);
-        this.draft = '';
         this.sending = false;
-        this.shouldScrollToBottom = true;
+        this.messagesLoaded.emit(this.messages);
       },
       error: (error) => {
+        this.pendingRequestIds.delete(clientRequestId);
+        this.removePendingMessage(clientRequestId);
+        this.draft = message;
         this.sending = false;
         this.error = this.resolveChatError(error, 'send');
       }
@@ -217,7 +275,17 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   }
 
   private upsertMessage(message: ChatPanelMessage): void {
-    if (!message.id || this.knownMessageIds.has(message.id)) {
+    if (!message.id) {
+      return;
+    }
+
+    const existingIndex = this.messages.findIndex((item) => item.id === message.id);
+    if (existingIndex >= 0) {
+      this.messages = this.messages.map((item, index) => index === existingIndex ? message : item);
+      return;
+    }
+
+    if (this.knownMessageIds.has(message.id)) {
       return;
     }
 
@@ -240,8 +308,124 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
     }
 
     const incoming = this.decorateMessage(payload.message);
-    this.upsertMessage(incoming);
+    this.reconcileIncomingMessage(incoming);
     this.messagesLoaded.emit(this.messages);
+  }
+
+  private mergeLoadedMessages(loadedMessages: ChatPanelMessage[]): ChatPanelMessage[] {
+    const pendingMessages = this.messages.filter((item) => item.pending);
+    if (pendingMessages.length === 0) {
+      return loadedMessages;
+    }
+
+    const unmatchedPending = pendingMessages.filter((pendingMessage) => !loadedMessages.some((loadedMessage) =>
+      loadedMessage.user_id === pendingMessage.user_id
+      && loadedMessage.message === pendingMessage.message
+      && Math.abs(this.getMessageTimestamp(loadedMessage) - this.getMessageTimestamp(pendingMessage)) < 30000
+    ));
+
+    return [...loadedMessages, ...unmatchedPending].sort((left, right) =>
+      this.getMessageTimestamp(left) - this.getMessageTimestamp(right)
+    );
+  }
+
+  private reconcileIncomingMessage(message: ChatPanelMessage): void {
+    const clientRequestId = this.resolveClientRequestId(message);
+    if (clientRequestId && this.replacePendingMessage(clientRequestId, message)) {
+      this.shouldScrollToBottom = true;
+      return;
+    }
+
+    this.upsertMessage(message);
+  }
+
+  private appendPendingMessage(message: ChatPanelMessage): void {
+    this.knownMessageIds.add(message.id);
+    this.messages = [...this.messages, message];
+    this.shouldScrollToBottom = true;
+  }
+
+  private replacePendingMessage(clientRequestId: string, message: ChatPanelMessage): boolean {
+    const index = this.messages.findIndex((item) =>
+      item.pending && this.resolveClientRequestId(item) === clientRequestId
+    );
+    if (index < 0) {
+      return false;
+    }
+
+    const pendingId = this.messages[index]?.id;
+    if (pendingId) {
+      this.knownMessageIds.delete(pendingId);
+    }
+    this.knownMessageIds.add(message.id);
+    this.messages = this.messages.map((item, itemIndex) => itemIndex === index ? message : item);
+    return true;
+  }
+
+  private removePendingMessage(clientRequestId: string): void {
+    const pendingMessage = this.messages.find((item) =>
+      item.pending && this.resolveClientRequestId(item) === clientRequestId
+    );
+    if (!pendingMessage) {
+      return;
+    }
+
+    this.knownMessageIds.delete(pendingMessage.id);
+    this.messages = this.messages.filter((item) => item.id !== pendingMessage.id);
+  }
+
+  private createPendingMessage(message: string, clientRequestId: string): ChatPanelMessage {
+    return this.decorateMessage({
+      id: `pending-${clientRequestId}`,
+      consultation_id: this.consultationId,
+      user_id: this.currentUserId || 'pending-user',
+      message,
+      created_at: new Date().toISOString(),
+      sender_name: null,
+      sender_role: null,
+      client_request_id: clientRequestId,
+      pending: true
+    });
+  }
+
+  private createClientRequestId(): string {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  private resolveClientRequestId(message: ChatPanelMessage): string {
+    return String(message.client_request_id || '').trim();
+  }
+
+  private getMessageTimestamp(message: ChatPanelMessage): number {
+    const timestamp = new Date(message.created_at).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+  }
+
+  private syncFallbackPolling(): void {
+    if (!this.consultationId || this.disabled || this.connectionState === 'connected') {
+      this.stopFallbackPolling();
+      return;
+    }
+
+    if (this.fallbackPollTimer) {
+      return;
+    }
+
+    this.fallbackPollTimer = setInterval(() => {
+      if (this.pendingRequestIds.size > 0 || this.loadInFlight) {
+        return;
+      }
+      this.loadMessages({ silent: true });
+    }, ChatPanelComponent.FALLBACK_POLL_INTERVAL_MS);
+  }
+
+  private stopFallbackPolling(): void {
+    if (!this.fallbackPollTimer) {
+      return;
+    }
+
+    clearInterval(this.fallbackPollTimer);
+    this.fallbackPollTimer = null;
   }
 
   private scrollToBottom(): void {

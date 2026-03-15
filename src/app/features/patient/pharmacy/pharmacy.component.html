@@ -13,6 +13,22 @@
   <div class="toast-banner">{{ directionMessage }}</div>
   }
 
+  <section class="map-placeholder" aria-label="Pharmacy map preview">
+    <div class="map-placeholder__header">
+      <div>
+        <h2 class="map-placeholder__title">Map Preview</h2>
+        <p class="map-placeholder__subtitle">Nearby pharmacy locations around Nairobi</p>
+      </div>
+      <span class="map-placeholder__pill">Placeholder</span>
+    </div>
+    <div class="map-placeholder__canvas">
+      <span class="map-placeholder__marker map-placeholder__marker--one"></span>
+      <span class="map-placeholder__marker map-placeholder__marker--two"></span>
+      <span class="map-placeholder__marker map-placeholder__marker--three"></span>
+      <span class="map-placeholder__route"></span>
+    </div>
+  </section>
+
   <div class="pharmacy-list">
     @for (pharmacy of pharmacies; track pharmacy.name) {
     <div class="pharmacy-card">

@@ -16,7 +16,7 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
   try {
     const user = (req as any).user;
     const { consultationId } = req.params;
-    const { message } = req.body as { message?: string };
+    const { message, clientRequestId } = req.body as { message?: string; clientRequestId?: string };
 
     if (!CHAT_PARTICIPANT_ROLES.includes(user.role)) {
       return res.status(403).json({ error: 'Forbidden', code: 'FORBIDDEN' });
@@ -99,12 +99,17 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
       [insertResult.rows[0].id]
     );
 
-    const chatMessage = messageResult.rows[0];
-    const participants = [
-      consultation.patient_id,
-      consultation.gp_id,
-      consultation.specialist_id
-    ].filter((participantId) => participantId && participantId !== user.userId) as string[];
+    const chatMessage = {
+      ...messageResult.rows[0],
+      client_request_id: typeof clientRequestId === 'string' ? clientRequestId.trim() || null : null
+    };
+    const participants = Array.from(
+      new Set([
+        consultation.patient_id,
+        consultation.gp_id,
+        consultation.specialist_id
+      ].filter(Boolean))
+    ) as string[];
 
     for (const participantId of participants) {
       broadcastToUser(participantId, 'chat.message', {

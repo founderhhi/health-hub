@@ -29,7 +29,7 @@ const DASHBOARD_SERVICES: ServiceCard[] = [
   { id: 'healwell', title: 'Heal Well at Home', icon: 'video' },
   { id: 'specialist', title: 'Specialist', icon: 'user-md' },
   { id: 'pharmacy', title: 'Pharmacy', icon: 'pharmacy' },
-  { id: 'diagnostics', title: 'Diagnostics', icon: 'lab', comingSoon: true },
+  { id: 'diagnostics', title: 'Diagnostics', icon: 'lab' },
   { id: 'travel', title: 'Travel & Tourism', icon: 'globe' },
   { id: 'healwell-africa', title: 'Heal Well in Africa', icon: 'africa' },
   { id: 'healwell-india', title: 'Heal Well in India', icon: 'india' },
@@ -161,7 +161,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   navigateToService(service: ServiceCard): void {
     if (service.comingSoon) {
       this.comingSoonMessage = `${service.title} is coming soon.`;
-      setTimeout(() => { this.comingSoonMessage = ''; }, 3000);
+      setTimeout(() => {
+        this.comingSoonMessage = '';
+        this.cdr.detectChanges();
+      }, 3000);
       return;
     }
     switch (service.id) {
@@ -176,6 +179,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         break;
       case 'pharmacy':
         this.router.navigate(['/patient/pharmacy']);
+        break;
+      case 'diagnostics':
+        this.router.navigate(['/patient/records'], {
+          queryParams: { tab: 'lab-results' }
+        });
         break;
       case 'travel':
         this.router.navigate(['/patient/travel']);

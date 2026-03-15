@@ -130,11 +130,12 @@
           </div>
 
           <div class="referral-card__actions">
-            <button class="btn btn--primary" (click)="viewReferral(referral.id)">View</button>
+            <button class="btn btn--primary" (click)="viewReferral(referral.id)">View Details</button>
             @if (canAccept(referral)) {
               <button class="btn btn--secondary" (click)="acceptReferral(referral.id)">Accept</button>
-            } @else if (canOpenConsultation(referral)) {
-              <button class="btn btn--secondary" (click)="openConsultation(referral.id)">Open Consultation</button>
+            }
+            @if (referral.consultation_id && referral.consultation_mode === 'online' && referral.status !== 'declined') {
+              <a class="btn btn--secondary" [routerLink]="['/specialist/consultation', referral.id]">Open Consultation</a>
             }
           </div>
         </div>
