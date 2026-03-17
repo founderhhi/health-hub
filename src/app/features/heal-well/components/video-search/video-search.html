@@ -37,78 +37,6 @@
   </p>
 
   <div class="content-stack">
-    <ng-container *ngIf="hasAnyFilteredVideos; else noResults">
-      <section class="video-section" *ngIf="filteredHomeRemedyVideos.length > 0">
-        <div class="section-header">
-          <div>
-            <p class="section-kicker">Everyday relief</p>
-            <h2 class="section-title">Current home-care videos</h2>
-          </div>
-          <p class="section-text">Short English resources for common symptoms and simple day-to-day care at home.</p>
-        </div>
-
-        <div class="video-grid">
-          <button type="button" class="video-card" *ngFor="let video of filteredHomeRemedyVideos" (click)="openVideo(video)">
-            <div class="video-thumbnail">
-              <img class="video-thumbnail__image" [src]="getThumbnail(video)" [alt]="video.title + ' thumbnail'" loading="lazy" />
-              <div class="play-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
-              </div>
-              <span class="video-duration">{{ video.duration }}</span>
-            </div>
-            <div class="video-info">
-              <h3 class="video-title">{{ video.title }}</h3>
-              <p class="video-source">{{ video.channel }}</p>
-              <p class="video-desc">{{ video.description }}</p>
-              <div class="video-tags">
-                <span class="video-tag" *ngFor="let tag of video.tags">{{ tag }}</span>
-              </div>
-            </div>
-          </button>
-        </div>
-      </section>
-
-      <section class="video-section video-section--legacy" *ngIf="filteredLegacyVideos.length > 0">
-        <div class="section-header">
-          <div>
-            <p class="section-kicker">Legacy expert library</p>
-            <h2 class="section-title">Mr. Vyakarnam videos</h2>
-          </div>
-          <p class="section-text">Restored seeded videos from the earlier library, kept available here alongside the newer home-care set.</p>
-        </div>
-
-        <div class="video-grid">
-          <button type="button" class="video-card" *ngFor="let video of filteredLegacyVideos" (click)="openVideo(video)">
-            <div class="video-thumbnail">
-              <img class="video-thumbnail__image" [src]="getThumbnail(video)" [alt]="video.title + ' thumbnail'" loading="lazy" />
-              <div class="play-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
-              </div>
-              <span class="video-duration">{{ video.duration }}</span>
-            </div>
-            <div class="video-info">
-              <h3 class="video-title">{{ video.title }}</h3>
-              <p class="video-source">{{ video.channel }}</p>
-              <p class="video-desc">{{ video.description }}</p>
-              <div class="video-tags">
-                <span class="video-tag" *ngFor="let tag of video.tags">{{ tag }}</span>
-              </div>
-            </div>
-          </button>
-        </div>
-      </section>
-    </ng-container>
-
-    <ng-template #noResults>
-      <div class="empty-state">
-        <p>No videos found for this filter yet. Try another ailment tag or search keyword.</p>
-      </div>
-    </ng-template>
-
     <section class="guide-section" aria-label="Home-care guide">
       <div class="guide-note">
         <strong>Designed for everyday care at home.</strong>
@@ -120,7 +48,6 @@
           <p class="section-kicker">Quick guide</p>
           <h2 class="section-title">When to use home care and when to step up</h2>
         </div>
-        <p class="section-text">This guide stays below the videos so browsing remains the first action, but the next-step advice is still easy to find.</p>
       </div>
 
       <div class="guide-grid">
@@ -130,5 +57,35 @@
         </article>
       </div>
     </section>
+
+    <ng-container *ngIf="filteredAllVideos.length > 0; else noResults">
+      <div class="video-grid">
+        <button type="button" class="video-card" *ngFor="let video of filteredAllVideos" (click)="openVideo(video)">
+          <div class="video-thumbnail">
+            <img class="video-thumbnail__image" [src]="getThumbnail(video)" [alt]="video.title + ' thumbnail'" loading="lazy" />
+            <div class="play-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </div>
+            <span class="video-duration">{{ video.duration }}</span>
+          </div>
+          <div class="video-info">
+            <h3 class="video-title">{{ video.title }}</h3>
+            <p class="video-source">{{ video.channel }}</p>
+            <p class="video-desc">{{ video.description }}</p>
+            <div class="video-tags">
+              <span class="video-tag" *ngFor="let tag of video.tags">{{ tag }}</span>
+            </div>
+          </div>
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #noResults>
+      <div class="empty-state">
+        <p>No videos found for this filter yet. Try another ailment tag or search keyword.</p>
+      </div>
+    </ng-template>
   </div>
 </section>

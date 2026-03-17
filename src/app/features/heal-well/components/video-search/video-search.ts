@@ -244,16 +244,8 @@ export class VideoSearch {
     },
   ];
 
-  get filteredHomeRemedyVideos(): HealthVideo[] {
-    return this.filterVideos(this.homeRemedyVideos);
-  }
-
-  get filteredLegacyVideos(): HealthVideo[] {
-    return this.filterVideos(this.legacyExpertVideos);
-  }
-
-  get hasAnyFilteredVideos(): boolean {
-    return this.filteredHomeRemedyVideos.length > 0 || this.filteredLegacyVideos.length > 0;
+  get filteredAllVideos(): HealthVideo[] {
+    return this.filterVideos([...this.homeRemedyVideos, ...this.legacyExpertVideos]);
   }
 
   selectTag(tag: string): void {
