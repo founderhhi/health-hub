@@ -20,18 +20,12 @@ function isUniqueViolation(error: unknown): boolean {
   return err?.code === '23505';
 }
 
-const VALID_ROLES = ['patient', 'gp', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
-const PROVIDER_ROLES = ['gp', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist'];
+const VALID_ROLES = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
 const VALID_SERVICE_REQUEST_STATUSES = ['new', 'contacted', 'closed'];
-const VALID_REFERRAL_STATUSES = ['new', 'accepted', 'declined', 'confirmed'] as const;
-const VALID_PRESCRIPTION_WORKFLOW_STATUSES = ['contacted', 'home_delivery', 'in_service', 'completed', 'rejected'] as const;
-const VALID_REFERRAL_WORKFLOW_STATUSES = ['contacted', 'appointment_scheduled', 'in_progress', 'completed', 'cancelled'] as const;
-const VALID_ADMIN_WORKFLOW_STATUSES = [...new Set([...VALID_PRESCRIPTION_WORKFLOW_STATUSES, ...VALID_REFERRAL_WORKFLOW_STATUSES])] as const;
+const VALID_ADMIN_WORKFLOW_STATUSES = ['contacted', 'completed', 'accepted', 'rejected', 'home_delivery', 'in_service'] as const;
 const VALID_ADMIN_WORKFLOW_ENTITY_TYPES = ['service_request', 'referral', 'prescription'] as const;
 
-type PrescriptionWorkflowStatus = (typeof VALID_PRESCRIPTION_WORKFLOW_STATUSES)[number];
-type ReferralWorkflowStatus = (typeof VALID_REFERRAL_WORKFLOW_STATUSES)[number];
-type AdminWorkflowStatus = PrescriptionWorkflowStatus | ReferralWorkflowStatus;
+type AdminWorkflowStatus = (typeof VALID_ADMIN_WORKFLOW_STATUSES)[number];
 type AdminWorkflowEntityType = (typeof VALID_ADMIN_WORKFLOW_ENTITY_TYPES)[number];
 
 function buildAdminUsersQueries(
@@ -94,15 +88,7 @@ async function logAdminActivity(
 }
 
 function isValidWorkflowStatus(value: string | undefined): value is AdminWorkflowStatus {
-  return Boolean(value && (VALID_PRESCRIPTION_WORKFLOW_STATUSES.includes(value as PrescriptionWorkflowStatus) || VALID_REFERRAL_WORKFLOW_STATUSES.includes(value as ReferralWorkflowStatus)));
-}
-
-function isValidPrescriptionWorkflowStatus(value: string | undefined): value is PrescriptionWorkflowStatus {
-  return Boolean(value && VALID_PRESCRIPTION_WORKFLOW_STATUSES.includes(value as PrescriptionWorkflowStatus));
-}
-
-function isValidReferralWorkflowStatus(value: string | undefined): value is ReferralWorkflowStatus {
-  return Boolean(value && VALID_REFERRAL_WORKFLOW_STATUSES.includes(value as ReferralWorkflowStatus));
+  return Boolean(value && VALID_ADMIN_WORKFLOW_STATUSES.includes(value as AdminWorkflowStatus));
 }
 
 async function addWorkflowTracking(
@@ -185,9 +171,7 @@ adminRouter.post('/users', requireAuth, requireRole(['admin']), async (req, res)
       role,
       displayName,
       firstName,
-      lastName,
-      specialty,
-      facilityName
+      lastName
     } = req.body as {
       phone?: string;
       password?: string;
@@ -195,8 +179,6 @@ adminRouter.post('/users', requireAuth, requireRole(['admin']), async (req, res)
       displayName?: string;
       firstName?: string;
       lastName?: string;
-      specialty?: string;
-      facilityName?: string;
     };
 
     const normalizedPhone = String(phone || '').trim();
@@ -205,8 +187,6 @@ adminRouter.post('/users', requireAuth, requireRole(['admin']), async (req, res)
     const normalizedDisplayName = String(displayName || firstName || 'Demo User').trim();
     const normalizedFirstName = String(firstName || '').trim();
     const normalizedLastName = String(lastName || '').trim();
-    const normalizedSpecialty = String(specialty || '').trim() || null;
-    const normalizedFacilityName = String(facilityName || '').trim() || null;
 
     if (!normalizedPhone || !normalizedRole || !normalizedPassword) {
       return res.status(400).json({ error: 'phone, role and password are required' });
@@ -236,21 +216,9 @@ adminRouter.post('/users', requireAuth, requireRole(['admin']), async (req, res)
     );
 
     const createdUser = result.rows[0];
-
-    // Insert provider_profiles for provider roles so specialty-based routing works
-    if (PROVIDER_ROLES.includes(normalizedRole)) {
-      await db.query(
-        `insert into provider_profiles (user_id, specialty, facility_name)
-         values ($1, $2, $3)
-         on conflict (user_id) do update set specialty = $2, facility_name = $3`,
-        [createdUser.id, normalizedSpecialty, normalizedFacilityName]
-      );
-    }
-
     await logAdminActivity(actor?.userId, 'user.created', createdUser.id, createdUser.phone, {
       role: createdUser.role,
-      displayName: createdUser.display_name,
-      specialty: normalizedSpecialty
+      displayName: createdUser.display_name
     });
 
     return res.status(201).json({ user: createdUser });
@@ -628,9 +596,9 @@ adminRouter.patch('/prescriptions/:id/contact', requireAuth, requireRole(['admin
     if (typeof contacted !== 'boolean') {
       return res.status(400).json({ error: 'contacted field (boolean) is required' });
     }
-    if (workflowStatus && !isValidPrescriptionWorkflowStatus(workflowStatus)) {
+    if (workflowStatus && !isValidWorkflowStatus(workflowStatus)) {
       return res.status(400).json({
-        error: `Invalid workflowStatus. Must be one of: ${VALID_PRESCRIPTION_WORKFLOW_STATUSES.join(', ')}`
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
       });
     }
 
@@ -654,7 +622,7 @@ adminRouter.patch('/prescriptions/:id/contact', requireAuth, requireRole(['admin
       note: note?.trim() || null
     });
 
-    if (workflowStatus && isValidPrescriptionWorkflowStatus(workflowStatus)) {
+    if (workflowStatus && isValidWorkflowStatus(workflowStatus)) {
       await addWorkflowTracking('prescription', id, workflowStatus, actor?.userId, note);
       await logAdminActivity(actor?.userId, 'prescription.workflow.updated', updated.rows[0].patient_id, null, {
         prescriptionId: id,
@@ -732,69 +700,15 @@ adminRouter.get('/referrals', requireAuth, requireRole(['admin']), async (_req, 
   }
 });
 
-adminRouter.patch('/referrals/:id/status', requireAuth, requireRole(['admin']), async (req, res) => {
-  try {
-    const actor = (req as { user?: AuthUser }).user;
-    const { id } = req.params;
-    const { status } = req.body as { status?: string };
-
-    if (!status || !VALID_REFERRAL_STATUSES.includes(status as (typeof VALID_REFERRAL_STATUSES)[number])) {
-      return res.status(400).json({
-        error: `Invalid status. Must be one of: ${VALID_REFERRAL_STATUSES.join(', ')}`
-      });
-    }
-
-    const result = await db.query(
-      `update referrals set status = $2 where id = $1 returning id, status, patient_id`,
-      [id, status]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Referral not found' });
-    }
-
-    await logAdminActivity(actor?.userId, 'referral.status.updated', result.rows[0].patient_id, null, {
-      referralId: id,
-      status
-    });
-
-    const hydrated = await db.query(
-      `select r.id, r.status, r.urgency, r.reason, r.specialty, r.created_at,
-              patient.display_name as patient_name,
-              patient.phone as patient_phone,
-              specialist.display_name as specialist_name,
-              workflow.workflow_status as admin_workflow_status,
-              workflow.updated_by_name as admin_workflow_updated_by_name,
-              workflow.created_at as admin_workflow_updated_at
-       from referrals r
-       join users patient on patient.id = r.patient_id
-       left join users specialist on specialist.id = r.to_specialist_id
-       left join lateral (
-         select awt.workflow_status, awt.created_at, updater.display_name as updated_by_name
-         from admin_workflow_tracking awt
-         left join users updater on updater.id = awt.updated_by
-         where awt.entity_type = 'referral' and awt.entity_id = r.id
-         order by awt.created_at desc limit 1
-       ) workflow on true
-       where r.id = $1 limit 1`,
-      [id]
-    );
-
-    return res.json({ referral: hydrated.rows[0] });
-  } catch (error) {
-    console.error('Admin update referral status error', error);
-    return res.status(500).json({ error: 'Unable to update referral status' });
-  }
-});
-
 adminRouter.patch('/referrals/:id/workflow', requireAuth, requireRole(['admin']), async (req, res) => {
   try {
     const actor = (req as { user?: AuthUser }).user;
     const { id } = req.params;
     const { workflowStatus, notes } = req.body as { workflowStatus?: string; notes?: string };
 
-    if (!isValidReferralWorkflowStatus(workflowStatus)) {
+    if (!isValidWorkflowStatus(workflowStatus)) {
       return res.status(400).json({
-        error: `Invalid workflowStatus. Must be one of: ${VALID_REFERRAL_WORKFLOW_STATUSES.join(', ')}`
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
       });
     }
 

@@ -55,9 +55,7 @@ interface ServiceRequestRecord {
   updated_at: string;
 }
 
-type PrescriptionWorkflowStatus = 'contacted' | 'home_delivery' | 'in_service' | 'completed' | 'rejected';
-type ReferralWorkflowStatus = 'contacted' | 'appointment_scheduled' | 'in_progress' | 'completed' | 'cancelled';
-type AdminWorkflowStatus = PrescriptionWorkflowStatus | ReferralWorkflowStatus;
+type AdminWorkflowStatus = 'contacted' | 'completed' | 'accepted' | 'rejected' | 'home_delivery' | 'in_service';
 
 interface PrescriptionRecord {
   id: string;
@@ -98,8 +96,6 @@ interface CreateUserForm {
   displayName: string;
   firstName: string;
   lastName: string;
-  specialty: string;
-  facilityName: string;
 }
 
 @Component({
@@ -142,18 +138,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     role: 'patient',
     displayName: '',
     firstName: '',
-    lastName: '',
-    specialty: '',
-    facilityName: ''
+    lastName: ''
   };
 
-  readonly roles = ['patient', 'gp', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
-  readonly providerRoles = ['gp', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist'];
+  readonly roles = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
   readonly requestStatuses: Array<ServiceRequestRecord['status']> = ['new', 'contacted', 'closed'];
-  readonly referralStatuses: Array<ReferralRecord['status']> = ['new', 'accepted', 'declined', 'confirmed'];
-  readonly prescriptionWorkflowStatuses: PrescriptionWorkflowStatus[] = ['contacted', 'home_delivery', 'in_service', 'completed', 'rejected'];
-  readonly referralWorkflowStatuses: ReferralWorkflowStatus[] = ['contacted', 'appointment_scheduled', 'in_progress', 'completed', 'cancelled'];
-  readonly workflowStatuses: AdminWorkflowStatus[] = ['contacted', 'home_delivery', 'in_service', 'completed', 'rejected', 'appointment_scheduled', 'in_progress', 'cancelled'];
+  readonly workflowStatuses: AdminWorkflowStatus[] = ['contacted', 'completed', 'accepted', 'rejected', 'home_delivery', 'in_service'];
 
   private noticeTimer?: ReturnType<typeof setTimeout>;
   private errorTimer?: ReturnType<typeof setTimeout>;
@@ -509,33 +499,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.updatePrescriptionContactStatus(prescription, contacted);
   }
 
-  updateReferralStatus(referral: ReferralRecord, status: ReferralRecord['status']): void {
-    this.actionError = '';
-    this.api.patch<{ referral: ReferralRecord }>(`/admin/referrals/${referral.id}/status`, { status }).subscribe({
-      next: (res) => {
-        referral.status = res.referral.status;
-        this.showNotice('Referral status updated successfully.');
-      },
-      error: (error) => {
-        this.showError(this.extractApiError(error, 'Unable to update referral status.'));
-        this.loadReferrals();
-      }
-    });
-  }
-
-  confirmAndUpdateReferralStatus(referral: ReferralRecord, nextStatusRaw: string): void {
-    const status = nextStatusRaw as ReferralRecord['status'];
-    if (!this.referralStatuses.includes(status)) {
-      this.showError('Please choose a valid referral status.');
-      return;
-    }
-    if (referral.status === status) return;
-    const confirmed = window.confirm(`Confirm changing referral status to "${status}"?`);
-    if (!confirmed) return;
-    this.updateReferralStatus(referral, status);
-  }
-
-  updateReferralWorkflowStatus(referral: ReferralRecord, workflowStatus: ReferralWorkflowStatus): void {
+  updateReferralWorkflowStatus(referral: ReferralRecord, workflowStatus: AdminWorkflowStatus): void {
     this.actionError = '';
     this.api.patch<{ referral: ReferralRecord }>(`/admin/referrals/${referral.id}/workflow`, { workflowStatus }).subscribe({
       next: (res) => {
@@ -552,15 +516,18 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   confirmAndUpdateReferralWorkflowStatus(referral: ReferralRecord, nextWorkflowRaw: string): void {
-    const isValid = this.referralWorkflowStatuses.includes(nextWorkflowRaw as ReferralWorkflowStatus);
-    if (!isValid) {
-      this.showError('Please choose a valid referral workflow status.');
+    if (!this.isWorkflowStatus(nextWorkflowRaw)) {
+      this.showError('Please choose a valid workflow status.');
       return;
     }
-    const workflowStatus = nextWorkflowRaw as ReferralWorkflowStatus;
-    if (referral.admin_workflow_status === workflowStatus) return;
+    const workflowStatus = nextWorkflowRaw;
+    if (referral.admin_workflow_status === workflowStatus) {
+      return;
+    }
     const confirmed = window.confirm(`Confirm setting referral workflow to "${this.formatWorkflowStatus(workflowStatus)}"?`);
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
     this.updateReferralWorkflowStatus(referral, workflowStatus);
   }
 
@@ -577,7 +544,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const payload: Record<string, string> = {
+    const payload = {
       phone: this.createUserForm.phone.trim(),
       password: this.createUserForm.password,
       role: this.createUserForm.role,
@@ -585,10 +552,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       firstName: this.createUserForm.firstName.trim(),
       lastName: this.createUserForm.lastName.trim()
     };
-    if (this.providerRoles.includes(this.createUserForm.role)) {
-      if (this.createUserForm.specialty.trim()) payload['specialty'] = this.createUserForm.specialty.trim();
-      if (this.createUserForm.facilityName.trim()) payload['facilityName'] = this.createUserForm.facilityName.trim();
-    }
 
     if (!payload.phone || !payload.password || !payload.role) {
       this.showError('Phone, role and password are required.');
@@ -652,10 +615,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     return this.workflowStatuses.includes(value as AdminWorkflowStatus);
   }
 
-  isPrescriptionWorkflowStatus(value: string): value is PrescriptionWorkflowStatus {
-    return this.prescriptionWorkflowStatuses.includes(value as PrescriptionWorkflowStatus);
-  }
-
   private isServiceRequestStatus(value: string): value is ServiceRequestRecord['status'] {
     return this.requestStatuses.includes(value as ServiceRequestRecord['status']);
   }
@@ -688,14 +647,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       role: 'patient',
       displayName: '',
       firstName: '',
-      lastName: '',
-      specialty: '',
-      facilityName: ''
+      lastName: ''
     };
-  }
-
-  isProviderRole(role: string): boolean {
-    return this.providerRoles.includes(role);
   }
 
   private showNotice(message: string): void {

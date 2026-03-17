@@ -46,10 +46,6 @@
         <option [value]="role">{{ role }}</option>
         }
       </select>
-      @if (isProviderRole(createUserForm.role)) {
-      <input class="search-input" type="text" placeholder="Specialty (e.g. Cardiology)" [(ngModel)]="createUserForm.specialty" />
-      <input class="search-input" type="text" placeholder="Facility / Hospital name" [(ngModel)]="createUserForm.facilityName" />
-      }
     </div>
     <div class="create-user-actions">
       <button class="action-btn action-btn--primary" [disabled]="creatingUser" (click)="createUser()">
@@ -169,17 +165,6 @@
               <button class="action-btn" [disabled]="!rx.patient_contacted" (click)="confirmAndUpdatePrescriptionContactStatus(rx, false)">
                 Clear Contact
               </button>
-              <div class="select-with-action" style="margin-top:4px">
-                <select #rxWorkflowSelect class="inline-select" [ngModel]="rx.admin_workflow_status || ''">
-                  <option value="">Set status</option>
-                  @for (status of prescriptionWorkflowStatuses; track status) {
-                  <option [value]="status">{{ formatWorkflowStatus(status) }}</option>
-                  }
-                </select>
-                <button class="action-btn" [disabled]="!rxWorkflowSelect.value" (click)="updatePrescriptionContactStatus(rx, !!rx.patient_contacted, $any(rxWorkflowSelect.value))">
-                  Log
-                </button>
-              </div>
             </div>
           </td>
           <td>{{ rx.created_at | date:'short' }}</td>
@@ -318,9 +303,9 @@
         <tr>
           <th>Submitted</th>
           <th>Patient</th>
-          <th>Specialty / Specialist</th>
+          <th>Specialty</th>
           <th>Referral Status</th>
-          <th>Admin Tracking</th>
+          <th>Admin Workflow</th>
         </tr>
       </thead>
       <tbody>
@@ -333,17 +318,9 @@
           </td>
           <td>
             <div class="request-primary">{{ referral.specialty || 'General' }}</div>
-            <div class="request-secondary">{{ referral.specialist_name || 'Unassigned' }}</div>
+            <div class="request-secondary">{{ referral.specialist_name || 'Unassigned specialist' }}</div>
           </td>
           <td>
-            <div class="select-with-action">
-              <select #referralStatusSelect class="inline-select" [ngModel]="referral.status">
-                @for (s of referralStatuses; track s) {
-                <option [value]="s">{{ s }}</option>
-                }
-              </select>
-              <button class="action-btn" (click)="confirmAndUpdateReferralStatus(referral, referralStatusSelect.value)">Apply</button>
-            </div>
             <span class="status-badge"
               [class.active]="referral.status === 'accepted' || referral.status === 'confirmed'"
               [class.claimed]="referral.status === 'new'"
@@ -354,13 +331,13 @@
           <td>
             <div class="select-with-action">
               <select #referralWorkflowSelect class="inline-select" [ngModel]="referral.admin_workflow_status || ''">
-                <option value="">Select tracking</option>
-                @for (status of referralWorkflowStatuses; track status) {
+                <option value="">Select workflow</option>
+                @for (status of workflowStatuses; track status) {
                 <option [value]="status">{{ formatWorkflowStatus(status) }}</option>
                 }
               </select>
               <button class="action-btn" [disabled]="!referralWorkflowSelect.value" (click)="confirmAndUpdateReferralWorkflowStatus(referral, referralWorkflowSelect.value)">
-                Log
+                Confirm
               </button>
             </div>
             @if (referral.admin_workflow_status) {
