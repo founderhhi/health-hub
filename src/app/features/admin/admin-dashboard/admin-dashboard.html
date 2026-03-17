@@ -5,6 +5,7 @@
       <button class="tab" [class.active]="activeTab === 'users'" (click)="setTab('users')">Users</button>
       <button class="tab" [class.active]="activeTab === 'pharmacy'" (click)="setTab('pharmacy')">Pharmacy</button>
       <button class="tab" [class.active]="activeTab === 'requests'" (click)="setTab('requests')">Requests</button>
+      <button class="tab" [class.active]="activeTab === 'referrals'" (click)="setTab('referrals')">Referrals</button>
       <button class="tab" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">Activity</button>
       <button class="tab" [class.active]="activeTab === 'health'" (click)="setTab('health')">System Health</button>
     </div>
@@ -121,6 +122,9 @@
           <th>Rx Code</th>
           <th>Items</th>
           <th>Status</th>
+          <th>Patient Contact</th>
+          <th>Workflow</th>
+          <th>Actions</th>
           <th>Date</th>
         </tr>
       </thead>
@@ -138,6 +142,30 @@
               [class.fulfilled]="rx.status === 'fulfilled'">
               {{ rx.status }}
             </span>
+          </td>
+          <td>
+            <span class="status-badge" [class.active]="rx.patient_contacted" [class.disabled]="!rx.patient_contacted">
+              {{ rx.patient_contacted ? 'Contacted' : 'Not Contacted' }}
+            </span>
+            @if (rx.patient_contacted_by_name) {
+            <div class="request-secondary">By {{ rx.patient_contacted_by_name }}</div>
+            }
+          </td>
+          <td>
+            <div class="request-primary">{{ formatWorkflowStatus(rx.admin_workflow_status) }}</div>
+            @if (rx.admin_workflow_updated_by_name) {
+            <div class="request-secondary">By {{ rx.admin_workflow_updated_by_name }}</div>
+            }
+          </td>
+          <td>
+            <div class="action-stack">
+              <button class="action-btn" [disabled]="rx.patient_contacted" (click)="confirmAndUpdatePrescriptionContactStatus(rx, true)">
+                Mark Contacted
+              </button>
+              <button class="action-btn" [disabled]="!rx.patient_contacted" (click)="confirmAndUpdatePrescriptionContactStatus(rx, false)">
+                Clear Contact
+              </button>
+            </div>
           </td>
           <td>{{ rx.created_at | date:'short' }}</td>
         </tr>
@@ -206,6 +234,7 @@
           <th>Patient</th>
           <th>Destination</th>
           <th>Status</th>
+          <th>Workflow</th>
         </tr>
       </thead>
       <tbody>
@@ -224,11 +253,101 @@
           </td>
           <td>{{ getRequestDestination(request) }}</td>
           <td>
-            <select class="inline-select" [ngModel]="request.status" (ngModelChange)="updateRequestStatus(request, $event)">
-              @for (status of requestStatuses; track status) {
-              <option [value]="status">{{ status }}</option>
+            <div class="select-with-action">
+              <select #requestStatusSelect class="inline-select" [ngModel]="request.status">
+                @for (status of requestStatuses; track status) {
+                <option [value]="status">{{ status }}</option>
+                }
+              </select>
+              <button class="action-btn" (click)="confirmAndUpdateRequestStatus(request, requestStatusSelect.value)">Confirm</button>
+            </div>
+          </td>
+          <td>
+            <div class="select-with-action">
+              <select #requestWorkflowSelect class="inline-select" [ngModel]="request.admin_workflow_status || ''">
+                <option value="">Select workflow</option>
+                @for (status of workflowStatuses; track status) {
+                <option [value]="status">{{ formatWorkflowStatus(status) }}</option>
+                }
+              </select>
+              <button class="action-btn" [disabled]="!requestWorkflowSelect.value" (click)="confirmAndUpdateRequestWorkflowStatus(request, requestWorkflowSelect.value)">
+                Confirm
+              </button>
+            </div>
+            @if (request.admin_workflow_status) {
+            <div class="request-secondary">
+              {{ formatWorkflowStatus(request.admin_workflow_status) }}
+              @if (request.admin_workflow_updated_by_name) {
+              · {{ request.admin_workflow_updated_by_name }}
               }
-            </select>
+            </div>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'referrals') {
+  @if (referralsLoading) {
+  <div class="loading">Loading referrals...</div>
+  } @else if (referrals.length === 0) {
+  <div class="loading">No referrals found.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Submitted</th>
+          <th>Patient</th>
+          <th>Specialty</th>
+          <th>Referral Status</th>
+          <th>Admin Workflow</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (referral of referrals; track referral.id) {
+        <tr>
+          <td>{{ referral.created_at | date:'short' }}</td>
+          <td>
+            <div class="request-primary">{{ referral.patient_name || 'Unknown patient' }}</div>
+            <div class="request-secondary">{{ referral.patient_phone || 'No phone' }}</div>
+          </td>
+          <td>
+            <div class="request-primary">{{ referral.specialty || 'General' }}</div>
+            <div class="request-secondary">{{ referral.specialist_name || 'Unassigned specialist' }}</div>
+          </td>
+          <td>
+            <span class="status-badge"
+              [class.active]="referral.status === 'accepted' || referral.status === 'confirmed'"
+              [class.claimed]="referral.status === 'new'"
+              [class.disabled]="referral.status === 'declined'">
+              {{ referral.status }}
+            </span>
+          </td>
+          <td>
+            <div class="select-with-action">
+              <select #referralWorkflowSelect class="inline-select" [ngModel]="referral.admin_workflow_status || ''">
+                <option value="">Select workflow</option>
+                @for (status of workflowStatuses; track status) {
+                <option [value]="status">{{ formatWorkflowStatus(status) }}</option>
+                }
+              </select>
+              <button class="action-btn" [disabled]="!referralWorkflowSelect.value" (click)="confirmAndUpdateReferralWorkflowStatus(referral, referralWorkflowSelect.value)">
+                Confirm
+              </button>
+            </div>
+            @if (referral.admin_workflow_status) {
+            <div class="request-secondary">
+              {{ formatWorkflowStatus(referral.admin_workflow_status) }}
+              @if (referral.admin_workflow_updated_by_name) {
+              · {{ referral.admin_workflow_updated_by_name }}
+              }
+            </div>
+            }
           </td>
         </tr>
         }

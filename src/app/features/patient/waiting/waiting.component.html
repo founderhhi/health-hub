@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <h1 class="waiting-title">Waiting Room</h1>
+    <h1 class="waiting-title">Care Waiting Room</h1>
     <p class="waiting-status">{{ statusMessage }}</p>
 
     @if (!roomUrl && !consultationId && !consultationFinished) {
@@ -37,12 +37,12 @@
           }
         </span>
       </div>
-      <p class="waiting-info">You will be connected when a GP is available. Please stay on this page.</p>
+      <p class="waiting-info">You will be connected when a Health Expert is available. Please stay on this page.</p>
       <p class="waiting-info waiting-info--hint">If it's taking a while, use the refresh button below to check for updates.</p>
     }
 
     <div class="waiting-actions">
-      @if (canJoinConsultation) {
+      @if (canJoinConsultation && !cancelPending) {
         <button class="btn btn-primary" type="button" (click)="joinConsult()">
           @if (consultMode === 'video') {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
@@ -63,7 +63,7 @@
           }
         </button>
       }
-      @if (showRefreshButton) {
+      @if (showRefreshButton && !cancelPending) {
         <button class="btn btn-secondary" type="button" (click)="refreshStatus()" [disabled]="isRefreshing">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
             <polyline points="23 4 23 10 17 10"/>
@@ -90,7 +90,7 @@
   <div class="cancel-modal-overlay" (click)="closeCancelConfirm()">
     <div class="cancel-modal" (click)="$event.stopPropagation()">
       <h2>Cancel Request?</h2>
-      <p>Canceling now will remove your request from the GP queue.</p>
+      <p>Canceling now will remove your request from the Health Expert queue.</p>
       <div class="cancel-modal__actions">
         <button class="btn btn-ghost" type="button" (click)="closeCancelConfirm()">Keep Waiting</button>
         <button class="btn btn-danger" type="button" (click)="confirmCancel()">

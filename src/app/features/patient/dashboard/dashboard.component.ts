@@ -19,21 +19,23 @@ interface ServiceCard {
   id: string;
   title: string;
   icon: string;
+  description: string;
+  tone: 'emerald' | 'indigo' | 'amber';
   comingSoon?: boolean;
 }
 
 const GP_CONSULT_PRICE_USD = 25;
 
 const DASHBOARD_SERVICES: ServiceCard[] = [
-  { id: 'gp', title: 'Talk to GP', icon: 'pulse' },
-  { id: 'healwell', title: 'Heal Well at Home', icon: 'video' },
-  { id: 'specialist', title: 'Specialist', icon: 'user-md' },
-  { id: 'pharmacy', title: 'Pharmacy', icon: 'pharmacy' },
-  { id: 'diagnostics', title: 'Diagnostics', icon: 'lab' },
-  { id: 'travel', title: 'Travel & Tourism', icon: 'globe' },
-  { id: 'healwell-africa', title: 'Heal Well in Africa', icon: 'africa' },
-  { id: 'healwell-india', title: 'Heal Well in India', icon: 'india' },
-  { id: 'insurance', title: 'Insurance', icon: 'shield', comingSoon: true },
+  { id: 'gp', title: 'Talk to a Health Expert', icon: 'pulse', description: 'Start your first guided care conversation.', tone: 'emerald' },
+  { id: 'healwell', title: 'Heal Well at Home', icon: 'video', description: 'Short self-care videos for common symptoms.', tone: 'indigo' },
+  { id: 'specialist', title: 'Specialists', icon: 'user-md', description: 'Move into specialty care when you need it.', tone: 'amber' },
+  { id: 'pharmacy', title: 'Pharmacy', icon: 'pharmacy', description: 'Track medicine support and pharmacy updates.', tone: 'emerald' },
+  { id: 'diagnostics', title: 'Diagnostics', icon: 'lab', description: 'View lab orders and test progress clearly.', tone: 'indigo' },
+  { id: 'travel', title: 'Travel Care', icon: 'globe', description: 'Plan treatment travel and compare budgets.', tone: 'amber' },
+  { id: 'healwell-africa', title: 'Heal Well in Africa', icon: 'africa', description: 'Explore care hubs across key African cities.', tone: 'emerald' },
+  { id: 'healwell-india', title: 'Heal Well in India', icon: 'india', description: 'Discover specialty hospitals across India.', tone: 'indigo' },
+  { id: 'insurance', title: 'Insurance', icon: 'shield', description: 'Coverage and support services.', tone: 'amber', comingSoon: true },
 ];
 
 @Component({
@@ -158,6 +160,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return 'Good Evening';
   }
 
+  openGpConsult(): void {
+    const gpService = this.services.find((service) => service.id === 'gp');
+    if (gpService) {
+      this.navigateToService(gpService);
+    }
+  }
+
   navigateToService(service: ServiceCard): void {
     if (service.comingSoon) {
       this.comingSoonMessage = `${service.title} is coming soon.`;
@@ -253,7 +262,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.requestingConsult = false;
-        this.requestError = 'Unable to request a GP right now.';
+        this.requestError = 'Unable to request a Health Expert right now.';
       }
     });
   }

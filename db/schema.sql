@@ -87,6 +87,10 @@ create table if not exists prescriptions (
   code text unique not null,
   items jsonb not null default '[]'::jsonb,
   status text not null default 'active' check (status in ('active','claimed','fulfilled')),
+  patient_contacted boolean not null default false,
+  patient_contacted_by uuid references users(id) on delete set null,
+  patient_contacted_at timestamptz,
+  patient_contact_note text,
   created_at timestamptz not null default now()
 );
 
@@ -145,6 +149,19 @@ create index if not exists idx_admin_activity_created_at
 
 create index if not exists idx_admin_activity_target_user_id
   on admin_activity (target_user_id);
+
+create table if not exists admin_workflow_tracking (
+  id uuid primary key default uuid_generate_v4(),
+  entity_type text not null check (entity_type in ('service_request','referral','prescription')),
+  entity_id uuid not null,
+  workflow_status text not null check (workflow_status in ('contacted','completed','accepted','rejected','home_delivery','in_service')),
+  notes text,
+  updated_by uuid references users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_admin_workflow_entity_created
+  on admin_workflow_tracking (entity_type, entity_id, created_at desc);
 
 -- Migration 009: Patient billing tables (added via 009-patient-billing.sql)
 

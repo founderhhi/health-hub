@@ -7,9 +7,9 @@
 
 .active-consultation {
   min-height: 100vh;
-  background: v.$color-dark-bg;
-  padding-top: 56px; /* Space for timer */
-  padding-bottom: 160px; /* Space for quick actions + end call */
+  background: var(--bg-primary, #f8fafc);
+  padding-top: 16px;
+  padding-bottom: 72px;
   position: relative;
 }
 
@@ -82,8 +82,8 @@
 }
 
 .panel-card {
-  background: v.$color-card-bg;
-  border: 1px solid v.$color-border-dark;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
   border-radius: v.$radius-lg;
   padding: v.$space-md;
 
@@ -125,13 +125,13 @@
 .patient-name {
   font-size: v.$font-size-lg;
   font-weight: v.$font-weight-semibold;
-  color: v.$color-white;
+  color: var(--text-primary, #0f172a);
   margin: 0;
 }
 
 .patient-subtitle {
   font-size: v.$font-size-sm;
-  color: v.$color-text-light;
+  color: var(--text-secondary, #64748b);
   margin: 0;
 }
 
@@ -141,7 +141,7 @@
   gap: v.$space-sm;
   font-size: v.$font-size-sm;
   font-weight: v.$font-weight-semibold;
-  color: v.$color-text-light;
+  color: var(--text-secondary, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 v.$space-md 0;
@@ -154,7 +154,7 @@
 
 .complaint-text {
   font-size: v.$font-size-base;
-  color: v.$color-white;
+  color: var(--text-primary, #0f172a);
   margin: 0;
   line-height: 1.5;
 }
@@ -235,14 +235,14 @@
 
 .context-label {
   font-size: v.$font-size-xs;
-  color: v.$color-text-muted;
+  color: var(--text-secondary, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .context-value {
   font-size: v.$font-size-base;
-  color: v.$color-white;
+  color: var(--text-primary, #0f172a);
   line-height: 1.5;
 }
 
@@ -254,12 +254,12 @@
   }
 
   &--secondary {
-    background: v.$color-surface-elevated;
-    border-color: v.$color-border-dark;
-    color: v.$color-white;
+    background: var(--bg-secondary, #f1f5f9);
+    border-color: var(--border-color, #cbd5e1);
+    color: var(--text-primary, #0f172a);
 
     &:hover {
-      background: v.$color-border-dark;
+      background: color-mix(in srgb, var(--accent-primary, #2ecc71) 12%, var(--bg-secondary, #f1f5f9));
     }
   }
 
@@ -715,6 +715,74 @@
     background: rgba(231, 76, 60, 0.14);
     color: v.$color-danger-dark;
   }
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  color: var(--text-secondary, #64748b);
+  font-size: v.$font-size-base;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: v.$radius-lg;
+}
+
+.modal-hint {
+  color: var(--text-secondary, #64748b);
+  font-size: 0.875rem;
+  margin: 0 0 12px;
+}
+
+.test-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.test-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #e2e8f0;
+  background: #1e293b;
+
+  &--selected {
+    background: #1d4ed8;
+    border-color: #3b82f6;
+  }
+}
+
+.test-chip__input {
+  display: none;
+}
+
+.form-label--subtle {
+  color: #94a3b8;
+  font-size: 0.8125rem;
+}
+
+.form-input--modal-dark {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.referral-submit-error {
+  color: #ef4444;
+  margin: 0 16px 8px;
+  font-size: 0.875rem;
 }
 
 /* End Call Button */

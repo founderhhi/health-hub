@@ -13,6 +13,13 @@
   <div class="toast-banner">{{ directionMessage }}</div>
   }
 
+  @if (showLiveNotice) {
+  <aside class="feature-notice" role="status" aria-live="polite">
+    <p class="feature-notice__text">{{ liveNotice }}</p>
+    <button type="button" class="feature-notice__dismiss" (click)="dismissLiveNotice()">Dismiss</button>
+  </aside>
+  }
+
   <section class="map-placeholder" aria-label="Pharmacy map preview">
     <div class="map-placeholder__header">
       <div>

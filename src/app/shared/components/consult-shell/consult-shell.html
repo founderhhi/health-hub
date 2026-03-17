@@ -33,7 +33,7 @@
       </span>
       <span class="shell-status-badge" [class]="'status-' + status">
         @if (status === 'connecting') {
-          Connecting...
+          Preparing...
         } @else if (status === 'active') {
           Active
         } @else if (status === 'completed') {
@@ -86,30 +86,30 @@
                   <polygon points="23 7 16 12 23 17 23 7"/>
                   <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
                 </svg>
-                <h3>Ready for Video Call</h3>
-                <p>Click below to open the video consultation in a new tab.</p>
+                <h3>Video Consultation Ready</h3>
+                <p>Your call link is ready. Open it when you are comfortable to begin.</p>
               } @else {
                 <svg class="call-prompt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
-                <h3>Ready for Audio Call</h3>
-                <p>Click below to start an audio consultation in a new tab.</p>
+                <h3>Audio Consultation Ready</h3>
+                <p>Your call link is ready. Open it when you are comfortable to begin.</p>
               }
               <button class="btn btn-primary btn-lg" type="button" (click)="startCall()"
                 [disabled]="joiningCall || (!roomUrl && !consultationId)">
                 @if (joiningCall) {
                   Opening...
                 } @else if (mode === 'video') {
-                  Start Video Call
+                  Join Video Call
                 } @else {
-                  Start Audio Call
+                  Join Audio Call
                 }
               </button>
             </div>
           } @else {
             <div class="call-active-indicator">
               <div class="call-pulse"></div>
-              <span>{{ mode === 'video' ? 'Video' : 'Audio' }} call in progress (new tab)</span>
+              <span>{{ mode === 'video' ? 'Video' : 'Audio' }} call in progress in another tab.</span>
               <button class="btn btn-secondary btn-sm" type="button" (click)="startCall()" [disabled]="joiningCall">
                 {{ joiningCall ? 'Opening...' : 'Rejoin Call' }}
               </button>

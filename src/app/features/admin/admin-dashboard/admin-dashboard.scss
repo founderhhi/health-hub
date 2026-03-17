@@ -143,6 +143,18 @@
   margin-top: 4px;
 }
 
+.select-with-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .status-badge {
   display: inline-block;
   padding: 4px 10px;

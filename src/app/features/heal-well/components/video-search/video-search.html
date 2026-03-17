@@ -1,14 +1,27 @@
 <section class="healwell-page">
   <header class="page-header">
-    <h1 class="page-title">HealWell</h1>
-    <p class="page-subtitle">Health education videos and resources featuring Dr. Vyakarnam Nageshwar</p>
+    <p class="page-kicker">Heal Well at Home</p>
+    <h1 class="page-title">Short home-care video guides</h1>
+    <p class="page-subtitle">
+      Browse English resources by ailment and pick practical self-care ideas while you plan your next clinical step.
+    </p>
+    <div class="page-highlights">
+      <span class="page-highlight">Short practical videos</span>
+      <span class="page-highlight">Common symptom support</span>
+      <span class="page-highlight">Opens in YouTube</span>
+    </div>
   </header>
+
+  <div class="guide-note">
+    <strong>Designed for everyday care at home.</strong>
+    <span>Use these videos for light guidance and comfort, not as a replacement for urgent medical care or specialist advice.</span>
+  </div>
 
   <div class="search-bar">
     <input
       type="text"
       class="search-input"
-      placeholder="Search videos..."
+      placeholder="Search by symptom, remedy, or channel"
       [(ngModel)]="searchQuery"
     />
   </div>
@@ -52,7 +65,7 @@
 
   <ng-template #noResults>
     <div class="empty-state">
-      <p>No videos found matching your search.</p>
+      <p>No videos found for this filter yet. Try another ailment tag or search keyword.</p>
     </div>
   </ng-template>
 </section>

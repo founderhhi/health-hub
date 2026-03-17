@@ -1,21 +1,26 @@
 <section class="chat-panel">
   <header class="chat-panel__header">
     <div class="chat-panel__heading">
+      <p class="chat-panel__eyebrow">Private consultation thread</p>
       <h3 class="chat-panel__title">{{ title }}</h3>
       <p class="chat-panel__presence" [class.chat-panel__presence--live]="connectionState === 'connected'">
-        {{ connectionState === 'connected' ? 'Realtime connected' : 'Realtime syncing' }}
+        {{ connectionState === 'connected' ? 'Live conversation connected' : 'Syncing updates' }}
       </p>
     </div>
     <button type="button" class="chat-panel__refresh" (click)="loadMessages()" [disabled]="loading || disabled">
-      Refresh
+      Sync
     </button>
   </header>
 
-  <div class="chat-panel__status" *ngIf="loading && messages.length === 0">Loading messages...</div>
+  <div class="chat-panel__status" *ngIf="loading && messages.length === 0">Loading your consultation thread...</div>
   <div class="chat-panel__status chat-panel__status--error" *ngIf="!loading && error">{{ error }}</div>
 
-  <div #messagesContainer class="chat-panel__messages">
-    <div class="chat-panel__empty" *ngIf="messages.length === 0">No messages yet.</div>
+  <div #messagesContainer class="chat-panel__messages" aria-live="polite">
+    <div class="chat-panel__empty" *ngIf="messages.length === 0">
+      <p class="chat-panel__empty-title">No messages yet</p>
+      <p class="chat-panel__empty-copy">Use this thread to share symptoms, updates, and follow-up questions during your consultation.</p>
+    </div>
+    <p class="chat-panel__timeline" *ngIf="messages.length > 0">Consultation notes</p>
 
     <article
       class="chat-panel__message"
@@ -23,31 +28,41 @@
       [class.chat-panel__message--mine]="item.mine"
       [class.chat-panel__message--pending]="item.pending"
     >
-      <p class="chat-panel__meta">
-        <span class="chat-panel__sender">{{ item.senderLabel || 'Participant' }}</span>
-        <time class="chat-panel__time">{{ item.pending ? 'Sending...' : (item.created_at | date: 'shortTime') }}</time>
-      </p>
-      <p class="chat-panel__text">{{ item.message }}</p>
+      <div class="chat-panel__avatar" aria-hidden="true">{{ (item.senderLabel || 'P').slice(0, 1) }}</div>
+      <div class="chat-panel__bubble">
+        <p class="chat-panel__meta">
+          <span class="chat-panel__sender-group">
+            <span class="chat-panel__sender">{{ item.senderLabel || 'Participant' }}</span>
+            <span class="chat-panel__role" *ngIf="item.senderRoleLabel">{{ item.senderRoleLabel }}</span>
+          </span>
+          <time class="chat-panel__time">{{ item.pending ? 'Sending...' : (item.created_at | date: 'shortTime') }}</time>
+        </p>
+        <p class="chat-panel__text">{{ item.message }}</p>
+      </div>
     </article>
   </div>
 
   <form class="chat-panel__composer" (ngSubmit)="sendMessage()">
-    <input
-      type="text"
-      class="chat-panel__input"
-      [placeholder]="placeholder"
-      [(ngModel)]="draft"
-      name="chatMessage"
-      [disabled]="disabled || sending"
-      autocomplete="off"
-      maxlength="1000"
-    />
-    <button
-      type="submit"
-      class="chat-panel__send"
-      [disabled]="disabled || sending || !draft.trim()"
-    >
-      {{ sending ? 'Sending...' : sendButtonLabel }}
-    </button>
+    <label class="chat-panel__composer-label" for="chatMessage">Add a message for your care team</label>
+    <div class="chat-panel__composer-row">
+      <input
+        type="text"
+        id="chatMessage"
+        class="chat-panel__input"
+        [placeholder]="placeholder"
+        [(ngModel)]="draft"
+        name="chatMessage"
+        [disabled]="disabled || sending"
+        autocomplete="off"
+        maxlength="1000"
+      />
+      <button
+        type="submit"
+        class="chat-panel__send"
+        [disabled]="disabled || sending || !draft.trim()"
+      >
+        {{ sending ? 'Sending...' : sendButtonLabel }}
+      </button>
+    </div>
   </form>
 </section>

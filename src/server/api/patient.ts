@@ -139,7 +139,7 @@ patientRouter.post('/consults', requireAuth, requireRole(['patient']), async (re
       [
         user.userId,
         'consult.requested',
-        'Your GP request has been submitted.',
+        'Your Health Expert request has been submitted.',
         JSON.stringify({ requestId: request.id })
       ]
     );
@@ -625,14 +625,31 @@ patientRouter.post('/callback-request', requireAuth, requireRole(['patient']), c
 patientRouter.get('/specialists', requireAuth, requireRole(['patient']), async (_req, res) => {
   try {
     const result = await db.query(`
-      select u.id, u.display_name, u.first_name, u.last_name,
-             pp.specialty, pp.facility_name, pp.bio
+      select u.id,
+             nullif(trim(u.display_name), '') as display_name,
+             nullif(trim(u.first_name), '') as first_name,
+             nullif(trim(u.last_name), '') as last_name,
+             nullif(trim(pp.specialty), '') as specialty,
+             nullif(trim(pp.facility_name), '') as facility_name,
+             nullif(trim(coalesce(pp.notes->>'bio', '')), '') as bio
       from users u
       left join provider_profiles pp on pp.user_id = u.id
       where u.role = 'specialist' and u.is_operating = true
-      order by u.display_name
+      order by coalesce(
+        nullif(trim(u.display_name), ''),
+        concat_ws(' ', nullif(trim(u.first_name), ''), nullif(trim(u.last_name), '')),
+        u.phone
+      )
     `);
-    return res.json({ specialists: result.rows });
+    const specialists = result.rows.map((row) => {
+      const fallbackName = [row.first_name, row.last_name].filter(Boolean).join(' ').trim();
+      return {
+        ...row,
+        display_name: row.display_name || fallbackName || 'Specialist',
+        specialty: row.specialty || 'General Specialist',
+      };
+    });
+    return res.json({ specialists });
   } catch (error) {
     console.error('Specialists list error', error);
     return res.json({ specialists: [] });

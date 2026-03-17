@@ -2,7 +2,10 @@
 
 .healwell-region-page {
   min-height: 100vh;
-  background: var(--bg-primary);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(46, 204, 113, 0.08), transparent 34%),
+    radial-gradient(circle at 0% 100%, rgba(29, 78, 216, 0.08), transparent 36%),
+    var(--bg-primary);
   padding: v.$space-lg;
   padding-bottom: calc(80px + v.$safe-area-bottom);
   color: var(--text-primary);
@@ -10,9 +13,15 @@
 
 .page-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: v.$space-md;
   margin-bottom: v.$space-xl;
+}
+
+.page-header__content {
+  flex: 1;
+  display: grid;
+  gap: 10px;
 }
 
 .back-btn {
@@ -40,17 +49,89 @@
 
 .page-title {
   font-family: v.$font-family-primary;
-  font-size: v.$font-size-xl;
-  font-weight: v.$font-weight-semibold;
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  font-weight: v.$font-weight-bold;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   margin: 0;
+}
+
+.page-kicker {
+  margin: 0;
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ECC71;
+  font-size: 11px;
+  font-weight: v.$font-weight-bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.page-intro {
+  margin: 0;
+  max-width: 60ch;
+  font-size: v.$font-size-sm;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.page-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.page-highlight {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, var(--accent-primary));
+  background: color-mix(in srgb, var(--bg-card) 88%, white 12%);
+  font-size: 12px;
+  font-weight: v.$font-weight-semibold;
+  color: var(--text-primary);
+}
+
+.page-glance {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-glance__item {
+  min-width: 110px;
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-card) 88%, white 12%);
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, var(--accent-primary));
+
+  strong {
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
+    letter-spacing: -0.02em;
+  }
+}
+
+.page-glance__label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .page-subtitle {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   color: var(--text-secondary);
-  margin: 4px 0 0 0;
+  margin: 2px 0 0 0;
 }
 
 .card-grid {
@@ -62,14 +143,14 @@
 .selection-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 18px;
   padding: v.$space-lg v.$space-md;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 8px;
+  align-items: flex-start;
+  text-align: left;
+  gap: 10px;
   transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
 
   &:hover {
@@ -110,17 +191,29 @@
   color: var(--text-primary);
 }
 
+.card-description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
 .card-count {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
   color: var(--text-secondary);
 }
 
+.card-hint {
+  font-size: 12px;
+  font-weight: v.$font-weight-semibold;
+  color: #2ECC71;
+}
+
 /* Callback Banner */
 .callback-banner {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: 22px;
   padding: v.$space-xl;
   text-align: center;
   display: flex;
@@ -148,7 +241,7 @@
 .callback-title {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-xl;
-  font-weight: v.$font-weight-semibold;
+  font-weight: v.$font-weight-bold;
   color: var(--text-primary);
   margin: 0;
 }
@@ -211,5 +304,11 @@
 
   &:hover {
     border-color: var(--accent-primary);
+  }
+}
+
+@media (max-width: 640px) {
+  .card-grid {
+    grid-template-columns: 1fr;
   }
 }

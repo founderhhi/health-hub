@@ -52,6 +52,10 @@ const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'referrals', column: 'requested_info_note' },
   { table: 'referrals', column: 'requested_info_at' },
   { table: 'referrals', column: 'requested_info_by' },
+  { table: 'prescriptions', column: 'patient_contacted' },
+  { table: 'prescriptions', column: 'patient_contacted_by' },
+  { table: 'prescriptions', column: 'patient_contacted_at' },
+  { table: 'prescriptions', column: 'patient_contact_note' },
   { table: 'pharmacy_claims', column: 'dispensed_at' },
   { table: 'pharmacy_claims', column: 'dispensed_items' },
 ];
@@ -66,10 +70,11 @@ const REQUIRED_SCHEMA_CONSTRAINTS: Array<{
     mustInclude: "'removed'"
   }
 ];
-const REQUIRED_SCHEMA_TABLES = ['chat_messages'];
+const REQUIRED_SCHEMA_TABLES = ['chat_messages', 'admin_workflow_tracking'];
 const REQUIRED_SCHEMA_INDEXES = [
   'idx_chat_messages_consultation_created_at',
-  'idx_referrals_consultation_id'
+  'idx_referrals_consultation_id',
+  'idx_admin_workflow_entity_created'
 ];
 
 async function findMissingSchemaColumns() {
@@ -222,6 +227,32 @@ async function ensureServiceRequestsTableAndIndexes(): Promise<void> {
   await db.query(`CREATE INDEX IF NOT EXISTS idx_service_requests_patient_id ON service_requests (patient_id, created_at desc);`);
 }
 
+async function ensurePrescriptionAdminColumns(): Promise<void> {
+  await db.query(
+    `ALTER TABLE prescriptions
+       ADD COLUMN IF NOT EXISTS patient_contacted boolean NOT NULL DEFAULT false,
+       ADD COLUMN IF NOT EXISTS patient_contacted_by uuid REFERENCES users(id) ON DELETE SET NULL,
+       ADD COLUMN IF NOT EXISTS patient_contacted_at timestamptz,
+       ADD COLUMN IF NOT EXISTS patient_contact_note text;`
+  );
+}
+
+async function ensureAdminWorkflowTrackingTableAndIndexes(): Promise<void> {
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS admin_workflow_tracking (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      entity_type text NOT NULL CHECK (entity_type IN ('service_request','referral','prescription')),
+      entity_id uuid NOT NULL,
+      workflow_status text NOT NULL CHECK (workflow_status IN ('contacted','completed','accepted','rejected','home_delivery','in_service')),
+      notes text,
+      updated_by uuid REFERENCES users(id) ON DELETE SET NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );`
+  );
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_admin_workflow_entity_created ON admin_workflow_tracking (entity_type, entity_id, created_at desc);`);
+}
+
 export async function ensureRuntimeSchema(): Promise<void> {
   if (!connectionString) {
     return;
@@ -235,6 +266,8 @@ export async function ensureRuntimeSchema(): Promise<void> {
     await ensureConsultRequestStatusConstraintIncludesRemoved();
     await ensureChatMessagesTableAndIndexes();
     await ensureServiceRequestsTableAndIndexes();
+    await ensurePrescriptionAdminColumns();
+    await ensureAdminWorkflowTrackingTableAndIndexes();
 
     const missingColumns = await findMissingSchemaColumns();
     const invalidConstraints = await findInvalidSchemaConstraints();
@@ -267,6 +300,7 @@ export async function ensureRuntimeSchema(): Promise<void> {
 
     await db.query(`CREATE INDEX IF NOT EXISTS idx_referrals_consultation_id ON referrals (consultation_id);`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_admin_workflow_entity_created ON admin_workflow_tracking (entity_type, entity_id, created_at desc);`);
     console.log('Runtime schema compatibility check passed.');
   })();
 

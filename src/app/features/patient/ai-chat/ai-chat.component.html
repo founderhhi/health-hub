@@ -1,7 +1,7 @@
 <section class="ai-chat-page">
   <header class="page-header">
-    <h1 class="page-title">HealthHub AI</h1>
-    <p class="page-subtitle">Ask health questions and get quick guidance.</p>
+    <h1 class="page-title">HealthHub Guide</h1>
+    <p class="page-subtitle">Ask health questions and get calm, practical next-step guidance.</p>
   </header>
 
   @if (state$ | async; as state) {
@@ -17,12 +17,12 @@
     <div class="cta-row">
       @if (state.showGpCta) {
       <button type="button" class="gp-cta" (click)="connectToGP()" [disabled]="connectingToGp">
-        @if (connectingToGp) { Connecting... } @else { Connect to GP }
+        @if (connectingToGp) { Connecting... } @else { Connect to Health Expert }
       </button>
       }
       @if (state.showDiagnosticsCta) {
       <button type="button" class="diagnostics-cta" (click)="goDiagnostics()">
-        🧪 Go to Diagnostics Waiting
+        Open Diagnostics Waiting
       </button>
       }
     </div>
@@ -50,7 +50,7 @@
 
     @if (state.limitReached) {
     <p class="limit-message">
-      You've reached the session limit. Book a GP for a full consultation.
+      You've reached the session limit. Book a Health Expert for a full consultation.
     </p>
     }
 

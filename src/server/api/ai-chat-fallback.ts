@@ -433,22 +433,22 @@ function buildSingleQuestion(categories: SymptomCategory[], questionIndex: numbe
 
 function buildRecommendedNextStep(text: string, categories: SymptomCategory[]): string {
   if (includesAny(text, SAME_DAY_GP_PATTERNS)) {
-    return 'Arrange a same-day GP or urgent care review. Do not wait for routine follow-up if symptoms are worsening.';
+    return 'Arrange a same-day Health Expert or urgent care review. Do not wait for routine follow-up if symptoms are worsening.';
   }
 
   if (categories.some((category) => category.id === 'respiratory')) {
-    return 'Book a GP review within 24 hours if symptoms are persistent, and sooner if breathing symptoms are worsening.';
+    return 'Book a Health Expert review within 24 hours if symptoms are persistent, and sooner if breathing symptoms are worsening.';
   }
 
   if (categories.some((category) => category.id === 'urinary')) {
-    return 'Book a GP review within 24 hours, especially if there is fever, flank pain, or worsening pain with urination.';
+    return 'Book a Health Expert review within 24 hours, especially if there is fever, flank pain, or worsening pain with urination.';
   }
 
   if (categories.some((category) => category.id === 'pregnancy-menstrual')) {
-    return 'Arrange prompt GP or sexual-health review, sooner if pain or bleeding increases.';
+    return 'Arrange prompt Health Expert or sexual-health review, sooner if pain or bleeding increases.';
   }
 
-  return 'Book a GP review within 24-72 hours if symptoms persist, worsen, or keep returning.';
+  return 'Book a Health Expert review within 24-72 hours if symptoms persist, worsen, or keep returning.';
 }
 
 function buildSummaryReply(text: string, categories: SymptomCategory[]): FallbackAiReply {
@@ -468,7 +468,7 @@ function buildSummaryReply(text: string, categories: SymptomCategory[]): Fallbac
       : [
           '- a self-limited viral illness',
           '- a mild inflammatory condition',
-          '- a problem that still needs a GP review if it is persisting or worsening',
+          '- a problem that still needs a Health Expert review if it is persisting or worsening',
         ]),
     'Recommended next step:',
     `- ${buildRecommendedNextStep(text, categories)}`,

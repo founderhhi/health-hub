@@ -3,7 +3,18 @@
     <button class="back-btn" (click)="goBack()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
     </button>
-    <h1 class="page-title">Travel & Tourism</h1>
+    <div class="page-header__content">
+      <p class="page-kicker">Travel Care</p>
+      <h1 class="page-title">Plan treatment travel with more clarity</h1>
+      <p class="page-intro">
+        Coordinate callback support, stay planning, and seeded hospital budget guidance in one calmer planning space.
+      </p>
+      <div class="page-highlights">
+        <span class="page-highlight">Delhi hospital estimates</span>
+        <span class="page-highlight">Callback assistance</span>
+        <span class="page-highlight">Travel planning preview</span>
+      </div>
+    </div>
   </header>
 
   <!-- Tabs -->
@@ -27,15 +38,15 @@
         </svg>
         }
       </div>
-      <h2 class="coming-soon-title">This feature is coming soon</h2>
+      <h2 class="coming-soon-title">Assisted planning is on the way</h2>
       <p class="coming-soon-text">
-        Our {{ activeTab === 'flights' ? 'flight booking' : 'accommodation booking' }} service is currently being built. Request a callback and a representative will assist you.
+        Our {{ activeTab === 'flights' ? 'flight booking' : 'accommodation booking' }} service is still being set up. Request a callback and a care coordinator will help you personally.
       </p>
 
       @if (callbackSent) {
       <div class="callback-success">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12" /></svg>
-        <span>A representative will contact you shortly</span>
+        <span>A care coordinator will contact you shortly</span>
       </div>
       } @else {
       <button class="callback-btn" (click)="requestCallback()" [disabled]="callbackLoading">
@@ -47,6 +58,79 @@
       }
     </div>
   </div>
+
+  <section class="budget-calculator" aria-label="Mock budget calculator">
+    <header class="budget-header">
+      <p class="budget-kicker">Mock Budget Calculator</p>
+      <h2>Compare indicative treatment budgets across Delhi hospitals</h2>
+      <p>
+        Use these seeded estimates as a quick planning reference before you speak with a care coordinator.
+      </p>
+    </header>
+
+    <div class="calculator-controls">
+      <label class="control-field">
+        <span>Ailment type</span>
+        <select [(ngModel)]="selectedAilment">
+          <option *ngFor="let ailment of ailmentOptions" [value]="ailment">{{ ailment }}</option>
+        </select>
+      </label>
+
+      <label class="control-field">
+        <span>Severity</span>
+        <select [(ngModel)]="selectedSeverity">
+          <option *ngFor="let severity of severityOptions" [value]="severity">{{ severity }}</option>
+        </select>
+      </label>
+
+      <label class="control-field">
+        <span>Destination hospital</span>
+        <select [(ngModel)]="selectedHospital">
+          <option *ngFor="let hospital of destinationHospitals" [value]="hospital">{{ hospital }}</option>
+        </select>
+      </label>
+    </div>
+
+    @if (selectedAilmentEstimate; as estimate) {
+      <article class="estimate-highlight">
+        <div>
+          <p class="estimate-label">Estimated range for {{ selectedAilment }} ({{ selectedSeverity }})</p>
+          <h3>{{ estimate.row.procedure }}</h3>
+          <p class="estimate-meta">{{ estimate.row.specialty }} at {{ selectedHospital }}</p>
+        </div>
+        <p class="estimate-value">{{ formatInr(estimate.amount) }}</p>
+      </article>
+    }
+
+    <div class="matrix-shell">
+      <table class="comparison-matrix">
+        <thead>
+          <tr>
+            <th>Ailment</th>
+            <th>Specialty</th>
+            <th>Procedure</th>
+            <th *ngFor="let hospital of destinationHospitals" [class.active-col]="hospital === selectedHospital">
+              {{ hospital }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of budgetRows" [class.active-row]="row.ailment === selectedAilment">
+            <td>{{ row.ailment }}</td>
+            <td>{{ row.specialty }}</td>
+            <td>{{ row.procedure }}</td>
+            <td *ngFor="let hospital of destinationHospitals" [class.active-col]="hospital === selectedHospital">
+              {{ formatInr(getCost(row, hospital)) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="calculator-note">
+      A more comprehensive and live budget comparison tool is coming soon.
+    </p>
+  </section>
 
   <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
 </section>

@@ -35,6 +35,23 @@ export class HealwellRegionComponent implements OnInit {
     this.regionConfig = HEALWELL_REGIONS[region] || HEALWELL_REGIONS['india'];
   }
 
+  get totalHospitals(): number {
+    return this.regionConfig?.cities.reduce((count, city) => count + city.hospitals.length, 0) ?? 0;
+  }
+
+  get pageSubtitle(): string {
+    switch (this.view) {
+      case 'cities':
+        return 'Choose a city to begin your next-step planning.';
+      case 'hospitals':
+        return `Hospitals in ${this.selectedCity?.name}`;
+      case 'callback':
+        return `${this.selectedHospital?.name}`;
+      default:
+        return '';
+    }
+  }
+
   selectCity(city: HealwellCity): void {
     this.selectedCity = city;
     this.view = 'hospitals';

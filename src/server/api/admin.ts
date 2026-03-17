@@ -22,6 +22,11 @@ function isUniqueViolation(error: unknown): boolean {
 
 const VALID_ROLES = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
 const VALID_SERVICE_REQUEST_STATUSES = ['new', 'contacted', 'closed'];
+const VALID_ADMIN_WORKFLOW_STATUSES = ['contacted', 'completed', 'accepted', 'rejected', 'home_delivery', 'in_service'] as const;
+const VALID_ADMIN_WORKFLOW_ENTITY_TYPES = ['service_request', 'referral', 'prescription'] as const;
+
+type AdminWorkflowStatus = (typeof VALID_ADMIN_WORKFLOW_STATUSES)[number];
+type AdminWorkflowEntityType = (typeof VALID_ADMIN_WORKFLOW_ENTITY_TYPES)[number];
 
 function buildAdminUsersQueries(
   role: string | undefined,
@@ -80,6 +85,24 @@ async function logAdminActivity(
     }
     console.error('Admin activity log error', error);
   }
+}
+
+function isValidWorkflowStatus(value: string | undefined): value is AdminWorkflowStatus {
+  return Boolean(value && VALID_ADMIN_WORKFLOW_STATUSES.includes(value as AdminWorkflowStatus));
+}
+
+async function addWorkflowTracking(
+  entityType: AdminWorkflowEntityType,
+  entityId: string,
+  workflowStatus: AdminWorkflowStatus,
+  updatedBy: string | undefined,
+  notes?: string
+): Promise<void> {
+  await db.query(
+    `insert into admin_workflow_tracking (entity_type, entity_id, workflow_status, notes, updated_by)
+     values ($1, $2, $3, $4, $5)`,
+    [entityType, entityId, workflowStatus, notes?.trim() || null, updatedBy || null]
+  );
 }
 
 // API-14: List all users (paginated)
@@ -378,10 +401,25 @@ adminRouter.get('/service-requests', requireAuth, requireRole(['admin']), async 
          sr.*,
          patient.display_name as patient_name,
          patient.phone as patient_phone,
-         handler.display_name as handled_by_name
+         handler.display_name as handled_by_name,
+         workflow.workflow_status as admin_workflow_status,
+         workflow.updated_by_name as admin_workflow_updated_by_name,
+         workflow.created_at as admin_workflow_updated_at
        from service_requests sr
        join users patient on patient.id = sr.patient_id
        left join users handler on handler.id = sr.handled_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'service_request'
+           and awt.entity_id = sr.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
        order by sr.created_at desc`
     );
 
@@ -396,42 +434,84 @@ adminRouter.patch('/service-requests/:id', requireAuth, requireRole(['admin']), 
   try {
     const actor = (req as { user?: AuthUser }).user;
     const { id } = req.params;
-    const { status } = req.body as { status?: string };
+    const { status, workflowStatus, notes } = req.body as {
+      status?: string;
+      workflowStatus?: string;
+      notes?: string;
+    };
 
-    if (!status || !VALID_SERVICE_REQUEST_STATUSES.includes(status)) {
+    if (!status && !workflowStatus) {
+      return res.status(400).json({ error: 'status or workflowStatus is required' });
+    }
+
+    if (status && !VALID_SERVICE_REQUEST_STATUSES.includes(status)) {
       return res.status(400).json({
         error: `Invalid status. Must be one of: ${VALID_SERVICE_REQUEST_STATUSES.join(', ')}`
       });
     }
+    if (workflowStatus && !isValidWorkflowStatus(workflowStatus)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
 
-    const result = await db.query(
-      `update service_requests
-       set status = $2,
-           handled_by = $3,
-           updated_at = now()
-       where id = $1
-       returning id`,
-      [id, status, actor?.userId || null]
-    );
+    let result;
+    if (status) {
+      result = await db.query(
+        `update service_requests
+         set status = $2,
+             handled_by = $3,
+             updated_at = now()
+         where id = $1
+         returning id`,
+        [id, status, actor?.userId || null]
+      );
+    } else {
+      result = await db.query(`select id from service_requests where id = $1`, [id]);
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Service request not found' });
     }
 
-    await logAdminActivity(actor?.userId, 'service_request.status.updated', null, null, {
-      requestId: id,
-      status,
-    });
+    if (status) {
+      await logAdminActivity(actor?.userId, 'service_request.status.updated', null, null, {
+        requestId: id,
+        status,
+      });
+    }
+    if (workflowStatus && isValidWorkflowStatus(workflowStatus)) {
+      await addWorkflowTracking('service_request', id, workflowStatus, actor?.userId, notes);
+      await logAdminActivity(actor?.userId, 'service_request.workflow.updated', null, null, {
+        requestId: id,
+        workflowStatus,
+      });
+    }
 
     const hydratedRequest = await db.query(
       `select
          sr.*,
          patient.display_name as patient_name,
          patient.phone as patient_phone,
-         handler.display_name as handled_by_name
+         handler.display_name as handled_by_name,
+         workflow.workflow_status as admin_workflow_status,
+         workflow.updated_by_name as admin_workflow_updated_by_name,
+         workflow.created_at as admin_workflow_updated_at
        from service_requests sr
        join users patient on patient.id = sr.patient_id
        left join users handler on handler.id = sr.handled_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'service_request'
+           and awt.entity_id = sr.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
        where sr.id = $1
        limit 1`,
       [id]
@@ -467,9 +547,27 @@ adminRouter.get('/prescriptions', requireAuth, requireRole(['admin']), async (re
 
     const result = await db.query(
       `select p.id, p.code, p.items, p.status, p.created_at,
-              u.display_name as patient_name, u.phone as patient_phone
+              p.patient_contacted, p.patient_contacted_at, p.patient_contact_note,
+              u.display_name as patient_name, u.phone as patient_phone,
+              contact_admin.display_name as patient_contacted_by_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
        from prescriptions p
        join users u on u.id = p.patient_id
+       left join users contact_admin on contact_admin.id = p.patient_contacted_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'prescription'
+           and awt.entity_id = p.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
        order by p.created_at desc
        limit $1 offset $2`,
       [limit, offset]
@@ -482,6 +580,181 @@ adminRouter.get('/prescriptions', requireAuth, requireRole(['admin']), async (re
   } catch (error) {
     console.error('Admin prescriptions error', error);
     return res.status(500).json({ error: 'Unable to fetch prescriptions' });
+  }
+});
+
+adminRouter.patch('/prescriptions/:id/contact', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { contacted, note, workflowStatus } = req.body as {
+      contacted?: boolean;
+      note?: string;
+      workflowStatus?: string;
+    };
+
+    if (typeof contacted !== 'boolean') {
+      return res.status(400).json({ error: 'contacted field (boolean) is required' });
+    }
+    if (workflowStatus && !isValidWorkflowStatus(workflowStatus)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
+
+    const updated = await db.query(
+      `update prescriptions
+       set patient_contacted = $2,
+           patient_contacted_by = case when $2 then $3 else null end,
+           patient_contacted_at = case when $2 then now() else null end,
+           patient_contact_note = $4
+       where id = $1
+       returning id, patient_id`,
+      [id, contacted, actor?.userId || null, note?.trim() || null]
+    );
+    if (updated.rows.length === 0) {
+      return res.status(404).json({ error: 'Prescription not found' });
+    }
+
+    await logAdminActivity(actor?.userId, 'prescription.patient_contact.updated', updated.rows[0].patient_id, null, {
+      prescriptionId: id,
+      contacted,
+      note: note?.trim() || null
+    });
+
+    if (workflowStatus && isValidWorkflowStatus(workflowStatus)) {
+      await addWorkflowTracking('prescription', id, workflowStatus, actor?.userId, note);
+      await logAdminActivity(actor?.userId, 'prescription.workflow.updated', updated.rows[0].patient_id, null, {
+        prescriptionId: id,
+        workflowStatus
+      });
+    }
+
+    const hydrated = await db.query(
+      `select p.id, p.code, p.items, p.status, p.created_at,
+              p.patient_contacted, p.patient_contacted_at, p.patient_contact_note,
+              u.display_name as patient_name, u.phone as patient_phone,
+              contact_admin.display_name as patient_contacted_by_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
+       from prescriptions p
+       join users u on u.id = p.patient_id
+       left join users contact_admin on contact_admin.id = p.patient_contacted_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'prescription'
+           and awt.entity_id = p.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       where p.id = $1
+       limit 1`,
+      [id]
+    );
+
+    return res.json({ prescription: hydrated.rows[0] });
+  } catch (error) {
+    console.error('Admin update prescription contact error', error);
+    return res.status(500).json({ error: 'Unable to update prescription contact' });
+  }
+});
+
+adminRouter.get('/referrals', requireAuth, requireRole(['admin']), async (_req, res) => {
+  try {
+    const result = await db.query(
+      `select r.id, r.status, r.urgency, r.reason, r.specialty, r.created_at,
+              patient.display_name as patient_name,
+              patient.phone as patient_phone,
+              specialist.display_name as specialist_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
+       from referrals r
+       join users patient on patient.id = r.patient_id
+       left join users specialist on specialist.id = r.to_specialist_id
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'referral'
+           and awt.entity_id = r.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       order by r.created_at desc`
+    );
+
+    return res.json({ referrals: result.rows });
+  } catch (error) {
+    console.error('Admin referrals error', error);
+    return res.status(500).json({ error: 'Unable to fetch referrals' });
+  }
+});
+
+adminRouter.patch('/referrals/:id/workflow', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { workflowStatus, notes } = req.body as { workflowStatus?: string; notes?: string };
+
+    if (!isValidWorkflowStatus(workflowStatus)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
+
+    const exists = await db.query(`select id, patient_id from referrals where id = $1`, [id]);
+    if (exists.rows.length === 0) {
+      return res.status(404).json({ error: 'Referral not found' });
+    }
+
+    await addWorkflowTracking('referral', id, workflowStatus, actor?.userId, notes);
+    await logAdminActivity(actor?.userId, 'referral.workflow.updated', exists.rows[0].patient_id, null, {
+      referralId: id,
+      workflowStatus
+    });
+
+    const hydrated = await db.query(
+      `select r.id, r.status, r.urgency, r.reason, r.specialty, r.created_at,
+              patient.display_name as patient_name,
+              patient.phone as patient_phone,
+              specialist.display_name as specialist_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
+       from referrals r
+       join users patient on patient.id = r.patient_id
+       left join users specialist on specialist.id = r.to_specialist_id
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'referral'
+           and awt.entity_id = r.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       where r.id = $1
+       limit 1`,
+      [id]
+    );
+
+    return res.json({ referral: hydrated.rows[0] });
+  } catch (error) {
+    console.error('Admin update referral workflow error', error);
+    return res.status(500).json({ error: 'Unable to update referral workflow' });
   }
 });
 

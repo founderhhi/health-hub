@@ -30,6 +30,7 @@ export interface ChatPanelMessage {
   sender_role?: string | null;
   client_request_id?: string | null;
   senderLabel?: string;
+  senderRoleLabel?: string;
   mine?: boolean;
   pending?: boolean;
 }
@@ -55,8 +56,8 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   @Input() consultationId = '';
   @Input() currentUserId = '';
   @Input() endpointBase = '/chat';
-  @Input() title = 'Chat';
-  @Input() placeholder = 'Type a message';
+  @Input() title = 'Care chat';
+  @Input() placeholder = 'Share an update or ask a question';
   @Input() sendButtonLabel = 'Send';
   @Input() disabled = false;
 
@@ -81,6 +82,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   private fallbackPollTimer: ReturnType<typeof setInterval> | null = null;
   private loadInFlight = false;
   private pendingRequestIds = new Set<string>();
+  private currentUserRole = '';
 
   constructor(
     private api: ApiClientService,
@@ -90,6 +92,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId) && !this.currentUserId) {
       this.currentUserId = localStorage.getItem('hhi_user_id') || '';
+      this.currentUserRole = String(localStorage.getItem('hhi_user_role') || '').trim().toLowerCase();
     }
 
     if (isPlatformBrowser(this.platformId)) {
@@ -237,7 +240,8 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
     return {
       ...message,
       mine,
-      senderLabel: this.resolveSenderLabel(message, mine)
+      senderLabel: this.resolveSenderLabel(message, mine),
+      senderRoleLabel: this.resolveSenderRoleLabel(message, mine)
     };
   }
 
@@ -253,7 +257,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
       if (senderName) {
         return senderName.toLowerCase().startsWith('dr ') ? senderName : `Dr ${senderName}`;
       }
-      return 'GP';
+      return 'Health Expert';
     }
 
     if (senderRole === 'specialist') {
@@ -271,6 +275,37 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
       return 'Patient';
     }
 
+    return 'Participant';
+  }
+
+  private resolveSenderRoleLabel(message: ChatPanelMessage, mine: boolean): string {
+    const role = String(message.sender_role || '').trim().toLowerCase();
+    if (!role && !mine) {
+      return '';
+    }
+
+    if (mine) {
+      if (this.currentUserRole === 'gp' || this.currentUserRole === 'doctor') {
+        return 'Health Expert';
+      }
+      if (this.currentUserRole === 'specialist') {
+        return 'Specialist';
+      }
+      if (this.currentUserRole === 'patient') {
+        return 'Patient';
+      }
+      return 'You';
+    }
+
+    if (role === 'gp' || role === 'doctor') {
+      return 'Health Expert';
+    }
+    if (role === 'specialist') {
+      return 'Specialist';
+    }
+    if (role === 'patient') {
+      return 'Patient';
+    }
     return 'Participant';
   }
 

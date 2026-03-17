@@ -48,9 +48,14 @@ interface ServiceRequestRecord {
   patient_name: string | null;
   patient_phone: string | null;
   handled_by_name: string | null;
+  admin_workflow_status?: AdminWorkflowStatus | null;
+  admin_workflow_updated_by_name?: string | null;
+  admin_workflow_updated_at?: string | null;
   created_at: string;
   updated_at: string;
 }
+
+type AdminWorkflowStatus = 'contacted' | 'completed' | 'accepted' | 'rejected' | 'home_delivery' | 'in_service';
 
 interface PrescriptionRecord {
   id: string;
@@ -60,6 +65,28 @@ interface PrescriptionRecord {
   created_at: string;
   patient_name: string;
   patient_phone: string;
+  patient_contacted?: boolean;
+  patient_contacted_at?: string | null;
+  patient_contact_note?: string | null;
+  patient_contacted_by_name?: string | null;
+  admin_workflow_status?: AdminWorkflowStatus | null;
+  admin_workflow_updated_by_name?: string | null;
+  admin_workflow_updated_at?: string | null;
+}
+
+interface ReferralRecord {
+  id: string;
+  status: 'new' | 'accepted' | 'declined' | 'confirmed';
+  urgency: 'routine' | 'urgent' | 'emergency';
+  reason: string | null;
+  specialty: string | null;
+  patient_name: string | null;
+  patient_phone: string | null;
+  specialist_name: string | null;
+  admin_workflow_status?: AdminWorkflowStatus | null;
+  admin_workflow_updated_by_name?: string | null;
+  admin_workflow_updated_at?: string | null;
+  created_at: string;
 }
 
 interface CreateUserForm {
@@ -83,10 +110,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   activities: AdminActivityEvent[] = [];
   requests: ServiceRequestRecord[] = [];
   prescriptions: PrescriptionRecord[] = [];
+  referrals: ReferralRecord[] = [];
   systemHealth: SystemHealth | null = null;
   loading = true;
   activityLoading = false;
   requestsLoading = false;
+  referralsLoading = false;
   pharmacyLoading = false;
   creatingUser = false;
   searchQuery = '';
@@ -98,7 +127,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   activityTotalPages = 1;
   pharmacyPage = 1;
   pharmacyTotalPages = 1;
-  activeTab: 'users' | 'pharmacy' | 'activity' | 'requests' | 'health' = 'users';
+  activeTab: 'users' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health' = 'users';
   actionNotice = '';
   actionError = '';
   showCreateUser = false;
@@ -114,6 +143,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   readonly roles = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
   readonly requestStatuses: Array<ServiceRequestRecord['status']> = ['new', 'contacted', 'closed'];
+  readonly workflowStatuses: AdminWorkflowStatus[] = ['contacted', 'completed', 'accepted', 'rejected', 'home_delivery', 'in_service'];
 
   private noticeTimer?: ReturnType<typeof setTimeout>;
   private errorTimer?: ReturnType<typeof setTimeout>;
@@ -129,7 +159,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (this.errorTimer) clearTimeout(this.errorTimer);
   }
 
-  setTab(tab: 'users' | 'pharmacy' | 'activity' | 'requests' | 'health'): void {
+  setTab(tab: 'users' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health'): void {
     this.activeTab = tab;
     this.actionError = '';
     this.actionNotice = '';
@@ -146,6 +176,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     if (tab === 'activity') {
       this.loadActivity();
+      return;
+    }
+
+    if (tab === 'referrals') {
+      this.loadReferrals();
       return;
     }
 
@@ -232,6 +267,22 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.requestsLoading = false;
         this.showError(this.extractApiError(error, 'Unable to load service requests right now.'));
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadReferrals(): void {
+    this.referralsLoading = true;
+    this.api.get<{ referrals: ReferralRecord[] }>('/admin/referrals').subscribe({
+      next: (res) => {
+        this.referrals = Array.isArray(res.referrals) ? res.referrals : [];
+        this.referralsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.referralsLoading = false;
+        this.showError(this.extractApiError(error, 'Unable to load referrals right now.'));
         this.cdr.detectChanges();
       }
     });
@@ -364,6 +415,122 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  confirmAndUpdateRequestStatus(request: ServiceRequestRecord, nextStatusRaw: string): void {
+    if (!this.isServiceRequestStatus(nextStatusRaw)) {
+      this.showError('Please choose a valid request status.');
+      return;
+    }
+    const status = nextStatusRaw;
+    if (request.status === status) {
+      return;
+    }
+    const confirmed = window.confirm(`Confirm changing service request status to "${status}"?`);
+    if (!confirmed) {
+      return;
+    }
+    this.updateRequestStatus(request, status);
+  }
+
+  updateRequestWorkflowStatus(request: ServiceRequestRecord, workflowStatus: AdminWorkflowStatus): void {
+    this.actionError = '';
+    this.api.patch<{ request: ServiceRequestRecord }>(`/admin/service-requests/${request.id}`, { workflowStatus }).subscribe({
+      next: (res) => {
+        request.admin_workflow_status = res.request.admin_workflow_status || null;
+        request.admin_workflow_updated_by_name = res.request.admin_workflow_updated_by_name || null;
+        request.admin_workflow_updated_at = res.request.admin_workflow_updated_at || null;
+        this.showNotice('Request workflow updated successfully.');
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update request workflow.'));
+        this.loadRequests();
+      }
+    });
+  }
+
+  confirmAndUpdateRequestWorkflowStatus(request: ServiceRequestRecord, nextWorkflowRaw: string): void {
+    if (!this.isWorkflowStatus(nextWorkflowRaw)) {
+      this.showError('Please choose a valid workflow status.');
+      return;
+    }
+    const workflowStatus = nextWorkflowRaw;
+    if (request.admin_workflow_status === workflowStatus) {
+      return;
+    }
+    const confirmed = window.confirm(`Confirm setting request workflow to "${this.formatWorkflowStatus(workflowStatus)}"?`);
+    if (!confirmed) {
+      return;
+    }
+    this.updateRequestWorkflowStatus(request, workflowStatus);
+  }
+
+  updatePrescriptionContactStatus(
+    prescription: PrescriptionRecord,
+    contacted: boolean,
+    workflowStatus: AdminWorkflowStatus = 'contacted'
+  ): void {
+    this.actionError = '';
+    this.api.patch<{ prescription: PrescriptionRecord }>(`/admin/prescriptions/${prescription.id}/contact`, {
+      contacted,
+      workflowStatus
+    }).subscribe({
+      next: (res) => {
+        prescription.patient_contacted = Boolean(res.prescription.patient_contacted);
+        prescription.patient_contacted_at = res.prescription.patient_contacted_at || null;
+        prescription.patient_contact_note = res.prescription.patient_contact_note || null;
+        prescription.patient_contacted_by_name = res.prescription.patient_contacted_by_name || null;
+        prescription.admin_workflow_status = res.prescription.admin_workflow_status || null;
+        prescription.admin_workflow_updated_by_name = res.prescription.admin_workflow_updated_by_name || null;
+        prescription.admin_workflow_updated_at = res.prescription.admin_workflow_updated_at || null;
+        this.showNotice(contacted ? 'Patient contact logged.' : 'Patient contact cleared.');
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update patient contact.'));
+        this.loadPrescriptions();
+      }
+    });
+  }
+
+  confirmAndUpdatePrescriptionContactStatus(prescription: PrescriptionRecord, contacted: boolean): void {
+    const action = contacted ? 'mark as contacted' : 'clear contact status';
+    const confirmed = window.confirm(`Confirm ${action} for prescription "${prescription.code}"?`);
+    if (!confirmed) {
+      return;
+    }
+    this.updatePrescriptionContactStatus(prescription, contacted);
+  }
+
+  updateReferralWorkflowStatus(referral: ReferralRecord, workflowStatus: AdminWorkflowStatus): void {
+    this.actionError = '';
+    this.api.patch<{ referral: ReferralRecord }>(`/admin/referrals/${referral.id}/workflow`, { workflowStatus }).subscribe({
+      next: (res) => {
+        referral.admin_workflow_status = res.referral.admin_workflow_status || null;
+        referral.admin_workflow_updated_by_name = res.referral.admin_workflow_updated_by_name || null;
+        referral.admin_workflow_updated_at = res.referral.admin_workflow_updated_at || null;
+        this.showNotice('Referral workflow updated successfully.');
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update referral workflow.'));
+        this.loadReferrals();
+      }
+    });
+  }
+
+  confirmAndUpdateReferralWorkflowStatus(referral: ReferralRecord, nextWorkflowRaw: string): void {
+    if (!this.isWorkflowStatus(nextWorkflowRaw)) {
+      this.showError('Please choose a valid workflow status.');
+      return;
+    }
+    const workflowStatus = nextWorkflowRaw;
+    if (referral.admin_workflow_status === workflowStatus) {
+      return;
+    }
+    const confirmed = window.confirm(`Confirm setting referral workflow to "${this.formatWorkflowStatus(workflowStatus)}"?`);
+    if (!confirmed) {
+      return;
+    }
+    this.updateReferralWorkflowStatus(referral, workflowStatus);
+  }
+
   toggleCreateUserPanel(): void {
     this.showCreateUser = !this.showCreateUser;
     this.actionError = '';
@@ -426,9 +593,30 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         return 'Updated status';
       case 'service_request.status.updated':
         return 'Updated request status';
+      case 'service_request.workflow.updated':
+        return 'Updated request workflow';
+      case 'prescription.patient_contact.updated':
+        return 'Updated prescription contact';
+      case 'prescription.workflow.updated':
+        return 'Updated prescription workflow';
+      case 'referral.workflow.updated':
+        return 'Updated referral workflow';
       default:
         return action;
     }
+  }
+
+  formatWorkflowStatus(status: AdminWorkflowStatus | null | undefined): string {
+    if (!status) return 'Not set';
+    return status.replace(/_/g, ' ').replace(/\b\w/g, (value) => value.toUpperCase());
+  }
+
+  private isWorkflowStatus(value: string): value is AdminWorkflowStatus {
+    return this.workflowStatuses.includes(value as AdminWorkflowStatus);
+  }
+
+  private isServiceRequestStatus(value: string): value is ServiceRequestRecord['status'] {
+    return this.requestStatuses.includes(value as ServiceRequestRecord['status']);
   }
 
   getActivityTarget(event: AdminActivityEvent): string {

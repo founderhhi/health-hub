@@ -1,6 +1,6 @@
 <section class="hhi-provider-page active-consultation">
   @if (loading) {
-    <div class="loading-state" style="display: flex; align-items: center; justify-content: center; min-height: 200px; color: #cbd5e1;">
+    <div class="loading-state">
       Loading consultation...
     </div>
   } @else {
@@ -144,20 +144,20 @@
       </button>
     </div>
     <div class="modal-body">
-      <p style="color:#94a3b8;font-size:0.875rem;margin:0 0 12px;">Select tests to order for {{ patientName }}:</p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+      <p class="modal-hint">Select tests to order for {{ patientName }}:</p>
+      <div class="test-chip-list">
         @for (test of labTestOptions; track test) {
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid #334155;border-radius:6px;font-size:0.875rem;color:#e2e8f0;"
-            [style.background]="isTestSelected(test) ? '#1d4ed8' : '#1e293b'"
-            [style.border-color]="isTestSelected(test) ? '#3b82f6' : '#334155'">
-            <input type="checkbox" [checked]="isTestSelected(test)" (change)="toggleTest(test)" style="display:none;" />
+          <label
+            class="test-chip"
+            [class.test-chip--selected]="isTestSelected(test)">
+            <input type="checkbox" [checked]="isTestSelected(test)" (change)="toggleTest(test)" class="test-chip__input" />
             {{ test }}
           </label>
         }
       </div>
       <div class="form-group">
-        <label class="form-label" style="color:#94a3b8;font-size:0.8125rem;">Custom test (optional)</label>
-        <input type="text" class="form-input" placeholder="e.g. Thyroid Panel" [(ngModel)]="customTest" style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:8px 12px;width:100%;box-sizing:border-box;" />
+        <label class="form-label form-label--subtle">Custom test (optional)</label>
+        <input type="text" class="form-input form-input--modal-dark" placeholder="e.g. Thyroid Panel" [(ngModel)]="customTest" />
       </div>
     </div>
     <div class="modal-footer">
@@ -295,7 +295,7 @@
       </div>
     </div>
     @if (referralSubmitError) {
-      <p style="color:#ef4444;margin:0 16px 8px;font-size:0.875rem;" role="alert">{{ referralSubmitError }}</p>
+      <p class="referral-submit-error" role="alert">{{ referralSubmitError }}</p>
     }
     <div class="modal-footer">
       <button class="btn btn-ghost" type="button" (click)="closeReferralModal()">Cancel</button>

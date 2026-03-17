@@ -91,9 +91,9 @@ export class AiChatComponent implements AfterViewChecked {
       : userMessages.slice(1);
     const triageSummary = state.triage?.triageSummary
       || assistantMessages[assistantMessages.length - 1]
-      || 'Patient requested GP handoff after AI triage.';
+      || 'Patient requested Health Expert handoff after AI triage.';
     const recommendedNextStep = state.triage?.recommendedNextStep
-      || 'Connect to GP for further assessment.';
+      || 'Connect to a Health Expert for further assessment.';
 
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('hhi_consult_mode', 'video');
@@ -112,7 +112,7 @@ export class AiChatComponent implements AfterViewChecked {
       },
       error: () => {
         this.connectingToGp = false;
-        this.sendError = 'Unable to connect to a GP right now. Please try again.';
+        this.sendError = 'Unable to connect to a Health Expert right now. Please try again.';
       }
     });
   }

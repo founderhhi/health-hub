@@ -16,17 +16,17 @@ const CLAUDE_MODEL = process.env['CLAUDE_MODEL'] || 'claude-opus-4-6';
 const SESSION_MESSAGE_LIMIT = 15;
 const CONTEXT_WINDOW_MESSAGES = 12;
 const DISCLAIMER_TEXT =
-  '⚠️ This is not medical advice. Always consult a qualified GP or specialist for diagnosis and treatment.';
+  '⚠️ This is not medical advice. Always consult a qualified Health Expert or specialist for diagnosis and treatment.';
 
 const SYSTEM_PROMPT_BASE = [
-  'You are HealthHub AI, a symptom-triage assistant. You are NOT a doctor. Your role is to help patients understand possible causes of their symptoms and suggest whether they should see a GP or specialist.',
+  'You are HealthHub AI, a symptom-triage assistant. You are NOT a doctor. Your role is to help patients understand possible causes of their symptoms and suggest whether they should see a Health Expert or specialist.',
   `ALWAYS include this disclaimer in your first message: "${DISCLAIMER_TEXT}"`,
   'Ask focused, clinically relevant questions one at a time.',
   'Limit yourself to three follow-up questions after the patient\'s first symptom message.',
   'Do not ask multiple numbered questions in a single reply.',
   'After gathering the required symptom details, provide a brief triage summary with:',
   '- Possible conditions (2-3 most likely)',
-  '- Recommended next step (GP / specialist / emergency)',
+  '- Recommended next step (Health Expert / specialist / emergency)',
   'Do not ask follow-up questions after giving the triage summary.',
   'Keep replies concise and do not pad the conversation.',
   'Return ONLY valid JSON with this exact schema:',
@@ -73,7 +73,7 @@ interface AiTriagePayload {
 const sessions = new Map<string, SessionState>();
 
 // Initialise the Anthropic client once at module load.
-const AI_KEY = process.env['ANTHROPIC_API_KEY'] || '';
+const AI_KEY = (process.env['ANTHROPIC_API_KEY'] || '').trim();
 if (!AI_KEY) {
   console.warn('[ai-chat] ANTHROPIC_API_KEY is not set — using deterministic triage fallback.');
 }
@@ -174,7 +174,7 @@ function buildTriagePayload(
     triageAnswers: userMessages.slice(1),
     triageSummary: includeSummary ? cleanedReply : '',
     recommendedNextStep: includeSummary
-      ? extractRecommendedNextStep(cleanedReply) || 'Connect to GP for further assessment.'
+      ? extractRecommendedNextStep(cleanedReply) || 'Connect to a Health Expert for further assessment.'
       : '',
   };
 }
@@ -242,6 +242,13 @@ async function requestClaude(
   return parseModelReply(textBlock.text);
 }
 
+function isTransientAnthropicError(error: unknown): boolean {
+  const status = typeof (error as { status?: unknown })?.status === 'number'
+    ? (error as { status: number }).status
+    : undefined;
+  return status === 408 || status === 409 || status === 425 || status === 429 || (status !== undefined && status >= 500);
+}
+
 async function getAiReply(session: SessionState): Promise<AiChatReply> {
   if (!AI_KEY) {
     return buildFallbackTriageReply(session.messages);
@@ -254,11 +261,16 @@ async function getAiReply(session: SessionState): Promise<AiChatReply> {
       ? (error as { status: number }).status
       : undefined;
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.warn('[ai-chat] Anthropic unavailable, using deterministic fallback.', {
+    console.warn('[ai-chat] Anthropic request failed.', {
       status,
       message,
     });
-    return buildFallbackTriageReply(session.messages);
+    // Keep deterministic fallback only for transient provider outages and throttling.
+    // Configuration/auth/client errors should surface as unavailable so they can be fixed.
+    if (isTransientAnthropicError(error)) {
+      return buildFallbackTriageReply(session.messages);
+    }
+    throw error;
   }
 }
 
@@ -285,7 +297,7 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
 
     if (session.messages.length >= SESSION_MESSAGE_LIMIT) {
       return res.json({
-        reply: 'Session message limit reached. Please book a GP consultation for further evaluation.',
+        reply: 'Session message limit reached. Please book a Health Expert consultation for further evaluation.',
         messageCount: session.messages.length,
         limitReached: true,
         showGpCta: true,
@@ -297,7 +309,7 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
 
     if (session.messages.length >= SESSION_MESSAGE_LIMIT) {
       return res.json({
-        reply: 'Session message limit reached. Please book a GP consultation for further evaluation.',
+        reply: 'Session message limit reached. Please book a Health Expert consultation for further evaluation.',
         messageCount: session.messages.length,
         limitReached: true,
         showGpCta: true,
@@ -309,7 +321,7 @@ aiChatRouter.post('/message', requireAuth, async (req, res) => {
     let reply = aiResponse.reply;
 
     if (!reply) {
-      reply = 'I could not complete triage right now. Please book a GP consultation.';
+      reply = 'I could not complete triage right now. Please book a Health Expert consultation.';
     }
 
     reply = ensureDisclaimerOnFirstAssistantMessage(reply, session);

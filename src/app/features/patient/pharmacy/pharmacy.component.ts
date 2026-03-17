@@ -28,6 +28,8 @@ export class PatientPharmacyComponent {
   PATIENT_TABS = PATIENT_TABS;
   pharmacies = NAIROBI_PHARMACIES;
   directionMessage = '';
+  showLiveNotice = true;
+  readonly liveNotice = 'Live pharmacies will be added in coming updates.';
 
   private location = inject(Location);
   private cdr = inject(ChangeDetectorRef);
@@ -42,5 +44,9 @@ export class PatientPharmacyComponent {
 
   goBack(): void {
     this.location.back();
+  }
+
+  dismissLiveNotice(): void {
+    this.showLiveNotice = false;
   }
 }

@@ -3,8 +3,18 @@
     <button class="back-btn" (click)="goBack()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
     </button>
-    <h1 class="page-title">Specialists</h1>
+    <div>
+      <h1 class="page-title">Specialists</h1>
+      <p class="page-subtitle">Find available specialists by specialty and facility.</p>
+    </div>
   </header>
+
+  @if (showAvailabilityNotice) {
+  <aside class="feature-notice" role="status" aria-live="polite">
+    <p class="feature-notice__text">{{ availabilityNotice }}</p>
+    <button type="button" class="feature-notice__dismiss" (click)="dismissAvailabilityNotice()">Dismiss</button>
+  </aside>
+  }
 
   <!-- Search Bar -->
   <div class="search-bar">
@@ -18,6 +28,7 @@
       placeholder="Search by name or specialty..."
       [(ngModel)]="searchQuery"
       (ngModelChange)="onSearch()"
+      aria-label="Search specialists"
     />
   </div>
 
@@ -33,9 +44,14 @@
     </div>
     }
   </div>
+  } @else if (loadError) {
+  <div class="state-card state-card--error">
+    <p class="state-card__title">We could not load specialists right now.</p>
+    <p class="state-card__text">Please try again in a moment.</p>
+  </div>
   } @else {
   <div class="specialist-list">
-    @for (specialist of filteredSpecialists; track specialist.display_name) {
+    @for (specialist of filteredSpecialists; track specialist.id || specialist.display_name) {
     <div class="specialist-card">
       <div class="specialist-avatar">{{ getInitials(specialist.display_name) }}</div>
       <div class="specialist-info">
@@ -52,7 +68,15 @@
     }
 
     @if (filteredSpecialists.length === 0) {
-    <p class="no-results">No specialists found matching "{{ searchQuery }}"</p>
+    <div class="state-card">
+      @if (searchQuery.trim()) {
+      <p class="state-card__title">No specialists found for "{{ searchQuery }}"</p>
+      <p class="state-card__text">Try a different name, specialty, or facility.</p>
+      } @else {
+      <p class="state-card__title">No specialists are listed yet.</p>
+      <p class="state-card__text">Please check back soon as more profiles become available.</p>
+      }
+    </div>
     }
   </div>
   }

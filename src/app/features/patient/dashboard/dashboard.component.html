@@ -36,7 +36,7 @@
   </header>
 
   @if (requestingConsult) {
-  <div class="status-banner status-banner--info">Requesting a GP, please wait...</div>
+  <div class="status-banner status-banner--info">Requesting a Health Expert, please wait...</div>
   }
   @if (requestError) {
   <div class="status-banner status-banner--error">{{ requestError }}</div>
@@ -47,6 +47,37 @@
   @if (comingSoonMessage) {
   <div class="status-banner status-banner--info">{{ comingSoonMessage }}</div>
   }
+
+  <section class="care-hero" aria-label="Quick care action">
+    <div class="care-hero__copy">
+      <p class="care-hero__eyebrow">Today's care plan</p>
+      <h2 class="care-hero__title">Meet a Health Expert in minutes</h2>
+      <p class="care-hero__text">
+        Start with a calm first consultation, then continue into specialist, pharmacy, diagnostics, or travel support from one familiar place.
+      </p>
+      <div class="care-hero__signals" aria-label="Consultation highlights">
+        <span class="care-hero__signal">Video, audio, or chat</span>
+        <span class="care-hero__signal">From {{ consultationCost }}</span>
+        <span class="care-hero__signal">Referral-ready follow-up</span>
+      </div>
+    </div>
+    <div class="care-hero__visual" aria-hidden="true">
+      <div class="care-hero__orb"></div>
+      <div class="care-hero__snapshot">
+        <span class="care-hero__snapshot-label">Care lane</span>
+        <strong>Health Expert to specialist support</strong>
+        <p>One calmer dashboard for your first consultation, next steps, medicines, and records.</p>
+      </div>
+      <div class="care-hero__mini-card">
+        <span class="care-hero__mini-kicker">Ready when you are</span>
+        <span class="care-hero__mini-value">Keep every next step in one place</span>
+      </div>
+    </div>
+    <div class="care-hero__actions">
+      <button type="button" class="care-hero__action" (click)="openGpConsult()">Start Health Expert consultation</button>
+      <p class="care-hero__helper">Choose the format that feels easiest today and continue care from here.</p>
+    </div>
+  </section>
 
   <!-- Health Summary Cards (Horizontal Scroll) -->
   <section class="health-summary">
@@ -110,10 +141,13 @@
 
   <!-- Services Grid — 3×3 Compact -->
   <section class="services-section">
-    <h2 class="section-title">Services</h2>
+    <h2 class="section-title">Care services</h2>
+    <p class="section-intro">
+      Start with a Health Expert, then move smoothly into the rest of your care journey without leaving this dashboard.
+    </p>
     <div class="services-grid">
       @for (svc of services; track svc.id) {
-      <div class="service-tile" [class.coming-soon]="svc.comingSoon" (click)="navigateToService(svc)">
+      <button type="button" class="service-tile" [class]="'service-tile tone-' + svc.tone" [class.coming-soon]="svc.comingSoon" (click)="navigateToService(svc)">
         <div class="tile-icon">
           @switch (svc.icon) {
             @case ('pulse') {
@@ -146,10 +180,11 @@
           }
         </div>
         <span class="tile-title">{{ svc.title }}</span>
+        <span class="tile-description">{{ svc.description }}</span>
         @if (svc.comingSoon) {
         <span class="tile-badge">Soon</span>
         }
-      </div>
+      </button>
       }
     </div>
   </section>
@@ -177,7 +212,7 @@
   <div class="mode-selector-overlay" (click)="closeModeSelector()">
     <div class="mode-selector-modal" (click)="$event.stopPropagation()">
       <h2 class="mode-selector-title">Choose Consultation Mode</h2>
-      <p class="mode-selector-desc">How would you like to connect with your GP?</p>
+      <p class="mode-selector-desc">How would you like to connect with your Health Expert?</p>
       <div class="mode-options">
         <button class="mode-option" [class.selected]="selectedMode === 'video'" (click)="selectedMode = 'video'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -217,7 +252,7 @@
   <div class="mode-selector-overlay" (click)="cancelPayment()">
     <div class="mode-selector-modal" (click)="$event.stopPropagation()">
       <h2 class="mode-selector-title">Confirm Consultation</h2>
-      <p class="mode-selector-desc">Are you sure you want to proceed with the GP consultation?</p>
+      <p class="mode-selector-desc">Are you sure you want to proceed with the Health Expert consultation?</p>
       <div class="payment-cost">
         <span class="cost-label">Consultation Fee</span>
         <span class="cost-value">{{ consultationCost }}</span>

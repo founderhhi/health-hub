@@ -155,7 +155,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
   try {
     const { id } = req.params;
     const user = (req as any).user;
-    let gpName = 'GP';
+    let gpName = 'Health Expert';
 
     const client = await db.connect();
     let request: any = null;
@@ -196,7 +196,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
 
           if (existingConsultation.gp_id !== user.userId) {
             await client.query('ROLLBACK');
-            return res.status(409).json({ error: 'Request has already been accepted by another GP' });
+            return res.status(409).json({ error: 'Request has already been accepted by another Health Expert' });
           }
 
           consultation = existingConsultation;
@@ -231,7 +231,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
           [
             request.patient_id,
             'consult.accepted',
-            'A GP accepted your request. Join the consultation.',
+            'A Health Expert accepted your request. Join the consultation.',
             JSON.stringify({ consultationId: consultation.id })
           ]
         );
@@ -346,7 +346,7 @@ gpRouter.post('/queue/:id/delete', requireAuth, requireRole(['gp', 'doctor']), a
       request = removedRequest;
       const message = normalizedReason === 'timeout'
         ? 'Your consultation request has timed out after 15 minutes. Please request again.'
-        : 'A GP has declined your consultation request. You can try again.';
+        : 'A Health Expert has declined your consultation request. You can try again.';
 
       await client.query(
         `insert into notifications (user_id, type, message, data)

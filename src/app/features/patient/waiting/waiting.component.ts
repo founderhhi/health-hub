@@ -23,7 +23,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
   cancelPending = false;
   isRefreshing = false;
   consultationFinished = false;
-  statusMessage = 'Waiting for a GP to accept your request...';
+  statusMessage = 'Waiting for a Health Expert to accept your request...';
 
   private platformId = inject(PLATFORM_ID);
   private requestId = '';
@@ -56,7 +56,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
           const data = event.data as any;
           const id = data?.consultationId || data?.consultation?.id;
           if (id === this.consultationId) {
-            this.handleConsultationCompleted('Consultation has been completed by your GP.');
+            this.handleConsultationCompleted('Consultation has been completed by your Health Expert.');
           }
         }
         if (event.event === 'consult.removed') {
@@ -86,7 +86,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
     this.statusMessage = this.gpName
       ? `${this.gpName} is ready. Joining consultation...`
-      : 'Your GP is ready. Joining consultation...';
+      : 'Your Health Expert is ready. Joining consultation...';
     this.showConsultShell = true;
   }
 
@@ -107,7 +107,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
           if (this.hasAcceptedConsultation || this.showConsultShell || this.consultationFinished) {
             this.finishWaitingFlow('Consultation is no longer active.');
           } else {
-            this.statusMessage = 'No active consultation found. The GP may not have accepted yet.';
+            this.statusMessage = 'No active consultation found. Your Health Expert may not have accepted yet.';
           }
         }
         this.isRefreshing = false;
@@ -221,7 +221,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
     this.statusMessage = this.gpName
       ? `${this.gpName} accepted your request. Tap join when you are ready.`
-      : 'A GP accepted your request. Tap join when you are ready.';
+      : 'A Health Expert accepted your request. Tap join when you are ready.';
   }
 
   private pollActiveConsult(): void {
@@ -244,7 +244,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
         if (active.status === 'accepted') {
           this.applyAcceptedConsultation(active);
         } else if (!this.roomUrl) {
-          this.statusMessage = 'Waiting for a GP to accept your request...';
+          this.statusMessage = 'Waiting for a Health Expert to accept your request...';
         }
       },
       error: () => {
