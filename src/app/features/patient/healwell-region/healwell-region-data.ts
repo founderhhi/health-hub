@@ -9,6 +9,7 @@ export interface HealwellCity {
 }
 
 export interface HealwellRegionConfig {
+  icon: 'africa' | 'india';
   title: string;
   kicker: string;
   intro: string;
@@ -25,6 +26,7 @@ export const DELHI_TRAVEL_HOSPITALS = [
 
 export const HEALWELL_REGIONS: Record<string, HealwellRegionConfig> = {
   india: {
+    icon: 'india',
     title: 'Heal Well in India',
     kicker: 'Specialty care pathways',
     intro: 'A calmer way to explore leading Indian hospital hubs for cardiac, oncology, orthopaedic, and advanced specialty care.',
@@ -68,6 +70,7 @@ export const HEALWELL_REGIONS: Record<string, HealwellRegionConfig> = {
     ],
   },
   africa: {
+    icon: 'africa',
     title: 'Heal Well in Africa',
     kicker: 'Regional care discovery',
     intro: 'Explore major care hubs across Africa with a softer, clearer path to hospital discovery and callback support.',

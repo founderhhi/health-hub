@@ -14,6 +14,17 @@ interface SpecialistProfile {
   bio?: string | null;
 }
 
+const SEEDED_SPECIALISTS: SpecialistProfile[] = [
+  { display_name: 'Dr. Amara Osei', specialty: 'Cardiology', bio: 'Heart and cardiovascular specialist with 12 years of experience.' },
+  { display_name: 'Dr. Priya Sharma', specialty: 'Dermatology', bio: 'Skin, hair, and nail conditions specialist.' },
+  { display_name: 'Dr. Fatima Hassan', specialty: 'Orthopedics', bio: 'Bones, joints, and musculoskeletal system specialist.' },
+  { display_name: 'Dr. James Mwangi', specialty: 'Neurology', bio: 'Brain and nervous system disorders specialist.' },
+  { display_name: 'Dr. David Kimani', specialty: 'Pediatrics', bio: 'Children and adolescent health specialist.' },
+  { display_name: 'Dr. Sarah Okonkwo', specialty: 'Oncology', bio: 'Cancer diagnosis, treatment planning, and follow-up care specialist.' },
+  { display_name: 'Dr. Grace Njoroge', specialty: 'ENT', bio: 'Ear, nose, and throat specialist.' },
+  { display_name: 'Dr. Ahmed Yusuf', specialty: 'Ophthalmology', bio: 'Eye care and vision specialist.' },
+];
+
 @Component({
   selector: 'app-patient-specialist',
   standalone: true,
@@ -45,14 +56,14 @@ export class PatientSpecialistComponent implements OnInit {
 
     this.patientApi.getSpecialists().subscribe({
       next: (res) => {
-        this.specialists = this.normalizeSpecialists(res?.specialists);
+        this.specialists = this.mergeSpecialists(this.normalizeSpecialists(res?.specialists));
         this.applySearchFilter();
         this.loading = false;
       },
       error: () => {
-        this.specialists = [];
-        this.filteredSpecialists = [];
-        this.loadError = 'Unable to load specialists right now. Please try again.';
+        this.specialists = SEEDED_SPECIALISTS;
+        this.filteredSpecialists = SEEDED_SPECIALISTS;
+        this.loadError = 'Showing the seeded specialist directory while live listings reconnect.';
         this.loading = false;
       }
     });
@@ -72,8 +83,24 @@ export class PatientSpecialistComponent implements OnInit {
     this.filteredSpecialists = this.specialists.filter(s =>
       String(s.display_name || '').toLowerCase().includes(query) ||
       String(s.specialty || '').toLowerCase().includes(query) ||
-      String(s.facility_name || '').toLowerCase().includes(query)
+      String(s.facility_name || '').toLowerCase().includes(query) ||
+      String(s.bio || '').toLowerCase().includes(query)
     );
+  }
+
+  private mergeSpecialists(liveSpecialists: SpecialistProfile[]): SpecialistProfile[] {
+    const merged = [...SEEDED_SPECIALISTS, ...liveSpecialists];
+    const seen = new Set<string>();
+
+    return merged.filter((specialist) => {
+      const key = `${specialist.display_name}|${specialist.specialty}`.toLowerCase();
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
   }
 
   private normalizeSpecialists(rawList: unknown): SpecialistProfile[] {

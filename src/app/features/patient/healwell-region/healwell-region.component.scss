@@ -24,6 +24,12 @@
   gap: 10px;
 }
 
+.page-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
 .back-btn {
   width: 40px;
   height: 40px;
@@ -44,6 +50,24 @@
 
   &:hover {
     border-color: var(--accent-primary);
+  }
+}
+
+.page-region-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(46, 204, 113, 0.16) 0%, rgba(96, 165, 250, 0.12) 100%);
+  color: #2ECC71;
+  box-shadow: inset 0 0 0 1px rgba(46, 204, 113, 0.18);
+
+  svg {
+    width: 22px;
+    height: 22px;
   }
 }
 
@@ -72,61 +96,6 @@
   text-transform: uppercase;
 }
 
-.page-intro {
-  margin: 0;
-  max-width: 60ch;
-  font-size: v.$font-size-sm;
-  line-height: 1.65;
-  color: var(--text-secondary);
-}
-
-.page-highlights {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.page-highlight {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 84%, var(--accent-primary));
-  background: color-mix(in srgb, var(--bg-card) 88%, white 12%);
-  font-size: 12px;
-  font-weight: v.$font-weight-semibold;
-  color: var(--text-primary);
-}
-
-.page-glance {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.page-glance__item {
-  min-width: 110px;
-  display: grid;
-  gap: 2px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--bg-card) 88%, white 12%);
-  border: 1px solid color-mix(in srgb, var(--border-color) 82%, var(--accent-primary));
-
-  strong {
-    font-size: clamp(1.1rem, 2vw, 1.3rem);
-    letter-spacing: -0.02em;
-  }
-}
-
-.page-glance__label {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
 .page-subtitle {
   font-family: v.$font-family-primary;
   font-size: v.$font-size-sm;
@@ -134,79 +103,94 @@
   margin: 2px 0 0 0;
 }
 
-.card-grid {
+.button-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: v.$space-md;
+  margin-bottom: v.$space-lg;
 }
 
-.selection-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  padding: v.$space-lg v.$space-md;
+.selection-button {
+  appearance: none;
+  width: 100%;
+  min-height: 102px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 92%, white 8%) 0%, color-mix(in srgb, var(--bg-card) 98%, var(--accent-primary) 2%) 100%);
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, var(--accent-primary) 18%);
+  border-radius: 20px;
+  padding: v.$space-lg;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: grid;
+  align-items: center;
+  justify-items: start;
   text-align: left;
-  gap: 10px;
-  transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+  transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
 
   &:hover {
-    border-color: #2ECC71;
+    border-color: rgba(46, 204, 113, 0.6);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.12);
+    box-shadow: 0 12px 24px rgba(46, 204, 113, 0.12);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 82%, #2ECC71 18%) 0%, color-mix(in srgb, var(--bg-card) 96%, var(--accent-primary) 4%) 100%);
   }
 }
 
-.card-icon {
-  width: 44px;
-  height: 44px;
-  background: rgba(46, 204, 113, 0.1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    width: 22px;
-    height: 22px;
-    color: #2ECC71;
-  }
-
-  &.hospital-icon {
-    background: rgba(96, 165, 250, 0.1);
-
-    svg {
-      color: #60A5FA;
-    }
-  }
+.selection-button--hospital {
+  min-height: 120px;
 }
 
-.card-label {
+.selection-label {
   font-family: v.$font-family-primary;
-  font-size: v.$font-size-base;
+  font-size: clamp(0.98rem, 1.9vw, 1.08rem);
   font-weight: v.$font-weight-semibold;
+  line-height: 1.35;
   color: var(--text-primary);
 }
 
-.card-description {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text-secondary);
+.region-info-panel {
+  padding: clamp(16px, 2.4vw, 24px);
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, var(--accent-primary) 20%);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(46, 204, 113, 0.1), transparent 36%),
+    color-mix(in srgb, var(--bg-card) 92%, white 8%);
+  display: grid;
+  gap: 12px;
 }
 
-.card-count {
-  font-family: v.$font-family-primary;
+.region-info-panel__title {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: v.$font-weight-bold;
+  color: #2ECC71;
+}
+
+.region-info-panel__text {
+  margin: 0;
+  color: var(--text-secondary);
   font-size: v.$font-size-sm;
-  color: var(--text-secondary);
+  line-height: 1.65;
 }
 
-.card-hint {
+.region-info-panel__highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.region-info-panel__highlight {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-secondary) 88%, white 12%);
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, var(--accent-primary));
   font-size: 12px;
   font-weight: v.$font-weight-semibold;
-  color: #2ECC71;
+  color: var(--text-primary);
 }
 
 /* Callback Banner */
@@ -308,7 +292,17 @@
 }
 
 @media (max-width: 640px) {
-  .card-grid {
-    grid-template-columns: 1fr;
+  .healwell-region-page {
+    padding: v.$space-md;
+    padding-bottom: calc(80px + v.$safe-area-bottom);
+  }
+
+  .page-title-row {
+    gap: 12px;
+  }
+
+  .selection-button {
+    min-height: 92px;
+    padding: v.$space-md;
   }
 }

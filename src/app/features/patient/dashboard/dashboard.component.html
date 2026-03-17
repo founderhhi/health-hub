@@ -48,37 +48,6 @@
   <div class="status-banner status-banner--info">{{ comingSoonMessage }}</div>
   }
 
-  <section class="care-hero" aria-label="Quick care action">
-    <div class="care-hero__copy">
-      <p class="care-hero__eyebrow">Today's care plan</p>
-      <h2 class="care-hero__title">Meet a Health Expert in minutes</h2>
-      <p class="care-hero__text">
-        Start with a calm first consultation, then continue into specialist, pharmacy, diagnostics, or travel support from one familiar place.
-      </p>
-      <div class="care-hero__signals" aria-label="Consultation highlights">
-        <span class="care-hero__signal">Video, audio, or chat</span>
-        <span class="care-hero__signal">From {{ consultationCost }}</span>
-        <span class="care-hero__signal">Referral-ready follow-up</span>
-      </div>
-    </div>
-    <div class="care-hero__visual" aria-hidden="true">
-      <div class="care-hero__orb"></div>
-      <div class="care-hero__snapshot">
-        <span class="care-hero__snapshot-label">Care lane</span>
-        <strong>Health Expert to specialist support</strong>
-        <p>One calmer dashboard for your first consultation, next steps, medicines, and records.</p>
-      </div>
-      <div class="care-hero__mini-card">
-        <span class="care-hero__mini-kicker">Ready when you are</span>
-        <span class="care-hero__mini-value">Keep every next step in one place</span>
-      </div>
-    </div>
-    <div class="care-hero__actions">
-      <button type="button" class="care-hero__action" (click)="openGpConsult()">Start Health Expert consultation</button>
-      <p class="care-hero__helper">Choose the format that feels easiest today and continue care from here.</p>
-    </div>
-  </section>
-
   <!-- Health Summary Cards (Horizontal Scroll) -->
   <section class="health-summary">
     <div class="summary-scroll-container">
@@ -141,10 +110,7 @@
 
   <!-- Services Grid — 3×3 Compact -->
   <section class="services-section">
-    <h2 class="section-title">Care services</h2>
-    <p class="section-intro">
-      Start with a Health Expert, then move smoothly into the rest of your care journey without leaving this dashboard.
-    </p>
+    <h2 class="section-title">Services</h2>
     <div class="services-grid">
       @for (svc of services; track svc.id) {
       <button type="button" class="service-tile" [class]="'service-tile tone-' + svc.tone" [class.coming-soon]="svc.comingSoon" (click)="navigateToService(svc)">
@@ -169,10 +135,15 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
             }
             @case ('africa') {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 2v20" /><path d="M2 12h20" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10" /></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11.6 2.5 9.5 4.4 9.2 7 7.5 8.8l.8 2.3-.5 2.2 1 2.3 1.6 1.2.5 2.7 1 1.9 1.4-1.8 1.3-1.2 1.4-.8.6-2.2 1.7-1.6-.4-2.2-1.4-1.5-.2-2.3-1.6-1.5-1-2-1.7-1.4Z" />
+              </svg>
             }
             @case ('india') {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 2v20" /><path d="M2 12h20" /><path d="M12 2a15.3 15.3 0 0 0-4 10 15.3 15.3 0 0 0 4 10" /></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11.3 2.8 9.6 4.8 10.4 7.2 9 9.2l1.3 1.8-.7 2.2 1.5 2.1 2.5 1.2 1.1 2.1-1.2 2.2" />
+                <path d="m12.6 15.8 2-.9 1.2-2.2-.7-2.1 1.1-2.4-1.7-1.8.4-2" />
+              </svg>
             }
             @case ('shield') {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
@@ -180,7 +151,6 @@
           }
         </div>
         <span class="tile-title">{{ svc.title }}</span>
-        <span class="tile-description">{{ svc.description }}</span>
         @if (svc.comingSoon) {
         <span class="tile-badge">Soon</span>
         }
@@ -204,6 +174,37 @@
       <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="9 18 15 12 9 6" />
       </svg>
+    </div>
+  </section>
+
+  <section class="care-hero" aria-label="Today's care plan widget">
+    <div class="care-hero__copy">
+      <p class="care-hero__eyebrow">Today's care plan</p>
+      <h2 class="care-hero__title">Today's Care Plan Complete</h2>
+      <p class="care-hero__text">
+        Continue with a Health Expert consultation, then move into specialist, pharmacy, diagnostics, or travel support from this dashboard.
+      </p>
+      <div class="care-hero__signals" aria-label="Consultation highlights">
+        <span class="care-hero__signal">Video, audio, or chat</span>
+        <span class="care-hero__signal">From {{ consultationCost }}</span>
+        <span class="care-hero__signal">Referral-ready follow-up</span>
+      </div>
+    </div>
+    <div class="care-hero__visual" aria-hidden="true">
+      <div class="care-hero__orb"></div>
+      <div class="care-hero__snapshot">
+        <span class="care-hero__snapshot-label">Care lane</span>
+        <strong>Health Expert to specialist support</strong>
+        <p>One calmer dashboard for your consultation, records, medicines, and next steps.</p>
+      </div>
+      <div class="care-hero__mini-card">
+        <span class="care-hero__mini-kicker">Ready when you are</span>
+        <span class="care-hero__mini-value">Keep every next step in one place</span>
+      </div>
+    </div>
+    <div class="care-hero__actions">
+      <button type="button" class="care-hero__action" (click)="openGpConsult()">Continue with Health Expert consultation</button>
+      <p class="care-hero__helper">Choose the format that feels easiest today and continue care from here.</p>
     </div>
   </section>
 
