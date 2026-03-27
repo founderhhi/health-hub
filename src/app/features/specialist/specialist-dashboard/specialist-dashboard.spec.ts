@@ -13,7 +13,7 @@ describe('SpecialistDashboardComponent', () => {
 
   const referralsApiMock = {
     listForSpecialist: vi.fn(() => of({ referrals: [] as any[] })),
-    getCachedSpecialistReferrals: vi.fn(() => null)
+    getCachedSpecialistReferrals: vi.fn<() => any[] | null>(() => null)
   };
 
   const wsMock = {

@@ -23,11 +23,12 @@ describe('VideoSearch', () => {
 
   it('should expose only supported tags for curated videos', () => {
     const supportedTags = new Set(component.tags.filter((tag) => tag !== 'All'));
+    const curatedVideos = component.homeRemedyVideos;
 
-    expect(component.videos.length).toBeGreaterThanOrEqual(5);
-    expect(component.videos.length).toBeLessThanOrEqual(10);
+    expect(curatedVideos.length).toBeGreaterThanOrEqual(5);
+    expect(curatedVideos.length).toBeLessThanOrEqual(10);
 
-    for (const video of component.videos) {
+    for (const video of curatedVideos) {
       expect(video.tags.length).toBeGreaterThan(0);
       for (const tag of video.tags) {
         expect(supportedTags.has(tag)).toBe(true);
