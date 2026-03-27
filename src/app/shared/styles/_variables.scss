@@ -26,18 +26,18 @@
 // Color Palette
 // ============================================
 
-// Primary Colors
-$color-emerald: #2ECC71;
-$color-emerald-light: #ECFDF3;
-$color-emerald-dark: #166534;
-$color-emerald-hover: #27ae60;
+// Primary Colors (Emerald V3 Palette)
+$color-emerald: #006a51;
+$color-emerald-light: #f1fcf6;
+$color-emerald-dark: #004d3a;
+$color-emerald-hover: #108567;
 
 $green-50: #F0FDF4;
 $green-100: #DCFCE7;
 $green-300: #86EFAC;
 $green-400: #4ADE80;
-$green-500: #2ECC71;
-$green-600: #16A34A;
+$green-500: #006a51; /* Overridden for app primary */
+$green-600: #108567;
 $green-700: #15803D;
 $green-900-30: rgba(46, 204, 113, 0.15);
 
@@ -167,7 +167,7 @@ $shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.16);
 $shadow-xl: 0 20px 40px rgba(15, 23, 42, 0.24);
 
 // Focus shadow (for accessibility)
-$shadow-focus: 0 0 0 2px rgba(46, 204, 113, 0.4);
+$shadow-focus: 0 0 0 2px rgba(0, 106, 81, 0.4);
 
 // ============================================
 // Transitions

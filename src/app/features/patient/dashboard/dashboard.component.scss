@@ -510,10 +510,22 @@
   transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 
   &:hover:not(.coming-soon) {
-    border-color: var(--accent-primary);
-    background: var(--bg-secondary);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px color-mix(in srgb, var(--accent-primary) 16%, transparent);
+    border-color: var(--accent-tertiary);
+    background: var(--bg-card);
+    transform: translateY(-4px); /* Pop up nicely */
+    box-shadow: 0 12px 24px color-mix(in srgb, var(--accent-tertiary) 20%, transparent);
+
+    /* Change content colors to Tertiary Brown */
+    color: var(--accent-tertiary);
+    .tile-icon {
+      background: color-mix(in srgb, var(--accent-tertiary) 15%, transparent) !important;
+      svg {
+        color: var(--accent-tertiary) !important;
+      }
+    }
+    .tile-title {
+      color: var(--accent-tertiary) !important;
+    }
   }
 
   &.coming-soon {
@@ -522,7 +534,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--accent-primary);
+    outline: 2px solid var(--accent-tertiary);
     outline-offset: 2px;
   }
 

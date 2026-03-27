@@ -79,7 +79,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color);
-  border-top-color: #2ECC71;
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -145,7 +145,7 @@
   transition: all v.$transition-fast;
 
   &.active {
-    background: #2ECC71;
+    background: var(--accent-primary);
     color: var(--bg-primary);
     font-weight: v.$font-weight-semibold;
   }
@@ -218,7 +218,7 @@
   }
 
   &.rx-icon {
-    background: rgba(46, 204, 113, 0.1);
+    background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
   }
 
   &.lab-icon {
@@ -265,8 +265,8 @@
   flex-shrink: 0;
 
   &.status-active {
-    background: rgba(46, 204, 113, 0.2);
-    color: #2ECC71;
+    background: color-mix(in srgb, var(--accent-primary) 20%, transparent);
+    color: var(--accent-primary);
   }
 
   &.status-claimed {
@@ -412,11 +412,11 @@
 }
 
 .btn-primary {
-  background: #2ECC71;
+  background: var(--accent-primary);
   color: var(--bg-primary);
 
   &:hover {
-    background: #27AE60;
+    background: var(--accent-hover);
   }
 }
 
@@ -486,8 +486,8 @@
   padding: 32px;
   max-width: 320px;
   margin: 0 auto;
-  box-shadow: 0 0 0 1px rgba(46, 204, 113, 0.15),
-    0 0 32px rgba(46, 204, 113, 0.2);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary) 15%, transparent),
+    0 0 32px color-mix(in srgb, var(--accent-primary) 20%, transparent);
 
   &__qr-code {
     width: 200px;
@@ -521,11 +521,11 @@
   .chip {
     padding: 6px 14px;
     border-radius: 9999px;
-    background: rgba(46, 204, 113, 0.15);
-    color: v.$color-emerald;
+    background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+    color: var(--accent-primary);
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid rgba(46, 204, 113, 0.3);
+    border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
     font-family: v.$font-family-primary;
   }
 }
