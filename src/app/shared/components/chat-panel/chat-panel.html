@@ -37,14 +37,30 @@
           </span>
           <time class="chat-panel__time">{{ item.pending ? 'Sending...' : (item.created_at | date: 'shortTime') }}</time>
         </p>
-        <p class="chat-panel__text">{{ item.message }}</p>
+        <img *ngIf="item.image_data && item.image_mime"
+             class="chat-panel__image"
+             [src]="'data:' + item.image_mime + ';base64,' + item.image_data"
+             alt="Shared image"
+             (click)="openImage(item)">
+        <p class="chat-panel__text" *ngIf="item.message">{{ item.message }}</p>
       </div>
     </article>
   </div>
 
   <form class="chat-panel__composer" (ngSubmit)="sendMessage()">
     <label class="chat-panel__composer-label" for="chatMessage">Add a message for your care team</label>
+    <div *ngIf="pendingImage" class="chat-panel__image-preview">
+      <img [src]="'data:' + pendingImage.mime + ';base64,' + pendingImage.data" alt="Preview">
+      <span class="chat-panel__image-preview-name">{{ pendingImage.name }}</span>
+      <button type="button" class="chat-panel__image-preview-remove" (click)="removeImage()">&times;</button>
+    </div>
     <div class="chat-panel__composer-row">
+      <input type="file" accept="image/*" #fileInput (change)="onFileSelected($event)" style="display:none">
+      <button type="button" class="chat-panel__attach-btn" (click)="fileInput.click()" title="Attach image" [disabled]="disabled || sending">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+        </svg>
+      </button>
       <input
         type="text"
         id="chatMessage"
@@ -59,7 +75,7 @@
       <button
         type="submit"
         class="chat-panel__send"
-        [disabled]="disabled || sending || !draft.trim()"
+        [disabled]="disabled || sending || (!draft.trim() && !pendingImage)"
       >
         {{ sending ? 'Sending...' : sendButtonLabel }}
       </button>

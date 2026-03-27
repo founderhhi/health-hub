@@ -16,14 +16,30 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
   try {
     const user = (req as any).user;
     const { consultationId } = req.params;
-    const { message, clientRequestId } = req.body as { message?: string; clientRequestId?: string };
+    const { message, clientRequestId, imageData, imageMime } = req.body as {
+      message?: string;
+      clientRequestId?: string;
+      imageData?: string;
+      imageMime?: string;
+    };
 
     if (!CHAT_PARTICIPANT_ROLES.includes(user.role)) {
       return res.status(403).json({ error: 'Forbidden', code: 'FORBIDDEN' });
     }
 
-    if (!message || !message.trim()) {
-      return res.status(400).json({ error: 'message is required', code: 'INVALID_MESSAGE' });
+    const hasMessage = message && message.trim();
+    const hasImage = imageData && imageMime;
+
+    if (!hasMessage && !hasImage) {
+      return res.status(400).json({ error: 'message or image is required', code: 'INVALID_MESSAGE' });
+    }
+
+    if (imageData && (!imageMime || !imageMime.startsWith('image/'))) {
+      return res.status(400).json({ error: 'imageMime must be a valid image MIME type', code: 'INVALID_IMAGE' });
+    }
+
+    if (imageData && imageData.length > 5_000_000) {
+      return res.status(400).json({ error: 'Image too large (max ~3.7MB)', code: 'IMAGE_TOO_LARGE' });
     }
 
     const consultationResult = await db.query(
@@ -85,10 +101,10 @@ chatRouter.post('/:consultationId', requireAuth, async (req, res) => {
     }
 
     const insertResult = await db.query(
-      `insert into chat_messages (consultation_id, user_id, message)
-       values ($1, $2, $3)
+      `insert into chat_messages (consultation_id, user_id, message, image_data, image_mime)
+       values ($1, $2, $3, $4, $5)
        returning *`,
-      [consultationId, user.userId, message.trim()]
+      [consultationId, user.userId, hasMessage ? message!.trim() : null, imageData || null, imageMime || null]
     );
 
     const messageResult = await db.query(

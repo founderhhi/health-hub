@@ -206,7 +206,7 @@ create table if not exists payment_transactions (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid not null references users(id) on delete cascade,
   amount_cents integer not null,
-  currency text not null default 'GBP',
+  currency text not null default 'USD',
   description text,
   service_type text check (service_type in ('consultation', 'prescription', 'lab', 'referral', 'other')),
   status text not null default 'completed' check (status in ('pending', 'completed', 'failed', 'refunded')),

@@ -184,6 +184,47 @@
         </div>
       </section>
 
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Select Diagnostic Centre</h3>
+          <p class="modal-section__subtitle">Choose a centre to route this order to specific diagnostic staff (optional).</p>
+        </div>
+        @if (loadingCentres) {
+          <p class="modal-section__subtitle">Loading centres...</p>
+        } @else if (diagnosticCentres.length === 0) {
+          <p class="modal-section__subtitle">No diagnostic centres available.</p>
+        } @else {
+          <div class="test-chip-list">
+            @for (centre of diagnosticCentres; track centre.id) {
+              <label
+                class="test-chip"
+                [class.test-chip--selected]="selectedCentre === centre.id">
+                <input
+                  type="radio"
+                  name="diagnosticCentre"
+                  [value]="centre.id"
+                  [checked]="selectedCentre === centre.id"
+                  (change)="selectedCentre = centre.id"
+                  class="test-chip__input" />
+                {{ centre.name }} <span class="centre-distance">{{ centre.display_distance }}</span>
+              </label>
+            }
+            <label
+              class="test-chip"
+              [class.test-chip--selected]="selectedCentre === ''">
+              <input
+                type="radio"
+                name="diagnosticCentre"
+                value=""
+                [checked]="selectedCentre === ''"
+                (change)="selectedCentre = ''"
+                class="test-chip__input" />
+              No preference
+            </label>
+          </div>
+        }
+      </section>
+
       <div class="modal-summary-card modal-summary-card--accent">
         <span class="summary-stat">{{ selectedTests.length + (customTest.trim() ? 1 : 0) }}</span>
         <div>

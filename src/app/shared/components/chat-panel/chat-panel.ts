@@ -29,6 +29,8 @@ export interface ChatPanelMessage {
   sender_name?: string | null;
   sender_role?: string | null;
   client_request_id?: string | null;
+  image_data?: string | null;
+  image_mime?: string | null;
   senderLabel?: string;
   senderRoleLabel?: string;
   mine?: boolean;
@@ -72,6 +74,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   draft = '';
   messages: ChatPanelMessage[] = [];
   connectionState: WsConnectionState = 'disconnected';
+  pendingImage: { data: string; mime: string; name: string } | null = null;
 
   private readonly platformId = inject(PLATFORM_ID);
   private shouldScrollToBottom = false;
@@ -216,22 +219,25 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
     }
 
     const message = this.draft.trim();
-    if (!message || !this.consultationId) {
+    const image = this.pendingImage;
+    if ((!message && !image) || !this.consultationId) {
       return;
     }
 
     this.sending = true;
     this.error = '';
     this.draft = '';
+    this.pendingImage = null;
 
     const clientRequestId = this.createClientRequestId();
     this.pendingRequestIds.add(clientRequestId);
-    this.appendPendingMessage(this.createPendingMessage(message, clientRequestId));
+    this.appendPendingMessage(this.createPendingMessage(message, clientRequestId, image));
 
-    this.api.post<ChatSendResponse>(`${this.endpointBase}/${this.consultationId}`, {
-      message,
-      clientRequestId
-    }).pipe(
+    const body: Record<string, string> = { clientRequestId };
+    if (message) { body['message'] = message; }
+    if (image) { body['imageData'] = image.data; body['imageMime'] = image.mime; }
+
+    this.api.post<ChatSendResponse>(`${this.endpointBase}/${this.consultationId}`, body).pipe(
       finalize(() => {
         this.sending = false;
       })
@@ -248,6 +254,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
         this.pendingRequestIds.delete(clientRequestId);
         this.removePendingMessage(clientRequestId);
         this.draft = message;
+        if (image) { this.pendingImage = image; }
         this.error = this.resolveChatError(error, 'send');
         this.resyncMessages();
       }
@@ -256,6 +263,45 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
 
   trackMessage(_index: number, message: ChatPanelMessage): string {
     return message.id;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) { return; }
+
+    if (!file.type.startsWith('image/')) {
+      this.error = 'Only image files are supported.';
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      this.error = 'Image must be smaller than 3 MB.';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const commaIndex = result.indexOf(',');
+      const base64 = commaIndex >= 0 ? result.substring(commaIndex + 1) : result;
+      this.pendingImage = { data: base64, mime: file.type, name: file.name };
+      this.error = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImage(): void {
+    this.pendingImage = null;
+  }
+
+  openImage(item: ChatPanelMessage): void {
+    if (!item.image_data || !item.image_mime) { return; }
+    const win = window.open();
+    if (win) {
+      win.document.write(`<img src="data:${item.image_mime};base64,${item.image_data}" style="max-width:100%;max-height:100vh">`);
+    }
   }
 
   private decorateMessage(message: ChatPanelMessage): ChatPanelMessage {
@@ -432,7 +478,11 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
     this.messages = this.messages.filter((item) => item.id !== pendingMessage.id);
   }
 
-  private createPendingMessage(message: string, clientRequestId: string): ChatPanelMessage {
+  private createPendingMessage(
+    message: string,
+    clientRequestId: string,
+    image?: { data: string; mime: string; name: string } | null
+  ): ChatPanelMessage {
     return this.decorateMessage({
       id: `pending-${clientRequestId}`,
       consultation_id: this.consultationId,
@@ -442,6 +492,8 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
       sender_name: null,
       sender_role: null,
       client_request_id: clientRequestId,
+      image_data: image?.data || null,
+      image_mime: image?.mime || null,
       pending: true
     });
   }

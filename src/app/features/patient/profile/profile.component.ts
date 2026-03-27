@@ -328,9 +328,9 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ── Utilities ────────────────────────────────────────────────────────────────
 
   formatAmount(cents: number, currency: string): string {
-    return new Intl.NumberFormat('en-GB', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency || 'GBP',
+      currency: currency || 'USD',
     }).format(cents / 100);
   }
 

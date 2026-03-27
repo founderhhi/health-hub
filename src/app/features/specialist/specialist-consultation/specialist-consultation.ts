@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ConsultationsApiService } from '../../../core/api/consultations.service';
-import { LabsApiService } from '../../../core/api/labs.service';
+import { DiagnosticCentre, LabsApiService } from '../../../core/api/labs.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { ReferralsApiService, SpecialistDirectoryEntry } from '../../../core/api/referrals.service';
 import { ConsultMode, ConsultShellComponent } from '../../../shared/components/consult-shell/consult-shell';
@@ -43,6 +43,9 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   selectedTests: string[] = [];
   customTest = '';
   submittingLabs = false;
+  diagnosticCentres: DiagnosticCentre[] = [];
+  selectedCentre = '';
+  loadingCentres = false;
 
   // Prescription dialog
   showPrescriptionModal = false;
@@ -207,7 +210,9 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   openLabModal(): void {
     this.selectedTests = [];
     this.customTest = '';
+    this.selectedCentre = '';
     this.showLabModal = true;
+    this.loadDiagnosticCentres();
   }
 
   toggleTest(test: string): void {
@@ -237,7 +242,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     this.submittingLabs = true;
     this.errorMessage = '';
     this.statusMessage = '';
-    this.labsApi.createOrder(this.referral.patient_id, tests).subscribe({
+    this.labsApi.createOrder(this.referral.patient_id, tests, this.selectedCentre || undefined).subscribe({
       next: () => {
         this.submittingLabs = false;
         this.showLabModal = false;
@@ -254,6 +259,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     this.showLabModal = false;
     this.selectedTests = [];
     this.customTest = '';
+    this.selectedCentre = '';
   }
 
   // ── Prescription Dialog ──
@@ -398,6 +404,23 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     this.consultationId = referral?.consultation_id || referral?.consultationId || '';
     this.roomUrl = referral?.daily_room_url || referral?.roomUrl || '';
     this.consultMode = 'video';
+  }
+
+  private loadDiagnosticCentres(): void {
+    if (this.diagnosticCentres.length > 0) {
+      return;
+    }
+    this.loadingCentres = true;
+    this.labsApi.getCentres().subscribe({
+      next: (response) => {
+        this.diagnosticCentres = response.centres || [];
+        this.loadingCentres = false;
+      },
+      error: () => {
+        this.diagnosticCentres = [];
+        this.loadingCentres = false;
+      }
+    });
   }
 
   private loadAvailableSpecialists(): void {
