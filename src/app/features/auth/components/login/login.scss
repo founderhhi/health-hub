@@ -73,6 +73,45 @@ $error: var(--error);
   margin-bottom: 24px;
 }
 
+.account-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 6px;
+  margin-bottom: 16px;
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 12px;
+  border: 1px solid $border;
+}
+
+.account-switch__option {
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 14px;
+  font-weight: v.$font-weight-semibold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &.active {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.18), rgba(174, 234, 0, 0.18));
+    color: $text-primary;
+  }
+}
+
+.provider-note {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(46, 204, 113, 0.2);
+  background: rgba(46, 204, 113, 0.08);
+  color: $text-primary;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

@@ -5,9 +5,17 @@ import { requireAuth, requireRole, type AuthUser } from '../middleware/auth';
 
 export const adminRouter = Router();
 
-function isUndefinedColumnError(error: unknown): boolean {
+function isUndefinedColumnError(error: unknown, columnName?: string): boolean {
   const err = error as { code?: string };
-  return err?.code === '42703';
+  if (err?.code !== '42703') {
+    return false;
+  }
+
+  if (!columnName) {
+    return true;
+  }
+
+  return String((error as { message?: string })?.message || '').includes(columnName);
 }
 
 function isUndefinedTableError(error: unknown): boolean {
@@ -24,15 +32,18 @@ const VALID_ROLES = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pha
 const VALID_SERVICE_REQUEST_STATUSES = ['new', 'contacted', 'closed'];
 const VALID_ADMIN_WORKFLOW_STATUSES = ['contacted', 'completed', 'accepted', 'rejected', 'home_delivery', 'in_service'] as const;
 const VALID_ADMIN_WORKFLOW_ENTITY_TYPES = ['service_request', 'referral', 'prescription'] as const;
+const VALID_ACCOUNT_REVIEW_STATUSES = ['new', 'under_review', 'review_completed', 'account_handed_over'] as const;
 
 type AdminWorkflowStatus = (typeof VALID_ADMIN_WORKFLOW_STATUSES)[number];
 type AdminWorkflowEntityType = (typeof VALID_ADMIN_WORKFLOW_ENTITY_TYPES)[number];
+type AccountReviewStatus = (typeof VALID_ACCOUNT_REVIEW_STATUSES)[number];
 
 function buildAdminUsersQueries(
   role: string | undefined,
   search: string | undefined,
   includeNameColumns: boolean,
-  includeOperatingColumn: boolean
+  includeOperatingColumn: boolean,
+  includeAccountStatusColumn: boolean
 ) {
   const nameColumns = includeNameColumns
     ? 'first_name, last_name'
@@ -40,6 +51,11 @@ function buildAdminUsersQueries(
   const operatingColumn = includeOperatingColumn
     ? 'is_operating'
     : 'true as is_operating';
+  const accountStatusColumn = includeAccountStatusColumn
+    ? 'account_status'
+    : includeOperatingColumn
+      ? `case when is_operating = false then 'disabled' else 'active' end as account_status`
+      : `'active'::text as account_status`;
   const params: unknown[] = [];
   const conditions: string[] = [];
 
@@ -62,7 +78,7 @@ function buildAdminUsersQueries(
   return {
     params,
     countQuery: `select count(*) from users${whereClause}`,
-    listQuery: `select id, role, phone, display_name, ${nameColumns}, ${operatingColumn}, created_at from users${whereClause} order by created_at desc`
+    listQuery: `select id, role, phone, display_name, ${nameColumns}, ${operatingColumn}, ${accountStatusColumn}, created_at from users${whereClause} order by created_at desc`
   };
 }
 
@@ -91,6 +107,10 @@ function isValidWorkflowStatus(value: string | undefined): value is AdminWorkflo
   return Boolean(value && VALID_ADMIN_WORKFLOW_STATUSES.includes(value as AdminWorkflowStatus));
 }
 
+function isValidAccountReviewStatus(value: string | undefined): value is AccountReviewStatus {
+  return Boolean(value && VALID_ACCOUNT_REVIEW_STATUSES.includes(value as AccountReviewStatus));
+}
+
 async function addWorkflowTracking(
   entityType: AdminWorkflowEntityType,
   entityId: string,
@@ -105,6 +125,35 @@ async function addWorkflowTracking(
   );
 }
 
+const ACCESS_REQUEST_SELECT = `
+  select
+    aar.id,
+    aar.user_id,
+    aar.requested_role,
+    aar.requested_specialty,
+    aar.organization_name,
+    aar.contacted,
+    aar.review_status,
+    aar.admin_notes,
+    aar.contacted_at,
+    aar.reviewed_at,
+    aar.approved_at,
+    aar.created_at,
+    aar.updated_at,
+    u.display_name,
+    u.phone,
+    u.account_status,
+    u.is_operating,
+    contacted_by_user.display_name as contacted_by_name,
+    reviewed_by_user.display_name as reviewed_by_name,
+    approved_by_user.display_name as approved_by_name
+  from account_access_requests aar
+  join users u on u.id = aar.user_id
+  left join users contacted_by_user on contacted_by_user.id = aar.contacted_by
+  left join users reviewed_by_user on reviewed_by_user.id = aar.reviewed_by
+  left join users approved_by_user on approved_by_user.id = aar.approved_by
+`;
+
 // API-14: List all users (paginated)
 adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) => {
   try {
@@ -115,11 +164,13 @@ adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) 
     const search = req.query['search'] as string | undefined;
 
     const queryUsers = async (includeNameColumns: boolean, includeOperatingColumn: boolean) => {
+      const includeAccountStatusColumn = includeOperatingColumn;
       const { params, countQuery, listQuery } = buildAdminUsersQueries(
         role,
         search,
         includeNameColumns,
-        includeOperatingColumn
+        includeOperatingColumn,
+        includeAccountStatusColumn
       );
       const countResult = await db.query(countQuery, params);
       const total = parseInt(countResult.rows[0].count);
@@ -202,9 +253,9 @@ adminRouter.post('/users', requireAuth, requireRole(['admin']), async (req, res)
 
     const passwordHash = await bcrypt.hash(normalizedPassword, 10);
     const result = await db.query(
-      `insert into users (role, phone, password_hash, display_name, first_name, last_name, is_operating)
-       values ($1, $2, $3, $4, $5, $6, true)
-       returning id, role, phone, display_name, first_name, last_name, is_operating, created_at`,
+      `insert into users (role, phone, password_hash, display_name, first_name, last_name, account_status, is_operating)
+       values ($1, $2, $3, $4, $5, $6, 'active', true)
+       returning id, role, phone, display_name, first_name, last_name, account_status, is_operating, created_at`,
       [
         normalizedRole,
         normalizedPhone,
@@ -236,9 +287,10 @@ adminRouter.get('/users/:id', requireAuth, requireRole(['admin']), async (req, r
   try {
     const { id } = req.params;
     const variants = [
-      `select id, role, phone, display_name, first_name, last_name, is_operating, created_at from users where id = $1`,
-      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, is_operating, created_at from users where id = $1`,
-      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, true as is_operating, created_at from users where id = $1`
+      `select id, role, phone, display_name, first_name, last_name, account_status, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, account_status, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, 'active'::text as account_status, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, 'active'::text as account_status, true as is_operating, created_at from users where id = $1`
     ];
 
     let result: { rows: any[] } | null = null;
@@ -282,7 +334,7 @@ adminRouter.patch('/users/:id/role', requireAuth, requireRole(['admin']), async 
     }
 
     const result = await db.query(
-      `update users set role = $2 where id = $1 returning id, role, phone, display_name`,
+      `update users set role = $2 where id = $1 returning id, role, phone, display_name, account_status, is_operating`,
       [id, role]
     );
 
@@ -318,10 +370,29 @@ adminRouter.patch('/users/:id/status', requireAuth, requireRole(['admin']), asyn
       return res.status(400).json({ error: 'Cannot disable your own account' });
     }
 
-    const result = await db.query(
-      `update users set is_operating = $2 where id = $1 returning id, role, phone, display_name, is_operating`,
-      [id, active]
-    );
+    let result;
+    try {
+      result = await db.query(
+        `update users
+         set is_operating = $2,
+             account_status = case when $2 then 'active' else 'disabled' end
+         where id = $1
+         returning id, role, phone, display_name, account_status, is_operating`,
+        [id, active]
+      );
+    } catch (error) {
+      if (!isUndefinedColumnError(error, 'account_status')) {
+        throw error;
+      }
+
+      result = await db.query(
+        `update users
+         set is_operating = $2
+         where id = $1
+         returning id, role, phone, display_name, is_operating, case when $2 then 'active' else 'disabled' end as account_status`,
+        [id, active]
+      );
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -336,6 +407,129 @@ adminRouter.patch('/users/:id/status', requireAuth, requireRole(['admin']), asyn
   } catch (error) {
     console.error('Admin update status error', error);
     return res.status(500).json({ error: 'Unable to update user status' });
+  }
+});
+
+adminRouter.get('/access-requests', requireAuth, requireRole(['admin']), async (_req, res) => {
+  try {
+    const result = await db.query(`${ACCESS_REQUEST_SELECT} order by aar.created_at desc`);
+    return res.json({ requests: result.rows });
+  } catch (error) {
+    if (isUndefinedTableError(error)) {
+      return res.json({ requests: [] });
+    }
+    console.error('Admin access requests error', error);
+    return res.status(500).json({ error: 'Unable to fetch access requests' });
+  }
+});
+
+adminRouter.patch('/access-requests/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  const client = await db.connect();
+
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { contacted, reviewStatus, notes, approve } = req.body as {
+      contacted?: boolean;
+      reviewStatus?: string;
+      notes?: string;
+      approve?: boolean;
+    };
+
+    if (
+      typeof contacted !== 'boolean'
+      && !reviewStatus
+      && typeof approve !== 'boolean'
+      && typeof notes !== 'string'
+    ) {
+      return res.status(400).json({ error: 'contacted, reviewStatus, notes, or approve is required' });
+    }
+
+    if (reviewStatus && !isValidAccountReviewStatus(reviewStatus)) {
+      return res.status(400).json({
+        error: `Invalid reviewStatus. Must be one of: ${VALID_ACCOUNT_REVIEW_STATUSES.join(', ')}`
+      });
+    }
+
+    await client.query('begin');
+
+    const existingResult = await client.query(
+      `${ACCESS_REQUEST_SELECT} where aar.id = $1 limit 1`,
+      [id]
+    );
+
+    if (existingResult.rows.length === 0) {
+      await client.query('rollback');
+      return res.status(404).json({ error: 'Access request not found' });
+    }
+
+    const existingRequest = existingResult.rows[0] as {
+      user_id: string;
+      phone: string;
+      contacted: boolean;
+      review_status: AccountReviewStatus;
+      admin_notes: string | null;
+      account_status: string;
+    };
+
+    const nextContacted = typeof contacted === 'boolean' ? contacted : existingRequest.contacted;
+    const nextReviewStatus = approve
+      ? 'account_handed_over'
+      : (reviewStatus || existingRequest.review_status);
+    const normalizedNotes = typeof notes === 'string' ? notes.trim() : existingRequest.admin_notes;
+
+    const updatedUserStatus = approve ? 'active' : existingRequest.account_status;
+    if (approve) {
+      await client.query(
+        `update users
+         set account_status = 'active',
+             is_operating = true
+         where id = $1`,
+        [existingRequest.user_id]
+      );
+    }
+
+    await client.query(
+      `update account_access_requests
+       set contacted = $2,
+           review_status = $3,
+           admin_notes = $4,
+           contacted_by = case when $2 then coalesce(contacted_by, $5) else null end,
+           contacted_at = case when $2 then coalesce(contacted_at, now()) else null end,
+           reviewed_by = case when $3 is distinct from review_status or $6 then $5 else reviewed_by end,
+           reviewed_at = case when $3 is distinct from review_status or $6 then now() else reviewed_at end,
+           approved_by = case when $6 then $5 else approved_by end,
+           approved_at = case when $6 then now() else approved_at end,
+           updated_at = now()
+       where id = $1`,
+      [id, nextContacted, nextReviewStatus, normalizedNotes || null, actor?.userId || null, Boolean(approve)]
+    );
+
+    await client.query('commit');
+
+    await logAdminActivity(actor?.userId, 'access_request.review.updated', existingRequest.user_id, existingRequest.phone, {
+      accessRequestId: id,
+      contacted: nextContacted,
+      reviewStatus: nextReviewStatus,
+      approved: Boolean(approve),
+      accountStatus: updatedUserStatus
+    });
+
+    if (approve) {
+      await logAdminActivity(actor?.userId, 'access_request.approved', existingRequest.user_id, existingRequest.phone, {
+        accessRequestId: id,
+        reviewStatus: nextReviewStatus
+      });
+    }
+
+    const hydrated = await db.query(`${ACCESS_REQUEST_SELECT} where aar.id = $1 limit 1`, [id]);
+    return res.json({ request: hydrated.rows[0] });
+  } catch (error) {
+    await client.query('rollback').catch(() => undefined);
+    console.error('Admin update access request error', error);
+    return res.status(500).json({ error: 'Unable to update access request' });
+  } finally {
+    client.release();
   }
 });
 

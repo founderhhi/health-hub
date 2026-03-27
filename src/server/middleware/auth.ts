@@ -27,6 +27,16 @@ function isUndefinedColumnError(error: unknown, columnName: string): boolean {
   return err?.code === '42703' && (err.message || '').includes(columnName);
 }
 
+function resolveAccountBlockMessage(accountStatus: string | undefined, isOperating: boolean | undefined): string | null {
+  if (accountStatus === 'pending_review') {
+    return 'Account is pending manual verification';
+  }
+  if (accountStatus === 'disabled' || isOperating === false) {
+    return 'Account is disabled';
+  }
+  return null;
+}
+
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -49,30 +59,45 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     let userResult;
     try {
       userResult = await db.query(
-        `select id, role, phone, is_operating
+        `select id, role, phone, is_operating, account_status
          from users
          where id = $1`,
         [payload.userId]
       );
     } catch (error) {
-      if (!isUndefinedColumnError(error, 'is_operating')) {
+      if (isUndefinedColumnError(error, 'account_status')) {
+        userResult = await db.query(
+          `select id, role, phone, is_operating
+           from users
+           where id = $1`,
+          [payload.userId]
+        );
+      } else if (isUndefinedColumnError(error, 'is_operating')) {
+        userResult = await db.query(
+          `select id, role, phone
+           from users
+           where id = $1`,
+          [payload.userId]
+        );
+      } else {
         throw error;
       }
-      userResult = await db.query(
-        `select id, role, phone
-         from users
-         where id = $1`,
-        [payload.userId]
-      );
     }
 
     if (userResult.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid token' });
     }
 
-    const activeUser = userResult.rows[0] as { id: string; role: string; phone: string; is_operating?: boolean };
-    if (activeUser.is_operating === false) {
-      return res.status(403).json({ error: 'Account is disabled' });
+    const activeUser = userResult.rows[0] as {
+      id: string;
+      role: string;
+      phone: string;
+      is_operating?: boolean;
+      account_status?: string;
+    };
+    const blockMessage = resolveAccountBlockMessage(activeUser.account_status, activeUser.is_operating);
+    if (blockMessage) {
+      return res.status(403).json({ error: blockMessage });
     }
 
     const user: AuthUser = {

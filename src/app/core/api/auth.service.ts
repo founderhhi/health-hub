@@ -8,10 +8,18 @@ interface AuthUser {
   role: string;
   phone: string;
   display_name?: string;
+  account_status?: string;
 }
 
 interface AuthResponse {
   token: string;
+  user: AuthUser;
+  refreshToken?: string;
+}
+
+interface PendingApprovalResponse {
+  requiresApproval: true;
+  message: string;
   user: AuthUser;
 }
 
@@ -25,9 +33,27 @@ export class AuthApiService {
   private readonly platformId = inject(PLATFORM_ID); // [AGENT_AUTH] ISS-02: SSR guard
   constructor(private api: ApiClientService) {}
 
-  signup(phone: string, password: string, displayName?: string) {
-    return this.api.post<AuthResponse>('/auth/signup', { phone, password, displayName }).pipe(
-      tap((response) => this.persistSession(response))
+  signup(
+    phone: string,
+    password: string,
+    displayName?: string,
+    options?: {
+      role?: string;
+      specialty?: string;
+      organizationName?: string;
+    }
+  ) {
+    return this.api.post<AuthResponse | PendingApprovalResponse>('/auth/signup', {
+      phone,
+      password,
+      displayName,
+      ...options
+    }).pipe(
+      tap((response) => {
+        if ('token' in response) {
+          this.persistSession(response);
+        }
+      })
     );
   }
 

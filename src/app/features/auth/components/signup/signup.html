@@ -13,31 +13,73 @@
       </div>
 
       <h1 class="hhi-auth-card__title">Create Account</h1>
-      <p class="auth-subtitle">Join Health Hub today</p>
+      <p class="auth-subtitle">Choose your account type and get started with Health Hub</p>
 
-      <!-- Form -->
+      @if (successMessage) {
+      <div class="form-success">{{ successMessage }}</div>
+      }
+
       <form [formGroup]="form" class="auth-form" novalidate>
-        <!-- Role Selector -->
         <div class="role-selector">
-          <div class="role-selector__option selected">
-            <span class="role-selector__option__icon">👤</span>
-            <span class="role-selector__option__label">Patient</span>
-          </div>
-          <div class="role-selector__option">
-            <span class="role-selector__option__icon">👨‍⚕️</span>
-            <span class="role-selector__option__label">Doctor</span>
-          </div>
-          <div class="role-selector__option">
-            <span class="role-selector__option__icon">💊</span>
-            <span class="role-selector__option__label">Pharmacy</span>
-          </div>
-          <div class="role-selector__option">
-            <span class="role-selector__option__icon">🔬</span>
-            <span class="role-selector__option__label">Lab</span>
-          </div>
+          @for (accountType of accountTypes; track accountType.value) {
+          <button
+            type="button"
+            class="role-selector__option"
+            [class.selected]="selectedAccountType === accountType.value"
+            (click)="selectAccountType(accountType.value)">
+            <span class="role-selector__option__icon">{{ accountType.icon }}</span>
+            <span class="role-selector__option__label">{{ accountType.label }}</span>
+            <span class="role-selector__option__description">{{ accountType.description }}</span>
+          </button>
+          }
         </div>
 
-        <!-- Full Name -->
+        @if (selectedAccountType === 'doctor') {
+        <div class="form-group">
+          <label for="doctorRole" class="form-label">Doctor Type</label>
+          <select id="doctorRole" class="form-input" formControlName="doctorRole">
+            @for (doctorRole of doctorRoles; track doctorRole.value) {
+            <option [value]="doctorRole.value">{{ doctorRole.label }}</option>
+            }
+          </select>
+        </div>
+        }
+
+        @if (selectedRole === 'specialist') {
+        <div class="form-group">
+          <label for="specialistSpecialty" class="form-label">Specialization</label>
+          <select id="specialistSpecialty" class="form-input" formControlName="specialistSpecialty">
+            <option value="">Select a specialization</option>
+            @for (specialty of specialistOptions; track specialty) {
+            <option [value]="specialty">{{ specialty }}</option>
+            }
+          </select>
+          @if (form.controls['specialistSpecialty']?.touched && form.controls['specialistSpecialty']?.invalid) {
+          <span class="error-message">Please choose a specialization</span>
+          }
+        </div>
+        }
+
+        @if (selectedAccountType === 'diagnostics') {
+        <div class="form-group">
+          <label for="diagnosticsRole" class="form-label">Diagnostics Role</label>
+          <select id="diagnosticsRole" class="form-input" formControlName="diagnosticsRole">
+            @for (diagnosticsRole of diagnosticsRoles; track diagnosticsRole.value) {
+            <option [value]="diagnosticsRole.value">{{ diagnosticsRole.label }}</option>
+            }
+          </select>
+        </div>
+        }
+
+        @if (requiresManualApproval) {
+        <div class="approval-banner">
+          <strong>Manual verification required.</strong>
+          <span>
+            Your signup request will go to admin review. The team will contact you offline before access is enabled.
+          </span>
+        </div>
+        }
+
         <div class="form-group">
           <label for="displayName" class="form-label">Full Name</label>
           <input id="displayName" type="text" class="form-input" formControlName="displayName"
@@ -47,7 +89,17 @@
           }
         </div>
 
-        <!-- Phone Number -->
+        @if (requiresManualApproval) {
+        <div class="form-group">
+          <label for="organizationName" class="form-label">{{ organizationLabel }}</label>
+          <input id="organizationName" type="text" class="form-input" formControlName="organizationName"
+            [placeholder]="'Enter ' + organizationLabel.toLowerCase()" autocomplete="organization" />
+          @if (form.controls['organizationName']?.touched && form.controls['organizationName']?.invalid) {
+          <span class="error-message">Please enter a valid organization or partner name</span>
+          }
+        </div>
+        }
+
         <div class="form-group">
           <label for="phone" class="form-label">Phone Number</label>
           <div class="phone-input-group">
@@ -65,7 +117,6 @@
           }
         </div>
 
-        <!-- Password -->
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
           <div class="password-input-group">
@@ -87,7 +138,6 @@
               }
             </button>
           </div>
-          <!-- [AGENT_PATIENT] ISS-11: specific password policy error messages matching backend validation -->
           @if (form.controls['password']?.touched && form.controls['password']?.hasError('required')) {
           <span class="error-message">Password is required</span>
           }
@@ -105,13 +155,12 @@
           }
         </div>
 
-        <!-- Submit Button -->
         <button type="button" class="btn btn-primary btn-full" (click)="submit()"
           [disabled]="form.invalid || submitting()">
           @if (submitting()) {
           <span class="spinner"></span>
           } @else {
-          Create Account
+          {{ submitLabel }}
           }
         </button>
         @if (errorMessage) {

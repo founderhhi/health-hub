@@ -104,12 +104,17 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
   margin-bottom: 24px;
 
   &__option {
+    appearance: none;
+    background: $bg-secondary;
     padding: 16px;
     border-radius: 8px;
     border: 2px solid var(--border-color);
     text-align: center;
     cursor: pointer;
     transition: border-color 200ms ease-in-out, background 200ms ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 
     &:hover {
       border-color: rgba(46, 204, 113, 0.4);
@@ -131,6 +136,12 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
       font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
+    }
+
+    &__description {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-secondary);
     }
   }
 }
@@ -295,6 +306,31 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
   background: rgba(239, 68, 68, 0.1);
   border-radius: 8px;
   animation: slideInUp 0.3s ease-out;
+}
+
+.form-success {
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  color: #166534;
+  background: rgba(46, 204, 113, 0.14);
+  border: 1px solid rgba(46, 204, 113, 0.28);
+  border-radius: 12px;
+  padding: v.$space-md;
+  margin-bottom: v.$space-lg;
+  line-height: 1.5;
+}
+
+.approval-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(46, 204, 113, 0.22);
+  background: linear-gradient(180deg, rgba(46, 204, 113, 0.12), rgba(174, 234, 0, 0.08));
+  color: $text-primary;
+  font-size: v.$font-size-sm;
+  line-height: 1.5;
 }
 
 /* Password Strength Indicator */

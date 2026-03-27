@@ -10,6 +10,7 @@ create table if not exists users (
   display_name text,
   first_name text,
   last_name text,
+  account_status text not null default 'active' check (account_status in ('active','pending_review','disabled')),
   is_operating boolean not null default true,
   created_at timestamptz not null default now()
 );
@@ -162,6 +163,31 @@ create table if not exists admin_workflow_tracking (
 
 create index if not exists idx_admin_workflow_entity_created
   on admin_workflow_tracking (entity_type, entity_id, created_at desc);
+
+create table if not exists account_access_requests (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null unique references users(id) on delete cascade,
+  requested_role text not null check (requested_role in ('gp','specialist','pharmacist','lab_tech','radiologist','pathologist')),
+  requested_specialty text,
+  organization_name text,
+  contacted boolean not null default false,
+  review_status text not null default 'new' check (review_status in ('new','under_review','review_completed','account_handed_over')),
+  admin_notes text,
+  contacted_by uuid references users(id) on delete set null,
+  contacted_at timestamptz,
+  reviewed_by uuid references users(id) on delete set null,
+  reviewed_at timestamptz,
+  approved_at timestamptz,
+  approved_by uuid references users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_account_access_requests_status_created
+  on account_access_requests (review_status, created_at desc);
+
+create index if not exists idx_account_access_requests_contacted
+  on account_access_requests (contacted, created_at desc);
 
 -- Migration 009: Patient billing tables (added via 009-patient-billing.sql)
 

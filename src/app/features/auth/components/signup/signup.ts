@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms'; // [AGENT_PATIENT] ISS-11: import AbstractControl, ValidationErrors for custom validators
+import { ActivatedRoute, Router } from '@angular/router';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { AuthApiService } from '../../../../core/api/auth.service';
+import { redirectAfterLogin } from '../../../../shared/guards/role.guard';
 
-// [AGENT_PATIENT] ISS-11: Custom validators to match backend password policy (auth.ts validatePassword)
 function requireUppercase(control: AbstractControl): ValidationErrors | null {
   return /[A-Z]/.test(control.value || '') ? null : { requireUppercase: true };
 }
@@ -23,13 +23,62 @@ function requireDigit(control: AbstractControl): ValidationErrors | null {
   styleUrl: './signup.scss',
 })
 export class SignupComponent {
+  readonly accountTypes = [
+    {
+      value: 'patient',
+      label: 'Patient',
+      icon: '👤',
+      description: 'Book consultations, track medicines, and manage your records.'
+    },
+    {
+      value: 'doctor',
+      label: 'Doctor',
+      icon: '👨‍⚕️',
+      description: 'Register as a GP or specialist and wait for admin verification.'
+    },
+    {
+      value: 'pharmacist',
+      label: 'Pharmacy',
+      icon: '💊',
+      description: 'Join as a pharmacy partner for prescription and fulfillment access.'
+    },
+    {
+      value: 'diagnostics',
+      label: 'Diagnostics',
+      icon: '🔬',
+      description: 'Register your diagnostics team for test and reporting workflows.'
+    }
+  ] as const;
+  readonly doctorRoles = [
+    { value: 'gp', label: 'General Practitioner' },
+    { value: 'specialist', label: 'Specialist' }
+  ] as const;
+  readonly specialistOptions = [
+    'Cardiology',
+    'Dermatology',
+    'Orthopedics',
+    'Neurology',
+    'Pediatrics',
+    'Oncology',
+    'ENT',
+    'Ophthalmology',
+    'General Surgery'
+  ] as const;
+  readonly diagnosticsRoles = [
+    { value: 'lab_tech', label: 'Lab Technician' },
+    { value: 'radiologist', label: 'Radiologist' },
+    { value: 'pathologist', label: 'Pathologist' }
+  ] as const;
+
   form: FormGroup;
   submitting = signal(false);
   showPassword = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
+    private route: ActivatedRoute,
     private router: Router,
     private authApi: AuthApiService
   ) {
@@ -37,21 +86,68 @@ export class SignupComponent {
       displayName: ['', [Validators.required, Validators.minLength(2)]],
       countryCode: ['+1', Validators.required],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      password: ['', [Validators.required, Validators.minLength(8), requireUppercase, requireLowercase, requireDigit]] // [AGENT_PATIENT] ISS-11: align frontend validators with backend password policy
+      password: ['', [Validators.required, Validators.minLength(8), requireUppercase, requireLowercase, requireDigit]],
+      accountType: ['patient', Validators.required],
+      doctorRole: ['gp'],
+      specialistSpecialty: [''],
+      diagnosticsRole: ['lab_tech'],
+      organizationName: ['']
     });
+
+    const initialRole = this.route.snapshot.queryParamMap.get('role');
+    if (initialRole === 'provider') {
+      this.form.patchValue({ accountType: 'doctor' });
+    }
+
+    this.applyDynamicValidators();
+    this.form.get('accountType')?.valueChanges.subscribe(() => this.applyDynamicValidators());
+    this.form.get('doctorRole')?.valueChanges.subscribe(() => this.applyDynamicValidators());
   }
 
-  /**
-   * Toggle password visibility
-   */
+  get selectedAccountType(): 'patient' | 'doctor' | 'pharmacist' | 'diagnostics' {
+    return this.form.get('accountType')?.value || 'patient';
+  }
+
+  get selectedRole(): string {
+    if (this.selectedAccountType === 'doctor') {
+      return this.form.get('doctorRole')?.value || 'gp';
+    }
+    if (this.selectedAccountType === 'diagnostics') {
+      return this.form.get('diagnosticsRole')?.value || 'lab_tech';
+    }
+    if (this.selectedAccountType === 'pharmacist') {
+      return 'pharmacist';
+    }
+    return 'patient';
+  }
+
+  get requiresManualApproval(): boolean {
+    return this.selectedAccountType !== 'patient';
+  }
+
+  get organizationLabel(): string {
+    if (this.selectedAccountType === 'pharmacist') {
+      return 'Pharmacy / Partner Name';
+    }
+    if (this.selectedAccountType === 'diagnostics') {
+      return 'Diagnostics Centre / Partner Name';
+    }
+    if (this.selectedAccountType === 'doctor') {
+      return 'Clinic / Hospital / Partner Name';
+    }
+    return 'Organization';
+  }
+
+  get submitLabel(): string {
+    return this.requiresManualApproval ? 'Submit Verification Request' : 'Create Account';
+  }
+
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  /**
-   * Handle form submission
-   */
   submit(): void {
+    this.applyDynamicValidators();
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -59,15 +155,26 @@ export class SignupComponent {
 
     this.submitting.set(true);
     this.errorMessage = '';
+    this.successMessage = '';
 
     const displayName = this.form.get('displayName')?.value;
     const phone = `${this.form.get('countryCode')?.value}${this.form.get('phone')?.value}`;
     const password = this.form.get('password')?.value;
+    const role = this.selectedRole;
+    const specialty = role === 'specialist' ? this.form.get('specialistSpecialty')?.value : undefined;
+    const organizationName = this.requiresManualApproval ? this.form.get('organizationName')?.value : undefined;
 
-    this.authApi.signup(phone, password, displayName).subscribe({
-      next: () => {
+    this.authApi.signup(phone, password, displayName, { role, specialty, organizationName }).subscribe({
+      next: (response) => {
         this.submitting.set(false);
-        this.router.navigate(['/patient/dashboard']);
+        if ('requiresApproval' in response) {
+          this.successMessage = response.message;
+          this.form.reset(this.buildFormDefaults(this.selectedAccountType));
+          this.applyDynamicValidators();
+          return;
+        }
+
+        redirectAfterLogin(response.user.role, this.router);
       },
       error: (err: any) => { // [AGENT_PATIENT] ISS-11: surface backend-specific password policy errors
         this.submitting.set(false);
@@ -76,10 +183,79 @@ export class SignupComponent {
     });
   }
 
-  /**
-   * Navigate to login
-   */
   goToLogin(): void {
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/auth/login'], {
+      queryParams: this.requiresManualApproval ? { role: 'provider' } : {}
+    });
+  }
+
+  selectAccountType(type: 'patient' | 'doctor' | 'pharmacist' | 'diagnostics'): void {
+    if (this.selectedAccountType === type) {
+      return;
+    }
+
+    this.form.patchValue(this.buildFormDefaults(type));
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.applyDynamicValidators();
+  }
+
+  private applyDynamicValidators(): void {
+    const doctorRoleControl = this.form.get('doctorRole');
+    const specialistControl = this.form.get('specialistSpecialty');
+    const diagnosticsRoleControl = this.form.get('diagnosticsRole');
+    const organizationControl = this.form.get('organizationName');
+
+    if (this.selectedAccountType === 'doctor') {
+      doctorRoleControl?.setValidators([Validators.required]);
+      organizationControl?.setValidators([Validators.required, Validators.minLength(2)]);
+    } else {
+      doctorRoleControl?.clearValidators();
+      doctorRoleControl?.setValue('gp', { emitEvent: false });
+    }
+
+    if (this.selectedRole === 'specialist') {
+      specialistControl?.setValidators([Validators.required]);
+    } else {
+      specialistControl?.clearValidators();
+      specialistControl?.setValue('', { emitEvent: false });
+    }
+
+    if (this.selectedAccountType === 'diagnostics') {
+      diagnosticsRoleControl?.setValidators([Validators.required]);
+      organizationControl?.setValidators([Validators.required, Validators.minLength(2)]);
+    } else if (this.selectedAccountType === 'pharmacist') {
+      diagnosticsRoleControl?.clearValidators();
+      diagnosticsRoleControl?.setValue('lab_tech', { emitEvent: false });
+      organizationControl?.setValidators([Validators.required, Validators.minLength(2)]);
+    } else if (this.selectedAccountType === 'patient') {
+      diagnosticsRoleControl?.clearValidators();
+      diagnosticsRoleControl?.setValue('lab_tech', { emitEvent: false });
+      organizationControl?.clearValidators();
+      organizationControl?.setValue('', { emitEvent: false });
+    }
+
+    if (this.selectedAccountType !== 'diagnostics') {
+      diagnosticsRoleControl?.setValue('lab_tech', { emitEvent: false });
+    }
+
+    doctorRoleControl?.updateValueAndValidity({ emitEvent: false });
+    specialistControl?.updateValueAndValidity({ emitEvent: false });
+    diagnosticsRoleControl?.updateValueAndValidity({ emitEvent: false });
+    organizationControl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private buildFormDefaults(type: 'patient' | 'doctor' | 'pharmacist' | 'diagnostics') {
+    return {
+      displayName: '',
+      countryCode: this.form.get('countryCode')?.value || '+1',
+      phone: '',
+      password: '',
+      accountType: type,
+      doctorRole: 'gp',
+      specialistSpecialty: '',
+      diagnosticsRole: 'lab_tech',
+      organizationName: ''
+    };
   }
 }

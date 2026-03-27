@@ -23,6 +23,29 @@
         account
       </p>
 
+      <div class="account-switch" role="tablist" aria-label="Choose login type">
+        <button
+          type="button"
+          class="account-switch__option"
+          [class.active]="loginRole === 'patient'"
+          (click)="switchLoginRole('patient')">
+          Patient
+        </button>
+        <button
+          type="button"
+          class="account-switch__option"
+          [class.active]="loginRole === 'provider'"
+          (click)="switchLoginRole('provider')">
+          Providers
+        </button>
+      </div>
+
+      @if (loginRole === 'provider') {
+      <div class="provider-note">
+        GP, specialist, pharmacy, and diagnostics accounts are enabled only after admin verification.
+      </div>
+      }
+
       <form [formGroup]="form" class="auth-form" novalidate>
         <div class="form-group">
           <label for="phone" class="form-label">Phone Number</label>

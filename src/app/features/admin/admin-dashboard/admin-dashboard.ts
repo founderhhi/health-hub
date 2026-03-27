@@ -10,6 +10,7 @@ interface UserRecord {
   display_name: string;
   first_name: string;
   last_name: string;
+  account_status: 'active' | 'pending_review' | 'disabled';
   is_operating: boolean;
   created_at: string;
 }
@@ -89,6 +90,31 @@ interface ReferralRecord {
   created_at: string;
 }
 
+type AccessRequestReviewStatus = 'new' | 'under_review' | 'review_completed' | 'account_handed_over';
+
+interface AccessRequestRecord {
+  id: string;
+  user_id: string;
+  display_name: string | null;
+  phone: string;
+  requested_role: 'gp' | 'specialist' | 'pharmacist' | 'lab_tech' | 'radiologist' | 'pathologist';
+  requested_specialty: string | null;
+  organization_name: string | null;
+  contacted: boolean;
+  review_status: AccessRequestReviewStatus;
+  admin_notes: string | null;
+  contacted_at: string | null;
+  reviewed_at: string | null;
+  approved_at: string | null;
+  contacted_by_name: string | null;
+  reviewed_by_name: string | null;
+  approved_by_name: string | null;
+  account_status: 'active' | 'pending_review' | 'disabled';
+  is_operating: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 interface CreateUserForm {
   phone: string;
   password: string;
@@ -107,12 +133,14 @@ interface CreateUserForm {
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
   users: UserRecord[] = [];
+  accessRequests: AccessRequestRecord[] = [];
   activities: AdminActivityEvent[] = [];
   requests: ServiceRequestRecord[] = [];
   prescriptions: PrescriptionRecord[] = [];
   referrals: ReferralRecord[] = [];
   systemHealth: SystemHealth | null = null;
   loading = true;
+  accessRequestsLoading = false;
   activityLoading = false;
   requestsLoading = false;
   referralsLoading = false;
@@ -127,7 +155,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   activityTotalPages = 1;
   pharmacyPage = 1;
   pharmacyTotalPages = 1;
-  activeTab: 'users' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health' = 'users';
+  activeTab: 'users' | 'accessRequests' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health' = 'users';
   actionNotice = '';
   actionError = '';
   showCreateUser = false;
@@ -144,6 +172,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   readonly roles = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
   readonly requestStatuses: Array<ServiceRequestRecord['status']> = ['new', 'contacted', 'closed'];
   readonly workflowStatuses: AdminWorkflowStatus[] = ['contacted', 'completed', 'accepted', 'rejected', 'home_delivery', 'in_service'];
+  readonly accessReviewStatuses: AccessRequestReviewStatus[] = ['new', 'under_review', 'review_completed', 'account_handed_over'];
 
   private noticeTimer?: ReturnType<typeof setTimeout>;
   private errorTimer?: ReturnType<typeof setTimeout>;
@@ -159,13 +188,18 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (this.errorTimer) clearTimeout(this.errorTimer);
   }
 
-  setTab(tab: 'users' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health'): void {
+  setTab(tab: 'users' | 'accessRequests' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health'): void {
     this.activeTab = tab;
     this.actionError = '';
     this.actionNotice = '';
 
     if (tab === 'users') {
       this.loadUsers();
+      return;
+    }
+
+    if (tab === 'accessRequests') {
+      this.loadAccessRequests();
       return;
     }
 
@@ -215,6 +249,22 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.loading = false;
         this.showError(this.extractApiError(error, 'Unable to load users right now.'));
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadAccessRequests(): void {
+    this.accessRequestsLoading = true;
+    this.api.get<{ requests: AccessRequestRecord[] }>('/admin/access-requests').subscribe({
+      next: (res) => {
+        this.accessRequests = Array.isArray(res.requests) ? res.requests : [];
+        this.accessRequestsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.accessRequestsLoading = false;
+        this.showError(this.extractApiError(error, 'Unable to load access requests right now.'));
         this.cdr.detectChanges();
       }
     });
@@ -387,10 +437,94 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.api.patch<{ user: UserRecord }>(`/admin/users/${user.id}/status`, { active: newActive }).subscribe({
       next: (res) => {
         user.is_operating = res.user.is_operating;
+        user.account_status = res.user.account_status;
         this.showNotice(user.is_operating ? 'User enabled successfully.' : 'User disabled successfully.');
       },
       error: (error) => {
         this.showError(this.extractApiError(error, 'Unable to update user status.'));
+      }
+    });
+  }
+
+  updateAccessRequestContactStatus(request: AccessRequestRecord, contacted: boolean): void {
+    this.actionError = '';
+    this.api.patch<{ request: AccessRequestRecord }>(`/admin/access-requests/${request.id}`, { contacted }).subscribe({
+      next: (res) => {
+        Object.assign(request, res.request);
+        this.showNotice(contacted ? 'Access request marked as contacted.' : 'Access request marked as not contacted.');
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update contact status.'));
+        this.loadAccessRequests();
+      }
+    });
+  }
+
+  confirmAndUpdateAccessRequestContactStatus(request: AccessRequestRecord, nextContactRaw: string): void {
+    const contacted = nextContactRaw === 'true';
+    if (request.contacted === contacted) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Confirm marking this request as ${contacted ? 'contacted' : 'not contacted'}?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.updateAccessRequestContactStatus(request, contacted);
+  }
+
+  updateAccessRequestReviewStatus(request: AccessRequestRecord, reviewStatus: AccessRequestReviewStatus): void {
+    this.actionError = '';
+    this.api.patch<{ request: AccessRequestRecord }>(`/admin/access-requests/${request.id}`, { reviewStatus }).subscribe({
+      next: (res) => {
+        Object.assign(request, res.request);
+        this.showNotice('Access request review status updated.');
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update review status.'));
+        this.loadAccessRequests();
+      }
+    });
+  }
+
+  confirmAndUpdateAccessRequestReviewStatus(request: AccessRequestRecord, nextReviewRaw: string): void {
+    if (!this.isAccessReviewStatus(nextReviewRaw)) {
+      this.showError('Please choose a valid review status.');
+      return;
+    }
+    if (request.review_status === nextReviewRaw) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Confirm setting the review status to "${this.formatAccessRequestReviewStatus(nextReviewRaw)}"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.updateAccessRequestReviewStatus(request, nextReviewRaw);
+  }
+
+  approveAccessRequest(request: AccessRequestRecord): void {
+    const confirmed = window.confirm(`Approve ${request.display_name || request.phone} and enable account access?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.actionError = '';
+    this.api.patch<{ request: AccessRequestRecord }>(`/admin/access-requests/${request.id}`, { approve: true }).subscribe({
+      next: (res) => {
+        Object.assign(request, res.request);
+        const user = this.users.find((entry) => entry.id === request.user_id);
+        if (user) {
+          user.account_status = res.request.account_status;
+          user.is_operating = res.request.is_operating;
+        }
+        this.showNotice('Account approved and enabled successfully.');
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to approve access request.'));
+        this.loadAccessRequests();
       }
     });
   }
@@ -585,6 +719,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   formatActivityAction(action: string): string {
     switch (action) {
+      case 'access_request.review.updated':
+        return 'Updated access request';
+      case 'access_request.approved':
+        return 'Approved access request';
       case 'user.created':
         return 'Created user';
       case 'user.role.updated':
@@ -615,6 +753,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     return this.workflowStatuses.includes(value as AdminWorkflowStatus);
   }
 
+  private isAccessReviewStatus(value: string): value is AccessRequestReviewStatus {
+    return this.accessReviewStatuses.includes(value as AccessRequestReviewStatus);
+  }
+
   private isServiceRequestStatus(value: string): value is ServiceRequestRecord['status'] {
     return this.requestStatuses.includes(value as ServiceRequestRecord['status']);
   }
@@ -638,6 +780,47 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   getRequestDestination(request: ServiceRequestRecord): string {
     return [request.region, request.city, request.hospital_name].filter(Boolean).join(' / ') || request.notes || 'General callback';
+  }
+
+  getUserStatusLabel(user: UserRecord): string {
+    switch (user.account_status) {
+      case 'pending_review':
+        return 'Pending Review';
+      case 'disabled':
+        return 'Disabled';
+      default:
+        return 'Active';
+    }
+  }
+
+  getUserStatusClass(user: UserRecord): string {
+    switch (user.account_status) {
+      case 'pending_review':
+        return 'pending';
+      case 'disabled':
+        return 'disabled';
+      default:
+        return 'active';
+    }
+  }
+
+  getUserActionLabel(user: UserRecord): string {
+    return user.account_status === 'active' ? 'Disable' : 'Enable';
+  }
+
+  formatRequestedRole(role: AccessRequestRecord['requested_role']): string {
+    switch (role) {
+      case 'gp':
+        return 'GP';
+      case 'lab_tech':
+        return 'Lab Technician';
+      default:
+        return role.replace(/_/g, ' ').replace(/\b\w/g, (value) => value.toUpperCase());
+    }
+  }
+
+  formatAccessRequestReviewStatus(status: AccessRequestReviewStatus): string {
+    return status.replace(/_/g, ' ').replace(/\b\w/g, (value) => value.toUpperCase());
   }
 
   private resetCreateUserForm(): void {
