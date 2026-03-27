@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LabsApiService } from '../../../core/api/labs.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
-import { ReferralsApiService } from '../../../core/api/referrals.service';
+import { ReferralsApiService, SpecialistDirectoryEntry } from '../../../core/api/referrals.service';
 
 @Component({
   selector: 'app-referral-details',
@@ -38,6 +38,12 @@ export class ReferralDetailsComponent implements OnInit {
   showPrescriptionModal = false;
   prescriptionItems: { name: string; dosage: string; frequency: string; duration: string }[] = [{ name: '', dosage: '', frequency: '', duration: '' }];
   submittingPrescription = false;
+  showReassignModal = false;
+  availableSpecialists: SpecialistDirectoryEntry[] = [];
+  selectedSpecialistId = '';
+  loadingSpecialists = false;
+  reassigningReferral = false;
+  reassignError = '';
   scheduleForm = {
     appointmentDate: '',
     appointmentTime: '',
@@ -127,11 +133,19 @@ export class ReferralDetailsComponent implements OnInit {
     return (this.referral?.status === 'accepted' || this.referral?.status === 'confirmed') && this.referral?.status !== 'declined';
   }
 
+  get canReassignReferral(): boolean {
+    return Boolean(this.referral?.id) && this.referral?.status !== 'declined';
+  }
+
   get canEditSchedule(): boolean {
     const consultationStatus = String(this.referral?.consultation_status || '').toLowerCase();
     return this.referral?.status !== 'declined'
       && consultationStatus !== 'completed'
       && consultationStatus !== 'ended';
+  }
+
+  get selectedSpecialist(): SpecialistDirectoryEntry | null {
+    return this.availableSpecialists.find((specialist) => specialist.id === this.selectedSpecialistId) || null;
   }
 
   get referringProviderDiscipline(): string {
@@ -309,6 +323,58 @@ export class ReferralDetailsComponent implements OnInit {
     this.requestInfoNotice = null;
   }
 
+  referAnotherSpecialist(): void {
+    if (!this.canReassignReferral || this.loadingSpecialists) {
+      return;
+    }
+
+    this.showReassignModal = true;
+    this.reassignError = '';
+    this.actionNotice = '';
+    this.errorMessage = '';
+    this.selectedSpecialistId = '';
+    this.loadAvailableSpecialists();
+  }
+
+  closeReassignModal(): void {
+    this.showReassignModal = false;
+    this.selectedSpecialistId = '';
+    this.loadingSpecialists = false;
+    this.reassigningReferral = false;
+    this.reassignError = '';
+  }
+
+  saveReassignment(): void {
+    if (!this.referral?.id || !this.selectedSpecialistId || this.reassigningReferral) {
+      return;
+    }
+
+    this.reassigningReferral = true;
+    this.reassignError = '';
+    this.errorMessage = '';
+    this.actionNotice = '';
+
+    this.referralsApi.reassignReferral(this.referral.id, this.selectedSpecialistId).subscribe({
+      next: (response) => {
+        this.reassigningReferral = false;
+        this.referral = response.referral || this.referral;
+        this.closeReassignModal();
+        const specialistName = response.targetSpecialist?.display_name || 'the selected specialist';
+        this.actionNotice = `Referral forwarded to ${specialistName}. Returning to your dashboard...`;
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.router.navigate(['/specialist']);
+        }, 900);
+      },
+      error: (err) => {
+        this.reassigningReferral = false;
+        console.error('[AGENT_SPECIALIST] reassign referral failed', err);
+        this.reassignError = err?.error?.error || 'Unable to forward referral right now.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   openScheduleEditor(): void {
     if (!this.canEditSchedule) {
       return;
@@ -448,6 +514,7 @@ export class ReferralDetailsComponent implements OnInit {
     this.referralsApi.getReferral(id).subscribe({
       next: (response) => {
         this.referral = response.referral;
+        this.referralsApi.cacheSpecialistReferral(response.referral);
         this.syncScheduleFormFromReferral();
         this.loading = false;
         this.cdr.detectChanges();
@@ -479,5 +546,35 @@ export class ReferralDetailsComponent implements OnInit {
       consultationMode: this.referral?.consultation_mode === 'offline' ? 'offline' : 'online',
       location: this.referral?.location || ''
     };
+  }
+
+  private loadAvailableSpecialists(): void {
+    this.loadingSpecialists = true;
+    this.reassignError = '';
+
+    this.referralsApi.listAvailableSpecialists().subscribe({
+      next: (response) => {
+        this.availableSpecialists = Array.isArray(response.specialists)
+          ? [...response.specialists].sort((left, right) => {
+              const referralSpecialty = String(this.referral?.specialty || '').trim().toLowerCase();
+              const leftMatch = String(left.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
+              const rightMatch = String(right.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
+              if (leftMatch !== rightMatch) {
+                return rightMatch - leftMatch;
+              }
+              return String(left.display_name || '').localeCompare(String(right.display_name || ''));
+            })
+          : [];
+        this.selectedSpecialistId = this.availableSpecialists[0]?.id || '';
+        this.loadingSpecialists = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.loadingSpecialists = false;
+        console.error('[AGENT_SPECIALIST] load specialists failed', err);
+        this.reassignError = 'Unable to load specialists right now.';
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ReferralsApiService } from '../../../core/api/referrals.service';
@@ -31,7 +31,7 @@ interface SpecialistReferral {
   created_at: string;
 }
 
-type ReferralFilter = 'all' | 'gp' | 'specialist';
+type ReferralFilter = 'all' | 'gp' | 'specialist' | 'declined';
 
 @Component({
   selector: 'app-specialist-dashboard',
@@ -53,28 +53,89 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
   };
 
   private wsSubscription?: Subscription;
+  private readonly platformId = inject(PLATFORM_ID);
+  private hasResolvedInitialLoad = false;
+  private initialLoadRetryPending = false;
+  private initialLoadRetried = false;
+  private initialLoadRetryTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly windowFocusHandler = () => this.loadReferrals(false);
+  private readonly documentVisibilityHandler = () => {
+    if (document.visibilityState === 'visible') {
+      this.loadReferrals(false);
+    }
+  };
+
+  private get activeReferrals(): SpecialistReferral[] {
+    return this.referrals.filter((referral) => referral.status !== 'declined');
+  }
+
+  private get declinedReferrals(): SpecialistReferral[] {
+    return this.referrals.filter((referral) => referral.status === 'declined');
+  }
 
   get displayReferrals(): SpecialistReferral[] {
     switch (this.selectedFilter) {
       case 'gp':
-        return this.referrals.filter((referral) => this.isGpSource(referral));
+        return this.activeReferrals.filter((referral) => this.isGpSource(referral));
       case 'specialist':
-        return this.referrals.filter((referral) => !this.isGpSource(referral));
+        return this.activeReferrals.filter((referral) => !this.isGpSource(referral));
+      case 'declined':
+        return this.declinedReferrals;
       default:
-        return this.referrals;
+        return this.activeReferrals;
     }
   }
 
   get allCount(): number {
-    return this.referrals.length;
+    return this.activeReferrals.length;
   }
 
   get gpCount(): number {
-    return this.referrals.filter((referral) => this.isGpSource(referral)).length;
+    return this.activeReferrals.filter((referral) => this.isGpSource(referral)).length;
   }
 
   get specialistCount(): number {
-    return this.referrals.filter((referral) => !this.isGpSource(referral)).length;
+    return this.activeReferrals.filter((referral) => !this.isGpSource(referral)).length;
+  }
+
+  get declinedCount(): number {
+    return this.declinedReferrals.length;
+  }
+
+  get pendingDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.stats.pending;
+  }
+
+  get appointmentsDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.stats.appointments;
+  }
+
+  get activeDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.stats.active;
+  }
+
+  get patientsDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.stats.patients;
+  }
+
+  get allDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.allCount;
+  }
+
+  get gpDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.gpCount;
+  }
+
+  get specialistDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.specialistCount;
+  }
+
+  get declinedDisplayCount(): string | number {
+    return this.showLoadingCounts ? '—' : this.declinedCount;
+  }
+
+  private get showLoadingCounts(): boolean {
+    return this.loading && !this.hasResolvedInitialLoad;
   }
 
   get todayAppointments(): SpecialistReferral[] {
@@ -115,7 +176,19 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadReferrals();
+    const cachedReferrals = this.referralsApi.getCachedSpecialistReferrals();
+    if (cachedReferrals) {
+      this.referrals = cachedReferrals as SpecialistReferral[];
+      this.recalculateStats();
+      this.loading = false;
+      this.hasResolvedInitialLoad = true;
+    }
+
+    this.loadReferrals(!this.hasResolvedInitialLoad);
+    if (isPlatformBrowser(this.platformId)) {
+      window.addEventListener('focus', this.windowFocusHandler);
+      document.addEventListener('visibilitychange', this.documentVisibilityHandler);
+    }
     this.ws.connect('specialist');
     this.wsSubscription = this.ws.events$.subscribe((event) => {
       if (['referral.created', 'referral.status', 'referral.request_info', 'consult.started', 'consult.completed'].includes(event.event)) {
@@ -126,6 +199,14 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
+    if (this.initialLoadRetryTimer) {
+      clearTimeout(this.initialLoadRetryTimer);
+      this.initialLoadRetryTimer = null;
+    }
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('focus', this.windowFocusHandler);
+      document.removeEventListener('visibilitychange', this.documentVisibilityHandler);
+    }
   }
 
   trackReferral(_index: number, referral: SpecialistReferral): string {
@@ -219,10 +300,13 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
         this.recalculateStats();
         this.errorMessage = '';
         this.loading = false;
+        this.hasResolvedInitialLoad = true;
+        this.handlePostLoadConsistencyRefresh();
       },
       error: () => {
         this.errorMessage = 'Unable to load referrals right now.';
         this.loading = false;
+        this.hasResolvedInitialLoad = true;
       }
     });
   }
@@ -232,11 +316,11 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
 
-    this.stats.pending = this.referrals.filter((referral) => referral.status === 'new').length;
+    this.stats.pending = this.activeReferrals.filter((referral) => referral.status === 'new').length;
     this.stats.appointments = this.todayAppointments.length;
-    this.stats.active = this.referrals.filter((referral) => referral.consultation_status === 'active').length;
+    this.stats.active = this.activeReferrals.filter((referral) => referral.consultation_status === 'active').length;
     this.stats.patients = new Set(
-      this.referrals
+      this.activeReferrals
         .filter((referral) => {
           const created = new Date(referral.created_at);
           return created.getMonth() === currentMonth && created.getFullYear() === currentYear;
@@ -289,5 +373,19 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
       month: 'short',
       day: 'numeric'
     });
+  }
+
+  private handlePostLoadConsistencyRefresh(): void {
+    if (!isPlatformBrowser(this.platformId) || this.initialLoadRetried || this.initialLoadRetryPending || this.referrals.length > 0) {
+      return;
+    }
+
+    this.initialLoadRetryPending = true;
+    this.initialLoadRetryTimer = setTimeout(() => {
+      this.initialLoadRetryPending = false;
+      this.initialLoadRetried = true;
+      this.initialLoadRetryTimer = null;
+      this.loadReferrals(false);
+    }, 300);
   }
 }

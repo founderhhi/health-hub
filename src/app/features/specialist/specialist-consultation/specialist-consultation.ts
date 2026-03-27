@@ -1,11 +1,12 @@
-import { Component, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { ConsultationsApiService } from '../../../core/api/consultations.service';
 import { LabsApiService } from '../../../core/api/labs.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
-import { ReferralsApiService } from '../../../core/api/referrals.service';
+import { ReferralsApiService, SpecialistDirectoryEntry } from '../../../core/api/referrals.service';
 import { ConsultMode, ConsultShellComponent } from '../../../shared/components/consult-shell/consult-shell';
 
 interface PrescriptionItem {
@@ -15,16 +16,6 @@ interface PrescriptionItem {
   duration: string;
 }
 
-interface ReferralFormData {
-  specialty: string;
-  urgency: string;
-  reason: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  consultationMode: 'online' | 'offline';
-  location: string;
-}
-
 @Component({
   selector: 'app-specialist-consultation',
   standalone: true,
@@ -32,7 +23,7 @@ interface ReferralFormData {
   templateUrl: './specialist-consultation.html',
   styleUrl: './specialist-consultation.scss'
 })
-export class SpecialistConsultationComponent implements OnInit {
+export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   @ViewChild(ConsultShellComponent) consultShellRef?: ConsultShellComponent;
 
   referral: any;
@@ -61,18 +52,13 @@ export class SpecialistConsultationComponent implements OnInit {
   // Referral dialog
   showReferralModal = false;
   referralSubmitError = '';
-  referralForm: ReferralFormData = {
-    specialty: '',
-    urgency: 'routine',
-    reason: '',
-    appointmentDate: '',
-    appointmentTime: '',
-    consultationMode: 'online',
-    location: ''
-  };
-  SPECIALTIES = ['Cardiology', 'Dermatology', 'Orthopedics', 'Neurology', 'Pediatrics', 'Oncology', 'ENT', 'Ophthalmology'];
+  availableSpecialists: SpecialistDirectoryEntry[] = [];
+  selectedSpecialistId = '';
+  loadingSpecialists = false;
+  reassigningReferral = false;
 
   private readonly platformId = inject(PLATFORM_ID);
+  private routeSubscription?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -88,15 +74,30 @@ export class SpecialistConsultationComponent implements OnInit {
       this.currentUserId = localStorage.getItem('hhi_user_id') || '';
     }
 
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
-      this.loading = false;
-      this.errorMessage = 'Referral ID is missing.';
-      return;
-    }
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (!id) {
+        this.loading = false;
+        this.errorMessage = 'Referral ID is missing.';
+        return;
+      }
 
-    this.referralId = id;
-    this.loadReferral(id);
+      this.referralId = id;
+      const cachedReferral = this.referralsApi.getCachedSpecialistReferral(id);
+      if (cachedReferral) {
+        this.applyReferral(cachedReferral);
+        this.loading = false;
+        this.syncReferralNotice(cachedReferral);
+      } else {
+        this.loading = true;
+      }
+
+      this.loadReferral(id, !cachedReferral);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
   }
 
   get patientName(): string {
@@ -169,6 +170,10 @@ export class SpecialistConsultationComponent implements OnInit {
     return this.referral?.status ? this.titleCase(this.referral.status) : 'Pending';
   }
 
+  get selectedSpecialist(): SpecialistDirectoryEntry | null {
+    return this.availableSpecialists.find((specialist) => specialist.id === this.selectedSpecialistId) || null;
+  }
+
   goBack(): void {
     this.router.navigate(['/specialist/referral', this.referralId]);
   }
@@ -185,6 +190,7 @@ export class SpecialistConsultationComponent implements OnInit {
       next: (response) => {
         this.accepting = false;
         this.applyReferral(response.referral);
+        this.referralsApi.cacheSpecialistReferral(response.referral);
         this.statusMessage = response.referral?.consultation_mode === 'online'
           ? 'Referral accepted. Consultation is ready.'
           : 'Referral accepted. This appointment is scheduled in person.';
@@ -297,49 +303,37 @@ export class SpecialistConsultationComponent implements OnInit {
   // ── Refer Another Specialist ──
 
   onRefer(): void {
-    if (!this.referral?.patient_id) {
+    if (!this.referral?.id || this.loadingSpecialists) {
       return;
     }
-    this.referralForm = {
-      specialty: '',
-      urgency: 'routine',
-      reason: '',
-      appointmentDate: '',
-      appointmentTime: '',
-      consultationMode: 'online',
-      location: ''
-    };
+
     this.referralSubmitError = '';
+    this.selectedSpecialistId = '';
     this.showReferralModal = true;
+    this.loadAvailableSpecialists();
   }
 
   submitReferral(): void {
-    if (!this.referralForm.specialty) {
-      this.referralSubmitError = 'Please select a specialty.';
+    if (!this.referral?.id || !this.selectedSpecialistId || this.reassigningReferral) {
+      this.referralSubmitError = 'Please select a specialist.';
       return;
     }
-    if (!this.referralForm.reason.trim()) {
-      this.referralSubmitError = 'Please provide a reason for the referral.';
-      return;
-    }
+
+    this.reassigningReferral = true;
     this.referralSubmitError = '';
-    this.referralsApi.createReferral(
-      this.referral.patient_id,
-      this.referralForm.urgency,
-      this.referralForm.reason,
-      {
-        specialty: this.referralForm.specialty,
-        appointmentDate: this.referralForm.appointmentDate || undefined,
-        appointmentTime: this.referralForm.appointmentTime || undefined,
-        consultationMode: this.referralForm.consultationMode,
-        location: this.referralForm.consultationMode === 'offline' ? this.referralForm.location : undefined
-      }
-    ).subscribe({
-      next: () => {
+    this.referralsApi.reassignReferral(this.referral.id, this.selectedSpecialistId).subscribe({
+      next: (response) => {
+        this.reassigningReferral = false;
+        this.referral = response.referral || this.referral;
         this.showReferralModal = false;
-        this.statusMessage = 'Referral to specialist submitted successfully.';
+        const specialistName = response.targetSpecialist?.display_name || 'the selected specialist';
+        this.statusMessage = `Referral forwarded to ${specialistName}. Returning to your dashboard...`;
+        setTimeout(() => {
+          this.router.navigate(['/specialist']);
+        }, 900);
       },
       error: (err) => {
+        this.reassigningReferral = false;
         this.referralSubmitError = err?.error?.error || 'Unable to submit referral right now.';
       }
     });
@@ -348,6 +342,9 @@ export class SpecialistConsultationComponent implements OnInit {
   closeReferralModal(): void {
     this.showReferralModal = false;
     this.referralSubmitError = '';
+    this.selectedSpecialistId = '';
+    this.loadingSpecialists = false;
+    this.reassigningReferral = false;
   }
 
   onEndConsultation(event: { notes: string }): void {
@@ -375,22 +372,23 @@ export class SpecialistConsultationComponent implements OnInit {
     });
   }
 
-  private loadReferral(id: string): void {
-    this.loading = true;
+  private loadReferral(id: string, showLoader = true): void {
+    if (showLoader) {
+      this.loading = true;
+    }
     this.errorMessage = '';
     this.referralsApi.getReferral(id).subscribe({
       next: (response) => {
         this.applyReferral(response.referral);
+        this.referralsApi.cacheSpecialistReferral(response.referral);
         this.loading = false;
-        if (!this.consultationId && response.referral?.status === 'accepted') {
-          this.errorMessage = 'Consultation is not linked yet. Please reopen this referral in a moment.';
-        } else if (response.referral?.consultation_mode === 'offline') {
-          this.errorMessage = 'This referral is scheduled as an in-person visit, so there is no in-app consultation room.';
-        }
+        this.syncReferralNotice(response.referral);
       },
       error: () => {
         this.loading = false;
-        this.errorMessage = 'Unable to load referral details.';
+        this.errorMessage = this.referral
+          ? 'Live consultation details could not be refreshed. Showing the last available state.'
+          : 'Unable to load referral details.';
       }
     });
   }
@@ -400,6 +398,45 @@ export class SpecialistConsultationComponent implements OnInit {
     this.consultationId = referral?.consultation_id || referral?.consultationId || '';
     this.roomUrl = referral?.daily_room_url || referral?.roomUrl || '';
     this.consultMode = 'video';
+  }
+
+  private loadAvailableSpecialists(): void {
+    this.loadingSpecialists = true;
+    this.referralSubmitError = '';
+
+    this.referralsApi.listAvailableSpecialists().subscribe({
+      next: (response) => {
+        this.availableSpecialists = Array.isArray(response.specialists)
+          ? [...response.specialists].sort((left, right) => {
+              const referralSpecialty = String(this.referral?.specialty || '').trim().toLowerCase();
+              const leftMatch = String(left.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
+              const rightMatch = String(right.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
+              if (leftMatch !== rightMatch) {
+                return rightMatch - leftMatch;
+              }
+              return String(left.display_name || '').localeCompare(String(right.display_name || ''));
+            })
+          : [];
+        this.selectedSpecialistId = this.availableSpecialists[0]?.id || '';
+        this.loadingSpecialists = false;
+      },
+      error: () => {
+        this.loadingSpecialists = false;
+        this.referralSubmitError = 'Unable to load specialists right now.';
+      }
+    });
+  }
+
+  private syncReferralNotice(referral: any): void {
+    if (!this.consultationId && referral?.status === 'accepted') {
+      this.errorMessage = 'Consultation is not linked yet. Please reopen this referral in a moment.';
+      return;
+    }
+    if (referral?.consultation_mode === 'offline') {
+      this.errorMessage = 'This referral is scheduled as an in-person visit, so there is no in-app consultation room.';
+      return;
+    }
+    this.errorMessage = '';
   }
 
   private formatTime(time: string): string {

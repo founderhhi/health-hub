@@ -135,17 +135,33 @@
 @if (showLabModal) {
 <div class="modal-overlay" (click)="closeLabModal()">
   <div class="modal-card" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2 class="modal-title">Order Lab Tests</h2>
+    <div class="modal-header modal-header--stacked">
+      <div class="modal-header__copy">
+        <span class="modal-eyebrow">Diagnostics Plan</span>
+        <h2 class="modal-title">Order Lab Tests</h2>
+        <p class="modal-subtitle">Create a focused investigation plan for {{ patientName }} while the consultation stays active.</p>
+      </div>
       <button class="modal-close" type="button" (click)="closeLabModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
     </div>
-    <div class="modal-body">
-      <p class="modal-hint">Select tests to order for {{ patientName }}:</p>
-      <div class="test-chip-list">
+    <div class="modal-body modal-body--spacious">
+      <div class="modal-summary-card">
+        <div class="summary-chip-list">
+          <span class="summary-chip">Patient: {{ patientName }}</span>
+          <span class="summary-chip">Specialty: {{ referral?.specialty || 'General specialist review' }}</span>
+          <span class="summary-chip">Visit: {{ referral?.consultation_mode === 'offline' ? 'In-person' : 'Online' }}</span>
+        </div>
+      </div>
+
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Recommended tests</h3>
+          <p class="modal-section__subtitle">Choose one or more items to send in the order.</p>
+        </div>
+        <div class="test-chip-list">
         @for (test of labTestOptions; track test) {
           <label
             class="test-chip"
@@ -154,10 +170,30 @@
             {{ test }}
           </label>
         }
-      </div>
-      <div class="form-group">
-        <label class="form-label form-label--subtle">Custom test (optional)</label>
-        <input type="text" class="form-input form-input--modal-dark" placeholder="e.g. Thyroid Panel" [(ngModel)]="customTest" />
+        </div>
+      </section>
+
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Additional request</h3>
+          <p class="modal-section__subtitle">Add a custom study if the workup needs something outside the standard list.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Custom test</label>
+          <input type="text" class="form-input" placeholder="e.g. Thyroid Panel" [(ngModel)]="customTest" />
+        </div>
+      </section>
+
+      <div class="modal-summary-card modal-summary-card--accent">
+        <span class="summary-stat">{{ selectedTests.length + (customTest.trim() ? 1 : 0) }}</span>
+        <div>
+          <p class="summary-title">Order summary</p>
+          <p class="summary-copy">
+            {{ selectedTests.length + (customTest.trim() ? 1 : 0) === 0
+              ? 'No tests selected yet.'
+              : 'This order will be routed to diagnostics as soon as you confirm.' }}
+          </p>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -177,15 +213,27 @@
 @if (showPrescriptionModal) {
 <div class="modal-overlay" (click)="closePrescriptionModal()">
   <div class="modal-card" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2 class="modal-title">New Prescription</h2>
+    <div class="modal-header modal-header--stacked">
+      <div class="modal-header__copy">
+        <span class="modal-eyebrow">Medication Plan</span>
+        <h2 class="modal-title">Prescribe Treatment</h2>
+        <p class="modal-subtitle">Capture a clean, patient-ready medication plan without breaking the consultation workflow.</p>
+      </div>
       <button class="modal-close" type="button" (click)="closePrescriptionModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body modal-body--spacious">
+      <div class="modal-summary-card">
+        <div class="summary-chip-list">
+          <span class="summary-chip">Patient: {{ patientName }}</span>
+          <span class="summary-chip">Status: {{ consultationBadgeStatus }}</span>
+          <span class="summary-chip">Appointment: {{ appointmentSummary }}</span>
+        </div>
+      </div>
+
       @for (item of prescriptionItems; track $index; let i = $index) {
         <div class="prescription-item-card">
           <div class="prescription-item-header">
@@ -214,7 +262,7 @@
           </div>
         </div>
       }
-      <button class="add-item-btn" type="button" (click)="addPrescriptionItem()">+ Add Another Medication</button>
+      <button class="add-item-btn add-item-btn--block" type="button" (click)="addPrescriptionItem()">+ Add Another Medication</button>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" type="button" (click)="closePrescriptionModal()">Cancel</button>
@@ -233,73 +281,87 @@
 @if (showReferralModal) {
 <div class="modal-overlay" (click)="closeReferralModal()">
   <div class="modal-card" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2 class="modal-title">Refer to Specialist</h2>
+    <div class="modal-header modal-header--stacked">
+      <div class="modal-header__copy">
+        <span class="modal-eyebrow">Referral Routing</span>
+        <h2 class="modal-title">Refer to Another Specialist</h2>
+        <p class="modal-subtitle">Choose the specialist who should continue this case. Existing referral details stay linked.</p>
+      </div>
       <button class="modal-close" type="button" (click)="closeReferralModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
     </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group form-group-full">
-          <label class="form-label">Specialty</label>
-          <select class="form-input" [(ngModel)]="referralForm.specialty">
-            <option value="" disabled>Select a specialty</option>
-            @for (spec of SPECIALTIES; track spec) {
-              <option [value]="spec">{{ spec }}</option>
-            }
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Appointment Date</label>
-          <input type="date" class="form-input" [(ngModel)]="referralForm.appointmentDate" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Appointment Time</label>
-          <input type="time" class="form-input" [(ngModel)]="referralForm.appointmentTime" />
-        </div>
-        <div class="form-group form-group-full">
-          <label class="form-label">Consultation Mode</label>
-          <div class="radio-group">
-            <label class="radio-option">
-              <input type="radio" name="refSpecMode" value="online" [(ngModel)]="referralForm.consultationMode" />
-              <span class="radio-label">Online</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="refSpecMode" value="offline" [(ngModel)]="referralForm.consultationMode" />
-              <span class="radio-label">Offline (In-person)</span>
-            </label>
-          </div>
-        </div>
-        @if (referralForm.consultationMode === 'offline') {
-          <div class="form-group form-group-full">
-            <label class="form-label">Location</label>
-            <input type="text" class="form-input" placeholder="e.g. City Hospital, Room 204" [(ngModel)]="referralForm.location" />
-          </div>
-        }
-        <div class="form-group form-group-full">
-          <label class="form-label">Urgency</label>
-          <select class="form-input" [(ngModel)]="referralForm.urgency">
-            <option value="routine">Routine</option>
-            <option value="urgent">Urgent</option>
-            <option value="emergency">Emergency</option>
-          </select>
-        </div>
-        <div class="form-group form-group-full">
-          <label class="form-label">Reason for Referral</label>
-          <textarea class="form-input form-textarea" rows="4" placeholder="Describe the reason for this referral..."
-            [(ngModel)]="referralForm.reason"></textarea>
+    <div class="modal-body modal-body--spacious">
+      <div class="modal-summary-card">
+        <div class="summary-chip-list">
+          <span class="summary-chip">Patient: {{ patientName }}</span>
+          <span class="summary-chip">Current specialty: {{ referral?.specialty || 'General specialist review' }}</span>
+          <span class="summary-chip">Urgency: {{ referral?.urgency | titlecase }}</span>
         </div>
       </div>
+
+      @if (loadingSpecialists) {
+        <div class="modal-empty-state">
+          <h3>Loading specialists...</h3>
+          <p>Pulling the latest list of available specialists for reassignment.</p>
+        </div>
+      } @else if (availableSpecialists.length === 0) {
+        <div class="modal-empty-state">
+          <h3>No specialists available</h3>
+          <p>There are no other specialist accounts available to receive this referral right now.</p>
+        </div>
+      } @else {
+        <section class="modal-section">
+          <div class="modal-section__header">
+            <h3 class="modal-section__title">Choose specialist</h3>
+            <p class="modal-section__subtitle">Pick the specialist who should take over this consultation referral.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="consultReassignSpecialistSelect">Available specialists</label>
+            <select id="consultReassignSpecialistSelect" class="form-input" [(ngModel)]="selectedSpecialistId">
+              @for (specialist of availableSpecialists; track specialist.id) {
+                <option [value]="specialist.id">
+                  {{ specialist.display_name }} - {{ specialist.specialty || 'General Specialist' }}
+                </option>
+              }
+            </select>
+          </div>
+        </section>
+
+        @if (selectedSpecialist) {
+          <div class="specialist-preview-card">
+            <div class="specialist-preview-card__header">
+              <div>
+                <h3 class="specialist-preview-card__name">{{ selectedSpecialist.display_name }}</h3>
+                <p class="specialist-preview-card__meta">
+                  {{ selectedSpecialist.specialty || 'General Specialist' }}
+                  @if (selectedSpecialist.facility_name) {
+                    &bull; {{ selectedSpecialist.facility_name }}
+                  }
+                </p>
+              </div>
+              @if ((selectedSpecialist.specialty || '').toLowerCase() === (referral?.specialty || '').toLowerCase()) {
+                <span class="specialist-option__tag">Best match</span>
+              }
+            </div>
+            @if (selectedSpecialist.bio) {
+              <p class="specialist-preview-card__bio">{{ selectedSpecialist.bio }}</p>
+            }
+          </div>
+        }
+      }
     </div>
     @if (referralSubmitError) {
       <p class="referral-submit-error" role="alert">{{ referralSubmitError }}</p>
     }
     <div class="modal-footer">
       <button class="btn btn-ghost" type="button" (click)="closeReferralModal()">Cancel</button>
-      <button class="btn btn-primary" type="button" (click)="submitReferral()">Submit Referral</button>
+      <button class="btn btn-primary" type="button" (click)="submitReferral()"
+        [disabled]="loadingSpecialists || !selectedSpecialistId || reassigningReferral">
+        {{ reassigningReferral ? 'Saving...' : 'Save Referral' }}
+      </button>
     </div>
   </div>
 </div>
