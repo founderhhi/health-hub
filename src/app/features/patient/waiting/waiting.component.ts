@@ -219,6 +219,16 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.roomUrl = nextRoomUrl;
     this.consultationId = nextConsultationId;
     this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
+    if (this.consultMode === 'chat') {
+      this.showConsultShell = true;
+    }
+    if (this.consultMode === 'chat') {
+      this.statusMessage = this.gpName
+        ? `${this.gpName} accepted your request. Opening the chat now.`
+        : 'A Health Expert accepted your request. Opening the chat now.';
+      return;
+    }
+
     this.statusMessage = this.gpName
       ? `${this.gpName} accepted your request. Tap join when you are ready.`
       : 'A Health Expert accepted your request. Tap join when you are ready.';

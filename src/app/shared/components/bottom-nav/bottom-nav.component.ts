@@ -57,8 +57,8 @@ export class BottomNavComponent {
   }
 
   shouldShowAiChatBubble(): boolean {
-    const isPatientNav = this.tabs.some((tab) => tab.route.startsWith('/patient/'));
-    return isPatientNav && this.router.url.startsWith('/patient/') && !this.router.url.startsWith('/patient/ai-chat');
+    // Disabled old floating bubble in favor of central prominent nav tab
+    return false;
   }
 }
 
@@ -67,16 +67,22 @@ export class BottomNavComponent {
  */
 export const PATIENT_TABS: BottomNavTab[] = [
   {
+    id: 'home',
+    route: '/patient/dashboard',
+    label: 'Home',
+    icon: 'home'
+  },
+  {
     id: 'appointments',
     route: '/patient/appointments',
     label: 'Appointments',
     icon: 'calendar'
   },
   {
-    id: 'home',
-    route: '/patient/dashboard',
-    label: 'Home',
-    icon: 'home'
+    id: 'ai-chat',
+    route: '/patient/ai-chat',
+    label: 'AI Chat',
+    icon: 'robot'
   },
   {
     id: 'records',

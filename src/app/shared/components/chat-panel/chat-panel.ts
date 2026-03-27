@@ -51,7 +51,7 @@ interface ChatSendResponse {
   styleUrl: './chat-panel.scss'
 })
 export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
-  private static readonly FALLBACK_POLL_INTERVAL_MS = 2000;
+  private static readonly BACKGROUND_SYNC_INTERVAL_MS = 2000;
 
   @Input() consultationId = '';
   @Input() currentUserId = '';
@@ -83,6 +83,17 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   private loadInFlight = false;
   private pendingRequestIds = new Set<string>();
   private currentUserRole = '';
+  private readonly windowFocusHandler = () => {
+    this.resyncMessages();
+  };
+  private readonly windowOnlineHandler = () => {
+    this.resyncMessages();
+  };
+  private readonly documentVisibilityHandler = () => {
+    if (document.visibilityState === 'visible') {
+      this.resyncMessages();
+    }
+  };
 
   constructor(
     private api: ApiClientService,
@@ -100,6 +111,9 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
       if (accessToken) {
         this.ws.connect('consultation-chat');
       }
+      window.addEventListener('focus', this.windowFocusHandler);
+      window.addEventListener('online', this.windowOnlineHandler);
+      document.addEventListener('visibilitychange', this.documentVisibilityHandler);
     }
 
     this.wsSubscription = this.ws.events$.subscribe((event) => {
@@ -145,6 +159,11 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
     this.cancelLoad$.next();
     this.cancelLoad$.complete();
     this.stopFallbackPolling();
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('focus', this.windowFocusHandler);
+      window.removeEventListener('online', this.windowOnlineHandler);
+      document.removeEventListener('visibilitychange', this.documentVisibilityHandler);
+    }
   }
 
   loadMessages(options: { silent?: boolean } = {}): void {
@@ -212,21 +231,25 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
     this.api.post<ChatSendResponse>(`${this.endpointBase}/${this.consultationId}`, {
       message,
       clientRequestId
-    }).subscribe({
+    }).pipe(
+      finalize(() => {
+        this.sending = false;
+      })
+    ).subscribe({
       next: (response) => {
         const savedMessage = this.decorateMessage(response.message);
         this.pendingRequestIds.delete(clientRequestId);
         this.reconcileIncomingMessage(savedMessage);
         this.messageSent.emit(savedMessage);
-        this.sending = false;
         this.messagesLoaded.emit(this.messages);
+        this.resyncMessages();
       },
       error: (error) => {
         this.pendingRequestIds.delete(clientRequestId);
         this.removePendingMessage(clientRequestId);
         this.draft = message;
-        this.sending = false;
         this.error = this.resolveChatError(error, 'send');
+        this.resyncMessages();
       }
     });
   }
@@ -330,7 +353,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   }
 
   private handleRealtimeEvent(event: WsEvent): void {
-    if (event.event !== 'chat.message' || this.disabled || !this.consultationId) {
+    if (event.event !== 'chat.message' || !this.consultationId) {
       return;
     }
 
@@ -437,7 +460,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
   }
 
   private syncFallbackPolling(): void {
-    if (!this.consultationId || this.disabled || this.connectionState === 'connected') {
+    if (!this.consultationId || this.disabled) {
       this.stopFallbackPolling();
       return;
     }
@@ -451,7 +474,7 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
         return;
       }
       this.loadMessages({ silent: true });
-    }, ChatPanelComponent.FALLBACK_POLL_INTERVAL_MS);
+    }, ChatPanelComponent.BACKGROUND_SYNC_INTERVAL_MS);
   }
 
   private stopFallbackPolling(): void {
@@ -496,5 +519,12 @@ export class ChatPanelComponent implements OnInit, OnChanges, AfterViewChecked, 
     }
 
     return action === 'send' ? 'Unable to send message.' : 'Unable to load messages.';
+  }
+
+  private resyncMessages(): void {
+    if (!this.consultationId || this.loadInFlight) {
+      return;
+    }
+    this.loadMessages({ silent: true });
   }
 }

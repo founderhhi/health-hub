@@ -3,6 +3,7 @@
     *ngFor="let tab of tabs"
     class="hhi-bottom-nav__item"
     [class.hhi-bottom-nav__item--active]="isActive(tab)"
+    [class.hhi-bottom-nav__item--prominent]="tab.id === 'ai-chat'"
     [routerLink]="tab.route"
     [attr.aria-label]="tab.label"
     [attr.aria-current]="isActive(tab) ? 'page' : null"

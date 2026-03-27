@@ -83,7 +83,7 @@ describe('ChatPanelComponent', () => {
     fixture?.destroy();
   });
 
-  it('falls back to polling while realtime is disconnected and stops once connected', async () => {
+  it('keeps background sync running even once realtime reconnects', async () => {
     vi.useFakeTimers();
 
     fixture.componentRef.setInput('consultationId', 'consult-1');
@@ -98,7 +98,35 @@ describe('ChatPanelComponent', () => {
 
     connectionState.next('connected');
     await vi.advanceTimersByTimeAsync(2100);
-    expect(api.get).toHaveBeenCalledTimes(2);
+    expect(api.get).toHaveBeenCalledTimes(3);
+  });
+
+  it('still applies incoming realtime messages while the composer is disabled', async () => {
+    connectionState.next('connected');
+
+    fixture.componentRef.setInput('consultationId', 'consult-1');
+    fixture.componentRef.setInput('disabled', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    wsEvents.next({
+      event: 'chat.message',
+      data: {
+        consultationId: 'consult-1',
+        message: {
+          id: 'msg-remote',
+          consultation_id: 'consult-1',
+          user_id: 'user-2',
+          message: 'Please keep the chat open.',
+          created_at: '2026-03-15T10:05:00.000Z',
+          sender_name: 'Dr Avery',
+          sender_role: 'gp',
+        },
+      },
+    });
+
+    expect(component.messages).toHaveLength(1);
+    expect(component.messages[0]?.id).toBe('msg-remote');
   });
 
   it('shows optimistic messages immediately and reconciles them with the confirmed realtime payload', async () => {
