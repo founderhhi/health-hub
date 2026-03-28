@@ -43,6 +43,8 @@ const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'users', column: 'last_name' },
   { table: 'users', column: 'account_status' },
   { table: 'users', column: 'is_operating' },
+  { table: 'chat_messages', column: 'image_data' },
+  { table: 'chat_messages', column: 'image_mime' },
   { table: 'consult_requests', column: 'removed_at' },
   { table: 'consult_requests', column: 'removed_reason' },
   { table: 'consult_requests', column: 'removed_by' },
@@ -200,10 +202,18 @@ async function ensureChatMessagesTableAndIndexes(): Promise<void> {
       id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
       consultation_id uuid NOT NULL REFERENCES consultations(id) ON DELETE CASCADE,
       user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      message text NOT NULL,
+      message text,
+      image_data text,
+      image_mime text,
       created_at timestamptz NOT NULL DEFAULT now()
     );`
   );
+  await db.query(
+    `ALTER TABLE chat_messages
+       ADD COLUMN IF NOT EXISTS image_data text,
+       ADD COLUMN IF NOT EXISTS image_mime text;`
+  );
+  await db.query(`ALTER TABLE chat_messages ALTER COLUMN message DROP NOT NULL;`);
   await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
 }
 

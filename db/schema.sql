@@ -108,7 +108,9 @@ create table if not exists chat_messages (
   id uuid primary key default uuid_generate_v4(),
   consultation_id uuid not null references consultations(id) on delete cascade,
   user_id uuid not null references users(id) on delete cascade,
-  message text not null,
+  message text,
+  image_data text,
+  image_mime text,
   created_at timestamptz not null default now()
 );
 
