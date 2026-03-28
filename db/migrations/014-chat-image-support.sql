@@ -1,4 +1,4 @@
--- Migration 013: Add image attachment support to chat messages.
+-- Migration 014: Add image attachment support to chat messages.
 -- Date: 2026-03-28
 -- Allows sending base64-encoded images inline with chat messages.
 
