@@ -161,7 +161,7 @@ paymentsRouter.post('/payment-intent', requireAuth, requireRole(['patient']), as
     const user = (req as any).user;
     const {
       amountCents,
-      currency = 'usd',
+      currency = 'gbp',
       description,
       serviceType,
     } = req.body as {
@@ -172,7 +172,7 @@ paymentsRouter.post('/payment-intent', requireAuth, requireRole(['patient']), as
     };
 
     if (!amountCents || amountCents < 50) {
-      return res.status(400).json({ error: 'Amount must be at least 50 cents' });
+      return res.status(400).json({ error: 'Amount must be at least 50 pence' });
     }
 
     const customerId = await getOrCreateCustomer(user.userId, user.phone);

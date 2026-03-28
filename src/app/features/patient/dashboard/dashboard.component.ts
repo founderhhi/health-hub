@@ -24,7 +24,7 @@ interface ServiceCard {
   comingSoon?: boolean;
 }
 
-const GP_CONSULT_PRICE_USD = 25;
+const GP_CONSULT_PRICE_USD = 5;
 
 const DASHBOARD_SERVICES: ServiceCard[] = [
   { id: 'gp', title: 'Talk to a Health Expert', icon: 'pulse', description: 'Start your first guided care conversation.', tone: 'emerald' },

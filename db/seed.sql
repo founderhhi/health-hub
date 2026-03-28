@@ -95,7 +95,7 @@ cross join (
     ('reminder', 'Remember to take your prescribed medication today. Check your prescriptions for details.', false, 1),
     ('system', 'Stay hydrated! Aim to drink at least 8 glasses of water daily for optimal health.', true, 48),
     ('referral', 'You have been referred to a cardiologist. Check your appointments for details.', false, 6),
-    ('payment', 'Your payment of $25.00 for the GP consultation has been processed successfully.', true, 36),
+    ('payment', 'Your payment of £25.00 for the GP consultation has been processed successfully.', true, 36),
     ('appointment', 'Your follow-up appointment with Dr Demo GP Two is scheduled for next week.', false, 3)
 ) as n(type, message, read, age_hours)
 where u.role = 'patient'
