@@ -234,7 +234,7 @@ $accent-light: rgba(61, 107, 122, 0.12);
     font-weight: v.$font-weight-bold;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: $outline-variant;
+    color: $on-surface-variant;
   }
 }
 
@@ -808,7 +808,7 @@ $accent-light: rgba(61, 107, 122, 0.12);
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: $outline-variant;
+    color: $on-surface-variant;
     margin-bottom: v.$space-xl;
   }
 
@@ -816,7 +816,7 @@ $accent-light: rgba(61, 107, 122, 0.12);
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: v.$space-lg;
-    opacity: 0.6;
+    opacity: 0.85;
     transition: opacity 0.7s ease;
     max-width: 640px;
     margin: 0 auto;
@@ -835,7 +835,7 @@ $accent-light: rgba(61, 107, 122, 0.12);
 
     .material-symbols-outlined {
       font-size: 28px;
-      color: $outline-variant;
+      color: $secondary;
     }
   }
 
@@ -848,7 +848,7 @@ $accent-light: rgba(61, 107, 122, 0.12);
   &__desc {
     font-size: 12px;
     line-height: 1.5;
-    color: $outline-variant;
+    color: $on-surface-variant;
     max-width: 200px;
     margin: 0;
   }
