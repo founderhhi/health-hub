@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ApiClientService } from '../../../core/api/api-client.service';
 
 interface UserRecord {
@@ -177,7 +178,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   private noticeTimer?: ReturnType<typeof setTimeout>;
   private errorTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private api: ApiClientService, private cdr: ChangeDetectorRef) { }
+  constructor(
+    private api: ApiClientService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -226,6 +231,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (!this.systemHealth) {
       this.loadSystemHealth();
     }
+  }
+
+  goToProfile(): void {
+    this.router.navigate(['/admin/profile']);
   }
 
   loadUsers(): void {

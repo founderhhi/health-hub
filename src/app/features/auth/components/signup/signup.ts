@@ -189,6 +189,10 @@ export class SignupComponent {
     });
   }
 
+  goToLanding(): void {
+    this.router.navigate(['/landing']);
+  }
+
   selectAccountType(type: 'patient' | 'doctor' | 'pharmacist' | 'diagnostics'): void {
     if (this.selectedAccountType === type) {
       return;

@@ -1,6 +1,12 @@
 <section class="admin-dashboard">
   <header class="admin-header">
-    <h1>Admin Dashboard</h1>
+    <div class="admin-header__top">
+      <div class="admin-header__copy">
+        <h1>Admin Dashboard</h1>
+        <p>Manage users, approvals, and service workflows from one place.</p>
+      </div>
+      <button type="button" class="admin-profile-btn" (click)="goToProfile()">Admin Profile</button>
+    </div>
     <div class="tab-bar">
       <button class="tab" [class.active]="activeTab === 'users'" (click)="setTab('users')">Users</button>
       <button class="tab" [class.active]="activeTab === 'accessRequests'" (click)="setTab('accessRequests')">New User Requests</button>

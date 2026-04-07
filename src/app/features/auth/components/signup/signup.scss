@@ -96,6 +96,32 @@ $shadow-hover: rgba(46, 204, 113, 0.2);
   margin: 0 0 v.$space-xl 0;
 }
 
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: v.$space-md;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $primary;
+  font-family: v.$font-family-primary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $primary-pressed;
+    text-decoration: underline;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 // Role selector (signup)
 .role-selector {
   display: grid;

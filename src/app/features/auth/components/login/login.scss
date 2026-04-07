@@ -10,6 +10,30 @@ $primary-pressed: var(--accent-hover);
 $border: var(--border-color);
 $error: var(--error);
 
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $primary;
+  font-size: 14px;
+  font-weight: v.$font-weight-semibold;
+  cursor: pointer;
+
+  &:hover {
+    color: $primary-pressed;
+    text-decoration: underline;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 .auth-page {
   min-height: 100vh;
   background: $bg-primary;
