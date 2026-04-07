@@ -1,9 +1,10 @@
 <main class="landing" id="landing-top">
+
   <!-- ── Sticky Nav ── -->
   <nav class="nav" aria-label="Landing navigation">
     <a class="nav__logo" (click)="scrollToTop()" role="button" tabindex="0">
       @if (!logoLoadFailed) {
-      <img src="images/logo-tree.svg" alt="" width="32" height="32" (error)="handleLogoError()" />
+      <img src="images/logo-hhi.svg" alt="Health Hub logo" width="40" height="40" (error)="handleLogoError()" />
       } @else {
       <span class="nav__logo-fallback" aria-hidden="true">🌳</span>
       }
@@ -15,236 +16,214 @@
     </div>
   </nav>
 
-  <!-- ── Hero — Centered V3 Layout ── -->
+  <!-- ── Hero — Split Editorial ── -->
   <header class="hero" id="main-content">
-    <div class="hero__center">
-      <!-- Badge -->
-      <span class="hero__badge">
-        <span class="material-symbols-outlined icon-fill" aria-hidden="true">verified</span>
-        Trusted Care, Anywhere
-      </span>
 
-      <!-- Headline -->
-      <h1 class="hero__title">
-        Your health,<br /><span class="hero__title--accent">reimagined</span> as one<br />ecosystem.
-      </h1>
+    <!-- Background slideshow — crossfades between hospital/clinical images -->
+    <div class="hero__slideshow" aria-hidden="true">
+      @for (slide of heroSlides; track slide; let i = $index) {
+        <div
+          class="hero__slide"
+          [class.hero__slide--active]="currentSlide() === i"
+          [style.background-image]="'url(' + slide + ')'">
+        </div>
+      }
+    </div>
 
-      <!-- 5×2 Accordion Pill Artifact -->
-      <div class="pill-artifact" role="img" aria-label="Health Hub services overview">
-        <div class="pill-artifact__box">
-          @for (row of heroRows; track $index; let r = $index) {
-          <div class="pill-artifact__row">
-            @for (pill of row; track pill.label; let p = $index) {
-            <button
-              class="pill"
-              [class.pill--active]="activeRows()[r] === p"
-              [attr.data-variant]="pill.variant"
-              type="button"
-              (mouseenter)="activatePill(r, p)"
-              (focus)="activatePill(r, p)"
-              (click)="activatePill(r, p)"
-              [attr.aria-label]="pill.label"
-            >
-              <span class="pill__icon">
-                <span class="material-symbols-outlined icon-fill">{{ pill.icon }}</span>
-              </span>
-              <span class="pill__label">{{ pill.label }}</span>
-            </button>
-            }
+    <div class="hero__inner">
+
+      <!-- Left column -->
+      <div class="hero__left">
+        <span class="hero__badge">
+          <span class="material-symbols-outlined icon-fill" aria-hidden="true">verified</span>
+          Trusted Care, Anywhere
+        </span>
+        <h1 class="hero__title">
+          Your health,<br />
+          <span class="hero__title--accent">reimagined</span><br />
+          as one ecosystem.
+        </h1>
+        <p class="hero__description">
+          Access world-class healthcare consultants from the comfort of your home.
+          We combine medical rigor with compassionate digital experiences in one unified ecosystem.
+        </p>
+        <div class="hero__cta-area">
+          <button class="btn btn--primary btn--xl" id="hero-cta-signup" type="button" (click)="navigate('signup')">
+            Get Started
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+          <button class="btn btn--outline btn--xl" id="hero-cta-services" type="button" (click)="scrollToSection('capabilities')">
+            View Services
+          </button>
+        </div>
+        <p class="hero__trust">Trusted by 12,000+ patients &amp; 500+ providers</p>
+      </div>
+
+      <!-- Right column — Stats widget -->
+      <div class="hero__right" aria-hidden="true">
+        <div class="hero__stats-grid">
+
+          <!-- Doctor tile — TOP-LEFT. Outer allows badge to overflow top edge -->
+          <div class="hero__shield-outer" (click)="scrollToSection('capabilities')" role="button" tabindex="0" aria-label="Explore platform capabilities">
+            <div class="hero__shield-tile">
+              <img src="images/doctor-m3.jpg" alt="" />
+              <div class="hero__shield-tile__overlay"></div>
+            </div>
+            <div class="hero__shield-badge">
+              <img src="images/logo-hhi.svg" alt="" />
+            </div>
+          </div>
+
+          <div class="hero__mini-stat">
+            <span class="material-symbols-outlined icon-fill">groups</span>
+            <strong>12,000+</strong>
+            <p>Patients Served</p>
+          </div>
+
+          <div class="hero__mini-stat">
+            <span class="material-symbols-outlined icon-fill">verified_user</span>
+            <strong>500+</strong>
+            <p>Verified Providers</p>
+          </div>
+
+          <div class="hero__mini-stat">
+            <span class="material-symbols-outlined icon-fill">timer</span>
+            <strong>&lt;2 min</strong>
+            <p>Avg. Setup Time</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ── Platform Capabilities — Horizontal Scroll Strip ── -->
+  <section class="capabilities" id="capabilities" aria-labelledby="capabilities-title">
+    <div class="capabilities__header section-container">
+      <h2 class="capabilities__title" id="capabilities-title">Platform Capabilities</h2>
+      <p class="capabilities__subtitle">Dive deeper into the services tailored for your modern lifestyle.</p>
+    </div>
+    <div class="capabilities__strip hide-scrollbar" role="list">
+      @for (cap of capabilities; track cap.label) {
+      <div class="cap-card" role="listitem">
+        <div class="cap-card__icon">
+          <span class="material-symbols-outlined icon-fill">{{ cap.icon }}</span>
+        </div>
+        <h3 class="cap-card__title">{{ cap.label }}</h3>
+        <p class="cap-card__desc">{{ cap.desc }}</p>
+        <span class="cap-card__badge"
+          [class.cap-card__badge--live]="cap.live"
+          [class.cap-card__badge--soon]="!cap.live">
+          {{ cap.live ? 'Live' : 'Coming soon' }}
+        </span>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- ── Results + How It Works — Side by Side ── -->
+  <section class="results-how" id="outcomes" aria-labelledby="results-how-title">
+    <div class="section-container results-how__inner">
+
+      <!-- Left: Patient / Provider Results + Testimonials -->
+      <div class="results-how__results">
+        <span class="results-how__eyebrow">
+          <span class="material-symbols-outlined icon-fill">format_quote</span>
+          What They Say
+        </span>
+        <h2 class="results-how__title" id="results-how-title">Patients, Providers, Results.</h2>
+        <p class="results-how__subtitle">Real outcomes from the Health Hub ecosystem.</p>
+
+        <div class="results-how__filters" role="tablist">
+          @for (cat of statsCategories; track cat; let i = $index) {
+          <button
+            class="results-filter"
+            [class.results-filter--active]="activeStatsCategory() === i"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="activeStatsCategory() === i"
+            (click)="activeStatsCategory.set(i)">{{ cat }}</button>
+          }
+        </div>
+
+        <div class="results-how__quotes">
+          @for (t of testimonials; track t.name; let i = $index) {
+          <div
+            class="rh-quote"
+            [class.rh-quote--active]="activeTestimonial() === i"
+            [attr.aria-hidden]="activeTestimonial() !== i">
+            <blockquote class="rh-quote__text">"&nbsp;{{ t.quote }}&nbsp;"</blockquote>
+            <div class="rh-quote__author">
+              <div class="rh-quote__avatar" [attr.data-type]="t.type">
+                <span class="material-symbols-outlined icon-fill">
+                  {{ t.type === 'patient' ? 'person' : t.type === 'doctor' ? 'stethoscope' : 'science' }}
+                </span>
+              </div>
+              <div>
+                <p class="rh-quote__name">{{ t.name }}</p>
+                <p class="rh-quote__role">{{ t.role }}</p>
+              </div>
+              <div class="rh-quote__nav">
+                <button class="rh-quote__arrow" type="button"
+                  (click)="setTestimonial((activeTestimonial() - 1 + testimonials.length) % testimonials.length)"
+                  aria-label="Previous testimonial">
+                  <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <span class="rh-quote__count">
+                  {{ (activeTestimonial() + 1).toString().padStart(2,'0') }} / {{ testimonials.length.toString().padStart(2,'0') }}
+                </span>
+                <button class="rh-quote__arrow rh-quote__arrow--filled" type="button"
+                  (click)="setTestimonial((activeTestimonial() + 1) % testimonials.length)"
+                  aria-label="Next testimonial">
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            </div>
           </div>
           }
         </div>
       </div>
 
-      <!-- Description -->
-      <p class="hero__description">
-        Access world-class healthcare consultants from the comfort of your home.
-        We combine medical rigor with compassionate digital experiences in one unified ecosystem.
-      </p>
+      <!-- Right: How It Works -->
+      <div class="results-how__how" id="how-it-works">
+        <h2 class="results-how__how-title">How It Works</h2>
+        <p class="results-how__how-subtitle">Your healthcare journey in four simple steps</p>
 
-      <!-- CTA -->
-      <div class="hero__cta-area">
-        <button class="btn btn--primary btn--xl" type="button" (click)="navigate('signup')">
-          Get Started
-          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-        </button>
-        <p class="hero__trust">Trusted by 12,000+ patients &amp; 500+ providers</p>
-      </div>
-    </div>
-  </header>
-
-  <!-- ── Platform Capabilities Bento Grid ── -->
-  <section class="capabilities" id="capabilities">
-    <div class="section-container">
-      <div class="capabilities__header">
-        <h2 class="capabilities__title">Platform Capabilities</h2>
-        <p class="capabilities__subtitle">Dive deeper into the services tailored for your modern lifestyle.</p>
-      </div>
-
-      <div class="bento-grid">
-        <!-- 1. Health Expert Consultations — large, primary bg -->
-        <div class="bento bento--large bento--primary">
-          <span class="bento__decor" aria-hidden="true">
-            <span class="material-symbols-outlined icon-fill">video_camera_front</span>
-          </span>
-          <span class="bento__icon-box bento__icon-box--glass">
-            <span class="material-symbols-outlined icon-fill">video_camera_front</span>
-          </span>
-          <div class="bento__content">
-            <h3 class="bento__heading bento__heading--xl">24/7 Health Expert<br />Consultations</h3>
-            <p class="bento__text bento__text--light">Immediate video &amp; audio access to certified professionals anytime, anywhere.</p>
-          </div>
+        <div class="steps-flow__dots" role="tablist" aria-label="Step progress">
+          @for (step of steps; track step.title; let i = $index) {
+          <button
+            class="steps-flow__dot"
+            [class.steps-flow__dot--active]="activeStep() === i"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="activeStep() === i"
+            [attr.aria-label]="'Step ' + (i + 1) + ': ' + step.title"
+            (click)="activeStep.set(i)">
+          </button>
+          }
         </div>
 
-        <!-- 2. Smart Pharmacy — small, mint bg -->
-        <div class="bento bento--small bento--mint">
-          <span class="bento__icon-box bento__icon-box--white">
-            <span class="material-symbols-outlined icon-fill">local_pharmacy</span>
-          </span>
-          <div class="bento__content bento__content--end">
-            <h3 class="bento__heading bento__heading--emerald">Smart<br />E-Pharmacy</h3>
-            <p class="bento__text">Instant e-prescription fulfillment.</p>
-          </div>
-        </div>
-
-        <!-- 3. Advanced Diagnostics — small, white bg -->
-        <div class="bento bento--small bento--white">
-          <span class="bento__icon-box bento__icon-box--surface">
-            <span class="material-symbols-outlined icon-fill">science</span>
-          </span>
-          <div class="bento__content bento__content--end">
-            <h3 class="bento__heading">Advanced<br />Diagnostics</h3>
-            <p class="bento__text">Home collection &amp; trusted partners.</p>
-          </div>
-        </div>
-
-        <!-- 4. Health Records — large, secondary-container bg -->
-        <div class="bento bento--large bento--secondary">
-          <div class="bento__content bento__content--row">
-            <div>
-              <h3 class="bento__heading bento__heading--xl">Secured Health Records</h3>
-              <p class="bento__text">A centralized, hyper-secure vault for every prescription, scan, and note.</p>
+        <div class="steps-flow__card">
+          @for (step of steps; track step.title; let i = $index) {
+          @if (activeStep() === i) {
+          <div class="steps-flow__step" role="tabpanel">
+            <div class="steps-flow__step-num">Step 0{{ i + 1 }} of 04</div>
+            <div class="steps-flow__icon">
+              <span class="material-symbols-outlined icon-fill">{{ step.icon }}</span>
             </div>
-            <span class="bento__icon-circle" aria-hidden="true">
-              <span class="material-symbols-outlined icon-fill">folder_managed</span>
-            </span>
+            <h3 class="steps-flow__title">{{ step.title }}</h3>
+            <p class="steps-flow__body">{{ step.body }}</p>
+            <button class="steps-flow__btn" type="button" (click)="nextStep()">
+              {{ activeStep() === steps.length - 1 ? 'Start Over' : 'Next Step' }}
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
           </div>
-        </div>
-
-        <!-- 5. Insurance — small, accent bg -->
-        <div class="bento bento--small bento--accent">
-          <span class="bento__glow" aria-hidden="true"></span>
-          <span class="bento__icon-box bento__icon-box--glass">
-            <span class="material-symbols-outlined icon-fill">shield_with_heart</span>
-          </span>
-          <div class="bento__content bento__content--end">
-            <h3 class="bento__heading">Complete<br />Insurance</h3>
-            <p class="bento__text bento__text--light">Cashless claims &amp; verification.</p>
-          </div>
-        </div>
-
-        <!-- 6. Specialist Consultations — small, white bg -->
-        <div class="bento bento--small bento--white">
-          <span class="bento__icon-box bento__icon-box--emerald-light">
-            <span class="material-symbols-outlined icon-fill">stethoscope</span>
-          </span>
-          <div class="bento__content bento__content--end">
-            <h3 class="bento__heading">Specialist<br />Consultations</h3>
-            <p class="bento__text">Top-tier hospital doctors on referral.</p>
-          </div>
-        </div>
-
-        <!-- 7. Heal Well — large, surface gradient -->
-        <div class="bento bento--large bento--surface-gradient">
-          <div class="bento__row-between">
-            <span class="bento__icon-box bento__icon-box--emerald-light">
-              <span class="material-symbols-outlined">self_improvement</span>
-            </span>
-            <span class="bento__tag">Premium</span>
-          </div>
-          <div class="bento__content bento__content--end">
-            <h3 class="bento__heading bento__heading--xl bento__heading--emerald">Heal Well At Home</h3>
-            <p class="bento__text">Curated recovery guides, daily check-ins, and holistic routines pushed directly to your device.</p>
-          </div>
-        </div>
-
-        <!-- 8. Medical Travel — small, dark accent -->
-        <div class="bento bento--small bento--dark">
-          <span class="bento__icon-box bento__icon-box--glass">
-            <span class="material-symbols-outlined icon-fill">flight_takeoff</span>
-          </span>
-          <div class="bento__content bento__content--end">
-            <h3 class="bento__heading">Medical Travel<br />Services</h3>
-            <p class="bento__text bento__text--light">Cross-border care coordination.</p>
-          </div>
-        </div>
-
-        <!-- 9. Patient Support — small, white bg -->
-        <div class="bento bento--small bento--white">
-          <span class="bento__icon-box bento__icon-box--emerald-light">
-            <span class="material-symbols-outlined icon-fill">support_agent</span>
-          </span>
-          <div class="bento__content bento__content--end">
-            <h3 class="bento__heading">Dedicated<br />Patient Support</h3>
-            <p class="bento__text">Your personal health concierge.</p>
-          </div>
+          }
+          }
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ── Coming Soon ── -->
-  <section class="coming-soon">
-    <div class="section-container">
-      <h3 class="coming-soon__title">Coming Soon to Health Hub</h3>
-      <div class="coming-soon__grid">
-        @for (item of comingSoonItems; track item.label) {
-        <div class="coming-soon__item">
-          <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
-          <h4 class="coming-soon__label">{{ item.label }}</h4>
-          <p class="coming-soon__desc">{{ item.body }}</p>
-        </div>
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- ── How It Works ── -->
-  <section id="how-it-works" class="how-section">
-    <div class="section-container">
-      <h2 class="section-title">How It Works</h2>
-      <p class="section-subtitle">Your healthcare journey in four simple steps</p>
-
-      <ol class="steps">
-        <li class="step">
-          <span class="step__icon" aria-hidden="true">
-            <span class="material-symbols-outlined">person_add</span>
-          </span>
-          <h3 class="step__title">Create Your Account</h3>
-          <p class="step__body">Sign up in minutes. Choose Basic, Premium, or Family for full access to the Health Hub ecosystem.</p>
-        </li>
-        <li class="step">
-          <span class="step__icon" aria-hidden="true">
-            <span class="material-symbols-outlined">stethoscope</span>
-          </span>
-          <h3 class="step__title">Meet a Health Expert</h3>
-          <p class="step__body">Talk to a qualified Health Expert anytime via video or audio. Get diagnosed, prescribed, or referred — all in one session.</p>
-        </li>
-        <li class="step">
-          <span class="step__icon" aria-hidden="true">
-            <span class="material-symbols-outlined">medication</span>
-          </span>
-          <h3 class="step__title">Continue Into Services</h3>
-          <p class="step__body">Receive e-prescriptions instantly. Pick up at partner pharmacies, book lab tests, or see a specialist — all tracked in-app.</p>
-        </li>
-        <li class="step">
-          <span class="step__icon" aria-hidden="true">
-            <span class="material-symbols-outlined">health_and_safety</span>
-          </span>
-          <h3 class="step__title">Return to One Record</h3>
-          <p class="step__body">Every update and follow-up stays visible from your Health Hub home. Access records, track appointments, and manage your health.</p>
-        </li>
-      </ol>
     </div>
   </section>
 
@@ -269,7 +248,7 @@
       <div class="footer__brand">
         <div class="footer__logo-row">
           @if (!logoLoadFailed) {
-          <img src="images/logo-tree.svg" alt="" width="24" height="24" (error)="handleLogoError()" />
+          <img src="images/logo-hhi.svg" alt="Health Hub logo" width="32" height="32" (error)="handleLogoError()" />
           }
           <span class="footer__wordmark">Health Hub</span>
         </div>
@@ -312,4 +291,5 @@
       </div>
     </div>
   </footer>
+
 </main>

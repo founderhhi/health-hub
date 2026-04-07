@@ -5,22 +5,37 @@
 /* Import Provider UI Design System - Must be first */
 @use './app/shared/provider-ui' as *;
 
+/* Manrope font — used by landing page design system */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
+
 /* Global Theme Tokens — Emerald Accordion Base (V3) */
 :root {
   color-scheme: light;
-  --bg-primary: #f1fcf6; /* V3 surface */
-  --bg-secondary: #ecf6f1; /* V3 surface-container-low */
-  --bg-card: #ffffff; /* V3 surface-container-lowest */
-  --bg-tertiary: #d0e4dd; /* Secondary-container */
-  --text-primary: #141d1a; /* V3 on-surface */
-  --text-secondary: #3e4944; /* V3 on-surface-variant */
-  --border-color: #bdc9c2; /* V3 outline-variant */
-  
-  --accent-primary: #006a51; /* V3 Emerald Primary */
-  --accent-secondary: #50625d; /* V3 Secondary */
-  --accent-tertiary: #745825; /* V3 Tertiary (Brown) */
-  --accent-hover: #108567; /* V3 Primary Container */
-  --accent-primary-text: #ffffff; /* Text on primary */
+  --bg-primary: #f1fcf6;
+  /* V3 surface */
+  --bg-secondary: #ecf6f1;
+  /* V3 surface-container-low */
+  --bg-card: #ffffff;
+  /* V3 surface-container-lowest */
+  --bg-tertiary: #d0e4dd;
+  /* Secondary-container */
+  --text-primary: #141d1a;
+  /* V3 on-surface */
+  --text-secondary: #3e4944;
+  /* V3 on-surface-variant */
+  --border-color: #bdc9c2;
+  /* V3 outline-variant */
+
+  --accent-primary: #006a51;
+  /* V3 Emerald Primary */
+  --accent-secondary: #50625d;
+  /* V3 Secondary */
+  --accent-tertiary: #745825;
+  /* V3 Tertiary (Brown) */
+  --accent-hover: #108567;
+  /* V3 Primary Container */
+  --accent-primary-text: #ffffff;
+  /* Text on primary */
 
   --success: #2ECC71;
   --warning: #F59E0B;
@@ -29,17 +44,20 @@
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --bg-primary: #0e1613; /* Darkened surface */
+  --bg-primary: #0e1613;
+  /* Darkened surface */
   --bg-secondary: #16241f;
   --bg-card: #182823;
   --bg-tertiary: #20342d;
   --text-primary: #e6f0eb;
   --text-secondary: #a8b6ae;
   --border-color: #3b4e46;
-  
-  --accent-primary: #4ad1a9; /* Lightened primary for dark mode */
+
+  --accent-primary: #4ad1a9;
+  /* Lightened primary for dark mode */
   --accent-secondary: #a3b8b0;
-  --accent-tertiary: #dbba86; /* Lightened tertiary brown */
+  --accent-tertiary: #dbba86;
+  /* Lightened tertiary brown */
   --accent-hover: #5ee5bc;
   --accent-primary-text: #003829;
 
