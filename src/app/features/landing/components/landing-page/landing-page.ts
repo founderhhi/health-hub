@@ -1,5 +1,6 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, signal, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 interface Testimonial {
   quote: string;
@@ -21,6 +22,8 @@ interface Step {
   body: string;
 }
 
+type LandingPalette = 'clinical-green' | 'design-system';
+
 @Component({
   selector: 'app-landing-page',
   imports: [RouterModule],
@@ -29,6 +32,7 @@ interface Step {
 })
 export class LandingPage implements OnInit, OnDestroy {
   logoLoadFailed = false;
+  activePalette = signal<LandingPalette>('design-system');
 
   // Hero background slideshow — add hero-surgery.jpg to public/images/ to include it
   readonly heroSlides = [
@@ -111,10 +115,23 @@ export class LandingPage implements OnInit, OnDestroy {
     },
   ];
   activeStep = signal(0);
+  private routeSubscription?: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    this.routeSubscription = this.route.queryParamMap.subscribe((params) => {
+      const palette = params.get('palette');
+      this.activePalette.set(
+        palette === 'clinical-green'
+          ? 'clinical-green'
+          : 'design-system'
+      );
+    });
+
     this.testimonialTimer = setInterval(() => {
       this.activeTestimonial.update(i => (i + 1) % this.testimonials.length);
     }, 5000);
@@ -124,6 +141,7 @@ export class LandingPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
     if (this.testimonialTimer) clearInterval(this.testimonialTimer);
     if (this.slideTimer) clearInterval(this.slideTimer);
   }

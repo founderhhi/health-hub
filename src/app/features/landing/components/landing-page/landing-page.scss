@@ -2,40 +2,40 @@
 @use '../../../../shared/styles/mixins' as m;
 
 // ════════════════════════════════════════════════════════════
-// STITCH DESIGN SYSTEM — Forest Green Palette
-// Primary: #0d631b | Dark sections: deep forest greens (NOT black)
+// Landing palette variants
+// `clinical-green`: single healthcare-led green system
+// `design-system`: palette from the supplied screenshot
 // ════════════════════════════════════════════════════════════
 
-$primary:              #0d631b;
-$primary-container:    #2e7d32;
+$primary:              var(--landing-primary);
+$primary-container:    var(--landing-primary-container);
 $on-primary:           #ffffff;
-$primary-fixed-dim:    #88d982;
-$primary-fixed:        #a3f69c;
+$primary-fixed-dim:    var(--landing-primary-fixed-dim);
+$primary-fixed:        var(--landing-primary-fixed);
 
-$bg:                        #f5fced;
-$surface:                   #f5fced;
-$surface-container-lowest:  #ffffff;
-$surface-container-low:     #eff6e7;
-$surface-container-high:    #e3ebdc;
+$bg:                        var(--landing-bg);
+$surface:                   var(--landing-surface);
+$surface-container-lowest:  var(--landing-surface-container-lowest);
+$surface-container-low:     var(--landing-surface-container-low);
+$surface-container-high:    var(--landing-surface-container-high);
 
-$secondary:           #556158;
-$secondary-container: #d9e6da;
+$secondary:           var(--landing-secondary);
+$secondary-container: var(--landing-secondary-container);
 
-$tertiary:            #9c2f00;
-$tertiary-fixed-dim:  #ffb59d;
+$tertiary:            var(--landing-tertiary);
+$tertiary-fixed-dim:  var(--landing-tertiary-fixed-dim);
 
-// Dark section backgrounds — deep forest greens (not black/charcoal)
-$dark-1:  #081a0a;   // deepest forest (hero overlay gradient start)
-$dark-2:  #0d2b11;   // capabilities, stats, testimonials, footer bg
-$dark-3:  #163b1b;   // card surface on dark sections
-$dark-4:  #1e4a24;   // lighter dark — hover states & elevated cards
+$dark-1:  var(--landing-dark-1);
+$dark-2:  var(--landing-dark-2);
+$dark-3:  var(--landing-dark-3);
+$dark-4:  var(--landing-dark-4);
 
-$inverse-surface: $dark-2;  // overrides old #1a2118
+$inverse-surface: $dark-2;
 
-$on-surface:         #171d14;
-$on-surface-variant: #40493d;
-$outline-variant:    #bfcaba;
-$outline:            #707a6c;
+$on-surface:         var(--landing-on-surface);
+$on-surface-variant: var(--landing-on-surface-variant);
+$outline-variant:    var(--landing-outline-variant);
+$outline:            var(--landing-outline);
 
 // ── Material Symbols ──
 .material-symbols-outlined {
@@ -49,6 +49,56 @@ $outline:            #707a6c;
 
 // ── Base ──
 .landing {
+  --landing-primary: #27866e;
+  --landing-primary-container: #1f705d;
+  --landing-primary-fixed-dim: #8fd8c1;
+  --landing-primary-fixed: #cbefe4;
+  --landing-bg: #f2fbf8;
+  --landing-surface: #f2fbf8;
+  --landing-surface-container-lowest: #ffffff;
+  --landing-surface-container-low: #eaf8f3;
+  --landing-surface-container-high: #d8ece4;
+  --landing-secondary: #5a7069;
+  --landing-secondary-container: #d7ebe3;
+  --landing-tertiary: #42907b;
+  --landing-tertiary-fixed-dim: #c3e7dc;
+  --landing-dark-1: #175345;
+  --landing-dark-2: #206754;
+  --landing-dark-3: #2a7864;
+  --landing-dark-4: #358770;
+  --landing-on-surface: #173029;
+  --landing-on-surface-variant: #526861;
+  --landing-outline-variant: #c0d6ce;
+  --landing-outline: #738982;
+  --landing-support-accent: #5ca192;
+  --landing-support-accent-dim: #caebe4;
+
+  &[data-palette='design-system'] {
+    --landing-primary: #2e7d32;
+    --landing-primary-container: #266a2a;
+    --landing-primary-fixed-dim: #9fd29f;
+    --landing-primary-fixed: #cee7ce;
+    --landing-bg: #f1f8e9;
+    --landing-surface: #f1f8e9;
+    --landing-surface-container-lowest: #ffffff;
+    --landing-surface-container-low: #ecf5e8;
+    --landing-surface-container-high: #e1ebdc;
+    --landing-secondary: #5a6656;
+    --landing-secondary-container: #e8f5e9;
+    --landing-tertiary: #c86030;
+    --landing-tertiary-fixed-dim: #f3b79f;
+    --landing-dark-1: #1f5222;
+    --landing-dark-2: #275f2a;
+    --landing-dark-3: #317136;
+    --landing-dark-4: #3a8040;
+    --landing-on-surface: #1f2b1f;
+    --landing-on-surface-variant: #5c6958;
+    --landing-outline-variant: #c8d3c4;
+    --landing-outline: #778270;
+    --landing-support-accent: #648d63;
+    --landing-support-accent-dim: #cfdfcf;
+  }
+
   min-height: 100vh;
   background: $bg;
   color: $on-surface;
@@ -90,9 +140,9 @@ $outline:            #707a6c;
   @include m.flex-between;
   padding: v.$space-sm v.$space-xl;
   height: 64px;
-  background: rgba($surface-container-lowest, 0.92);
+  background: color-mix(in srgb, $surface-container-lowest 92%, transparent);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba($outline-variant, 0.5);
+  border-bottom: 1px solid color-mix(in srgb, $outline-variant 50%, transparent);
 
   &__logo {
     @include m.flex-start;
@@ -127,7 +177,7 @@ $outline:            #707a6c;
       background: $primary;
       color: #fff;
       border: 1px solid transparent;
-      box-shadow: 0 2px 8px rgba($primary, 0.25);
+      box-shadow: 0 2px 8px color-mix(in srgb, $primary 25%, transparent);
       &:hover { background: $primary-container; }
       &:active { transform: scale(0.97); }
     }
@@ -135,8 +185,8 @@ $outline:            #707a6c;
     &--outline {
       background: transparent;
       color: $on-surface;
-      border: 1.5px solid rgba($on-surface, 0.25);
-      &:hover { background: rgba($on-surface, 0.04); }
+      border: 1.5px solid color-mix(in srgb, $on-surface 25%, transparent);
+      &:hover { background: color-mix(in srgb, $on-surface 4%, transparent); }
       &:active { transform: scale(0.97); }
     }
   }
@@ -176,9 +226,9 @@ $outline:            #707a6c;
     inset: 0;
     background: linear-gradient(
       to right,
-      rgba($dark-1, 0.93) 0%,
-      rgba($dark-1, 0.72) 45%,
-      rgba($dark-1, 0.28) 100%
+      color-mix(in srgb, $dark-1 93%, transparent) 0%,
+      color-mix(in srgb, $dark-1 72%, transparent) 45%,
+      color-mix(in srgb, $dark-1 28%, transparent) 100%
     );
     z-index: 1;
   }
@@ -263,104 +313,6 @@ $outline:            #707a6c;
     align-items: center;
   }
 
-  &__providers {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 100%;
-  }
-
-  &__prov-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: rgba($dark-2, 0.82);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba($primary-fixed-dim, 0.14);
-    border-radius: 18px;
-    padding: 14px 18px 14px 14px;
-    transition: border-color 0.25s ease, transform 0.25s ease;
-
-    &:hover {
-      border-color: rgba($primary-fixed-dim, 0.32);
-      transform: translateX(4px);
-    }
-  }
-
-  &__prov-photo-wrap {
-    width: 68px;
-    height: 68px;
-    border-radius: 14px;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 1.5px solid rgba($primary-fixed-dim, 0.18);
-  }
-
-  &__prov-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    display: block;
-  }
-
-  &__prov-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-  }
-
-  &__prov-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 9px;
-    border-radius: v.$radius-full;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    width: fit-content;
-    background: rgba($primary, 0.22);
-    color: $primary-fixed-dim;
-    border: 1px solid rgba($primary-fixed-dim, 0.18);
-    font-family: 'Manrope', sans-serif;
-    .material-symbols-outlined { font-size: 11px; }
-
-    &--blue {
-      background: rgba(#1e88e5, 0.18);
-      color: #90caf9;
-      border-color: rgba(#90caf9, 0.18);
-    }
-
-    &--amber {
-      background: rgba($tertiary, 0.15);
-      color: $tertiary-fixed-dim;
-      border-color: rgba($tertiary-fixed-dim, 0.18);
-    }
-  }
-
-  &__prov-name {
-    font-size: 14px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    font-family: 'Manrope', sans-serif;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  &__prov-spec {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.44);
-    font-weight: 500;
-    font-family: 'Manrope', sans-serif;
-  }
-
   // ── Right column — 2x2 compact equal-square grid ──
   &__stats-grid {
     display: grid;
@@ -373,9 +325,9 @@ $outline:            #707a6c;
   }
 
   &__mini-stat {
-    background: rgba($dark-2, 0.88);
+    background: color-mix(in srgb, $dark-2 88%, transparent);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba($primary-fixed-dim, 0.14);
+    border: 1px solid color-mix(in srgb, $primary-fixed-dim 14%, transparent);
     border-radius: 16px;
     padding: 12px;
     display: flex;
@@ -418,7 +370,7 @@ $outline:            #707a6c;
     clip-path: none;
     border-radius: 14px 14px 999px 999px;
     overflow: hidden;
-    border: 1px solid rgba($primary-fixed-dim, 0.14);
+    border: 1px solid color-mix(in srgb, $primary-fixed-dim 14%, transparent);
     transition: filter 0.25s ease;
 
     img {
@@ -435,7 +387,7 @@ $outline:            #707a6c;
       background: linear-gradient(
         to bottom,
         transparent 30%,
-        rgba($dark-1, 0.68) 100%
+        color-mix(in srgb, $dark-1 68%, transparent) 100%
       );
     }
   }
@@ -450,7 +402,7 @@ $outline:            #707a6c;
     height: 38px;
     border-radius: 50%;
     background: $dark-1;
-    border: 2px solid rgba($primary-fixed-dim, 0.40);
+    border: 2px solid color-mix(in srgb, $primary-fixed-dim 40%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -465,31 +417,6 @@ $outline:            #707a6c;
 
   &__shield-outer:hover .hero__shield-badge {
     transform: translateX(-50%) scale(1.12);
-  }
-
-  // ── (legacy provider btn — unused after redesign) ──
-  &__prov-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 14px;
-    border-radius: 10px;
-    background: $primary;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    font-family: 'Manrope', sans-serif;
-    border: none;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: background 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 14px rgba($primary, 0.35);
-
-    &:hover { background: $primary-container; transform: scale(1.04); }
-    &:active { transform: scale(0.97); }
-
-    .material-symbols-outlined { font-size: 13px; }
   }
 }
 
@@ -515,16 +442,16 @@ $outline:            #707a6c;
     background: $primary;
     color: #fff;
     border: none;
-    box-shadow: 0 6px 20px rgba($primary, 0.30);
-    &:hover:not(:disabled) { background: $primary-container; box-shadow: 0 10px 28px rgba($primary, 0.40); transform: translateY(-1px); }
+    box-shadow: 0 6px 20px color-mix(in srgb, $primary 30%, transparent);
+    &:hover:not(:disabled) { background: $primary-container; box-shadow: 0 10px 28px color-mix(in srgb, $primary 40%, transparent); transform: translateY(-1px); }
     &:active:not(:disabled) { transform: scale(0.97); }
   }
 
   &--outline {
     background: transparent;
     color: $on-surface;
-    border: 1.5px solid rgba($on-surface, 0.25);
-    &:hover:not(:disabled) { background: rgba($on-surface, 0.04); }
+    border: 1.5px solid color-mix(in srgb, $on-surface 25%, transparent);
+    &:hover:not(:disabled) { background: color-mix(in srgb, $on-surface 4%, transparent); }
     &:active:not(:disabled) { transform: scale(0.97); }
   }
 
@@ -589,7 +516,7 @@ $outline:            #707a6c;
   flex: 0 0 220px;
   scroll-snap-align: start;
   background: $surface-container-lowest;
-  border: 1px solid rgba($outline-variant, 0.40);
+  border: 1px solid color-mix(in srgb, $outline-variant 40%, transparent);
   border-radius: 20px;
   padding: 24px 20px;
   display: flex;
@@ -600,14 +527,14 @@ $outline:            #707a6c;
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
-    border-color: rgba($primary, 0.28);
+    border-color: color-mix(in srgb, $primary 28%, transparent);
   }
 
   &__icon {
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    background: rgba($primary, 0.08);
+    background: color-mix(in srgb, $primary 8%, transparent);
     color: $primary;
     display: flex;
     align-items: center;
@@ -639,15 +566,15 @@ $outline:            #707a6c;
     width: fit-content;
 
     &--live {
-      background: rgba($primary, 0.10);
+      background: color-mix(in srgb, $primary 10%, transparent);
       color: $primary;
-      border: 1px solid rgba($primary, 0.20);
+      border: 1px solid color-mix(in srgb, $primary 20%, transparent);
     }
 
     &--soon {
-      background: rgba($tertiary, 0.08);
+      background: color-mix(in srgb, $tertiary 8%, transparent);
       color: $tertiary;
-      border: 1px solid rgba($tertiary, 0.20);
+      border: 1px solid color-mix(in srgb, $tertiary 20%, transparent);
     }
   }
 }
@@ -690,11 +617,11 @@ $outline:            #707a6c;
     .results-how__subtitle { color: rgba(255, 255, 255, 0.52); }
 
     .results-filter {
-      background: rgba($primary-fixed-dim, 0.07);
+      background: color-mix(in srgb, $primary-fixed-dim 7%, transparent);
       color: rgba(255, 255, 255, 0.55);
-      border-color: rgba($primary-fixed-dim, 0.13);
-      &:hover { background: rgba($primary-fixed-dim, 0.14); color: rgba(255, 255, 255, 0.85); }
-      &--active { background: $primary; color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba($primary, 0.42); }
+      border-color: color-mix(in srgb, $primary-fixed-dim 13%, transparent);
+      &:hover { background: color-mix(in srgb, $primary-fixed-dim 14%, transparent); color: rgba(255, 255, 255, 0.85); }
+      &--active { background: $primary; color: #fff; border-color: transparent; box-shadow: 0 4px 14px color-mix(in srgb, $primary 42%, transparent); }
     }
 
     .rh-quote__text {
@@ -708,17 +635,17 @@ $outline:            #707a6c;
 
     .rh-quote__avatar {
       background: $primary;
-      border-color: rgba($primary-fixed-dim, 0.28);
+      border-color: color-mix(in srgb, $primary-fixed-dim 28%, transparent);
       color: #fff;
-      &[data-type='doctor'] { background: #1e88e5; border-color: rgba(#1e88e5, 0.28); }
-      &[data-type='lab']    { background: $tertiary; border-color: rgba($tertiary, 0.28); }
+      &[data-type='doctor'] { background: var(--landing-support-accent); border-color: color-mix(in srgb, var(--landing-support-accent) 28%, transparent); }
+      &[data-type='lab']    { background: $tertiary; border-color: color-mix(in srgb, $tertiary 28%, transparent); }
     }
 
     .rh-quote__arrow {
-      background: rgba($primary-fixed-dim, 0.07);
-      border-color: rgba($primary-fixed-dim, 0.14);
+      background: color-mix(in srgb, $primary-fixed-dim 7%, transparent);
+      border-color: color-mix(in srgb, $primary-fixed-dim 14%, transparent);
       color: rgba(255, 255, 255, 0.60);
-      &:hover { background: rgba($primary-fixed-dim, 0.16); color: #fff; }
+      &:hover { background: color-mix(in srgb, $primary-fixed-dim 16%, transparent); color: #fff; }
       &--filled { background: $primary; border-color: transparent; color: #fff;
         &:hover { background: $primary-container; }
       }
@@ -793,18 +720,18 @@ $outline:            #707a6c;
   font-size: 12px;
   font-weight: 700;
   font-family: 'Manrope', sans-serif;
-  background: rgba($primary, 0.06);
+  background: color-mix(in srgb, $primary 6%, transparent);
   color: $on-surface-variant;
-  border: 1.5px solid rgba($primary, 0.14);
+  border: 1.5px solid color-mix(in srgb, $primary 14%, transparent);
   transition: all 0.2s ease;
 
-  &:hover { background: rgba($primary, 0.12); color: $primary; }
+  &:hover { background: color-mix(in srgb, $primary 12%, transparent); color: $primary; }
 
   &--active {
     background: $primary;
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 4px 14px rgba($primary, 0.35);
+    box-shadow: 0 4px 14px color-mix(in srgb, $primary 35%, transparent);
   }
 }
 
@@ -844,11 +771,11 @@ $outline:            #707a6c;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border: 2px solid rgba($primary, 0.20);
+    border: 2px solid color-mix(in srgb, $primary 20%, transparent);
     .material-symbols-outlined { font-size: 20px; }
 
-    &[data-type='doctor'] { background: #1e88e5; border-color: rgba(#1e88e5, 0.20); }
-    &[data-type='lab']    { background: $tertiary; border-color: rgba($tertiary, 0.20); }
+    &[data-type='doctor'] { background: var(--landing-support-accent); border-color: color-mix(in srgb, var(--landing-support-accent) 20%, transparent); }
+    &[data-type='lab']    { background: $tertiary; border-color: color-mix(in srgb, $tertiary 20%, transparent); }
   }
 
   &__name {
@@ -887,8 +814,8 @@ $outline:            #707a6c;
     height: 34px;
     min-height: unset;
     border-radius: 50%;
-    background: rgba($on-surface, 0.06);
-    border: 1px solid rgba($on-surface, 0.14);
+    background: color-mix(in srgb, $on-surface 6%, transparent);
+    border: 1px solid color-mix(in srgb, $on-surface 14%, transparent);
     color: $on-surface-variant;
     display: flex;
     align-items: center;
@@ -897,7 +824,7 @@ $outline:            #707a6c;
     transition: all 0.2s ease;
     .material-symbols-outlined { font-size: 18px; }
 
-    &:hover { background: rgba($primary, 0.10); color: $primary; }
+    &:hover { background: color-mix(in srgb, $primary 10%, transparent); color: $primary; }
 
     &--filled {
       background: $primary;
@@ -913,158 +840,6 @@ $outline:            #707a6c;
   .steps-flow__dots { justify-content: flex-start; }
   .steps-flow__card { min-height: 260px; }
   .steps-flow__body { max-width: 100%; }
-}
-
-// ── (legacy testimonials block kept for reference — unused after redesign) ──
-.testimonials--legacy {
-  display: none;
-  &__header-col {
-    display: flex;
-    flex-direction: column;
-    gap: v.$space-md;
-  }
-
-  &__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 14px;
-    border-radius: v.$radius-full;
-    background: rgba($primary-fixed-dim, 0.10);
-    border: 1px solid rgba($primary-fixed-dim, 0.18);
-    color: $primary-fixed-dim;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    width: fit-content;
-    .material-symbols-outlined { font-size: 14px; }
-  }
-
-  &__heading {
-    font-size: clamp(26px, 3.5vw, 40px);
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-  }
-
-  &__sub {
-    font-size: 14px;
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.48);
-    font-weight: 500;
-    max-width: 380px;
-  }
-
-  &__quote-wrap {
-    position: relative;
-    min-height: 280px;
-  }
-
-  &__slide {
-    display: none;
-    flex-direction: column;
-    gap: v.$space-lg;
-    animation: testimonialFade 0.4s ease;
-
-    &--active { display: flex; }
-  }
-
-  &__quote {
-    font-size: clamp(18px, 2.2vw, 24px);
-    font-weight: 600;
-    line-height: 1.58;
-    color: #fff;
-    letter-spacing: -0.01em;
-    font-style: italic;
-    border: none;
-    padding: 0;
-    margin: 0;
-
-    &::before, &::after { content: ''; }
-  }
-
-  &__author {
-    display: flex;
-    align-items: center;
-    gap: v.$space-md;
-    flex-wrap: wrap;
-    margin-top: v.$space-sm;
-  }
-
-  &__avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: $dark-3;
-    border: 2px solid rgba($primary-fixed-dim, 0.24);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $primary-fixed-dim;
-    flex-shrink: 0;
-    .material-symbols-outlined { font-size: 22px; }
-
-    &[data-type='patient']  { border-color: rgba($primary-fixed-dim, 0.35); }
-    &[data-type='doctor']   { border-color: rgba(#7ec8d9, 0.35); color: #7ec8d9; }
-    &[data-type='lab']      { border-color: rgba($tertiary-fixed-dim, 0.35); color: $tertiary-fixed-dim; }
-  }
-
-  &__name {
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  &__role {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.42);
-    font-weight: 500;
-  }
-
-  &__nav {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: v.$space-sm;
-  }
-
-  &__arrow {
-    @include m.button-base;
-    width: 36px;
-    height: 36px;
-    min-height: unset;
-    border-radius: 50%;
-    background: rgba($primary-fixed-dim, 0.07);
-    border: 1px solid rgba($primary-fixed-dim, 0.14);
-    color: rgba(255, 255, 255, 0.65);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    transition: all 0.2s ease;
-
-    &:hover { background: rgba($primary-fixed-dim, 0.14); color: #fff; }
-
-    &--filled {
-      background: $primary;
-      border-color: transparent;
-      color: #fff;
-      &:hover { background: $primary-container; }
-    }
-
-    .material-symbols-outlined { font-size: 18px; }
-  }
-
-  &__count {
-    font-size: 12px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.38);
-    letter-spacing: 0.05em;
-    min-width: 44px;
-    text-align: center;
-  }
 }
 
 @keyframes testimonialFade {
@@ -1092,7 +867,7 @@ $outline:            #707a6c;
     height: 10px;
     min-height: unset;
     border-radius: 50%;
-    background: rgba($primary, 0.18);
+    background: color-mix(in srgb, $primary 18%, transparent);
     border: none;
     padding: 0;
     transition: all 0.3s ease;
@@ -1125,7 +900,7 @@ $outline:            #707a6c;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: $primary;
-    background: rgba($primary, 0.08);
+    background: color-mix(in srgb, $primary 8%, transparent);
     padding: 4px 12px;
     border-radius: v.$radius-full;
   }
@@ -1134,8 +909,8 @@ $outline:            #707a6c;
     width: 72px;
     height: 72px;
     border-radius: 20px;
-    background: rgba($primary, 0.08);
-    border: 1.5px solid rgba($primary, 0.14);
+    background: color-mix(in srgb, $primary 8%, transparent);
+    border: 1.5px solid color-mix(in srgb, $primary 14%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1172,7 +947,7 @@ $outline:            #707a6c;
     font-weight: 700;
     font-family: 'Manrope', sans-serif;
     border: none;
-    box-shadow: 0 4px 16px rgba($primary, 0.28);
+    box-shadow: 0 4px 16px color-mix(in srgb, $primary 28%, transparent);
     transition: all 0.2s ease;
     margin-top: v.$space-sm;
 
@@ -1364,6 +1139,49 @@ $outline:            #707a6c;
     color: rgba(255, 255, 255, 0.28);
     text-align: center;
     font-weight: 500;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// DESIGN-SYSTEM PALETTE — Tertiary (#CC4204) accent overrides (~12%)
+// These selectors fire only when data-palette="design-system"
+// ════════════════════════════════════════════════════════════
+
+.landing[data-palette='design-system'] {
+  // Hero primary CTA uses terracotta for high-energy entry point
+  .hero .btn--primary {
+    background: $tertiary;
+    box-shadow: 0 6px 20px color-mix(in srgb, $tertiary 30%, transparent);
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, $tertiary 85%, #000);
+      box-shadow: 0 10px 28px color-mix(in srgb, $tertiary 40%, transparent);
+      transform: translateY(-1px);
+    }
+    &:active:not(:disabled) { transform: scale(0.97); }
+  }
+
+  // Live service badges use terracotta (warm, energetic)
+  .cap-card__badge--live {
+    background: color-mix(in srgb, $tertiary 10%, transparent);
+    color: $tertiary;
+    border-color: color-mix(in srgb, $tertiary 22%, transparent);
+  }
+
+  // CTA band — warm terracotta break vs the green page
+  .cta-band__inner {
+    background: $tertiary;
+  }
+
+  // Active step dot
+  .steps-flow__dot--active {
+    background: $tertiary;
+  }
+
+  // Step "Next" button
+  .steps-flow__btn {
+    background: $tertiary;
+    box-shadow: 0 4px 16px color-mix(in srgb, $tertiary 28%, transparent);
+    &:hover { background: color-mix(in srgb, $tertiary 85%, #000); }
   }
 }
 
