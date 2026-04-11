@@ -108,7 +108,15 @@
       @for (cap of capabilities; track cap.label) {
       <div class="cap-card" role="listitem">
         <div class="cap-card__icon">
-          <span class="material-symbols-outlined icon-fill">{{ cap.icon }}</span>
+          @if (cap.svgPaths) {
+            <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              @for (p of cap.svgPaths; track p.d) {
+                <path [attr.d]="p.d" fill="currentColor"/>
+              }
+            </svg>
+          } @else {
+            <span class="material-symbols-outlined icon-fill">{{ cap.icon }}</span>
+          }
         </div>
         <h3 class="cap-card__title">{{ cap.label }}</h3>
         <p class="cap-card__desc">{{ cap.desc }}</p>
@@ -119,6 +127,10 @@
         </span>
       </div>
       }
+    </div>
+    <div class="capabilities__scroll-hint" aria-hidden="true">
+      <span>Scroll to explore</span>
+      <span class="material-symbols-outlined">chevron_right</span>
     </div>
   </section>
 
@@ -143,12 +155,12 @@
             type="button"
             role="tab"
             [attr.aria-selected]="activeStatsCategory() === i"
-            (click)="activeStatsCategory.set(i)">{{ cat }}</button>
+            (click)="setCategory(i)">{{ cat }}</button>
           }
         </div>
 
         <div class="results-how__quotes">
-          @for (t of testimonials; track t.name; let i = $index) {
+          @for (t of filteredTestimonials; track t.name; let i = $index) {
           <div
             class="rh-quote"
             [class.rh-quote--active]="activeTestimonial() === i"
@@ -166,15 +178,15 @@
               </div>
               <div class="rh-quote__nav">
                 <button class="rh-quote__arrow" type="button"
-                  (click)="setTestimonial((activeTestimonial() - 1 + testimonials.length) % testimonials.length)"
+                  (click)="setTestimonial(activeTestimonial() - 1)"
                   aria-label="Previous testimonial">
                   <span class="material-symbols-outlined">chevron_left</span>
                 </button>
                 <span class="rh-quote__count">
-                  {{ (activeTestimonial() + 1).toString().padStart(2,'0') }} / {{ testimonials.length.toString().padStart(2,'0') }}
+                  {{ (activeTestimonial() + 1).toString().padStart(2,'0') }} / {{ filteredTestimonials.length.toString().padStart(2,'0') }}
                 </span>
                 <button class="rh-quote__arrow rh-quote__arrow--filled" type="button"
-                  (click)="setTestimonial((activeTestimonial() + 1) % testimonials.length)"
+                  (click)="setTestimonial(activeTestimonial() + 1)"
                   aria-label="Next testimonial">
                   <span class="material-symbols-outlined">chevron_right</span>
                 </button>
@@ -227,18 +239,38 @@
     </div>
   </section>
 
-  <!-- ── CTA Band ── -->
+  <!-- ── CTA Band — Heartbeat Pulse + World Map ── -->
   <section class="cta-band">
     <div class="cta-band__inner">
-      <div class="cta-band__pattern" aria-hidden="true"></div>
+
+      <!-- World map — proper geographic outline as background layer -->
+      <div class="cta-band__world-map" aria-hidden="true">
+        <img src="images/world-map.svg" alt="" />
+      </div>
+
+      <!-- Heartbeat SVG — animated EKG line crossing the world map -->
+      <div class="cta-band__heartbeat" aria-hidden="true">
+        <svg viewBox="0 0 700 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <!-- Flat baseline that rises into a heartbeat spike in the center -->
+          <polyline class="hb-line"
+            points="0,40 120,40 160,40 180,10 200,70 220,15 240,60 260,40 400,40 540,40 560,10 580,70 600,15 620,60 640,40 700,40"/>
+          <polyline class="hb-pulse"
+            points="180,10 200,70 220,15 240,60 260,40"/>
+        </svg>
+      </div>
+
       <div class="cta-band__content">
-        <h2 class="cta-band__title">Ready to transform your<br />health journey?</h2>
-        <p class="cta-band__subtitle">Join thousands of members accessing world-class clinical care securely from their pocket.</p>
+        <div class="cta-band__icon" aria-hidden="true">
+          <span class="material-symbols-outlined icon-fill">favorite</span>
+        </div>
+        <h2 class="cta-band__title">Care without borders.<br />Health without compromise.</h2>
+        <p class="cta-band__subtitle">From your home to India, Africa, and beyond — Health Hub connects you to world-class care wherever you are, whenever you need it.</p>
         <button class="btn btn--white btn--xl" type="button" (click)="navigate('signup')">
           Get Your Free Account
         </button>
-        <p class="cta-band__note">Setup takes &lt;2 minutes</p>
+        <p class="cta-band__note">Setup takes &lt;2 minutes &nbsp;·&nbsp; Available in 3 continents</p>
       </div>
+
     </div>
   </section>
 
