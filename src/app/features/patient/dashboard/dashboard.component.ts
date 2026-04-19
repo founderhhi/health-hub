@@ -91,6 +91,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   walkthroughStepIndex = 0;
   walkthroughSteps = WALKTHROUGH_STEPS;
   spotlightRect: DOMRect | null = null;
+  tooltipPlacement: 'above' | 'below' = 'below';
   consultationCost = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -413,7 +414,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private updateSpotlight(): void {
-    // Use rAF so Angular has flushed the view before we measure DOM positions
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -421,8 +421,38 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       const step = this.walkthroughSteps[this.walkthroughStepIndex];
       const el = document.getElementById(step.targetId);
       this.spotlightRect = el ? el.getBoundingClientRect() : null;
+      // Position tooltip above spotlight when it's in the lower half of the screen,
+      // below when in the upper half — keeps tooltip and cutout both visible
+      if (this.spotlightRect) {
+        const midScreen = window.innerHeight / 2;
+        this.tooltipPlacement = this.spotlightRect.top > midScreen ? 'above' : 'below';
+      } else {
+        this.tooltipPlacement = 'below';
+      }
       this.cdr.detectChanges();
     });
+  }
+
+  // Returns top or bottom CSS for the tooltip card so it avoids the spotlight
+  get tooltipPositionStyle(): Record<string, string> {
+    const bottomNavHeight = 80; // px — approximate bottom nav height
+    const gap = 16;             // px — space between spotlight edge and tooltip
+
+    if (!this.spotlightRect) {
+      // No spotlight found → sit above bottom nav
+      return { bottom: `${bottomNavHeight + gap}px` };
+    }
+
+    if (this.tooltipPlacement === 'above') {
+      // Tooltip sits above the spotlight cutout
+      const distFromTop = Math.max(this.spotlightRect.top - gap, gap);
+      return { bottom: `${window.innerHeight - distFromTop}px` };
+    }
+
+    // Tooltip sits below the spotlight cutout, but above the bottom nav
+    const fromBottom = window.innerHeight - this.spotlightRect.bottom - gap;
+    const minFromBottom = bottomNavHeight + gap;
+    return { bottom: `${Math.max(fromBottom, minFromBottom)}px` };
   }
 
   get spotlightStyle(): Record<string, string> {

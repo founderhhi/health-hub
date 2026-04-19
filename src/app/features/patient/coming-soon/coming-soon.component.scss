@@ -1,5 +1,4 @@
 @use '../../../../app/shared/styles/variables' as v;
-@use '../../../../app/shared/styles/mixins' as m;
 
 .coming-soon-page {
   min-height: 100vh;
@@ -58,105 +57,104 @@
   margin: 0 0 v.$space-lg;
 }
 
-/* ── Feature Grid ────────────────────────────────── */
+/* ── 2×3 Feature Grid ────────────────────────────
+ * Each card is a button sitting in a 2-column grid.
+ * When expanded, a panel div spans the full 2-column
+ * width using grid-column: 1 / -1 on the parent card
+ * which switches to full-width via grid-column override.
+ * ─────────────────────────────────────────────── */
 .features-grid {
-  display: flex;
-  flex-direction: column;
-  gap: v.$space-sm;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
   margin-bottom: v.$space-xl;
 }
 
-.feature-tile {
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 20px 12px 16px;
   background: var(--bg-secondary);
-  border-radius: 16px;
-  overflow: hidden;
+  border: none;
+  border-radius: 20px;
   cursor: pointer;
-  transition: box-shadow 0.2s ease;
+  text-align: center;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+  // Default: occupies 1 column
+  grid-column: span 1;
 
   &:active {
-    opacity: 0.9;
+    opacity: 0.85;
   }
 
+  // Expanded card spans full width of the 2-col grid
   &--expanded {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    text-align: left;
+    padding: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+    gap: 12px;
+  }
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent-primary);
+    }
+  }
+
+  &__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+
+    // When expanded, allow more space
+    .feature-card--expanded & {
+      font-size: 1rem;
+      flex: 1;
+      align-self: center;
+    }
+  }
+
+  // Description panel — full width inside the expanded card
+  &__panel {
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-primary);
+    animation: cs-expand 0.2s ease;
+  }
+
+  &__desc {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0 0 10px;
   }
 }
 
-.tile-header {
-  display: flex;
-  align-items: center;
-  gap: v.$space-md;
-  padding: v.$space-md;
+@keyframes cs-expand {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.tile-icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  svg {
-    width: 22px;
-    height: 22px;
-    stroke: var(--accent-primary);
-  }
-}
-
-.tile-copy {
-  flex: 1;
-  min-width: 0;
-}
-
-.tile-title {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  margin: 0 0 2px;
-  color: var(--text-primary);
-}
-
-.tile-teaser {
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tile-chevron {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  transition: transform 0.25s ease;
-
-  svg {
-    width: 20px;
-    height: 20px;
-    stroke: var(--text-secondary);
-  }
-
-  &--open {
-    transform: rotate(180deg);
-  }
-}
-
-.tile-body {
-  padding: 0 v.$space-md v.$space-md;
-  border-top: 1px solid var(--border-primary);
-  animation: slideDown 0.2s ease;
-}
-
-.tile-description {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin: v.$space-sm 0 v.$space-sm;
-}
-
+/* ── Coming Soon badge ───────────────────────────── */
 .coming-soon-badge {
   display: inline-block;
   padding: 3px 10px;
@@ -167,17 +165,6 @@
   text-transform: uppercase;
   background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
   color: var(--accent-primary);
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* ── Notify CTA ─────────────────────────────────── */
@@ -209,9 +196,7 @@
   cursor: pointer;
   transition: opacity 0.2s ease;
 
-  &:active {
-    opacity: 0.85;
-  }
+  &:active { opacity: 0.85; }
 
   &--done {
     background: var(--bg-secondary);
@@ -219,7 +204,5 @@
     cursor: default;
   }
 
-  &:disabled {
-    cursor: default;
-  }
+  &:disabled { cursor: default; }
 }

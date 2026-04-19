@@ -6,21 +6,20 @@
       <h1 class="user-name">{{ userName }}</h1>
     </div>
     <div class="header-actions">
-      <!-- Emergency SOS -->
-      <button class="sos-btn" id="wt-sos-btn" type="button" (click)="openSos()" aria-label="Emergency SOS">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="sos-icon">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
+      <!-- Emergency SOS — red circle button -->
+      <button class="header-icon-btn header-icon-btn--sos" id="wt-sos-btn" type="button" (click)="openSos()" aria-label="Emergency SOS">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
-        <span class="sos-label">SOS</span>
       </button>
-      <!-- Help -->
-      <button class="help-btn" id="wt-help-btn" type="button" (click)="openHelp()" aria-label="Help">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="help-icon">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-          <line x1="12" y1="17" x2="12.01" y2="17" />
+      <!-- Help ? circle button -->
+      <button class="header-icon-btn header-icon-btn--help" id="wt-help-btn" type="button" (click)="openHelp()" aria-label="Help">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </button>
       <!-- Notifications -->
@@ -377,8 +376,8 @@
        No separate backdrop — a backdrop would cover the cutout making it black. -->
   <div class="walkthrough-spotlight" [ngStyle]="spotlightStyle"></div>
 
-  <!-- Tooltip card: always pinned to bottom of screen on mobile -->
-  <div class="walkthrough-tooltip">
+  <!-- Tooltip: dynamically positioned above or below the spotlight -->
+  <div class="walkthrough-tooltip" [ngStyle]="tooltipPositionStyle">
     <div class="wt-step-count">{{ walkthroughStepIndex + 1 }} of {{ walkthroughSteps.length }}</div>
     <h3 class="wt-title">{{ currentStep.title }}</h3>
     <p class="wt-body">{{ currentStep.body }}</p>
