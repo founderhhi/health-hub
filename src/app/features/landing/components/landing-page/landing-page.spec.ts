@@ -31,7 +31,7 @@ describe('LandingPage', () => {
     component.setCategory(component.statsCategories.indexOf('Diagnostics'));
 
     expect(component.filteredTestimonials.length).toBeGreaterThan(0);
-    expect(component.filteredTestimonials.every((testimonial) => testimonial.categories.includes('Diagnostics'))).toBeTrue();
+    expect(component.filteredTestimonials.every((testimonial) => testimonial.categories.includes('Diagnostics'))).toBe(true);
   });
 
   it('wraps testimonial navigation for negative and overflow indexes', () => {
