@@ -376,8 +376,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   startWalkthrough(): void {
     this.walkthroughStepIndex = 0;
     this.walkthroughActive = true;
-    this.updateSpotlight();
     this.cdr.detectChanges();
+    // Small delay ensures the overlay is rendered before we measure target elements
+    setTimeout(() => this.updateSpotlight(), 80);
   }
 
   get currentStep(): WalkthroughStep {
@@ -412,39 +413,30 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private updateSpotlight(): void {
-    const step = this.walkthroughSteps[this.walkthroughStepIndex];
-    const el = document.getElementById(step.targetId);
-    if (el) {
-      this.spotlightRect = el.getBoundingClientRect();
-    } else {
-      this.spotlightRect = null;
+    // Use rAF so Angular has flushed the view before we measure DOM positions
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
     }
-    this.cdr.detectChanges();
+    requestAnimationFrame(() => {
+      const step = this.walkthroughSteps[this.walkthroughStepIndex];
+      const el = document.getElementById(step.targetId);
+      this.spotlightRect = el ? el.getBoundingClientRect() : null;
+      this.cdr.detectChanges();
+    });
   }
 
   get spotlightStyle(): Record<string, string> {
     if (!this.spotlightRect) {
-      return { top: '50%', left: '50%', width: '0px', height: '0px' };
+      // No target found: place spotlight off-screen so only the box-shadow dark overlay remains
+      return { top: '-1px', left: '-1px', width: '1px', height: '1px' };
     }
-    const pad = 8;
+    const pad = 10;
     return {
       top: `${this.spotlightRect.top - pad}px`,
       left: `${this.spotlightRect.left - pad}px`,
       width: `${this.spotlightRect.width + pad * 2}px`,
       height: `${this.spotlightRect.height + pad * 2}px`,
     };
-  }
-
-  get tooltipStyle(): Record<string, string> {
-    if (!this.spotlightRect) {
-      return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
-    }
-    const viewportHeight = window.innerHeight;
-    const spBottom = this.spotlightRect.bottom + 8;
-    if (spBottom + 140 < viewportHeight) {
-      return { top: `${spBottom + 16}px`, left: '16px', right: '16px' };
-    }
-    return { bottom: `${viewportHeight - this.spotlightRect.top + 16}px`, left: '16px', right: '16px' };
   }
 
   private loadStats(): void {

@@ -1268,43 +1268,43 @@
   }
 }
 
-/* ── Walkthrough Overlay ─────────────────────────── */
-.walkthrough-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9000;
-  pointer-events: none;
-}
-
-.walkthrough-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.72);
-  pointer-events: all;
-}
+/* ── Walkthrough Overlay ─────────────────────────────
+ * HOW THE SPOTLIGHT WORKS:
+ * There is NO separate backdrop div. The spotlight element uses
+ * box-shadow with a very large spread to paint the dark surround.
+ * Its own background is transparent, which is the visible "cutout".
+ * Adding a backdrop on top would fill that cutout with black — don't.
+ * ─────────────────────────────────────────────────── */
 
 .walkthrough-spotlight {
-  position: absolute;
+  position: fixed;           // viewport-relative — matches getBoundingClientRect()
+  z-index: 9000;
   border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.72);
-  pointer-events: none;
-  transition: all 0.25s ease;
-  background: transparent;
+  background: transparent;   // the visible hole through the dark surround
+  // Large box-shadow paints the dark overlay around the cutout
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
+  pointer-events: none;      // let clicks pass through to elements under cutout
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
 }
 
+// Tooltip: pinned to bottom of screen on mobile (avoids viewport-height calculation)
 .walkthrough-tooltip {
   position: fixed;
-  background: var(--bg-primary, #fff);
-  border-radius: 16px;
+  bottom: 24px;
+  left: 16px;
+  right: 16px;
+  z-index: 9001;             // above the spotlight / its box-shadow layer
+  background: #ffffff;       // explicit white — avoids dark-mode --bg-primary issues
+  color: #111111;
+  border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-  pointer-events: all;
-  z-index: 9001;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.28);
+  pointer-events: all;       // tooltip must receive clicks
   animation: wt-fade-in 0.2s ease;
 }
 
 @keyframes wt-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -1313,7 +1313,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--accent-primary);
+  color: #16a34a;           // fixed green — readable on white background
   margin-bottom: 6px;
 }
 
@@ -1321,13 +1321,13 @@
   font-size: 1rem;
   font-weight: 700;
   margin: 0 0 6px;
-  color: var(--text-primary, #111);
+  color: #111111;
 }
 
 .wt-body {
   font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--text-secondary, #555);
+  line-height: 1.55;
+  color: #555555;
   margin: 0 0 16px;
 }
 
@@ -1344,31 +1344,32 @@
 }
 
 .wt-btn {
-  padding: 9px 16px;
+  padding: 10px 18px;
   border-radius: 10px;
   border: none;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
+  min-height: 44px;
 
   &--ghost {
     background: transparent;
-    color: var(--text-secondary);
+    color: #888888;
   }
 
   &--secondary {
-    background: var(--bg-secondary, #f5f5f5);
-    color: var(--text-primary);
+    background: #f3f4f6;
+    color: #111111;
 
     &:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: default;
     }
   }
 
   &--primary {
-    background: var(--accent-primary);
-    color: #fff;
+    background: #16a34a;
+    color: #ffffff;
   }
 }
 

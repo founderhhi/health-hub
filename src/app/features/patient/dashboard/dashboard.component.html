@@ -373,15 +373,12 @@
      Walkthrough Overlay
      ═══════════════════════════════════════════ -->
 @if (walkthroughActive) {
-<div class="walkthrough-overlay">
-  <!-- Dark backdrop -->
-  <div class="walkthrough-backdrop"></div>
-  <!-- Spotlight cutout -->
-  @if (spotlightRect) {
+  <!-- Spotlight: box-shadow creates the dark surround; transparent centre is the cutout.
+       No separate backdrop — a backdrop would cover the cutout making it black. -->
   <div class="walkthrough-spotlight" [ngStyle]="spotlightStyle"></div>
-  }
-  <!-- Tooltip -->
-  <div class="walkthrough-tooltip" [ngStyle]="tooltipStyle">
+
+  <!-- Tooltip card: always pinned to bottom of screen on mobile -->
+  <div class="walkthrough-tooltip">
     <div class="wt-step-count">{{ walkthroughStepIndex + 1 }} of {{ walkthroughSteps.length }}</div>
     <h3 class="wt-title">{{ currentStep.title }}</h3>
     <p class="wt-body">{{ currentStep.body }}</p>
@@ -395,5 +392,4 @@
       </div>
     </div>
   </div>
-</div>
 }
