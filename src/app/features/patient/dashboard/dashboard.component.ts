@@ -440,19 +440,18 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (!this.spotlightRect) {
       // No spotlight found → sit above bottom nav
-      return { bottom: `${bottomNavHeight + gap}px` };
+      return { top: '', bottom: `${bottomNavHeight + gap}px` };
     }
 
     if (this.tooltipPlacement === 'above') {
-      // Tooltip sits above the spotlight cutout
+      // Tooltip's bottom edge sits gap px above the spotlight's top edge
       const distFromTop = Math.max(this.spotlightRect.top - gap, gap);
-      return { bottom: `${window.innerHeight - distFromTop}px` };
+      return { top: '', bottom: `${window.innerHeight - distFromTop}px` };
     }
 
-    // Tooltip sits below the spotlight cutout, but above the bottom nav
-    const fromBottom = window.innerHeight - this.spotlightRect.bottom - gap;
-    const minFromBottom = bottomNavHeight + gap;
-    return { bottom: `${Math.max(fromBottom, minFromBottom)}px` };
+    // Tooltip's top edge sits gap px below the spotlight's bottom edge
+    const tooltipTop = this.spotlightRect.bottom + gap;
+    return { top: `${tooltipTop}px`, bottom: '' };
   }
 
   get spotlightStyle(): Record<string, string> {
