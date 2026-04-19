@@ -8,6 +8,7 @@ import { DiagnosticCentre, LabsApiService } from '../../../core/api/labs.service
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { ReferralsApiService, SpecialistDirectoryEntry } from '../../../core/api/referrals.service';
 import { ConsultMode, ConsultShellComponent } from '../../../shared/components/consult-shell/consult-shell';
+import { PatientSummaryPanelComponent } from '../../pre-consultation/patient-summary-panel/patient-summary-panel.component';
 
 interface PrescriptionItem {
   name: string;
@@ -19,7 +20,7 @@ interface PrescriptionItem {
 @Component({
   selector: 'app-specialist-consultation',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ConsultShellComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ConsultShellComponent, PatientSummaryPanelComponent],
   templateUrl: './specialist-consultation.html',
   styleUrl: './specialist-consultation.scss'
 })
@@ -162,15 +163,9 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   }
 
   get consultationBadgeStatus(): string {
-    if (this.referral?.consultation_status === 'ready') {
-      return 'Ready';
-    }
-    if (this.referral?.consultation_status === 'active') {
-      return 'Live';
-    }
-    if (this.referral?.consultation_status === 'completed' || this.referral?.consultation_status === 'ended') {
-      return 'Completed';
-    }
+    if (this.referral?.consultation_status === 'ready') return 'Ready';
+    if (this.referral?.consultation_status === 'active') return 'Live';
+    if (this.referral?.consultation_status === 'completed' || this.referral?.consultation_status === 'ended') return 'Completed';
     return this.referral?.status ? this.titleCase(this.referral.status) : 'Pending';
   }
 
@@ -183,10 +178,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   }
 
   acceptReferral(): void {
-    if (!this.referralId || this.accepting) {
-      return;
-    }
-
+    if (!this.referralId || this.accepting) return;
     this.accepting = true;
     this.errorMessage = '';
     this.statusMessage = '';
@@ -206,8 +198,6 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Lab Order Dialog ──
-
   openLabModal(): void {
     this.selectedTests = [];
     this.customTest = '';
@@ -218,11 +208,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
 
   toggleTest(test: string): void {
     const idx = this.selectedTests.indexOf(test);
-    if (idx === -1) {
-      this.selectedTests.push(test);
-    } else {
-      this.selectedTests.splice(idx, 1);
-    }
+    if (idx === -1) { this.selectedTests.push(test); } else { this.selectedTests.splice(idx, 1); }
   }
 
   isTestSelected(test: string): boolean {
@@ -230,16 +216,10 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   }
 
   submitLabOrder(): void {
-    if (!this.referral?.patient_id || this.submittingLabs) {
-      return;
-    }
+    if (!this.referral?.patient_id || this.submittingLabs) return;
     const tests = [...this.selectedTests];
-    if (this.customTest.trim()) {
-      tests.push(this.customTest.trim());
-    }
-    if (tests.length === 0 || !this.labNote.trim()) {
-      return;
-    }
+    if (this.customTest.trim()) tests.push(this.customTest.trim());
+    if (tests.length === 0 || !this.labNote.trim()) return;
     this.submittingLabs = true;
     this.errorMessage = '';
     this.statusMessage = '';
@@ -264,8 +244,6 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     this.selectedCentre = '';
   }
 
-  // ── Prescription Dialog ──
-
   openPrescriptionModal(): void {
     this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
     this.showPrescriptionModal = true;
@@ -280,13 +258,9 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   }
 
   submitPrescription(): void {
-    if (!this.referral?.patient_id || this.submittingPrescription) {
-      return;
-    }
+    if (!this.referral?.patient_id || this.submittingPrescription) return;
     const items = this.prescriptionItems.filter(item => item.name.trim());
-    if (items.length === 0) {
-      return;
-    }
+    if (items.length === 0) return;
     this.submittingPrescription = true;
     this.errorMessage = '';
     this.statusMessage = '';
@@ -308,13 +282,8 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
   }
 
-  // ── Refer Another Specialist ──
-
   onRefer(): void {
-    if (!this.referral?.id || this.loadingSpecialists) {
-      return;
-    }
-
+    if (!this.referral?.id || this.loadingSpecialists) return;
     this.referralSubmitError = '';
     this.selectedSpecialistId = '';
     this.showReferralModal = true;
@@ -326,7 +295,6 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
       this.referralSubmitError = 'Please select a specialist.';
       return;
     }
-
     this.reassigningReferral = true;
     this.referralSubmitError = '';
     this.referralsApi.reassignReferral(this.referral.id, this.selectedSpecialistId).subscribe({
@@ -336,9 +304,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
         this.showReferralModal = false;
         const specialistName = response.targetSpecialist?.display_name || 'the selected specialist';
         this.statusMessage = `Referral forwarded to ${specialistName}. Returning to your dashboard...`;
-        setTimeout(() => {
-          this.router.navigate(['/specialist']);
-        }, 900);
+        setTimeout(() => { this.router.navigate(['/specialist']); }, 900);
       },
       error: (err) => {
         this.reassigningReferral = false;
@@ -356,10 +322,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   }
 
   onEndConsultation(event: { notes: string }): void {
-    if (!this.consultationId) {
-      return;
-    }
-
+    if (!this.consultationId) return;
     this.consultationsApi.completeConsultation(this.consultationId, event.notes).subscribe({
       next: () => {
         this.referral = {
@@ -367,9 +330,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
           consultation_status: 'completed',
           consultation_completed_at: new Date().toISOString()
         };
-        this.statusMessage = event.notes?.trim()
-          ? 'Consultation ended. Notes saved.'
-          : 'Consultation ended successfully.';
+        this.statusMessage = event.notes?.trim() ? 'Consultation ended. Notes saved.' : 'Consultation ended successfully.';
         this.consultShellRef?.onEndComplete();
       },
       error: (err) => {
@@ -381,9 +342,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   }
 
   private loadReferral(id: string, showLoader = true): void {
-    if (showLoader) {
-      this.loading = true;
-    }
+    if (showLoader) this.loading = true;
     this.errorMessage = '';
     this.referralsApi.getReferral(id).subscribe({
       next: (response) => {
@@ -409,9 +368,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   }
 
   private loadDiagnosticCentres(): void {
-    if (this.diagnosticCentres.length > 0) {
-      return;
-    }
+    if (this.diagnosticCentres.length > 0) return;
     this.loadingCentres = true;
     this.labsApi.getCentres().subscribe({
       next: (response) => {
@@ -428,7 +385,6 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   private loadAvailableSpecialists(): void {
     this.loadingSpecialists = true;
     this.referralSubmitError = '';
-
     this.referralsApi.listAvailableSpecialists().subscribe({
       next: (response) => {
         this.availableSpecialists = Array.isArray(response.specialists)
@@ -436,9 +392,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
               const referralSpecialty = String(this.referral?.specialty || '').trim().toLowerCase();
               const leftMatch = String(left.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
               const rightMatch = String(right.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
-              if (leftMatch !== rightMatch) {
-                return rightMatch - leftMatch;
-              }
+              if (leftMatch !== rightMatch) return rightMatch - leftMatch;
               return String(left.display_name || '').localeCompare(String(right.display_name || ''));
             })
           : [];
@@ -466,20 +420,13 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
 
   private formatTime(time: string): string {
     const [hours, minutes] = time.split(':').map(Number);
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-      return time;
-    }
-
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return time;
     const suffix = hours >= 12 ? 'PM' : 'AM';
     const displayHours = hours % 12 || 12;
     return `${displayHours}:${String(minutes).padStart(2, '0')} ${suffix}`;
   }
 
   private titleCase(value: string): string {
-    return value
-      .split('_')
-      .filter(Boolean)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ');
+    return value.split('_').filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
   }
 }
