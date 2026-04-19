@@ -1,0 +1,142 @@
+<div class="form-page">
+  <div class="form-card">
+
+    <!-- Header -->
+    <div class="form-header">
+      <div class="form-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <h1 class="form-title">Pre-Consultation Check</h1>
+      <p class="form-subtitle">Takes less than 30 seconds • Helps your doctor prepare</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- SYMPTOMS -->
+      <div class="field-group">
+        <label class="field-label">
+          What are your symptoms?
+          <span class="required">*</span>
+        </label>
+
+        <div class="chips-grid">
+          <button
+            *ngFor="let symptom of symptomOptions"
+            type="button"
+            class="chip"
+            [class.chip--selected]="isSelected(symptom)"
+            (click)="toggleSymptom(symptom)"
+          >
+            <svg *ngIf="isSelected(symptom)" class="chip-check" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z"/>
+            </svg>
+            {{ symptom }}
+          </button>
+        </div>
+
+        <span *ngIf="showSymptomsError" class="field-error">
+          Please select at least one symptom
+        </span>
+      </div>
+
+      <!-- DURATION -->
+      <div class="field-group">
+        <label class="field-label" for="duration">
+          How long have you had these symptoms?
+          <span class="required">*</span>
+        </label>
+
+        <select
+          id="duration"
+          class="select-input"
+          [(ngModel)]="selectedDuration"
+          name="duration"
+          [class.select-input--error]="showDurationError"
+        >
+          <option value="" disabled selected>Select duration</option>
+          <option *ngFor="let d of durationOptions" [value]="d">{{ d }}</option>
+        </select>
+
+        <span *ngIf="showDurationError" class="field-error">
+          Please select a duration
+        </span>
+      </div>
+
+      <!-- SEVERITY -->
+      <div class="field-group">
+        <label class="field-label">
+          Severity
+          <span class="severity-badge" [style.background]="severityColor + '20'" [style.color]="severityColor">
+            {{ severity }}/10 — {{ severityLabel }}
+          </span>
+        </label>
+
+        <div class="slider-wrapper">
+          <span class="slider-label">1</span>
+          <input
+            type="range"
+            class="slider"
+            min="1"
+            max="10"
+            step="1"
+            [(ngModel)]="severity"
+            name="severity"
+            [style.--thumb-color]="severityColor"
+          />
+          <span class="slider-label">10</span>
+        </div>
+
+        <div class="slider-track-labels">
+          <span>Mild</span>
+          <span>Moderate</span>
+          <span>Severe</span>
+        </div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="field-group">
+        <label class="field-label" for="notes">
+          Additional notes
+          <span class="optional">optional</span>
+        </label>
+
+        <textarea
+          id="notes"
+          class="textarea-input"
+          [(ngModel)]="notes"
+          name="notes"
+          rows="3"
+          placeholder="e.g. Started after a cold last week, worse in the mornings..."
+          maxlength="500"
+        ></textarea>
+        <div class="char-count">{{ notes.length }}/500</div>
+      </div>
+
+      <!-- SUBMIT -->
+      <button
+        type="submit"
+        class="submit-btn"
+        [class.submit-btn--loading]="isSubmitting"
+        [disabled]="isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">
+          Submit &amp; Continue
+          <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        <span *ngIf="isSubmitting" class="spinner-row">
+          <span class="spinner"></span>
+          Connecting...
+        </span>
+      </button>
+
+      <p class="privacy-note">
+        🔒 Your information is shared only with your assigned doctor
+      </p>
+
+    </form>
+  </div>
+</div>
