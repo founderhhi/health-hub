@@ -1408,21 +1408,38 @@
 }
 
 /* ── Walkthrough Overlay ─────────────────────────────
- * HOW THE SPOTLIGHT WORKS:
- * There is NO separate backdrop div. The spotlight element uses
- * box-shadow with a very large spread to paint the dark surround.
- * Its own background is transparent, which is the visible "cutout".
- * Adding a backdrop on top would fill that cutout with black — don't.
+ * LAYER STACK (bottom → top):
+ *   8999  .wt-click-blocker   transparent; pointer-events:all  → blocks ALL app taps
+ *   9000  .walkthrough-spotlight  box-shadow dark surround; pointer-events:none
+ *   9000  .wt-dim-backdrop    shown only while spotlightRect is null (no flash)
+ *   9001  .walkthrough-tooltip    interactive card
  * ─────────────────────────────────────────────────── */
 
+// Transparent full-screen tap-catcher; prevents any app interaction during tour.
+.wt-click-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 8999;
+  background: transparent;
+  pointer-events: all;
+}
+
+// Shown while the spotlight rect is being measured (avoids the all-black flash).
+.wt-dim-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+
 .walkthrough-spotlight {
-  position: fixed;           // viewport-relative — matches getBoundingClientRect()
+  position: fixed;
   z-index: 9000;
   border-radius: 12px;
-  background: transparent;   // the visible hole through the dark surround
-  // Large box-shadow paints the dark overlay around the cutout
+  background: transparent;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
-  pointer-events: none;      // let clicks pass through to elements under cutout
+  pointer-events: none;
   transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
 }
 

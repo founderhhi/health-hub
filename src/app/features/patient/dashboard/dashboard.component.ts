@@ -414,23 +414,42 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private updateSpotlight(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    requestAnimationFrame(() => {
-      const step = this.walkthroughSteps[this.walkthroughStepIndex];
-      const el = document.getElementById(step.targetId);
-      this.spotlightRect = el ? el.getBoundingClientRect() : null;
-      // Position tooltip above spotlight when it's in the lower half of the screen,
-      // below when in the upper half — keeps tooltip and cutout both visible
-      if (this.spotlightRect) {
-        const midScreen = window.innerHeight / 2;
-        this.tooltipPlacement = this.spotlightRect.top > midScreen ? 'above' : 'below';
-      } else {
-        this.tooltipPlacement = 'below';
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const step = this.walkthroughSteps[this.walkthroughStepIndex];
+
+    // Bottom nav renders as position:fixed inside BottomNavComponent — the wrapper
+    // div (#wt-bottom-nav) is in document flow and gives wrong coords when scrolled.
+    const findEl = (): HTMLElement | null =>
+      step.targetId === 'wt-bottom-nav'
+        ? document.querySelector('.hhi-bottom-nav')
+        : document.getElementById(step.targetId);
+
+    // Scroll non-fixed elements into view if they're outside the viewport
+    const el = findEl();
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const isFixed = window.getComputedStyle(el).position === 'fixed';
+      if (!isFixed && (r.top > window.innerHeight || r.bottom < 0)) {
+        el.scrollIntoView({ behavior: 'instant', block: 'center' } as ScrollIntoViewOptions);
       }
-      this.cdr.detectChanges();
-    });
+    }
+
+    // Measure after layout has settled (instant scroll is synchronous; one RAF is enough)
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        const target = findEl();
+        this.spotlightRect = target ? target.getBoundingClientRect() : null;
+
+        if (this.spotlightRect) {
+          const centerY = (this.spotlightRect.top + this.spotlightRect.bottom) / 2;
+          this.tooltipPlacement = centerY > window.innerHeight / 2 ? 'above' : 'below';
+        } else {
+          this.tooltipPlacement = 'below';
+        }
+        this.cdr.detectChanges();
+      });
+    }, 80);
   }
 
   // Returns top or bottom CSS for the tooltip card so it avoids the spotlight
@@ -455,10 +474,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get spotlightStyle(): Record<string, string> {
-    if (!this.spotlightRect) {
-      // No target found: place spotlight off-screen so only the box-shadow dark overlay remains
-      return { top: '-1px', left: '-1px', width: '1px', height: '1px' };
-    }
+    if (!this.spotlightRect) return {};
     const pad = 10;
     return {
       top: `${this.spotlightRect.top - pad}px`,

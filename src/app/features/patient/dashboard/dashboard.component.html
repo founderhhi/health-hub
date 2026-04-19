@@ -372,9 +372,19 @@
      Walkthrough Overlay
      ═══════════════════════════════════════════ -->
 @if (walkthroughActive) {
-  <!-- Spotlight: box-shadow creates the dark surround; transparent centre is the cutout.
-       No separate backdrop — a backdrop would cover the cutout making it black. -->
-  <div class="walkthrough-spotlight" [ngStyle]="spotlightStyle"></div>
+  <!-- Full-screen transparent layer that blocks all app interaction during the tour.
+       Sits below the spotlight (9000) and tooltip (9001) but above the page (z 8999).
+       pointer-events: all here prevents taps reaching the app underneath. -->
+  <div class="wt-click-blocker"></div>
+
+  @if (spotlightRect) {
+    <!-- Spotlight: box-shadow paints the dark surround; element itself is the transparent cutout.
+         pointer-events: none lets the wt-click-blocker behind it catch any taps on the cutout. -->
+    <div class="walkthrough-spotlight" [ngStyle]="spotlightStyle"></div>
+  } @else {
+    <!-- No rect yet (measuring in progress): plain dark backdrop so the screen isn't blank -->
+    <div class="wt-dim-backdrop"></div>
+  }
 
   <!-- Tooltip: dynamically positioned above or below the spotlight -->
   <div class="walkthrough-tooltip" [ngStyle]="tooltipPositionStyle">
