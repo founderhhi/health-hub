@@ -314,18 +314,18 @@
      Emergency SOS Modal
      ═══════════════════════════════════════════ -->
 @if (showSosModal) {
-<div class="modal-overlay" (click)="closeSos()">
-  <div class="modal-card sos-modal" (click)="$event.stopPropagation()">
-    <div class="sos-modal__icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
+<div class="pd-sheet-backdrop" (click)="closeSos()">
+  <div class="pd-sheet" (click)="$event.stopPropagation()">
+    <div class="pd-sheet__icon pd-sheet__icon--red">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="13"/>
+        <circle cx="12" cy="16.5" r="0.5" fill="#ef4444"/>
       </svg>
     </div>
-    <h2 class="sos-modal__title">Emergency Response</h2>
-    <p class="sos-modal__body">Emergency response is coming soon. In an emergency, please call your local emergency number immediately.</p>
-    <button class="btn btn-ghost" type="button" (click)="closeSos()">Close</button>
+    <h2 class="pd-sheet__title">Emergency Response</h2>
+    <p class="pd-sheet__body">Emergency response is coming soon. In an emergency, please call your local emergency services immediately.</p>
+    <button class="pd-sheet__btn pd-sheet__btn--outline" type="button" (click)="closeSos()">Close</button>
   </div>
 </div>
 }
@@ -334,36 +334,36 @@
      Help Dialogue
      ═══════════════════════════════════════════ -->
 @if (showHelpDialog) {
-<div class="modal-overlay" (click)="closeHelp()">
-  <div class="modal-card help-dialog" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2 class="modal-title">Help & Feedback</h2>
-      <button class="modal-close" type="button" (click)="closeHelp()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+<div class="pd-sheet-backdrop" (click)="closeHelp()">
+  <div class="pd-sheet pd-sheet--left" (click)="$event.stopPropagation()">
+    <div class="pd-sheet__header">
+      <h2 class="pd-sheet__title pd-sheet__title--left">Help &amp; Feedback</h2>
+      <button class="pd-sheet__close" type="button" (click)="closeHelp()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
     </div>
-    <div class="modal-body">
-      @if (!grievanceSubmitted) {
-      <div class="form-group">
-        <label class="form-label">Send us feedback</label>
-        <textarea class="form-input form-textarea" rows="4"
-          placeholder="Tell us what's on your mind — bugs, suggestions, or anything else..."
-          [(ngModel)]="grievanceMessage"></textarea>
-      </div>
-      <button class="btn btn-primary" type="button" [disabled]="!grievanceMessage.trim() || grievanceSubmitting" (click)="submitGrievance()">
-        {{ grievanceSubmitting ? 'Sending...' : 'Submit Feedback' }}
+
+    @if (!grievanceSubmitted) {
+      <label class="pd-sheet__label">What's on your mind?</label>
+      <textarea class="pd-sheet__textarea" rows="4"
+        placeholder="Bugs, suggestions, or anything else..."
+        [(ngModel)]="grievanceMessage"></textarea>
+      <button class="pd-sheet__btn pd-sheet__btn--primary"
+              type="button"
+              [disabled]="!grievanceMessage.trim() || grievanceSubmitting"
+              (click)="submitGrievance()">
+        {{ grievanceSubmitting ? 'Sending…' : 'Send Feedback' }}
       </button>
-      } @else {
-      <p class="form-success-msg">Thanks for your feedback! We'll review it shortly.</p>
-      }
-    </div>
-    <div class="modal-footer" style="border-top:1px solid var(--border-primary);padding-top:12px;margin-top:4px;">
-      <button class="btn btn-ghost" type="button" (click)="restartTutorial()">
-        Restart App Tour
-      </button>
-    </div>
+    } @else {
+      <p class="pd-sheet__success">Thanks! We've received your feedback.</p>
+    }
+
+    <div class="pd-sheet__divider"></div>
+    <button class="pd-sheet__btn pd-sheet__btn--ghost" type="button" (click)="restartTutorial()">
+      Restart App Tour
+    </button>
   </div>
 </div>
 }
