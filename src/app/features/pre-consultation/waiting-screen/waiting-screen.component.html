@@ -1,0 +1,85 @@
+<div class="waiting-page">
+  <div class="waiting-card">
+
+    <!-- Doctor Joined State -->
+    <ng-container *ngIf="doctorJoined; else waitingState">
+      <div class="joined-state">
+        <div class="joined-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h2>Your doctor is ready!</h2>
+        <p>Your video call is starting. Please check your camera and microphone.</p>
+        <div class="pulse-dot"></div>
+      </div>
+    </ng-container>
+
+    <!-- Waiting State -->
+    <ng-template #waitingState>
+
+      <!-- Illustration / Animation -->
+      <div class="animation-area">
+        <div class="pulse-rings">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
+          <div class="center-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main message -->
+      <h2 class="waiting-title">Connecting you to a doctor...</h2>
+
+      <!-- Countdown timer -->
+      <ng-container *ngIf="!isExpired; else fallbackMessage">
+        <div class="timer-block">
+          <div class="timer-display">
+            <span class="timer-digits">{{ minutes }}:{{ seconds }}</span>
+          </div>
+          <div class="timer-bar">
+            <div class="timer-bar-fill" [style.width.%]="progressPercent"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Fallback message after timer ends -->
+      <ng-template #fallbackMessage>
+        <div class="fallback-banner">
+          <svg class="fallback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+          </svg>
+          <p>Experiencing a slight delay, connecting you shortly...</p>
+        </div>
+      </ng-template>
+
+      <!-- Reminder bullets -->
+      <ul class="reminders">
+        <li>
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Your details are being reviewed by a doctor
+        </li>
+        <li>
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Please keep your camera and mic ready
+        </li>
+        <li>
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Find a quiet, well-lit space
+        </li>
+      </ul>
+
+      <button class="back-btn" (click)="onGoBack()">
+        ← Edit symptoms
+      </button>
+
+    </ng-template>
+
+  </div>
+</div>
