@@ -58,6 +58,9 @@
           </div>
         </div>
 
+        <!-- Pre-Consultation Summary: patient symptoms, duration, severity, notes -->
+        <app-patient-summary-panel [zoomUrl]="roomUrl"></app-patient-summary-panel>
+
         @if (referral?.requested_info_note) {
           <div class="panel-card">
             <h3 class="card-title">
@@ -129,9 +132,7 @@
   }
 </section>
 
-<!-- ═══════════════════════════════════════════
-     Lab Order Modal
-     ═══════════════════════════════════════════ -->
+<!-- Lab Order Modal -->
 @if (showLabModal) {
 <div class="modal-overlay" (click)="closeLabModal()">
   <div class="modal-card" (click)="$event.stopPropagation()">
@@ -155,7 +156,6 @@
           <span class="summary-chip">Visit: {{ referral?.consultation_mode === 'offline' ? 'In-person' : 'Online' }}</span>
         </div>
       </div>
-
       <section class="modal-section">
         <div class="modal-section__header">
           <h3 class="modal-section__title">Recommended tests</h3>
@@ -163,16 +163,13 @@
         </div>
         <div class="test-chip-list">
         @for (test of labTestOptions; track test) {
-          <label
-            class="test-chip"
-            [class.test-chip--selected]="isTestSelected(test)">
+          <label class="test-chip" [class.test-chip--selected]="isTestSelected(test)">
             <input type="checkbox" [checked]="isTestSelected(test)" (change)="toggleTest(test)" class="test-chip__input" />
             {{ test }}
           </label>
         }
         </div>
       </section>
-
       <section class="modal-section">
         <div class="modal-section__header">
           <h3 class="modal-section__title">Additional request</h3>
@@ -183,11 +180,10 @@
           <input type="text" class="form-input" placeholder="e.g. Thyroid Panel" [(ngModel)]="customTest" />
         </div>
       </section>
-
       <section class="modal-section">
         <div class="modal-section__header">
           <h3 class="modal-section__title">Select Diagnostic Centre</h3>
-          <p class="modal-section__subtitle">Choose a centre to route this order to specific diagnostic staff (optional).</p>
+          <p class="modal-section__subtitle">Choose a centre to route this order (optional).</p>
         </div>
         @if (loadingCentres) {
           <p class="modal-section__subtitle">Loading centres...</p>
@@ -196,58 +192,27 @@
         } @else {
           <div class="test-chip-list">
             @for (centre of diagnosticCentres; track centre.id) {
-              <label
-                class="test-chip"
-                [class.test-chip--selected]="selectedCentre === centre.id">
-                <input
-                  type="radio"
-                  name="diagnosticCentre"
-                  [value]="centre.id"
-                  [checked]="selectedCentre === centre.id"
-                  (change)="selectedCentre = centre.id"
-                  class="test-chip__input" />
+              <label class="test-chip" [class.test-chip--selected]="selectedCentre === centre.id">
+                <input type="radio" name="diagnosticCentre" [value]="centre.id" [checked]="selectedCentre === centre.id" (change)="selectedCentre = centre.id" class="test-chip__input" />
                 {{ centre.name }} <span class="centre-distance">{{ centre.display_distance }}</span>
               </label>
             }
-            <label
-              class="test-chip"
-              [class.test-chip--selected]="selectedCentre === ''">
-              <input
-                type="radio"
-                name="diagnosticCentre"
-                value=""
-                [checked]="selectedCentre === ''"
-                (change)="selectedCentre = ''"
-                class="test-chip__input" />
+            <label class="test-chip" [class.test-chip--selected]="selectedCentre === ''">
+              <input type="radio" name="diagnosticCentre" value="" [checked]="selectedCentre === ''" (change)="selectedCentre = ''" class="test-chip__input" />
               No preference
             </label>
           </div>
         }
       </section>
-
       <section class="modal-section">
         <div class="modal-section__header">
           <h3 class="modal-section__title">Clinical reasoning <span class="required-star">*</span></h3>
           <p class="modal-section__subtitle">Required — explain why these tests are clinically indicated.</p>
         </div>
         <div class="form-group">
-          <textarea class="form-input form-textarea" rows="3"
-            placeholder="e.g. Patient presents with chest pain; ordering ECG and cardiac enzymes to rule out ACS."
-            [(ngModel)]="labNote"></textarea>
+          <textarea class="form-input form-textarea" rows="3" placeholder="e.g. Patient presents with chest pain..." [(ngModel)]="labNote"></textarea>
         </div>
       </section>
-
-      <div class="modal-summary-card modal-summary-card--accent">
-        <span class="summary-stat">{{ selectedTests.length + (customTest.trim() ? 1 : 0) }}</span>
-        <div>
-          <p class="summary-title">Order summary</p>
-          <p class="summary-copy">
-            {{ selectedTests.length + (customTest.trim() ? 1 : 0) === 0
-              ? 'No tests selected yet.'
-              : 'This order will be routed to diagnostics as soon as you confirm.' }}
-          </p>
-        </div>
-      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" type="button" (click)="closeLabModal()">Cancel</button>
@@ -260,9 +225,7 @@
 </div>
 }
 
-<!-- ═══════════════════════════════════════════
-     Prescription Modal
-     ═══════════════════════════════════════════ -->
+<!-- Prescription Modal -->
 @if (showPrescriptionModal) {
 <div class="modal-overlay" (click)="closePrescriptionModal()">
   <div class="modal-card" (click)="$event.stopPropagation()">
@@ -279,14 +242,6 @@
       </button>
     </div>
     <div class="modal-body modal-body--spacious">
-      <div class="modal-summary-card">
-        <div class="summary-chip-list">
-          <span class="summary-chip">Patient: {{ patientName }}</span>
-          <span class="summary-chip">Status: {{ consultationBadgeStatus }}</span>
-          <span class="summary-chip">Appointment: {{ appointmentSummary }}</span>
-        </div>
-      </div>
-
       @for (item of prescriptionItems; track $index; let i = $index) {
         <div class="prescription-item-card">
           <div class="prescription-item-header">
@@ -328,9 +283,7 @@
 </div>
 }
 
-<!-- ═══════════════════════════════════════════
-     Refer Another Specialist Modal
-     ═══════════════════════════════════════════ -->
+<!-- Refer Another Specialist Modal -->
 @if (showReferralModal) {
 <div class="modal-overlay" (click)="closeReferralModal()">
   <div class="modal-card" (click)="$event.stopPropagation()">
@@ -338,7 +291,7 @@
       <div class="modal-header__copy">
         <span class="modal-eyebrow">Referral Routing</span>
         <h2 class="modal-title">Refer to Another Specialist</h2>
-        <p class="modal-subtitle">Choose the specialist who should continue this case. Existing referral details stay linked.</p>
+        <p class="modal-subtitle">Choose the specialist who should continue this case.</p>
       </div>
       <button class="modal-close" type="button" (click)="closeReferralModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -347,30 +300,12 @@
       </button>
     </div>
     <div class="modal-body modal-body--spacious">
-      <div class="modal-summary-card">
-        <div class="summary-chip-list">
-          <span class="summary-chip">Patient: {{ patientName }}</span>
-          <span class="summary-chip">Current specialty: {{ referral?.specialty || 'General specialist review' }}</span>
-          <span class="summary-chip">Urgency: {{ referral?.urgency | titlecase }}</span>
-        </div>
-      </div>
-
       @if (loadingSpecialists) {
-        <div class="modal-empty-state">
-          <h3>Loading specialists...</h3>
-          <p>Pulling the latest list of available specialists for reassignment.</p>
-        </div>
+        <div class="modal-empty-state"><h3>Loading specialists...</h3></div>
       } @else if (availableSpecialists.length === 0) {
-        <div class="modal-empty-state">
-          <h3>No specialists available</h3>
-          <p>There are no other specialist accounts available to receive this referral right now.</p>
-        </div>
+        <div class="modal-empty-state"><h3>No specialists available</h3></div>
       } @else {
         <section class="modal-section">
-          <div class="modal-section__header">
-            <h3 class="modal-section__title">Choose specialist</h3>
-            <p class="modal-section__subtitle">Pick the specialist who should take over this consultation referral.</p>
-          </div>
           <div class="form-group">
             <label class="form-label" for="consultReassignSpecialistSelect">Available specialists</label>
             <select id="consultReassignSpecialistSelect" class="form-input" [(ngModel)]="selectedSpecialistId">
@@ -382,28 +317,6 @@
             </select>
           </div>
         </section>
-
-        @if (selectedSpecialist) {
-          <div class="specialist-preview-card">
-            <div class="specialist-preview-card__header">
-              <div>
-                <h3 class="specialist-preview-card__name">{{ selectedSpecialist.display_name }}</h3>
-                <p class="specialist-preview-card__meta">
-                  {{ selectedSpecialist.specialty || 'General Specialist' }}
-                  @if (selectedSpecialist.facility_name) {
-                    &bull; {{ selectedSpecialist.facility_name }}
-                  }
-                </p>
-              </div>
-              @if ((selectedSpecialist.specialty || '').toLowerCase() === (referral?.specialty || '').toLowerCase()) {
-                <span class="specialist-option__tag">Best match</span>
-              }
-            </div>
-            @if (selectedSpecialist.bio) {
-              <p class="specialist-preview-card__bio">{{ selectedSpecialist.bio }}</p>
-            }
-          </div>
-        }
       }
     </div>
     @if (referralSubmitError) {
