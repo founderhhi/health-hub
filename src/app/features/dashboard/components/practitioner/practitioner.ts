@@ -8,6 +8,7 @@ import { GpApiService } from '../../../../core/api/gp.service';
 import { ProviderProfileService } from '../../../../core/services/provider-profile.service';
 import { PrescriptionsApiService } from '../../../../core/api/prescriptions.service';
 import { ReferralsApiService } from '../../../../core/api/referrals.service';
+import { LabsApiService, DiagnosticCentre } from '../../../../core/api/labs.service';
 import { WsService } from '../../../../core/realtime/ws.service';
 import { ConsultShellComponent, ConsultMode } from '../../../../shared/components/consult-shell/consult-shell';
 import { formatTriageSourceLabel, normalizeTriageHandoff } from './triage-handoff';
@@ -156,12 +157,25 @@ export class Practitioner implements OnInit, OnDestroy {
     'Ophthalmology'
   ];
 
+  // ── Lab Order Modal State ──
+  showLabModal = false;
+  labOrderPatientId = '';
+  labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
+  selectedTests: string[] = [];
+  labNote = '';
+  submittingLabs = false;
+  diagnosticCentres: DiagnosticCentre[] = [];
+  selectedCentre = '';
+  loadingCentres = false;
+  labOrderNotice = '';
+
   constructor(
     private router: Router,
     private gpApi: GpApiService,
     private providerProfileService: ProviderProfileService,
     private prescriptionsApi: PrescriptionsApiService,
     private referralsApi: ReferralsApiService,
+    private labsApi: LabsApiService,
     private ws: WsService
   ) { }
 
@@ -591,6 +605,80 @@ export class Practitioner implements OnInit, OnDestroy {
       return;
     }
     this.referToSpecialist(this.activeConsultPatientId);
+  }
+
+  onConsultOrderLabs(): void {
+    if (!this.activeConsultPatientId) {
+      this.showUnavailableNotice('Patient context is unavailable for lab ordering.');
+      return;
+    }
+    this.orderLabs(this.activeConsultPatientId);
+  }
+
+  // ── Lab Order Methods ──
+
+  orderLabs(patientId?: string): void {
+    if (!patientId) {
+      return;
+    }
+    this.labOrderPatientId = patientId;
+    this.selectedTests = [];
+    this.labNote = '';
+    this.selectedCentre = '';
+    this.labOrderNotice = '';
+    this.showLabModal = true;
+    this.loadingCentres = true;
+    this.labsApi.getCentres().subscribe({
+      next: (res) => {
+        this.diagnosticCentres = res.centres || [];
+        this.loadingCentres = false;
+        this.renderNow();
+      },
+      error: () => {
+        this.diagnosticCentres = [];
+        this.loadingCentres = false;
+      }
+    });
+  }
+
+  toggleLabTest(test: string): void {
+    const idx = this.selectedTests.indexOf(test);
+    if (idx === -1) {
+      this.selectedTests.push(test);
+    } else {
+      this.selectedTests.splice(idx, 1);
+    }
+  }
+
+  isLabTestSelected(test: string): boolean {
+    return this.selectedTests.includes(test);
+  }
+
+  submitLabOrder(): void {
+    if (!this.labOrderPatientId || this.submittingLabs || this.selectedTests.length === 0 || !this.labNote.trim()) {
+      return;
+    }
+    this.submittingLabs = true;
+    this.labsApi.createOrder(this.labOrderPatientId, this.selectedTests, this.selectedCentre || undefined, this.labNote.trim()).subscribe({
+      next: () => {
+        this.submittingLabs = false;
+        this.showLabModal = false;
+        this.labOrderNotice = `Lab order submitted: ${this.selectedTests.join(', ')}.`;
+        this.renderNow();
+      },
+      error: () => {
+        this.submittingLabs = false;
+        this.showUnavailableNotice('Unable to submit lab order right now.');
+      }
+    });
+  }
+
+  closeLabModal(): void {
+    this.showLabModal = false;
+    this.labOrderPatientId = '';
+    this.selectedTests = [];
+    this.labNote = '';
+    this.selectedCentre = '';
   }
 
   onLeaveConsultShell(): void {

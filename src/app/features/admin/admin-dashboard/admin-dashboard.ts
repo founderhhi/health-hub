@@ -116,6 +116,28 @@ interface AccessRequestRecord {
   updated_at: string;
 }
 
+interface DiagnosticOrderRecord {
+  id: string;
+  tests: string[];
+  status: string;
+  notes: string;
+  order_source: 'gp' | 'specialist';
+  admin_workflow_status: AdminWorkflowStatus | null;
+  created_at: string;
+  patient_name: string | null;
+  patient_phone: string | null;
+  centre_name: string | null;
+}
+
+interface GrievanceRecord {
+  id: string;
+  message: string;
+  status: 'new' | 'reviewed' | 'resolved';
+  created_at: string;
+  patient_name: string | null;
+  patient_phone: string | null;
+}
+
 interface CreateUserForm {
   phone: string;
   password: string;
@@ -140,12 +162,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   prescriptions: PrescriptionRecord[] = [];
   referrals: ReferralRecord[] = [];
   systemHealth: SystemHealth | null = null;
+  diagnosticsOrders: DiagnosticOrderRecord[] = [];
+  grievances: GrievanceRecord[] = [];
   loading = true;
   accessRequestsLoading = false;
   activityLoading = false;
   requestsLoading = false;
   referralsLoading = false;
   pharmacyLoading = false;
+  diagnosticsLoading = false;
+  grievancesLoading = false;
   creatingUser = false;
   searchQuery = '';
   roleFilter = '';
@@ -156,7 +182,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   activityTotalPages = 1;
   pharmacyPage = 1;
   pharmacyTotalPages = 1;
-  activeTab: 'users' | 'accessRequests' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health' = 'users';
+  diagnosticsPage = 1;
+  diagnosticsTotalPages = 1;
+  grievancesPage = 1;
+  grievancesTotalPages = 1;
+  activeTab: 'users' | 'accessRequests' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health' | 'diagnostics' | 'grievances' = 'users';
   actionNotice = '';
   actionError = '';
   showCreateUser = false;
@@ -193,7 +223,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (this.errorTimer) clearTimeout(this.errorTimer);
   }
 
-  setTab(tab: 'users' | 'accessRequests' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health'): void {
+  setTab(tab: 'users' | 'accessRequests' | 'pharmacy' | 'requests' | 'referrals' | 'activity' | 'health' | 'diagnostics' | 'grievances'): void {
     this.activeTab = tab;
     this.actionError = '';
     this.actionNotice = '';
@@ -225,6 +255,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     if (tab === 'requests') {
       this.loadRequests();
+      return;
+    }
+
+    if (tab === 'diagnostics') {
+      this.loadDiagnostics();
+      return;
+    }
+
+    if (tab === 'grievances') {
+      this.loadGrievances();
       return;
     }
 
@@ -863,5 +903,97 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   get healthRoles(): { role: string; count: number }[] {
     if (!this.systemHealth) return [];
     return Object.entries(this.systemHealth.users.byRole).map(([role, count]) => ({ role, count }));
+  }
+
+  // ── Diagnostics Tab ──────────────────────────────────────────────────────────
+
+  loadDiagnostics(): void {
+    this.diagnosticsLoading = true;
+    const params = new URLSearchParams();
+    params.set('page', String(this.diagnosticsPage));
+    params.set('limit', '25');
+    this.api.get<{ orders: DiagnosticOrderRecord[]; pagination: { pages: number } }>(
+      `/admin/diagnostics?${params.toString()}`
+    ).subscribe({
+      next: (res) => {
+        this.diagnosticsOrders = res.orders;
+        this.diagnosticsTotalPages = res.pagination.pages;
+        this.diagnosticsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.diagnosticsLoading = false;
+        this.showError('Unable to load diagnostic orders.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  updateDiagnosticsWorkflow(order: DiagnosticOrderRecord, workflowStatusRaw: string): void {
+    if (!this.isWorkflowStatus(workflowStatusRaw) || order.admin_workflow_status === workflowStatusRaw) {
+      return;
+    }
+    this.api.patch<{ ok: boolean }>(`/admin/diagnostics/${order.id}/workflow`, { workflowStatus: workflowStatusRaw }).subscribe({
+      next: () => {
+        order.admin_workflow_status = workflowStatusRaw as AdminWorkflowStatus;
+        this.showNotice('Diagnostic order workflow updated.');
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update workflow.'));
+        this.loadDiagnostics();
+      }
+    });
+  }
+
+  diagnosticsPageChange(delta: number): void {
+    this.diagnosticsPage = Math.max(1, Math.min(this.diagnosticsTotalPages, this.diagnosticsPage + delta));
+    this.loadDiagnostics();
+  }
+
+  // ── Grievances Tab ───────────────────────────────────────────────────────────
+
+  loadGrievances(): void {
+    this.grievancesLoading = true;
+    const params = new URLSearchParams();
+    params.set('page', String(this.grievancesPage));
+    params.set('limit', '25');
+    this.api.get<{ grievances: GrievanceRecord[]; pagination: { pages: number } }>(
+      `/admin/grievances?${params.toString()}`
+    ).subscribe({
+      next: (res) => {
+        this.grievances = res.grievances;
+        this.grievancesTotalPages = res.pagination.pages;
+        this.grievancesLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.grievancesLoading = false;
+        this.showError('Unable to load grievances.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  updateGrievanceStatus(grievance: GrievanceRecord, status: string): void {
+    if (grievance.status === status) {
+      return;
+    }
+    this.api.patch<{ ok: boolean }>(`/admin/grievances/${grievance.id}`, { status }).subscribe({
+      next: () => {
+        grievance.status = status as GrievanceRecord['status'];
+        this.showNotice('Grievance status updated.');
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.showError(this.extractApiError(error, 'Unable to update grievance.'));
+        this.loadGrievances();
+      }
+    });
+  }
+
+  grievancesPageChange(delta: number): void {
+    this.grievancesPage = Math.max(1, Math.min(this.grievancesTotalPages, this.grievancesPage + delta));
+    this.loadGrievances();
   }
 }

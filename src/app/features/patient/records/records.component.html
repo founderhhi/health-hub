@@ -127,11 +127,21 @@
           @if (order.specialist_name) {
           <p class="record-doctor">Dr. {{ order.specialist_name }}</p>
           }
+          @if (order.order_source) {
+          <p class="record-source">Ordered by: {{ order.order_source === 'gp' ? 'Health Expert (GP)' : 'Specialist' }}</p>
+          }
         </div>
         <span class="status-badge" [ngClass]="getStatusClass(order.status)">
           {{ getStatusLabel(order.status) }}
         </span>
       </div>
+
+      @if (order.notes) {
+      <div class="lab-note">
+        <span class="lab-note__label">Clinical note:</span>
+        <span class="lab-note__text">{{ order.notes }}</span>
+      </div>
+      }
 
       @if (order.tests && order.tests.length > 0) {
       <div class="test-list">

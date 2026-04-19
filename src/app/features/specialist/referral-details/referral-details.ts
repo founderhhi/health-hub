@@ -32,6 +32,7 @@ export class ReferralDetailsComponent implements OnInit {
   labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
   selectedTests: string[] = [];
   customTest = '';
+  labNote = '';
   submittingLabs = false;
 
   // Prescription dialog
@@ -203,6 +204,7 @@ export class ReferralDetailsComponent implements OnInit {
     }
     this.selectedTests = [];
     this.customTest = '';
+    this.labNote = '';
     this.showLabModal = true;
   }
 
@@ -227,13 +229,13 @@ export class ReferralDetailsComponent implements OnInit {
     if (this.customTest.trim()) {
       tests.push(this.customTest.trim());
     }
-    if (tests.length === 0) {
+    if (tests.length === 0 || !this.labNote.trim()) {
       return;
     }
     this.submittingLabs = true;
     this.errorMessage = '';
     this.actionNotice = '';
-    this.labsApi.createOrder(this.referral.patient_id, tests).subscribe({
+    this.labsApi.createOrder(this.referral.patient_id, tests, undefined, this.labNote.trim()).subscribe({
       next: () => {
         this.submittingLabs = false;
         this.showLabModal = false;
@@ -253,6 +255,7 @@ export class ReferralDetailsComponent implements OnInit {
     this.showLabModal = false;
     this.selectedTests = [];
     this.customTest = '';
+    this.labNote = '';
   }
 
   accept(): void {

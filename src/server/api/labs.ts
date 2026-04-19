@@ -18,18 +18,23 @@ labsRouter.get('/centres', requireAuth, async (_req, res) => {
   }
 });
 
-labsRouter.post('/', requireAuth, requireRole(['specialist']), async (req, res) => {
+labsRouter.post('/', requireAuth, requireRole(['specialist', 'gp']), async (req, res) => {
   try {
     const user = (req as any).user;
-    const { patientId, tests, centreId } = req.body as { patientId?: string; tests?: unknown[]; centreId?: string };
+    const { patientId, tests, centreId, notes } = req.body as { patientId?: string; tests?: unknown[]; centreId?: string; notes?: string };
     if (!patientId || !tests) {
       return res.status(400).json({ error: 'patientId and tests required' });
     }
+    const trimmedNotes = String(notes || '').trim();
+    if (!trimmedNotes) {
+      return res.status(400).json({ error: 'Clinical reasoning note is required' });
+    }
+    const orderSource = user.role === 'gp' ? 'gp' : 'specialist';
 
     const insert = await db.query(
-      `insert into lab_orders (patient_id, specialist_id, tests, diagnostic_centre_id)
-       values ($1, $2, $3, $4) returning *`,
-      [patientId, user.userId, JSON.stringify(tests), centreId || null]
+      `insert into lab_orders (patient_id, specialist_id, tests, diagnostic_centre_id, notes, order_source)
+       values ($1, $2, $3, $4, $5, $6) returning *`,
+      [patientId, user.userId, JSON.stringify(tests), centreId || null, trimmedNotes, orderSource]
     );
 
     const order = insert.rows[0];
@@ -82,7 +87,8 @@ labsRouter.get('/diagnostics', requireAuth, requireRole(['lab_tech', 'radiologis
     if (centreId) {
       // Filter orders to only those assigned to this centre
       result = await db.query(
-        `SELECT lo.*, u.display_name AS patient_name, u.phone AS patient_phone
+        `SELECT lo.*, u.display_name AS patient_name, u.phone AS patient_phone,
+                lo.notes, lo.order_source, lo.admin_workflow_status
          FROM lab_orders lo
          JOIN users u ON u.id = lo.patient_id
          WHERE lo.diagnostic_centre_id = $1
@@ -92,7 +98,8 @@ labsRouter.get('/diagnostics', requireAuth, requireRole(['lab_tech', 'radiologis
     } else {
       // Legacy users without a centre see all orders (backwards compatible)
       result = await db.query(
-        `SELECT lo.*, u.display_name AS patient_name, u.phone AS patient_phone
+        `SELECT lo.*, u.display_name AS patient_name, u.phone AS patient_phone,
+                lo.notes, lo.order_source, lo.admin_workflow_status
          FROM lab_orders lo
          JOIN users u ON u.id = lo.patient_id
          ORDER BY lo.created_at DESC`

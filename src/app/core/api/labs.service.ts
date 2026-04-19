@@ -15,8 +15,8 @@ export class LabsApiService {
     return this.api.get<{ centres: DiagnosticCentre[] }>('/labs/centres');
   }
 
-  createOrder(patientId: string, tests: string[], centreId?: string) {
-    return this.api.post<{ order: any }>('/labs', { patientId, tests, centreId });
+  createOrder(patientId: string, tests: string[], centreId?: string, notes?: string) {
+    return this.api.post<{ order: any }>('/labs', { patientId, tests, centreId, notes });
   }
 
   listDiagnosticsOrders() {

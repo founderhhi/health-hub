@@ -225,6 +225,18 @@
         }
       </section>
 
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Clinical reasoning <span class="required-star">*</span></h3>
+          <p class="modal-section__subtitle">Required — explain why these tests are clinically indicated.</p>
+        </div>
+        <div class="form-group">
+          <textarea class="form-input form-textarea" rows="3"
+            placeholder="e.g. Patient presents with chest pain; ordering ECG and cardiac enzymes to rule out ACS."
+            [(ngModel)]="labNote"></textarea>
+        </div>
+      </section>
+
       <div class="modal-summary-card modal-summary-card--accent">
         <span class="summary-stat">{{ selectedTests.length + (customTest.trim() ? 1 : 0) }}</span>
         <div>
@@ -240,7 +252,7 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" type="button" (click)="closeLabModal()">Cancel</button>
       <button class="btn btn-primary" type="button" (click)="submitLabOrder()"
-        [disabled]="submittingLabs || (selectedTests.length === 0 && !customTest.trim())">
+        [disabled]="submittingLabs || (selectedTests.length === 0 && !customTest.trim()) || !labNote.trim()">
         {{ submittingLabs ? 'Submitting...' : 'Order Tests' }}
       </button>
     </div>

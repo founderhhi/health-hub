@@ -41,6 +41,7 @@
   </div>
   <app-consult-shell [consultationId]="activeConsultationId" [roomUrl]="activeConsultRoomUrl" [mode]="activeConsultMode"
     role="gp" [patientName]="activeConsultPatientName" (prescribe)="onConsultPrescribe()" (refer)="onConsultRefer()"
+    (orderLabs)="onConsultOrderLabs()"
     (endConsultation)="onEndConsultation($event)"
     (leave)="onLeaveConsultShell()"></app-consult-shell>
   }
@@ -230,6 +231,13 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M10.5 20.5l-6-6a4.5 4.5 0 0 1 6.5-6.5l6 6a4.5 4.5 0 0 1-6.5 6.5z" />
                 <line x1="14" y1="10" x2="10" y2="14" />
+              </svg>
+            </button>
+            <button class="btn btn-icon btn-labs" (click)="orderLabs(patient.patientId)"
+              [disabled]="isDeletePending(patient.id)"
+              title="Order Lab Tests">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
               </svg>
             </button>
             <button class="btn btn-icon btn-referral" (click)="referToSpecialist(patient.patientId)"
@@ -662,6 +670,77 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" (click)="closeReferralModal()">Cancel</button>
       <button class="btn btn-primary" (click)="submitReferral()">Submit Referral</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════════════════════════════
+     Lab Order Modal (GP)
+     ═══════════════════════════════════════════ -->
+@if (showLabModal) {
+<div class="modal-overlay" (click)="closeLabModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Order Lab Tests</h2>
+      <button class="modal-close" (click)="closeLabModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Test Selection -->
+      <div class="form-group">
+        <label class="form-label">Select Tests</label>
+        <div class="test-chip-list">
+          @for (test of labTestOptions; track test) {
+            <label class="test-chip" [class.test-chip--selected]="isLabTestSelected(test)">
+              <input type="checkbox" [checked]="isLabTestSelected(test)" (change)="toggleLabTest(test)" class="test-chip__input" />
+              {{ test }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Diagnostic Centre -->
+      <div class="form-group">
+        <label class="form-label">Diagnostic Centre (optional)</label>
+        @if (loadingCentres) {
+          <p class="form-hint">Loading centres...</p>
+        } @else if (diagnosticCentres.length > 0) {
+          <select class="form-input" [(ngModel)]="selectedCentre">
+            <option value="">No preference</option>
+            @for (centre of diagnosticCentres; track centre.id) {
+              <option [value]="centre.id">{{ centre.name }} {{ centre.display_distance }}</option>
+            }
+          </select>
+        } @else {
+          <p class="form-hint">No diagnostic centres available.</p>
+        }
+      </div>
+
+      <!-- Mandatory Clinical Note -->
+      <div class="form-group">
+        <label class="form-label">Clinical Reasoning <span style="color:#ef4444">*</span></label>
+        <textarea class="form-input form-textarea" rows="3"
+          placeholder="e.g. Patient presents with fatigue; ordering CBC and thyroid panel to rule out anaemia and hypothyroidism."
+          [(ngModel)]="labNote"></textarea>
+      </div>
+
+      @if (labOrderNotice) {
+        <p class="form-success" style="color:#10b981;font-size:0.875rem;">{{ labOrderNotice }}</p>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeLabModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="submitLabOrder()"
+        [disabled]="submittingLabs || selectedTests.length === 0 || !labNote.trim()">
+        {{ submittingLabs ? 'Submitting...' : 'Order Tests' }}
+      </button>
     </div>
   </div>
 </div>

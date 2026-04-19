@@ -985,3 +985,148 @@ adminRouter.get('/system/health', requireAuth, requireRole(['admin']), async (_r
     return res.status(500).json({ error: 'Unable to fetch system health' });
   }
 });
+
+// ── Diagnostics Admin ────────────────────────────────────────────────────────
+
+adminRouter.get('/diagnostics', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query['page'] as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query['limit'] as string) || 25));
+    const offset = (page - 1) * limit;
+    const orderSource = req.query['orderSource'] as string | undefined;
+    const status = req.query['status'] as string | undefined;
+
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+
+    if (orderSource) {
+      params.push(orderSource);
+      conditions.push(`lo.order_source = $${params.length}`);
+    }
+    if (status) {
+      params.push(status);
+      conditions.push(`lo.status = $${params.length}`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const countResult = await db.query(
+      `SELECT count(*) FROM lab_orders lo ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.rows[0].count || '0');
+
+    params.push(limit);
+    params.push(offset);
+
+    const result = await db.query(
+      `SELECT lo.id, lo.tests, lo.status, lo.notes, lo.order_source,
+              lo.admin_workflow_status, lo.created_at,
+              u.display_name AS patient_name, u.phone AS patient_phone,
+              dc.name AS centre_name
+       FROM lab_orders lo
+       JOIN users u ON u.id = lo.patient_id
+       LEFT JOIN diagnostic_centres dc ON dc.id = lo.diagnostic_centre_id
+       ${whereClause}
+       ORDER BY lo.created_at DESC
+       LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      params
+    );
+
+    return res.json({
+      orders: result.rows,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    console.error('Admin diagnostics list error', error);
+    return res.status(500).json({ error: 'Unable to fetch diagnostic orders' });
+  }
+});
+
+adminRouter.patch('/diagnostics/:id/workflow', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { workflowStatus } = req.body as { workflowStatus?: string };
+
+    if (!workflowStatus || !VALID_ADMIN_WORKFLOW_STATUSES.includes(workflowStatus as any)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
+
+    const result = await db.query(
+      `UPDATE lab_orders SET admin_workflow_status = $1 WHERE id = $2 RETURNING id, patient_id`,
+      [workflowStatus, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Lab order not found' });
+    }
+
+    await logAdminActivity(actor?.userId, 'diagnostics.workflow.updated', result.rows[0].patient_id, null, {
+      orderId: id,
+      workflowStatus
+    });
+
+    return res.json({ ok: true, orderId: id, workflowStatus });
+  } catch (error) {
+    console.error('Admin diagnostics workflow update error', error);
+    return res.status(500).json({ error: 'Unable to update diagnostic order workflow' });
+  }
+});
+
+// ── Grievances Admin ─────────────────────────────────────────────────────────
+
+adminRouter.get('/grievances', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query['page'] as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query['limit'] as string) || 25));
+    const offset = (page - 1) * limit;
+
+    const countResult = await db.query('SELECT count(*) FROM grievances');
+    const total = parseInt(countResult.rows[0].count || '0');
+
+    const result = await db.query(
+      `SELECT g.id, g.message, g.status, g.created_at,
+              u.display_name AS patient_name, u.phone AS patient_phone
+       FROM grievances g
+       JOIN users u ON u.id = g.patient_id
+       ORDER BY g.created_at DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    return res.json({
+      grievances: result.rows,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    console.error('Admin grievances list error', error);
+    return res.status(500).json({ error: 'Unable to fetch grievances' });
+  }
+});
+
+adminRouter.patch('/grievances/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body as { status?: string };
+    const validStatuses = ['new', 'reviewed', 'resolved'];
+
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+    }
+
+    const result = await db.query(
+      `UPDATE grievances SET status = $1 WHERE id = $2 RETURNING id`,
+      [status, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Grievance not found' });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Admin grievance update error', error);
+    return res.status(500).json({ error: 'Unable to update grievance' });
+  }
+});

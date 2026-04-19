@@ -1,9 +1,11 @@
-import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, ChangeDetectorRef, ElementRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
+import { ApiClientService } from '../../../core/api/api-client.service';
 import { WsService } from '../../../core/realtime/ws.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { ThemeService, ThemeMode } from '../../../shared/services/theme.service';
@@ -35,17 +37,35 @@ const DASHBOARD_SERVICES: ServiceCard[] = [
   { id: 'travel', title: 'Travel & Care', icon: 'globe', description: 'Plan treatment travel and compare budgets.', tone: 'amber' },
   { id: 'healwell-africa', title: 'HealWell in Africa', icon: 'africa', description: 'Explore care hubs across key African cities.', tone: 'emerald' },
   { id: 'healwell-india', title: 'HealWell in India', icon: 'india', description: 'Discover specialty hospitals across India.', tone: 'indigo' },
-  { id: 'insurance', title: 'Insurance', icon: 'shield', description: 'Coverage and support services.', tone: 'amber', comingSoon: true },
+  { id: 'coming-soon', title: 'Coming Soon', icon: 'sparkle', description: 'Discover what\'s next on Health Hub.', tone: 'amber' },
+];
+
+interface WalkthroughStep {
+  targetId: string;
+  title: string;
+  body: string;
+}
+
+const WALKTHROUGH_STEPS: WalkthroughStep[] = [
+  { targetId: 'wt-bottom-nav', title: 'Your Navigation', body: 'Tap these icons to move between Home, Appointments, AI Chat, Records, and Profile.' },
+  { targetId: 'wt-services-grid', title: 'Your Health Services', body: 'Tap any card to access GP, Specialist, Pharmacy, Diagnostics, and more.' },
+  { targetId: 'wt-gp-tile', title: 'See a Health Expert Now', body: 'Get a video, audio, or chat consultation with a Health Expert in minutes.' },
+  { targetId: 'wt-healwell-tile', title: 'Care at Your Doorstep', body: 'Book professional home visits and access remote monitoring services.' },
+  { targetId: 'wt-africa-tile', title: 'Healthcare Across Africa', body: 'Access verified clinics and specialists across the continent.' },
+  { targetId: 'wt-india-tile', title: 'Healthcare Across India', body: 'Connect with hospital networks and specialists across India.' },
+  { targetId: 'wt-stats', title: 'Your Health at a Glance', body: 'Track your consultations, active prescriptions, and lab records here.' },
+  { targetId: 'wt-notification-btn', title: 'Your Notifications', body: 'Stay updated on consultations, prescriptions, and lab results.' },
+  { targetId: 'wt-help-btn', title: 'Need Help?', body: 'Tap here anytime to restart this tour or send us feedback.' }
 ];
 
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, BottomNavComponent],
+  imports: [CommonModule, FormsModule, RouterModule, BottomNavComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   PATIENT_TABS = PATIENT_TABS;
   services = DASHBOARD_SERVICES;
 
@@ -56,6 +76,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   requestError = '';
   showModeSelector = false;
   showPaymentConfirm = false;
+
+  // Emergency SOS
+  showSosModal = false;
+
+  // Help dialogue
+  showHelpDialog = false;
+  grievanceMessage = '';
+  grievanceSubmitting = false;
+  grievanceSubmitted = false;
+
+  // Walkthrough
+  walkthroughActive = false;
+  walkthroughStepIndex = 0;
+  walkthroughSteps = WALKTHROUGH_STEPS;
+  spotlightRect: DOMRect | null = null;
   consultationCost = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -89,6 +124,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private patientApi: PatientApiService,
     private prescriptionsApi: PrescriptionsApiService,
     private notificationsApi: NotificationsApiService,
+    private api: ApiClientService,
     private ws: WsService,
     private themeService: ThemeService
   ) {}
@@ -168,14 +204,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   navigateToService(service: ServiceCard): void {
-    if (service.comingSoon) {
-      this.comingSoonMessage = `${service.title} is coming soon.`;
-      setTimeout(() => {
-        this.comingSoonMessage = '';
-        this.cdr.detectChanges();
-      }, 3000);
-      return;
-    }
     switch (service.id) {
       case 'gp':
         this.showPaymentConfirm = true;
@@ -202,6 +230,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         break;
       case 'healwell-india':
         this.router.navigate(['/patient/healwell-india']);
+        break;
+      case 'coming-soon':
+        this.router.navigate(['/patient/coming-soon']);
         break;
     }
   }
@@ -275,6 +306,145 @@ export class DashboardComponent implements OnInit, OnDestroy {
   cancelPayment(): void {
     this.showPaymentConfirm = false;
     this.selectedMode = 'video';
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.checkAndStartTutorial();
+    }
+  }
+
+  // ── Emergency SOS ──────────────────────────────────────────────────────────
+
+  openSos(): void {
+    this.showSosModal = true;
+  }
+
+  closeSos(): void {
+    this.showSosModal = false;
+  }
+
+  // ── Help Dialogue ───────────────────────────────────────────────────────────
+
+  openHelp(): void {
+    this.grievanceMessage = '';
+    this.grievanceSubmitted = false;
+    this.showHelpDialog = true;
+  }
+
+  closeHelp(): void {
+    this.showHelpDialog = false;
+  }
+
+  submitGrievance(): void {
+    if (!this.grievanceMessage.trim() || this.grievanceSubmitting) {
+      return;
+    }
+    this.grievanceSubmitting = true;
+    this.api.post<{ ok: boolean }>('/patient/grievance', { message: this.grievanceMessage.trim() }).subscribe({
+      next: () => {
+        this.grievanceSubmitting = false;
+        this.grievanceSubmitted = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.grievanceSubmitting = false;
+        this.grievanceSubmitted = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  restartTutorial(): void {
+    this.showHelpDialog = false;
+    this.startWalkthrough();
+  }
+
+  // ── Walkthrough ─────────────────────────────────────────────────────────────
+
+  private checkAndStartTutorial(): void {
+    this.api.get<{ tutorialCompleted: boolean }>('/patient/tutorial-status').subscribe({
+      next: (res) => {
+        if (!res.tutorialCompleted) {
+          setTimeout(() => this.startWalkthrough(), 600);
+        }
+      },
+      error: () => { /* fail silently */ }
+    });
+  }
+
+  startWalkthrough(): void {
+    this.walkthroughStepIndex = 0;
+    this.walkthroughActive = true;
+    this.updateSpotlight();
+    this.cdr.detectChanges();
+  }
+
+  get currentStep(): WalkthroughStep {
+    return this.walkthroughSteps[this.walkthroughStepIndex];
+  }
+
+  walkthroughNext(): void {
+    if (this.walkthroughStepIndex < this.walkthroughSteps.length - 1) {
+      this.walkthroughStepIndex++;
+      this.updateSpotlight();
+    } else {
+      this.completeWalkthrough();
+    }
+  }
+
+  walkthroughBack(): void {
+    if (this.walkthroughStepIndex > 0) {
+      this.walkthroughStepIndex--;
+      this.updateSpotlight();
+    }
+  }
+
+  walkthroughSkip(): void {
+    this.completeWalkthrough();
+  }
+
+  private completeWalkthrough(): void {
+    this.walkthroughActive = false;
+    this.spotlightRect = null;
+    this.api.patch<{ ok: boolean }>('/patient/tutorial-complete', {}).subscribe();
+    this.cdr.detectChanges();
+  }
+
+  private updateSpotlight(): void {
+    const step = this.walkthroughSteps[this.walkthroughStepIndex];
+    const el = document.getElementById(step.targetId);
+    if (el) {
+      this.spotlightRect = el.getBoundingClientRect();
+    } else {
+      this.spotlightRect = null;
+    }
+    this.cdr.detectChanges();
+  }
+
+  get spotlightStyle(): Record<string, string> {
+    if (!this.spotlightRect) {
+      return { top: '50%', left: '50%', width: '0px', height: '0px' };
+    }
+    const pad = 8;
+    return {
+      top: `${this.spotlightRect.top - pad}px`,
+      left: `${this.spotlightRect.left - pad}px`,
+      width: `${this.spotlightRect.width + pad * 2}px`,
+      height: `${this.spotlightRect.height + pad * 2}px`,
+    };
+  }
+
+  get tooltipStyle(): Record<string, string> {
+    if (!this.spotlightRect) {
+      return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+    }
+    const viewportHeight = window.innerHeight;
+    const spBottom = this.spotlightRect.bottom + 8;
+    if (spBottom + 140 < viewportHeight) {
+      return { top: `${spBottom + 16}px`, left: '16px', right: '16px' };
+    }
+    return { bottom: `${viewportHeight - this.spotlightRect.top + 16}px`, left: '16px', right: '16px' };
   }
 
   private loadStats(): void {

@@ -13,6 +13,8 @@
       <button class="tab" [class.active]="activeTab === 'pharmacy'" (click)="setTab('pharmacy')">Pharmacy</button>
       <button class="tab" [class.active]="activeTab === 'requests'" (click)="setTab('requests')">Requests</button>
       <button class="tab" [class.active]="activeTab === 'referrals'" (click)="setTab('referrals')">Referrals</button>
+      <button class="tab" [class.active]="activeTab === 'diagnostics'" (click)="setTab('diagnostics')">Diagnostics</button>
+      <button class="tab" [class.active]="activeTab === 'grievances'" (click)="setTab('grievances')">Grievances</button>
       <button class="tab" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">Activity</button>
       <button class="tab" [class.active]="activeTab === 'health'" (click)="setTab('health')">System Health</button>
     </div>
@@ -284,6 +286,110 @@
     <button class="page-btn" [disabled]="pharmacyPage <= 1" (click)="prevPharmacyPage()">Previous</button>
     <span class="page-info">Page {{ pharmacyPage }} of {{ pharmacyTotalPages }}</span>
     <button class="page-btn" [disabled]="pharmacyPage >= pharmacyTotalPages" (click)="nextPharmacyPage()">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'diagnostics') {
+  @if (diagnosticsLoading) {
+  <div class="loading">Loading diagnostic orders...</div>
+  } @else if (diagnosticsOrders.length === 0) {
+  <div class="loading">No diagnostic orders found.</div>
+  } @else {
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Patient</th>
+        <th>Tests</th>
+        <th>Source</th>
+        <th>Status</th>
+        <th>Clinical Note</th>
+        <th>Centre</th>
+        <th>Workflow</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (order of diagnosticsOrders; track order.id) {
+      <tr>
+        <td class="mono">{{ order.id | slice:0:8 }}…</td>
+        <td>
+          <div>{{ order.patient_name || '—' }}</div>
+          <div class="sub">{{ order.patient_phone }}</div>
+        </td>
+        <td>{{ (order.tests || []).join(', ') }}</td>
+        <td>
+          <span class="status-badge" [class.status-badge--info]="order.order_source === 'gp'" [class.status-badge--neutral]="order.order_source === 'specialist'">
+            {{ order.order_source === 'gp' ? 'GP' : 'Specialist' }}
+          </span>
+        </td>
+        <td><span class="status-badge">{{ order.status }}</span></td>
+        <td class="note-cell">{{ order.notes }}</td>
+        <td>{{ order.centre_name || '—' }}</td>
+        <td>
+          <select class="role-select" [ngModel]="order.admin_workflow_status || ''"
+            (ngModelChange)="updateDiagnosticsWorkflow(order, $event)">
+            <option value="">— Select —</option>
+            @for (ws of workflowStatuses; track ws) {
+            <option [value]="ws">{{ formatWorkflowStatus(ws) }}</option>
+            }
+          </select>
+        </td>
+        <td>{{ order.created_at | date:'mediumDate' }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="pagination">
+    <button class="page-btn" [disabled]="diagnosticsPage <= 1" (click)="diagnosticsPageChange(-1)">Prev</button>
+    <span>Page {{ diagnosticsPage }} of {{ diagnosticsTotalPages }}</span>
+    <button class="page-btn" [disabled]="diagnosticsPage >= diagnosticsTotalPages" (click)="diagnosticsPageChange(1)">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'grievances') {
+  @if (grievancesLoading) {
+  <div class="loading">Loading grievances...</div>
+  } @else if (grievances.length === 0) {
+  <div class="loading">No grievances submitted yet.</div>
+  } @else {
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Patient</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th>Submitted</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (g of grievances; track g.id) {
+      <tr>
+        <td>
+          <div>{{ g.patient_name || '—' }}</div>
+          <div class="sub">{{ g.patient_phone }}</div>
+        </td>
+        <td class="note-cell">{{ g.message }}</td>
+        <td><span class="status-badge" [class.status-badge--success]="g.status === 'resolved'" [class.status-badge--info]="g.status === 'reviewed'">{{ g.status }}</span></td>
+        <td>{{ g.created_at | date:'mediumDate' }}</td>
+        <td>
+          <select class="role-select" [ngModel]="g.status" (ngModelChange)="updateGrievanceStatus(g, $event)">
+            <option value="new">New</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="pagination">
+    <button class="page-btn" [disabled]="grievancesPage <= 1" (click)="grievancesPageChange(-1)">Prev</button>
+    <span>Page {{ grievancesPage }} of {{ grievancesTotalPages }}</span>
+    <button class="page-btn" [disabled]="grievancesPage >= grievancesTotalPages" (click)="grievancesPageChange(1)">Next</button>
   </div>
   }
   }

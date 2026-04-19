@@ -320,6 +320,43 @@ async function ensureAccountAccessRequestsTableAndIndexes(): Promise<void> {
   );
 }
 
+async function ensureLabOrderFields(): Promise<void> {
+  // Migration 015: notes, order_source, admin_workflow_status on lab_orders
+  await db.query(`
+    ALTER TABLE lab_orders
+      ADD COLUMN IF NOT EXISTS notes TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS order_source VARCHAR(20) NOT NULL DEFAULT 'specialist',
+      ADD COLUMN IF NOT EXISTS admin_workflow_status VARCHAR(50) NOT NULL DEFAULT 'new';
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_lab_orders_order_source ON lab_orders (order_source);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_lab_orders_admin_workflow_status ON lab_orders (admin_workflow_status);`);
+}
+
+async function ensureGrievancesAndTutorialSchema(): Promise<void> {
+  // Migration 016: tutorial_completed on patient_profiles + grievances + feature_interest tables
+  await db.query(`ALTER TABLE patient_profiles ADD COLUMN IF NOT EXISTS tutorial_completed BOOLEAN NOT NULL DEFAULT FALSE;`);
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS grievances (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      patient_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      message TEXT NOT NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'new',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_grievances_patient_id ON grievances (patient_id);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_grievances_status ON grievances (status);`);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS feature_interest (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      patient_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (patient_id)
+    );
+  `);
+}
+
 export async function ensureRuntimeSchema(): Promise<void> {
   if (!connectionString) {
     return;
@@ -337,6 +374,8 @@ export async function ensureRuntimeSchema(): Promise<void> {
     await ensureUserApprovalColumns();
     await ensureAdminWorkflowTrackingTableAndIndexes();
     await ensureAccountAccessRequestsTableAndIndexes();
+    await ensureLabOrderFields();
+    await ensureGrievancesAndTutorialSchema();
 
     const missingColumns = await findMissingSchemaColumns();
     const invalidConstraints = await findInvalidSchemaConstraints();

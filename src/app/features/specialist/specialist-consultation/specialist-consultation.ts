@@ -42,6 +42,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
   labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
   selectedTests: string[] = [];
   customTest = '';
+  labNote = '';
   submittingLabs = false;
   diagnosticCentres: DiagnosticCentre[] = [];
   selectedCentre = '';
@@ -236,13 +237,13 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     if (this.customTest.trim()) {
       tests.push(this.customTest.trim());
     }
-    if (tests.length === 0) {
+    if (tests.length === 0 || !this.labNote.trim()) {
       return;
     }
     this.submittingLabs = true;
     this.errorMessage = '';
     this.statusMessage = '';
-    this.labsApi.createOrder(this.referral.patient_id, tests, this.selectedCentre || undefined).subscribe({
+    this.labsApi.createOrder(this.referral.patient_id, tests, this.selectedCentre || undefined, this.labNote.trim()).subscribe({
       next: () => {
         this.submittingLabs = false;
         this.showLabModal = false;
@@ -259,6 +260,7 @@ export class SpecialistConsultationComponent implements OnInit, OnDestroy {
     this.showLabModal = false;
     this.selectedTests = [];
     this.customTest = '';
+    this.labNote = '';
     this.selectedCentre = '';
   }
 

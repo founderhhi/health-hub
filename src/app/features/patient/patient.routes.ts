@@ -56,6 +56,10 @@ export const PATIENT_ROUTES: Routes = [
     loadComponent: () => import('./specialist/specialist.component').then(m => m.PatientSpecialistComponent)
   },
   {
+    path: 'coming-soon',
+    loadComponent: () => import('./coming-soon/coming-soon.component').then(m => m.ComingSoonComponent)
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full'

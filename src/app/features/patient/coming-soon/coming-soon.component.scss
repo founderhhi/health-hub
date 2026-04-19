@@ -1,0 +1,225 @@
+@use '../../../../app/shared/styles/variables' as v;
+@use '../../../../app/shared/styles/mixins' as m;
+
+.coming-soon-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: v.$space-lg;
+  padding-bottom: calc(80px + v.$safe-area-bottom);
+  color: var(--text-primary);
+}
+
+/* ── Header ─────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  margin-bottom: v.$space-md;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.back-icon {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-primary);
+}
+
+.header-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  margin: 0 0 2px;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 v.$space-lg;
+}
+
+/* ── Feature Grid ────────────────────────────────── */
+.features-grid {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+  margin-bottom: v.$space-xl;
+}
+
+.feature-tile {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+
+  &:active {
+    opacity: 0.9;
+  }
+
+  &--expanded {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.tile-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-md;
+  padding: v.$space-md;
+}
+
+.tile-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--accent-primary);
+  }
+}
+
+.tile-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.tile-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 2px;
+  color: var(--text-primary);
+}
+
+.tile-teaser {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile-chevron {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.25s ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-secondary);
+  }
+
+  &--open {
+    transform: rotate(180deg);
+  }
+}
+
+.tile-body {
+  padding: 0 v.$space-md v.$space-md;
+  border-top: 1px solid var(--border-primary);
+  animation: slideDown 0.2s ease;
+}
+
+.tile-description {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: v.$space-sm 0 v.$space-sm;
+}
+
+.coming-soon-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+  color: var(--accent-primary);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Notify CTA ─────────────────────────────────── */
+.notify-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$space-sm;
+  padding: v.$space-lg 0;
+  text-align: center;
+}
+
+.notify-copy {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.notify-btn {
+  width: 100%;
+  max-width: 320px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent-primary);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:active {
+    opacity: 0.85;
+  }
+
+  &--done {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: default;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}

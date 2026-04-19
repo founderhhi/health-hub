@@ -256,7 +256,8 @@ patientRouter.get('/lab-orders', requireAuth, requireRole(['patient']), async (r
   try {
     const user = (req as any).user;
     const result = await db.query(
-      `select lo.*, u.display_name as specialist_name
+      `select lo.*, u.display_name as specialist_name,
+              lo.notes, lo.order_source
        from lab_orders lo
        left join users u on u.id = lo.specialist_id
        where lo.patient_id = $1
@@ -653,5 +654,75 @@ patientRouter.get('/specialists', requireAuth, requireRole(['patient']), async (
   } catch (error) {
     console.error('Specialists list error', error);
     return res.json({ specialists: [] });
+  }
+});
+
+// ── Tutorial Persistence ─────────────────────────────────────────────────────
+
+patientRouter.get('/tutorial-status', requireAuth, requireRole(['patient']), async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const result = await db.query(
+      `SELECT tutorial_completed FROM patient_profiles WHERE user_id = $1`,
+      [user.userId]
+    );
+    const tutorialCompleted = result.rows[0]?.tutorial_completed ?? false;
+    return res.json({ tutorialCompleted });
+  } catch (error) {
+    console.error('Get tutorial status error', error);
+    return res.json({ tutorialCompleted: false });
+  }
+});
+
+patientRouter.patch('/tutorial-complete', requireAuth, requireRole(['patient']), async (req, res) => {
+  try {
+    const user = (req as any).user;
+    await db.query(
+      `INSERT INTO patient_profiles (user_id, tutorial_completed)
+       VALUES ($1, true)
+       ON CONFLICT (user_id) DO UPDATE SET tutorial_completed = true`,
+      [user.userId]
+    );
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Tutorial complete error', error);
+    return res.status(500).json({ error: 'Unable to update tutorial status' });
+  }
+});
+
+// ── Grievances ───────────────────────────────────────────────────────────────
+
+patientRouter.post('/grievance', requireAuth, requireRole(['patient']), async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const { message } = req.body as { message?: string };
+    const trimmed = String(message || '').trim();
+    if (!trimmed) {
+      return res.status(400).json({ error: 'message is required' });
+    }
+    await db.query(
+      `INSERT INTO grievances (patient_id, message) VALUES ($1, $2)`,
+      [user.userId, trimmed]
+    );
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Submit grievance error', error);
+    return res.status(500).json({ error: 'Unable to submit feedback' });
+  }
+});
+
+// ── Feature Interest (Coming Soon notify-me) ─────────────────────────────────
+
+patientRouter.post('/notify-interest', requireAuth, requireRole(['patient']), async (req, res) => {
+  try {
+    const user = (req as any).user;
+    await db.query(
+      `INSERT INTO feature_interest (patient_id) VALUES ($1) ON CONFLICT (patient_id) DO NOTHING`,
+      [user.userId]
+    );
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Notify interest error', error);
+    return res.status(500).json({ error: 'Unable to save interest' });
   }
 });
