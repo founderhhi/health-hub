@@ -172,11 +172,25 @@ referralsRouter.post('/', requireAuth, requireRole(['gp', 'specialist']), async 
       }
     }
 
+    // Pull the patient's most recent triage (consult_requests.symptoms) so the
+    // specialist can see what the patient entered in the pre-consultation form
+    // even if the specialist opens the referral in a browser with no session.
+    const triageLookup = await db.query(
+      `select symptoms
+         from consult_requests
+         where patient_id = $1
+         order by created_at desc
+         limit 1`,
+      [patientId]
+    );
+    const triageContext = triageLookup.rows[0]?.symptoms ?? {};
+
     const insert = await db.query(
-      `insert into referrals (patient_id, from_provider_id, to_specialist_id, urgency, reason, appointment_date, appointment_time, consultation_mode, location, specialty)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *`,
+      `insert into referrals (patient_id, from_provider_id, to_specialist_id, urgency, reason, appointment_date, appointment_time, consultation_mode, location, specialty, triage_context)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
       [patientId, user.userId, resolvedSpecialistId, urgency || 'routine', reason || null,
-       appointmentDate || null, appointmentTime || null, consultationMode || 'online', location || null, normalizedSpecialty]
+       appointmentDate || null, appointmentTime || null, consultationMode || 'online', location || null, normalizedSpecialty,
+       JSON.stringify(triageContext)]
     );
 
     const referral = insert.rows[0];

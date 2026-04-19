@@ -41,7 +41,7 @@
   </div>
   <app-consult-shell [consultationId]="activeConsultationId" [roomUrl]="activeConsultRoomUrl" [mode]="activeConsultMode"
     role="gp" [patientName]="activeConsultPatientName" (prescribe)="onConsultPrescribe()" (refer)="onConsultRefer()"
-    (orderLabs)="onConsultOrderLabs()"
+    (requestLabs)="onConsultOrderLabs()"
     (endConsultation)="onEndConsultation($event)"
     (leave)="onLeaveConsultShell()"></app-consult-shell>
   }

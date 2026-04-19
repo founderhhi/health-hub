@@ -55,6 +55,7 @@ const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'referrals', column: 'requested_info_note' },
   { table: 'referrals', column: 'requested_info_at' },
   { table: 'referrals', column: 'requested_info_by' },
+  { table: 'referrals', column: 'triage_context' },
   { table: 'prescriptions', column: 'patient_contacted' },
   { table: 'prescriptions', column: 'patient_contacted_by' },
   { table: 'prescriptions', column: 'patient_contacted_at' },
@@ -332,6 +333,15 @@ async function ensureLabOrderFields(): Promise<void> {
   await db.query(`CREATE INDEX IF NOT EXISTS idx_lab_orders_admin_workflow_status ON lab_orders (admin_workflow_status);`);
 }
 
+async function ensureReferralTriageContext(): Promise<void> {
+  // Migration 017: referrals.triage_context carries patient-entered symptoms
+  // from consult_requests to the specialist's view.
+  await db.query(
+    `ALTER TABLE referrals
+       ADD COLUMN IF NOT EXISTS triage_context jsonb NOT NULL DEFAULT '{}'::jsonb;`
+  );
+}
+
 async function ensureGrievancesAndTutorialSchema(): Promise<void> {
   // Migration 016: tutorial_completed on patient_profiles + grievances + feature_interest tables
   await db.query(`ALTER TABLE patient_profiles ADD COLUMN IF NOT EXISTS tutorial_completed BOOLEAN NOT NULL DEFAULT FALSE;`);
@@ -376,6 +386,7 @@ export async function ensureRuntimeSchema(): Promise<void> {
     await ensureAccountAccessRequestsTableAndIndexes();
     await ensureLabOrderFields();
     await ensureGrievancesAndTutorialSchema();
+    await ensureReferralTriageContext();
 
     const missingColumns = await findMissingSchemaColumns();
     const invalidConstraints = await findInvalidSchemaConstraints();

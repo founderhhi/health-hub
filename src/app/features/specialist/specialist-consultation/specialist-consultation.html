@@ -59,7 +59,7 @@
         </div>
 
         <!-- Pre-Consultation Summary: patient symptoms, duration, severity, notes -->
-        <app-patient-summary-panel [zoomUrl]="roomUrl"></app-patient-summary-panel>
+        <app-patient-summary-panel [zoomUrl]="roomUrl" [triageContext]="referral?.triage_context"></app-patient-summary-panel>
 
         @if (referral?.requested_info_note) {
           <div class="panel-card">

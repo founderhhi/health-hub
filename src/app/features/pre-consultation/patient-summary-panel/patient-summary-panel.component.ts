@@ -17,6 +17,9 @@ const FALLBACK_ZOOM_URL = 'https://zoom.us/j/your-meeting-id';
 export class PatientSummaryPanelComponent implements OnInit {
   @Input() zoomUrl: string = FALLBACK_ZOOM_URL;
   @Input() consultationId?: string; // pass in from parent if known
+  // Server-side fallback: localStorage lives only in the patient's browser, so
+  // the specialist's page receives triage via referrals.triage_context instead.
+  @Input() triageContext?: Record<string, any> | null;
 
   private consultationService = inject(ConsultationService);
 
@@ -27,10 +30,35 @@ export class PatientSummaryPanelComponent implements OnInit {
   ngOnInit(): void {
     // Load from service (which reads localStorage)
     this.session = this.consultationService.currentSession;
+    if (!this.session && this.triageContext && Object.keys(this.triageContext).length > 0) {
+      this.session = this.synthesizeSessionFromTriage(this.triageContext);
+    }
     if (this.session) {
       this.summaryString = this.consultationService.toSummaryString(this.session);
       this.consultationService.markDoctorReviewing();
     }
+  }
+
+  private synthesizeSessionFromTriage(ctx: Record<string, any>): ConsultationSession {
+    const rawSymptoms = Array.isArray(ctx['symptoms'])
+      ? ctx['symptoms']
+      : Array.isArray(ctx)
+        ? ctx
+        : [];
+    const symptoms = rawSymptoms
+      .map((s) => (typeof s === 'string' ? s : s?.name || s?.label || ''))
+      .filter((s) => Boolean(s));
+
+    return {
+      consultation_id: this.consultationId || 'referral',
+      symptoms,
+      duration: typeof ctx['duration'] === 'string' ? ctx['duration'] : '',
+      severity: typeof ctx['severity'] === 'number' ? ctx['severity'] : 0,
+      notes: typeof ctx['notes'] === 'string' ? ctx['notes'] : (typeof ctx['complaint'] === 'string' ? ctx['complaint'] : ''),
+      patient_status: 'waiting',
+      doctor_status: 'reviewing',
+      created_at: new Date().toISOString()
+    };
   }
 
   get severityColor(): string {
