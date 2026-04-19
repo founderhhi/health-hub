@@ -1,1 +1,139 @@
-aW1wb3J0IHsgSW5qZWN0YWJsZSwgUExBVEZPUk1fSUQsIGluamVjdCB9IGZyb20gJ0Bhbmd1bGFyL2NvcmUnOwppbXBvcnQgeyBpc1BsYXRmb3JtQnJvd3NlciB9IGZyb20gJ0Bhbmd1bGFyL2NvbW1vbic7CmltcG9ydCB7IEh0dHBDbGllbnQgfSBmcm9tICdAYW5ndWxhci9jb21tb24vaHR0cCc7CmltcG9ydCB7IEJlaGF2aW9yU3ViamVjdCwgT2JzZXJ2YWJsZSwgb2YsIGRlbGF5LCBjYXRjaEVycm9yLCB0YXAgfSBmcm9tICdyeGpzJzsKaW1wb3J0IHsgUm91dGVyIH0gZnJvbSAnQGFuZ3VsYXIvcm91dGVyJzsKCmV4cG9ydCBpbnRlcmZhY2UgQ29uc3VsdGF0aW9uU2Vzc2lvbiB7CiAgY29uc3VsdGF0aW9uX2lkOiBzdHJpbmc7CiAgc3ltcHRvbXM6IHN0cmluZ1tdOwogIGR1cmF0aW9uOiBzdHJpbmc7CiAgc2V2ZXJpdHk6IG51bWJlcjsKICBub3Rlczogc3RyaW5nOwogIHBhdGllbnRfc3RhdHVzOiAnZm9ybScgfCAnd2FpdGluZycgfCAncmVhZHknIHwgJ2luX2NhbGwnOwogIGRvY3Rvcl9zdGF0dXM6ICdwZW5kaW5nJyB8ICdyZXZpZXdpbmcnIHwgJ2pvaW5lZCc7CiAgY3JlYXRlZF9hdDogc3RyaW5nOwp9Cgpjb25zdCBTVE9SQUdFX0tFWSA9ICdoaGlfY29uc3VsdGF0aW9uX3Nlc3Npb24nOwoKQEluamVjdGFibGUoeyBwcm92aWRlZEluOiAncm9vdCcgfSkKZXhwb3J0IGNsYXNzIENvbnN1bHRhdGlvblNlcnZpY2UgewogIHByaXZhdGUgcGxhdGZvcm1JZCA9IGluamVjdChQTEFURk9STV9JRCk7CiAgcHJpdmF0ZSByb3V0ZXIgICAgID0gaW5qZWN0KFJvdXRlcik7CiAgcHJpdmF0ZSBodHRwICAgICAgID0gaW5qZWN0KEh0dHBDbGllbnQpOwoKICBwcml2YXRlIHNlc3Npb25TdWJqZWN0ID0gbmV3IEJlaGF2aW9yU3ViamVjdDxDb25zdWx0YXRpb25TZXNzaW9uIHwgbnVsbD4oCiAgICB0aGlzLmxvYWRGcm9tU3RvcmFnZSgpCiAgKTsKCiAgc2Vzc2lvbiQ6IE9ic2VydmFibGU8Q29uc3VsdGF0aW9uU2Vzc2lvbiB8IG51bGw+ID0gdGhpcy5zZXNzaW9uU3ViamVjdC5hc09ic2VydmFibGUoKTsKCiAgcHJpdmF0ZSBsb2FkRnJvbVN0b3JhZ2UoKTogQ29uc3VsdGF0aW9uU2Vzc2lvbiB8IG51bGwgewogICAgaWYgKCFpc1BsYXRmb3JtQnJvd3Nlcih0aGlzLnBsYXRmb3JtSWQpKSByZXR1cm4gbnVsbDsKICAgIHRyeSB7CiAgICAgIGNvbnN0IHJhdyA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKFNUT1JBR0VfS0VZKTsKICAgICAgcmV0dXJuIHJhdyA/IChKU09OLnBhcnNlKHJhdykgYXMgQ29uc3VsdGF0aW9uU2Vzc2lvbikgOiBudWxsOwogICAgfSBjYXRjaCB7IHJldHVybiBudWxsOyB9CiAgfQoKICBwcml2YXRlIHNhdmVUb1N0b3JhZ2Uoc2Vzc2lvbjogQ29uc3VsdGF0aW9uU2Vzc2lvbik6IHZvaWQgewogICAgaWYgKCFpc1BsYXRmb3JtQnJvd3Nlcih0aGlzLnBsYXRmb3JtSWQpKSByZXR1cm47CiAgICB0cnkgeyBsb2NhbFN0b3JhZ2Uuc2V0SXRlbShTVE9SQUdFX0tFWSwgSlNPTi5zdHJpbmdpZnkoc2Vzc2lvbikpOyB9CiAgICBjYXRjaCB7IC8qIGRlZ3JhZGUgZ3JhY2VmdWxseSAqLyB9CiAgfQoKICBwcml2YXRlIGNsZWFyU3RvcmFnZSgpOiB2b2lkIHsKICAgIGlmICghaXNQbGF0Zm9ybUJyb3dzZXIodGhpcy5wbGF0Zm9ybUlkKSkgcmV0dXJuOwogICAgdHJ5IHsgbG9jYWxTdG9yYWdlLnJlbW92ZUl0ZW0oU1RPUkFHRV9LRVkpOyB9IGNhdGNoIHsgfQogIH0KCiAgZ2V0IGN1cnJlbnRTZXNzaW9uKCk6IENvbnN1bHRhdGlvblNlc3Npb24gfCBudWxsIHsKICAgIHJldHVybiB0aGlzLnNlc3Npb25TdWJqZWN0LnZhbHVlOwogIH0KCiAgc3VibWl0Q29uc3VsdGF0aW9uKGRhdGE6IHsKICAgIHN5bXB0b21zOiBzdHJpbmdbXTsKICAgIGR1cmF0aW9uOiBzdHJpbmc7CiAgICBzZXZlcml0eTogbnVtYmVyOwogICAgbm90ZXM6IHN0cmluZzsKICB9KTogT2JzZXJ2YWJsZTxDb25zdWx0YXRpb25TZXNzaW9uPiB7CiAgICBjb25zdCBleGlzdGluZyA9IHRoaXMuY3VycmVudFNlc3Npb247CiAgICBjb25zdCBwYXlsb2FkID0geyAuLi5kYXRhLCBjb25zdWx0YXRpb25faWQ6IGV4aXN0aW5nPy5jb25zdWx0YXRpb25faWQgfTsKCiAgICByZXR1cm4gdGhpcy5odHRwLnBvc3Q8Q29uc3VsdGF0aW9uU2Vzc2lvbj4oJy9hcGkvY29uc3VsdGF0aW9ucycsIHBheWxvYWQpLnBpcGUoCiAgICAgIHRhcChzZXNzaW9uID0+IHsKICAgICAgICB0aGlzLnNhdmVUb1N0b3JhZ2Uoc2Vzc2lvbik7CiAgICAgICAgdGhpcy5zZXNzaW9uU3ViamVjdC5uZXh0KHNlc3Npb24pOwogICAgICB9KSwKICAgICAgY2F0Y2hFcnJvcigoKSA9PiB7CiAgICAgICAgY29uc3QgbG9jYWw6IENvbnN1bHRhdGlvblNlc3Npb24gPSB7CiAgICAgICAgICBjb25zdWx0YXRpb25faWQ6IGV4aXN0aW5nPy5jb25zdWx0YXRpb25faWQgPz8gdGhpcy5nZW5lcmF0ZUlkKCksCiAgICAgICAgICAuLi5kYXRhLAogICAgICAgICAgcGF0aWVudF9zdGF0dXM6ICd3YWl0aW5nJywKICAgICAgICAgIGRvY3Rvcl9zdGF0dXM6ICdwZW5kaW5nJywKICAgICAgICAgIGNyZWF0ZWRfYXQ6IGV4aXN0aW5nPy5jcmVhdGVkX2F0ID8/IG5ldyBEYXRlKCkudG9JU09TdHJpbmcoKSwKICAgICAgICB9OwogICAgICAgIHRoaXMuc2F2ZVRvU3RvcmFnZShsb2NhbCk7CiAgICAgICAgdGhpcy5zZXNzaW9uU3ViamVjdC5uZXh0KGxvY2FsKTsKICAgICAgICByZXR1cm4gb2YobG9jYWwpLnBpcGUoZGVsYXkoMzAwKSk7CiAgICAgIH0pCiAgICApOwogIH0KCiAgbWFya0RvY3RvclJldmlld2luZygpOiB2b2lkIHsKICAgIGNvbnN0IHNlc3Npb24gPSB0aGlzLmN1cnJlbnRTZXNzaW9uOwogICAgaWYgKCFzZXNzaW9uKSByZXR1cm47CiAgICB0aGlzLmh0dHAucGF0Y2goYC9hcGkvY29uc3VsdGF0aW9ucy8ke3Nlc3Npb24uY29uc3VsdGF0aW9uX2lkfS9kb2N0b3Itc3RhdHVzYCwgeyBkb2N0b3Jfc3RhdHVzOiAncmV2aWV3aW5nJyB9KQogICAgICAucGlwZShjYXRjaEVycm9yKCgpID0+IG9mKG51bGwpKSkuc3Vic2NyaWJlKCk7CiAgICBjb25zdCB1cGRhdGVkID0geyAuLi5zZXNzaW9uLCBkb2N0b3Jfc3RhdHVzOiAncmV2aWV3aW5nJyBhcyBjb25zdCB9OwogICAgdGhpcy5zYXZlVG9TdG9yYWdlKHVwZGF0ZWQpOwogICAgdGhpcy5zZXNzaW9uU3ViamVjdC5uZXh0KHVwZGF0ZWQpOwogIH0KCiAgZG9jdG9ySm9pbnNDYWxsKHpvb21Vcmw6IHN0cmluZywgc3BlY2lhbGlzdElkPzogbnVtYmVyKTogdm9pZCB7CiAgICBjb25zdCBzZXNzaW9uID0gdGhpcy5jdXJyZW50U2Vzc2lvbjsKICAgIGlmICghc2Vzc2lvbikgcmV0dXJuOwogICAgdGhpcy5odHRwLnBhdGNoKGAvYXBpL2NvbnN1bHRhdGlvbnMvJHtzZXNzaW9uLmNvbnN1bHRhdGlvbl9pZH0vZG9jdG9yLXN0YXR1c2AsIHsgZG9jdG9yX3N0YXR1czogJ2pvaW5lZCcsIHNwZWNpYWxpc3RfaWQ6IHNwZWNpYWxpc3RJZCB9KQogICAgICAucGlwZShjYXRjaEVycm9yKCgpID0+IG9mKG51bGwpKSkuc3Vic2NyaWJlKCk7CiAgICBjb25zdCB1cGRhdGVkID0geyAuLi5zZXNzaW9uLCBkb2N0b3Jfc3RhdHVzOiAnam9pbmVkJyBhcyBjb25zdCwgcGF0aWVudF9zdGF0dXM6ICdyZWFkeScgYXMgY29uc3QgfTsKICAgIHRoaXMuc2F2ZVRvU3RvcmFnZSh1cGRhdGVkKTsKICAgIHRoaXMuc2Vzc2lvblN1YmplY3QubmV4dCh1cGRhdGVkKTsKICAgIGlmIChpc1BsYXRmb3JtQnJvd3Nlcih0aGlzLnBsYXRmb3JtSWQpKSB7CiAgICAgIHdpbmRvdy5vcGVuKHpvb21VcmwsICdfYmxhbmsnKTsKICAgIH0KICB9CgogIHJlZnJlc2hTZXNzaW9uRnJvbVN0b3JhZ2UoKTogdm9pZCB7CiAgICBjb25zdCBzZXNzaW9uID0gdGhpcy5jdXJyZW50U2Vzc2lvbjsKICAgIGlmICghc2Vzc2lvbikgcmV0dXJuOwogICAgdGhpcy5odHRwLmdldDxDb25zdWx0YXRpb25TZXNzaW9uPihgL2FwaS9jb25zdWx0YXRpb25zLyR7c2Vzc2lvbi5jb25zdWx0YXRpb25faWR9YCkucGlwZSgKICAgICAgdGFwKGZyZXNoID0+IHsgdGhpcy5zYXZlVG9TdG9yYWdlKGZyZXNoKTsgdGhpcy5zZXNzaW9uU3ViamVjdC5uZXh0KGZyZXNoKTsgfSksCiAgICAgIGNhdGNoRXJyb3IoKCkgPT4gewogICAgICAgIGNvbnN0IGZyZXNoID0gdGhpcy5sb2FkRnJvbVN0b3JhZ2UoKTsKICAgICAgICBpZiAoZnJlc2gpIHRoaXMuc2Vzc2lvblN1YmplY3QubmV4dChmcmVzaCk7CiAgICAgICAgcmV0dXJuIG9mKG51bGwpOwogICAgICB9KQogICAgKS5zdWJzY3JpYmUoKTsKICB9CgogIHRvU3VtbWFyeVN0cmluZyhzZXNzaW9uOiBDb25zdWx0YXRpb25TZXNzaW9uKTogc3RyaW5nIHsKICAgIGNvbnN0IHN5bXB0b21MaXN0ID0gc2Vzc2lvbi5zeW1wdG9tcy5qb2luKCcgYW5kICcpLnRvTG93ZXJDYXNlKCk7CiAgICBjb25zdCBzZXZlcml0eUxhYmVsID0gc2Vzc2lvbi5zZXZlcml0eSA8PSAzID8gJ21pbGQnIDogc2Vzc2lvbi5zZXZlcml0eSA8PSA2ID8gJ21vZGVyYXRlJyA6IHNlc3Npb24uc2V2ZXJpdHkgPD0gOCA/ICdzZXZlcmUnIDogJ3Zlcnkgc2V2ZXJlJzsKICAgIHJldHVybiBgUGF0aWVudCByZXBvcnRzICR7c3ltcHRvbUxpc3R9IGZvciAke3Nlc3Npb24uZHVyYXRpb259IHdpdGggJHtzZXZlcml0eUxhYmVsfSBzZXZlcml0eSR7c2Vzc2lvbi5ub3RlcyA/ICc6ICcgKyBzZXNzaW9uLm5vdGVzIDogJyd9LmA7CiAgfQoKICBnZXRQZW5kaW5nQ29uc3VsdGF0aW9ucygpOiBPYnNlcnZhYmxlPENvbnN1bHRhdGlvblNlc3Npb25bXT4gewogICAgcmV0dXJuIHRoaXMuaHR0cC5nZXQ8Q29uc3VsdGF0aW9uU2Vzc2lvbltdPignL2FwaS9jb25zdWx0YXRpb25zL3BlbmRpbmcvbGlzdCcpLnBpcGUoY2F0Y2hFcnJvcigoKSA9PiBvZihbXSkpKTsKICB9CgogIGVuZFNlc3Npb24oKTogdm9pZCB7CiAgICB0aGlzLmNsZWFyU3RvcmFnZSgpOwogICAgdGhpcy5zZXNzaW9uU3ViamVjdC5uZXh0KG51bGwpOwogICAgdGhpcy5yb3V0ZXIubmF2aWdhdGUoWycvJ10pOwogIH0KCiAgcHJpdmF0ZSBnZW5lcmF0ZUlkKCk6IHN0cmluZyB7CiAgICByZXR1cm4gJ2NvbnNfJyArIERhdGUubm93KCkgKyAnXycgKyBNYXRoLnJhbmRvbSgpLnRvU3RyaW5nKDM2KS5zbGljZSgyLCA3KTsKICB9Cn0K
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, of, delay, catchError, tap } from 'rxjs';
+import { Router } from '@angular/router';
+
+export interface ConsultationSession {
+  consultation_id: string;
+  symptoms: string[];
+  duration: string;
+  severity: number;
+  notes: string;
+  patient_status: 'form' | 'waiting' | 'ready' | 'in_call';
+  doctor_status: 'pending' | 'reviewing' | 'joined';
+  created_at: string;
+}
+
+const STORAGE_KEY = 'hhi_consultation_session';
+
+@Injectable({ providedIn: 'root' })
+export class ConsultationService {
+  private platformId = inject(PLATFORM_ID);
+  private router     = inject(Router);
+  private http       = inject(HttpClient);
+
+  private sessionSubject = new BehaviorSubject<ConsultationSession | null>(
+    this.loadFromStorage()
+  );
+
+  session$: Observable<ConsultationSession | null> = this.sessionSubject.asObservable();
+
+  private loadFromStorage(): ConsultationSession | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as ConsultationSession) : null;
+    } catch { return null; }
+  }
+
+  private saveToStorage(session: ConsultationSession): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(session)); }
+    catch { /* degrade gracefully */ }
+  }
+
+  private clearStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch { }
+  }
+
+  get currentSession(): ConsultationSession | null {
+    return this.sessionSubject.value;
+  }
+
+  submitConsultation(data: {
+    symptoms: string[];
+    duration: string;
+    severity: number;
+    notes: string;
+  }): Observable<ConsultationSession> {
+    const existing = this.currentSession;
+    const payload = { ...data, consultation_id: existing?.consultation_id };
+
+    return this.http.post<ConsultationSession>('/api/consultations', payload).pipe(
+      tap(session => {
+        this.saveToStorage(session);
+        this.sessionSubject.next(session);
+      }),
+      catchError(() => {
+        const local: ConsultationSession = {
+          consultation_id: existing?.consultation_id ?? this.generateId(),
+          ...data,
+          patient_status: 'waiting',
+          doctor_status: 'pending',
+          created_at: existing?.created_at ?? new Date().toISOString(),
+        };
+        this.saveToStorage(local);
+        this.sessionSubject.next(local);
+        return of(local).pipe(delay(300));
+      })
+    );
+  }
+
+  markDoctorReviewing(): void {
+    const session = this.currentSession;
+    if (!session) return;
+    this.http.patch(`/api/consultations/${session.consultation_id}/doctor-status`, { doctor_status: 'reviewing' })
+      .pipe(catchError(() => of(null))).subscribe();
+    const updated = { ...session, doctor_status: 'reviewing' as const };
+    this.saveToStorage(updated);
+    this.sessionSubject.next(updated);
+  }
+
+  doctorJoinsCall(zoomUrl: string, specialistId?: number): void {
+    const session = this.currentSession;
+    if (!session) return;
+    this.http.patch(`/api/consultations/${session.consultation_id}/doctor-status`, { doctor_status: 'joined', specialist_id: specialistId })
+      .pipe(catchError(() => of(null))).subscribe();
+    const updated = { ...session, doctor_status: 'joined' as const, patient_status: 'ready' as const };
+    this.saveToStorage(updated);
+    this.sessionSubject.next(updated);
+    if (isPlatformBrowser(this.platformId)) {
+      window.open(zoomUrl, '_blank');
+    }
+  }
+
+  refreshSessionFromStorage(): void {
+    const session = this.currentSession;
+    if (!session) return;
+    this.http.get<ConsultationSession>(`/api/consultations/${session.consultation_id}`).pipe(
+      tap(fresh => { this.saveToStorage(fresh); this.sessionSubject.next(fresh); }),
+      catchError(() => {
+        const fresh = this.loadFromStorage();
+        if (fresh) this.sessionSubject.next(fresh);
+        return of(null);
+      })
+    ).subscribe();
+  }
+
+  toSummaryString(session: ConsultationSession): string {
+    const symptomList = session.symptoms.join(' and ').toLowerCase();
+    const severityLabel = session.severity <= 3 ? 'mild' : session.severity <= 6 ? 'moderate' : session.severity <= 8 ? 'severe' : 'very severe';
+    return `Patient reports ${symptomList} for ${session.duration} with ${severityLabel} severity${session.notes ? ': ' + session.notes : ''}.`;
+  }
+
+  getPendingConsultations(): Observable<ConsultationSession[]> {
+    return this.http.get<ConsultationSession[]>('/api/consultations/pending/list').pipe(catchError(() => of([])));
+  }
+
+  endSession(): void {
+    this.clearStorage();
+    this.sessionSubject.next(null);
+    this.router.navigate(['/']);
+  }
+
+  private generateId(): string {
+    return 'cons_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  }
+}
