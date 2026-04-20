@@ -179,18 +179,7 @@ export class Practitioner implements OnInit, OnDestroy {
       if (event.event === 'queue.updated') {
         this.refreshDashboard();
       } else if (event.event === 'consult.completed') {
-        const data = event.data as any;
-        const completedId = data?.consultationId || data?.consultation?.id || '';
-
-        if (completedId && completedId === this.activeConsultationId) {
-          this.showConsultShell = false;
-          this.activeConsultRoomUrl = '';
-          this.activeConsultationId = '';
-          this.activeConsultPatientId = '';
-          this.showUnavailableNotice('Consultation has ended.');
-          this.syncStats();
-        }
-
+        // the consultation is completed, refresh the dashboard to update history and stats
         this.refreshDashboard();
       }
     });
@@ -480,11 +469,10 @@ export class Practitioner implements OnInit, OnDestroy {
   private syncStats(): void {
     const waiting = this.queue.filter((patient) => patient.status !== 'active').length;
     const queuedActive = this.queue.filter((patient) => patient.status === 'active').length;
-    const liveConsultActive = this.showConsultShell && this.activeConsultationId ? 1 : 0;
 
     this.stats = {
       waiting,
-      active: Math.max(queuedActive, liveConsultActive),
+      active: queuedActive,
       completed: this.completedToday,
       avgTime: this.averageSessionToday
     };
@@ -868,18 +856,6 @@ export class Practitioner implements OnInit, OnDestroy {
     this.unavailableNotice = '';
   }
 
-  closeEmbeddedConsultation(): void {
-    this.activeConsultRoomUrl = '';
-    this.activeConsultationId = '';
-    this.activeConsultPatientId = '';
-  }
-
-  openConsultationInNewTab(): void {
-    if (!this.activeConsultRoomUrl || !isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    window.open(this.activeConsultRoomUrl, '_blank');
-  }
 
   private showUnavailableNotice(message: string): void {
     this.unavailableNotice = message;
