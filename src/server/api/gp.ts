@@ -469,7 +469,37 @@ gpRouter.post('/status', requireAuth, requireRole(['gp', 'doctor']), async (req,
   }
 });
 
-// Get consultation history
+// Get a specific consultation
+gpRouter.get('/consultations/:id', requireAuth, requireRole(['gp', 'doctor']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+
+    const result = await db.query(
+      `select c.*,
+        u.display_name as patient_name,
+        u.first_name as patient_first_name,
+        u.last_name as patient_last_name,
+        u.phone as patient_phone,
+        cr.symptoms as triage_context
+       from consultations c
+       join users u on u.id = c.patient_id
+       left join consult_requests cr on cr.id = c.request_id
+       where c.id = $1 and c.gp_id = $2
+       limit 1`,
+      [id, user.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Consultation not found or access denied' });
+    }
+    
+    return res.json({ consultation: result.rows[0] });
+  } catch (error) {
+    console.error('Get consultation detail error', error);
+    return res.status(500).json({ error: 'Unable to fetch consultation details' });
+  }
+});
 gpRouter.get('/consultations/history', requireAuth, requireRole(['gp', 'doctor']), async (req, res) => {
   try {
     const user = (req as any).user;

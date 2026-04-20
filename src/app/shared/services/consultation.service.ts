@@ -1,8 +1,9 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, delay, catchError, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, delay, catchError, map, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { ApiClientService } from '../../core/api/api-client.service';
 
 export interface ConsultationSession {
   consultation_id: string;
@@ -22,6 +23,7 @@ export class ConsultationService {
   private platformId = inject(PLATFORM_ID);
   private router     = inject(Router);
   private http       = inject(HttpClient);
+  private api        = inject(ApiClientService);
 
   private sessionSubject = new BehaviorSubject<ConsultationSession | null>(
     this.loadFromStorage()
@@ -59,26 +61,71 @@ export class ConsultationService {
     notes: string;
   }): Observable<ConsultationSession> {
     const existing = this.currentSession;
-    const payload = { ...data, consultation_id: existing?.consultation_id };
 
-    return this.http.post<ConsultationSession>('/api/consultations', payload).pipe(
-      tap(session => {
-        this.saveToStorage(session);
-        this.sessionSubject.next(session);
-      }),
-      catchError(() => {
-        const local: ConsultationSession = {
-          consultation_id: existing?.consultation_id ?? this.generateId(),
-          ...data,
-          patient_status: 'waiting',
-          doctor_status: 'pending',
-          created_at: existing?.created_at ?? new Date().toISOString(),
-        };
-        this.saveToStorage(local);
-        this.sessionSubject.next(local);
-        return of(local).pipe(delay(300));
-      })
-    );
+    // Task #14: /patient/consults is the canonical endpoint that writes into
+    // consult_requests. It expects `{ mode, symptoms }` where `symptoms` is a
+    // jsonb blob. We send the structured triage fields AND a computed
+    // `complaint` string so downstream summary panels keep working.
+    const mode = this.resolveMode();
+    const complaint = (data.notes && data.notes.trim())
+      ? data.notes.trim()
+      : (data.symptoms.length ? data.symptoms.join(', ') : 'General consult');
+    const symptomsPayload = {
+      source: 'pre-consultation-form',
+      complaint,
+      symptoms: data.symptoms,
+      duration: data.duration,
+      severity: data.severity,
+      notes: data.notes,
+    };
+
+    return this.api
+      .post<{ request: { id?: string | number; created_at?: string } }>(
+        '/patient/consults',
+        { mode, symptoms: symptomsPayload }
+      )
+      .pipe(
+        map(res => {
+          const req = res?.request ?? null;
+          const session: ConsultationSession = {
+            consultation_id: req?.id != null
+              ? String(req.id)
+              : (existing?.consultation_id ?? this.generateId()),
+            ...data,
+            patient_status: 'waiting',
+            doctor_status: 'pending',
+            created_at: req?.created_at
+              ?? existing?.created_at
+              ?? new Date().toISOString(),
+          };
+          this.saveToStorage(session);
+          this.sessionSubject.next(session);
+          return session;
+        }),
+        catchError(() => {
+          const local: ConsultationSession = {
+            consultation_id: existing?.consultation_id ?? this.generateId(),
+            ...data,
+            patient_status: 'waiting',
+            doctor_status: 'pending',
+            created_at: existing?.created_at ?? new Date().toISOString(),
+          };
+          this.saveToStorage(local);
+          this.sessionSubject.next(local);
+          return of(local).pipe(delay(300));
+        })
+      );
+  }
+
+  private resolveMode(): 'video' | 'audio' | 'chat' {
+    if (!isPlatformBrowser(this.platformId)) return 'video';
+    try {
+      const stored = sessionStorage.getItem('hhi_consult_mode');
+      if (stored === 'audio' || stored === 'chat' || stored === 'video') {
+        return stored;
+      }
+    } catch { /* degrade gracefully */ }
+    return 'video';
   }
 
   markDoctorReviewing(): void {

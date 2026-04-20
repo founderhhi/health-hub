@@ -10,7 +10,6 @@ import { PrescriptionsApiService } from '../../../../core/api/prescriptions.serv
 import { ReferralsApiService } from '../../../../core/api/referrals.service';
 import { LabsApiService, DiagnosticCentre } from '../../../../core/api/labs.service';
 import { WsService } from '../../../../core/realtime/ws.service';
-import { ConsultShellComponent, ConsultMode } from '../../../../shared/components/consult-shell/consult-shell';
 import { formatTriageSourceLabel, normalizeTriageHandoff } from './triage-handoff';
 
 interface QueuePatient {
@@ -69,24 +68,16 @@ interface ConsultationHistory {
 @Component({
   selector: 'app-practitioner',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ConsultShellComponent],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './practitioner.html',
   styleUrl: './practitioner.scss'
 })
 export class Practitioner implements OnInit, OnDestroy {
-  @ViewChild(ConsultShellComponent) consultShellRef?: ConsultShellComponent;
-
   today = new Date();
   private readonly autoRefreshIntervalSeconds = 5;
   isRefreshing = false;
   refreshCountdown = this.autoRefreshIntervalSeconds;
   unavailableNotice = '';
-  activeConsultRoomUrl = '';
-  activeConsultationId = '';
-  activeConsultPatientId = '';
-  activeConsultMode: ConsultMode = 'video';
-  activeConsultPatientName = '';
-  showConsultShell = false;
   private countdownInterval: any;
   private wsSubscription?: Subscription;
   private platformId = inject(PLATFORM_ID);
@@ -531,32 +522,26 @@ export class Practitioner implements OnInit, OnDestroy {
 
     this.gpApi.acceptRequest(patientId).subscribe({
       next: (response) => {
-        this.activeConsultRoomUrl =
-          response.roomUrl || response.consultation?.daily_room_url || response.consultation?.roomUrl || '';
-        this.activeConsultationId =
+        const consultationId =
           response.consultation?.consultation_id ||
           response.consultation?.consultationId ||
           response.consultation?.id ||
           response.consultationId ||
           '';
-        this.activeConsultPatientId =
-          response.consultation?.patient_id ||
-          snapshot?.patientId ||
-          '';
 
         const item = this.queue.find((p) => p.id === patientId);
-        const consultSource = item || snapshot;
         if (item) {
           item.accepted = true;
           item.status = 'active';
         }
 
-        this.activeConsultMode = consultSource?.mode || 'video';
-        this.activeConsultPatientName = consultSource?.displayName || 'Patient';
-        this.showConsultShell = true;
         this.applyFilters();
         this.syncStats();
         this.acceptingPatientIds.delete(patientId);
+
+        if (consultationId) {
+          this.router.navigate(['/gp/consultation', consultationId]);
+        }
       },
       error: (err) => {
         console.error('Failed to accept patient:', err);
@@ -565,54 +550,6 @@ export class Practitioner implements OnInit, OnDestroy {
         this.acceptingPatientIds.delete(patientId);
       }
     });
-  }
-
-  onEndConsultation(event: { notes: string }): void {
-    if (!this.activeConsultationId) return;
-    this.gpApi.completeConsultation(this.activeConsultationId, event.notes).subscribe({
-      next: () => {
-        this.showConsultShell = false;
-        this.activeConsultRoomUrl = '';
-        this.activeConsultationId = '';
-        this.activeConsultPatientId = '';
-        this.showUnavailableNotice(event.notes?.trim()
-          ? 'Consultation ended. Notes saved.'
-          : 'Consultation ended successfully.');
-        this.syncStats();
-        this.refreshDashboard();
-      },
-      error: (err) => {
-        console.error('Failed to end consultation:', err);
-        const message = this.resolveCompleteConsultationError(err);
-        this.showUnavailableNotice(message);
-        // Issue 5: Reset consult shell "ending" state so the button becomes usable again
-        this.consultShellRef?.onEndError(message);
-      }
-    });
-  }
-
-  onConsultPrescribe(): void {
-    if (!this.activeConsultPatientId) {
-      this.showUnavailableNotice('Patient context is unavailable for prescription.');
-      return;
-    }
-    this.prescribe(this.activeConsultPatientId);
-  }
-
-  onConsultRefer(): void {
-    if (!this.activeConsultPatientId) {
-      this.showUnavailableNotice('Patient context is unavailable for referral.');
-      return;
-    }
-    this.referToSpecialist(this.activeConsultPatientId);
-  }
-
-  onConsultOrderLabs(): void {
-    if (!this.activeConsultPatientId) {
-      this.showUnavailableNotice('Patient context is unavailable for lab ordering.');
-      return;
-    }
-    this.orderLabs(this.activeConsultPatientId);
   }
 
   // ── Lab Order Methods ──
@@ -679,11 +616,6 @@ export class Practitioner implements OnInit, OnDestroy {
     this.selectedTests = [];
     this.labNote = '';
     this.selectedCentre = '';
-  }
-
-  onLeaveConsultShell(): void {
-    this.showConsultShell = false;
-    this.syncStats();
   }
 
   /**

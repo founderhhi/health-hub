@@ -277,25 +277,17 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.showModeSelector = false;
-    this.requestingConsult = true;
     this.requestError = '';
 
+    // Task #13: route patient through pre-consultation triage form instead of
+    // dumping them on /patient/waiting with a hardcoded placeholder. The form
+    // itself persists to /patient/consults once completed.
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('hhi_consult_mode', this.selectedMode);
     }
 
-    this.patientApi.requestConsult(this.selectedMode, {
-      complaint: 'General consult',
-      source: 'dashboard-gp',
-    }).subscribe({
-      next: () => {
-        this.requestingConsult = false;
-        this.router.navigate(['/patient/waiting']);
-      },
-      error: () => {
-        this.requestingConsult = false;
-        this.requestError = 'Unable to request a Health Expert right now.';
-      }
+    this.router.navigate(['/pre-consultation/form'], {
+      queryParams: { mode: this.selectedMode }
     });
   }
 

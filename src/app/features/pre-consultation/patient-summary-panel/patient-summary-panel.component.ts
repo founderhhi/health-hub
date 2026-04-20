@@ -27,6 +27,13 @@ export class PatientSummaryPanelComponent implements OnInit {
   summaryString = '';
   hasJoined = false;
 
+  // AI-triage enriched fields (populated from triageContext when present).
+  // Kept separate from ConsultationSession so the shared session shape stays clean.
+  complaintText: string | null = null;
+  triageSummaryText: string | null = null;
+  recommendedNextStepText: string | null = null;
+  triageAnswers: { question: string; answer: string }[] = [];
+
   ngOnInit(): void {
     // Load from service (which reads localStorage)
     this.session = this.consultationService.currentSession;
@@ -36,6 +43,29 @@ export class PatientSummaryPanelComponent implements OnInit {
     if (this.session) {
       this.summaryString = this.consultationService.toSummaryString(this.session);
       this.consultationService.markDoctorReviewing();
+    }
+
+    // Populate AI-triage enriched fields from triageContext (defensive against shape).
+    if (this.triageContext && typeof this.triageContext === 'object') {
+      const ctx = this.triageContext;
+      if (typeof ctx['complaint'] === 'string' && ctx['complaint'].trim()) {
+        this.complaintText = ctx['complaint'];
+      }
+      if (typeof ctx['triageSummary'] === 'string' && ctx['triageSummary'].trim()) {
+        this.triageSummaryText = ctx['triageSummary'];
+      }
+      if (typeof ctx['recommendedNextStep'] === 'string' && ctx['recommendedNextStep'].trim()) {
+        this.recommendedNextStepText = ctx['recommendedNextStep'];
+      }
+      if (Array.isArray(ctx['triageAnswers'])) {
+        this.triageAnswers = ctx['triageAnswers']
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => ({
+            question: typeof item.question === 'string' ? item.question : '',
+            answer: typeof item.answer === 'string' ? item.answer : '',
+          }))
+          .filter((item: { question: string; answer: string }) => item.question || item.answer);
+      }
     }
   }
 

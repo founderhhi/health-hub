@@ -64,6 +64,10 @@ export class GpApiService {
     return this.api.post<GpOperationalStatusResponse>('/gp/status', { operational: isOperating });
   }
 
+  getConsultation(consultationId: string) {
+    return this.api.get<{ consultation: any }>(`/gp/consultations/${consultationId}`);
+  }
+
   getConsultationHistory() {
     return this.api.get<{ history: any[] }>('/gp/consultations/history');
   }

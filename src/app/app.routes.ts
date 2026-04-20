@@ -33,6 +33,12 @@ export const routes: Routes = [
     data: { roles: ['gp'] }
   },
   {
+    path: 'gp/consultation/:id',
+    loadComponent: () => import('./features/dashboard/components/gp-consultation/gp-consultation').then(m => m.GpConsultationComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['gp'] }
+  },
+  {
     path: 'patient-services',
     loadChildren: () => import('./features/practitioner-connect/practitioner-connect.route').then(m => m.PRACTIOTIONER_ROUTES),
     canActivate: [authGuard]

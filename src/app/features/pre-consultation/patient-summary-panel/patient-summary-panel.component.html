@@ -94,6 +94,40 @@
 
   </div>
 
+  <!-- ── AI-triage enriched blocks (populated from referrals.triage_context) ── -->
+  @if (complaintText && complaintText !== session.notes) {
+    <div class="panel-card triage-card">
+      <h3 class="panel-card-title">Patient's complaint</h3>
+      <p class="panel-card-body">{{ complaintText }}</p>
+    </div>
+  }
+
+  @if (triageSummaryText) {
+    <div class="panel-card triage-card">
+      <h3 class="panel-card-title">AI summary</h3>
+      <p class="panel-card-body">{{ triageSummaryText }}</p>
+    </div>
+  }
+
+  @if (recommendedNextStepText) {
+    <div class="panel-card triage-card">
+      <h3 class="panel-card-title">Recommended next step</h3>
+      <p class="panel-card-body">{{ recommendedNextStepText }}</p>
+    </div>
+  }
+
+  @if (triageAnswers.length > 0) {
+    <div class="panel-card triage-card">
+      <h3 class="panel-card-title">Triage Q&amp;A</h3>
+      <dl class="triage-answer-list">
+        @for (item of triageAnswers; track $index) {
+          <dt class="triage-answer-question">{{ item.question }}</dt>
+          <dd class="triage-answer-answer">{{ item.answer }}</dd>
+        }
+      </dl>
+    </div>
+  }
+
   <!-- Action: Join Video Call -->
   <div class="action-section">
     <button

@@ -160,7 +160,7 @@
             <button class="btn btn-secondary" type="button" (click)="onPrescribe()" [disabled]="ending">
               Prescribe
             </button>
-            @if (isSpecialist) {
+            @if (canRequestLabs) {
               <button class="btn btn-secondary" type="button" (click)="onRequestLabs()" [disabled]="ending">
                 Request Labs
               </button>

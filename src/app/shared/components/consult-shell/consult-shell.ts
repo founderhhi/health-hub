@@ -144,6 +144,10 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
     return this.role === 'specialist';
   }
 
+  get canRequestLabs(): boolean { // [AGENT_ROLES] allow GP + specialist to request labs; patients excluded
+    return this.role === 'gp' || this.role === 'specialist';
+  }
+
   startCall(): void {
     void this.openCallWindow();
   }

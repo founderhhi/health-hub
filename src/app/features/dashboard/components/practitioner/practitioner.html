@@ -34,18 +34,6 @@
   </div>
   }
 
-  @if (showConsultShell && activeConsultationId) {
-  <div class="consultation-live-banner">
-    <div class="consultation-live-banner__dot"></div>
-    Live Consultation — with {{ activeConsultPatientName }}
-  </div>
-  <app-consult-shell [consultationId]="activeConsultationId" [roomUrl]="activeConsultRoomUrl" [mode]="activeConsultMode"
-    role="gp" [patientName]="activeConsultPatientName" (prescribe)="onConsultPrescribe()" (refer)="onConsultRefer()"
-    (requestLabs)="onConsultOrderLabs()"
-    (endConsultation)="onEndConsultation($event)"
-    (leave)="onLeaveConsultShell()"></app-consult-shell>
-  }
-
   <div class="dashboard-content">
     <!-- Left Column: Queue (70%) -->
     <div class="queue-section">
