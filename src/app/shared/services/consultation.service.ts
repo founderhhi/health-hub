@@ -170,6 +170,14 @@ export class ConsultationService {
     return `Patient reports ${symptomList} for ${session.duration} with ${severityLabel} severity${session.notes ? ': ' + session.notes : ''}.`;
   }
 
+  resetForNewConsultation(): void {
+    this.clearStorage();
+    this.sessionSubject.next(null);
+    if (isPlatformBrowser(this.platformId)) {
+      try { sessionStorage.removeItem('hhi_consult_mode'); } catch { }
+    }
+  }
+
   endSession(): void {
     this.clearStorage();
     this.sessionSubject.next(null);

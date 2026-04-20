@@ -61,18 +61,25 @@ export class PreConsultationFormComponent implements OnInit {
   // ─── Lifecycle ─────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
-    // If patient already has a session (reconnect scenario), pre-fill the form
     const existing = this.consultationService.currentSession;
     if (existing) {
-      this.selectedSymptoms = [...existing.symptoms];
-      this.selectedDuration = existing.duration;
-      this.severity = existing.severity;
-      this.notes = existing.notes;
+      // Only treat a session as live if it was created within the last 15 min;
+      // older sessions are stale reconnect artefacts and should not skip the form.
+      const ageMs = Date.now() - new Date(existing.created_at).getTime();
+      const isRecent = ageMs < 15 * 60 * 1000;
 
-      // If they were already past the form stage, skip ahead
-      if (existing.patient_status === 'waiting' || existing.patient_status === 'ready') {
-        this.router.navigate(['/patient/waiting']);
-        return;
+      if (isRecent) {
+        this.selectedSymptoms = [...existing.symptoms];
+        this.selectedDuration = existing.duration;
+        this.severity = existing.severity;
+        this.notes = existing.notes;
+
+        if (existing.patient_status === 'waiting' || existing.patient_status === 'ready') {
+          this.router.navigate(['/patient/waiting']);
+          return;
+        }
+      } else {
+        this.consultationService.resetForNewConsultation();
       }
     }
   }

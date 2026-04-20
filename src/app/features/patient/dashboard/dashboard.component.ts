@@ -9,6 +9,7 @@ import { ApiClientService } from '../../../core/api/api-client.service';
 import { WsService } from '../../../core/realtime/ws.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 import { ThemeService, ThemeMode } from '../../../shared/services/theme.service';
+import { ConsultationService } from '../../../shared/services/consultation.service';
 import { Subscription, catchError, filter, forkJoin, map, of, timeout } from 'rxjs';
 
 interface HealthStats {
@@ -127,7 +128,8 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     private notificationsApi: NotificationsApiService,
     private api: ApiClientService,
     private ws: WsService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private consultationService: ConsultationService
   ) {}
 
   ngOnInit(): void {
@@ -279,9 +281,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showModeSelector = false;
     this.requestError = '';
 
-    // Task #13: route patient through pre-consultation triage form instead of
-    // dumping them on /patient/waiting with a hardcoded placeholder. The form
-    // itself persists to /patient/consults once completed.
+    // Clear any stale session so the pre-consultation form is never skipped
+    this.consultationService.resetForNewConsultation();
+
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('hhi_consult_mode', this.selectedMode);
     }
