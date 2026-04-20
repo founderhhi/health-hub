@@ -25,9 +25,6 @@ export class WaitingComponent implements OnInit, OnDestroy {
   consultationFinished = false;
   statusMessage = 'Waiting for a Health Expert to accept your request...';
   showAcceptedOverlay = false;
-  acceptCountdown = 3;
-  private acceptCountdownTimer?: ReturnType<typeof setInterval>;
-
   private platformId = inject(PLATFORM_ID);
   private requestId = '';
   private activeConsultPollTimer?: ReturnType<typeof setInterval>;
@@ -79,10 +76,6 @@ export class WaitingComponent implements OnInit, OnDestroy {
       clearInterval(this.activeConsultPollTimer);
       this.activeConsultPollTimer = undefined;
     }
-    if (this.acceptCountdownTimer) {
-      clearInterval(this.acceptCountdownTimer);
-      this.acceptCountdownTimer = undefined;
-    }
     this.clearDashboardRedirectTimer();
   }
 
@@ -130,26 +123,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    window.location.href = roomUrl;
-  }
-
-  private startAcceptedCountdown(): void {
-    this.clearAcceptedCountdown();
-    this.showAcceptedOverlay = true;
-    this.acceptCountdown = 3;
-    this.acceptCountdownTimer = setInterval(() => {
-      this.acceptCountdown--;
-      if (this.acceptCountdown <= 0) {
-        this.joinConsult();
-      }
-    }, 1000);
-  }
-
-  private clearAcceptedCountdown(): void {
-    if (this.acceptCountdownTimer) {
-      clearInterval(this.acceptCountdownTimer);
-      this.acceptCountdownTimer = undefined;
-    }
+    window.open(roomUrl, '_blank');
   }
 
   refreshStatus(): void {
@@ -288,16 +262,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
         : 'A Health Expert accepted your request. Opening the chat now.';
       this.showConsultShell = true;
       return;
-    }
-
-    // For video/audio: show the accepted overlay with a countdown, then navigate to Daily.co.
-    // Guard: don't restart the countdown if it's already running or we're already navigating.
+    // For video/audio: immediately show the consultation shell so they can click to join.
     this.statusMessage = this.gpName
       ? `${this.gpName} has accepted your request.`
       : 'A Health Expert has accepted your request.';
-    if (!this.showAcceptedOverlay && !this.showConsultShell) {
-      this.startAcceptedCountdown();
-    }
+    this.showConsultShell = true;
   }
 
   private pollActiveConsult(): void {
@@ -381,7 +350,6 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.showAcceptedOverlay = false;
     this.showCancelConfirm = false;
     this.cancelPending = false;
-    this.clearAcceptedCountdown();
     this.clearConsultationState();
     this.statusMessage = `${message} Returning you to dashboard...`;
     this.scheduleDashboardRedirect();

@@ -143,6 +143,7 @@ referralsRouter.post('/', requireAuth, requireRole(['gp', 'specialist']), async 
       consultationMode?: string;
       location?: string;
       specialty?: string;
+      specialistName?: string;
     };
 
     if (!patientId) {
@@ -159,6 +160,10 @@ referralsRouter.post('/', requireAuth, requireRole(['gp', 'specialist']), async 
     // Broadcast mode: keep to_specialist_id null when no explicit specialist is selected.
     // The first specialist to accept the referral claims it.
     let resolvedSpecialistId = normalizedSpecialistId;
+    let finalReason = reason || '';
+    if (specialistName?.trim()) {
+      finalReason = `Target Specialist: ${specialistName.trim()}\n\n${finalReason}`.trim();
+    }
     if (resolvedSpecialistId) {
       const specialistResult = await db.query(
         `select id
@@ -188,7 +193,7 @@ referralsRouter.post('/', requireAuth, requireRole(['gp', 'specialist']), async 
     const insert = await db.query(
       `insert into referrals (patient_id, from_provider_id, to_specialist_id, urgency, reason, appointment_date, appointment_time, consultation_mode, location, specialty, triage_context)
        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
-      [patientId, user.userId, resolvedSpecialistId, urgency || 'routine', reason || null,
+      [patientId, user.userId, resolvedSpecialistId, urgency || 'routine', finalReason || null,
        appointmentDate || null, appointmentTime || null, consultationMode || 'online', location || null, normalizedSpecialty,
        JSON.stringify(triageContext)]
     );

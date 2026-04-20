@@ -245,10 +245,10 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       this.fallbackRoomUrl = resolvedRoomUrl;
       this.roomUrl = resolvedRoomUrl;
 
-      // Navigate in the same tab — avoids popup blockers on all browsers/devices.
+      // Navigate in a new tab — keeps the shell open for notes, prescriptions, etc.
       this.callActive = true;
       this.startElapsedTimer();
-      window.location.href = resolvedRoomUrl;
+      window.open(resolvedRoomUrl, '_blank');
     } finally {
       this.joiningCall = false;
     }
@@ -272,14 +272,14 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   }
 
 
-  openCallInSameTab(): void {
+  openCallInNewTab(): void {
     if (!isPlatformBrowser(this.platformId) || !this.fallbackRoomUrl) {
       return;
     }
 
     this.callActive = true;
     this.startElapsedTimer();
-    window.location.href = this.fallbackRoomUrl;
+    window.open(this.fallbackRoomUrl, '_blank');
   }
 
   copyCallLink(): void {

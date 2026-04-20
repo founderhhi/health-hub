@@ -11,30 +11,7 @@
 } @else {
   <section class="waiting-page">
 
-    <!-- Accepted Countdown Overlay -->
-    @if (showAcceptedOverlay && !cancelPending) {
-      <div class="accepted-overlay">
-        <div class="accepted-card">
-          <div class="accepted-icon-ring">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          </div>
-          <h2 class="accepted-title">Health Expert Ready!</h2>
-          <p class="accepted-name">{{ gpName || 'A Health Expert' }} has accepted your request</p>
-          <div class="accepted-countdown-ring">
-            <span class="accepted-countdown-number">{{ acceptCountdown }}</span>
-          </div>
-          <p class="accepted-hint">Opening your consultation automatically…</p>
-          <button class="btn btn-primary accepted-now-btn" type="button" (click)="joinConsult()">
-            Open Now
-          </button>
-        </div>
-      </div>
-    }
-
-    <div class="waiting-card" [class.waiting-card--faded]="showAcceptedOverlay">
+    <div class="waiting-card">
       <!-- Pulse Animation -->
       <div class="pulse-container">
         <div class="pulse-ring"></div>

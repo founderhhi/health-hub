@@ -50,6 +50,7 @@ interface PrescriptionItem {
 
 interface ReferralFormData {
   specialty: string;
+  specialistName?: string;
   urgency: string;
   reason: string;
   appointmentDate: string;
@@ -130,6 +131,7 @@ export class Practitioner implements OnInit, OnDestroy {
   referralSubmitError = '';
   referralForm: ReferralFormData = {
     specialty: '',
+    specialistName: '',
     urgency: 'routine',
     reason: '',
     appointmentDate: '',
@@ -632,10 +634,11 @@ export class Practitioner implements OnInit, OnDestroy {
   toggleLabTest(test: string): void {
     const idx = this.selectedTests.indexOf(test);
     if (idx === -1) {
-      this.selectedTests.push(test);
+      this.selectedTests = [...this.selectedTests, test];
     } else {
-      this.selectedTests.splice(idx, 1);
+      this.selectedTests = this.selectedTests.filter(t => t !== test);
     }
+    this.renderNow();
   }
 
   isLabTestSelected(test: string): boolean {
@@ -745,6 +748,7 @@ export class Practitioner implements OnInit, OnDestroy {
     this.referralPatientId = patientId;
     this.referralForm = {
       specialty: '',
+      specialistName: '',
       urgency: 'routine',
       reason: '',
       appointmentDate: '',
@@ -771,6 +775,7 @@ export class Practitioner implements OnInit, OnDestroy {
       this.referralForm.reason,
       {
         specialty: this.referralForm.specialty,
+        specialistName: this.referralForm.specialistName || undefined,
         appointmentDate: this.referralForm.appointmentDate || undefined,
         appointmentTime: this.referralForm.appointmentTime || undefined,
         consultationMode: this.referralForm.consultationMode,
@@ -796,6 +801,7 @@ export class Practitioner implements OnInit, OnDestroy {
     this.referralSubmitError = '';
     this.referralForm = {
       specialty: '',
+      specialistName: '',
       urgency: 'routine',
       reason: '',
       appointmentDate: '',

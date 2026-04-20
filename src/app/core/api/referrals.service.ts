@@ -21,6 +21,7 @@ export class ReferralsApiService {
   createReferral(patientId: string, urgency: string, reason: string, options?: {
     toSpecialistId?: string;
     specialty?: string;
+    specialistName?: string;
     appointmentDate?: string;
     appointmentTime?: string;
     consultationMode?: 'online' | 'offline';

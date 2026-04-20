@@ -80,6 +80,9 @@ export class WsService {
       try {
         const payload = JSON.parse(event.data) as WsEvent;
         if (payload.event) {
+          if (['consult.accepted', 'queue.updated', 'referral.created', 'referral.status'].includes(payload.event)) {
+            this.playNotificationSound();
+          }
           this.zone.run(() => this.eventsSubject.next(payload));
         }
       } catch {
@@ -157,5 +160,33 @@ export class WsService {
       wsUrl.searchParams.set('token', token);
     }
     return wsUrl.toString();
+  }
+
+  private playNotificationSound(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+      // Ignore audio initialization errors (e.g., auto-play policies)
+    }
   }
 }

@@ -20,6 +20,7 @@ interface PrescriptionItem {
 
 interface ReferralFormData {
   specialty: string;
+  specialistName?: string;
   urgency: string;
   reason: string;
   appointmentDate: string;
@@ -71,6 +72,7 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
   referralSubmitError = '';
   referralForm: ReferralFormData = {
     specialty: '',
+    specialistName: '',
     urgency: 'routine',
     reason: '',
     appointmentDate: '',
@@ -165,7 +167,11 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
 
   toggleTest(test: string): void {
     const idx = this.selectedTests.indexOf(test);
-    if (idx === -1) { this.selectedTests.push(test); } else { this.selectedTests.splice(idx, 1); }
+    if (idx === -1) {
+      this.selectedTests = [...this.selectedTests, test];
+    } else {
+      this.selectedTests = this.selectedTests.filter(t => t !== test);
+    }
   }
 
   isTestSelected(test: string): boolean {
@@ -247,6 +253,7 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
     if (!this.consultation?.patient_id) return;
     this.referralForm = {
       specialty: '',
+      specialistName: '',
       urgency: 'routine',
       reason: '',
       appointmentDate: '',
@@ -276,6 +283,7 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
       this.referralForm.reason,
       {
         specialty: this.referralForm.specialty,
+        specialistName: this.referralForm.specialistName || undefined,
         appointmentDate: this.referralForm.appointmentDate || undefined,
         appointmentTime: this.referralForm.appointmentTime || undefined,
         consultationMode: this.referralForm.consultationMode,
