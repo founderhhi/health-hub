@@ -7,11 +7,11 @@ const jwtSecret = process.env['JWT_SECRET'] || 'demo_secret';
 const isTestEnv = process.env['NODE_ENV'] === 'test';
 
 export const loginRateLimit = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
+  windowMs: 10 * 60 * 1000,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many login attempts. Please try again in a minute.' },
+  message: { error: 'Too many login attempts. Please wait a few minutes and try again.' },
   skip: () => isTestEnv,
 });
 

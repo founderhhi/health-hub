@@ -196,28 +196,18 @@ const globalLimiter = rateLimit({
   skip: (req) => isTestEnv || EXEMPT_PATHS.includes(req.path), // [AGENT_INFRA] ISS-05: skip rate limiting for health endpoints
 });
 
-// AUTH-04: Strict login limiter (5 req / 1 min per IP)
-const authLoginLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many auth attempts. Please try again later.' },
-  skip: () => isTestEnv,
-});
-
-// INF-03: Strict limiter for non-login auth routes (10 req / 15 min per IP)
+// Signup limiter — login is rate-limited at the route level in src/server/api/auth.ts
+// to avoid double-stacked limits. See middleware/auth.ts#loginRateLimit.
 const authSignupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many auth attempts. Please try again later.' },
+  message: { error: 'Too many signup attempts. Please try again later.' },
   skip: () => isTestEnv,
 });
 
 app.use('/api', globalLimiter);
-app.use('/api/auth/login', authLoginLimiter);
 app.use('/api/auth/signup', authSignupLimiter);
 
 // INF-06: Deep readiness response for infra observability.

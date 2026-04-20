@@ -1,4 +1,4 @@
-@use '../../../../shared/styles/variables' as *;
+@use '../../../shared/styles/variables' as v;
 
 .form-page {
   min-height: 100vh;
@@ -6,42 +6,42 @@
   align-items: flex-start;
   justify-content: center;
   padding: 2rem 1rem 4rem;
-  background-color: var(--color-background, #f3f4f6);
+  background-color: v.$color-surface;
 }
 
 .form-card {
   width: 100%;
   max-width: 560px;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  box-shadow: 0 4px 6px -1px rgba(0,0,0, 0.05), 0 20px 40px -8px rgba(0,0,0, 0.05);
+  background: v.$color-white;
+  border-radius: v.$radius-lg;
+  border: 1px solid v.$color-border;
+  box-shadow: v.$shadow-md;
   overflow: hidden;
 }
 
 .form-header {
   padding: 2rem 2rem 1.5rem;
-  background: var(--color-primary-50, #ecfdf5);
-  border-bottom: 1px solid var(--color-primary-100, #d1fae5);
+  background: v.$color-emerald-light;
+  border-bottom: 1px solid rgba(0, 106, 81, 0.12);
   text-align: center;
-  color: var(--color-primary-900, #064e3b);
+  color: v.$color-emerald-dark;
 }
 
 .form-title {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: v.$font-weight-semibold;
   margin: 0 0 0.25rem;
 }
 
 .form-subtitle {
   font-size: 0.875rem;
-  color: var(--color-primary-700, #047857);
+  color: v.$color-emerald;
   margin: 0;
 }
 
 form {
   padding: 1.75rem 2rem 2rem;
-  
+
   @media (max-width: 480px) {
     padding: 1.5rem 1.25rem;
   }
@@ -56,21 +56,21 @@ form {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text, #111827);
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-text-primary;
   margin-bottom: 0.75rem;
 
   .required {
-    color: #ef4444;
+    color: v.$color-danger;
   }
 
   .optional {
     font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--color-text-light, #6b7280);
-    border: 1px solid var(--color-border, #e5e7eb);
+    font-weight: v.$font-weight-medium;
+    color: v.$color-text-muted;
+    border: 1px solid v.$color-border;
     padding: 0.1rem 0.4rem;
-    border-radius: 4px;
+    border-radius: v.$radius-sm;
   }
 }
 
@@ -85,28 +85,28 @@ form {
   align-items: center;
   gap: 0.35rem;
   padding: 0.5rem 0.875rem;
-  border-radius: 8px;
-  border: 1px solid var(--color-border, #d1d5db);
-  background: white;
-  color: var(--color-text, #374151);
+  border-radius: v.$radius-md;
+  border: 1px solid v.$color-border-input;
+  background: v.$color-white;
+  color: v.$color-text-secondary;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: v.$font-weight-medium;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all v.$transition-base;
   user-select: none;
 
   &:hover {
-    border-color: var(--color-text-light, #9ca3af);
-    background: var(--color-surface, #f9fafb);
+    border-color: v.$color-text-light;
+    background: v.$color-surface;
   }
 
   &--selected {
-    border-color: var(--color-primary-500, #10b981);
-    background: var(--color-primary-50, #ecfdf5);
-    color: var(--color-primary-700, #047857);
+    border-color: v.$color-emerald;
+    background: v.$color-emerald-light;
+    color: v.$color-emerald-dark;
 
     &:hover {
-      background: var(--color-primary-100, #d1fae5);
+      background: rgba(0, 106, 81, 0.12);
     }
   }
 
@@ -119,23 +119,23 @@ form {
 .select-input {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: 6px;
+  border: 1px solid v.$color-border-input;
+  border-radius: v.$radius-md;
   font-size: 0.875rem;
-  color: var(--color-text, #111827);
-  background: white;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  color: v.$color-text-primary;
+  background: v.$color-white;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base;
   cursor: pointer;
-  appearance: auto; // Let browser style the dropdown arrow
+  appearance: auto;
 
   &:focus {
     outline: none;
-    border-color: var(--color-primary-500, #10b981);
-    box-shadow: 0 0 0 2px var(--color-primary-100, #d1fae5);
+    border-color: v.$color-emerald;
+    box-shadow: v.$shadow-focus;
   }
 
   &--error {
-    border-color: #ef4444;
+    border-color: v.$color-danger;
   }
 }
 
@@ -143,9 +143,9 @@ form {
   display: inline-flex;
   align-items: center;
   padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  border-radius: v.$radius-sm;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: v.$font-weight-semibold;
 }
 
 .slider-wrapper {
@@ -156,7 +156,7 @@ form {
 
 .slider-label {
   font-size: 0.8rem;
-  color: var(--color-text-light, #6b7280);
+  color: v.$color-text-muted;
   min-width: 1.2rem;
   text-align: center;
 }
@@ -166,7 +166,7 @@ form {
   appearance: none;
   height: 6px;
   border-radius: 3px;
-  background: var(--color-border, #e5e7eb);
+  background: v.$color-border;
   outline: none;
   cursor: pointer;
 
@@ -175,9 +175,9 @@ form {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: var(--thumb-color, var(--color-primary-600, #059669));
-    border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0, 0.2);
+    background: var(--thumb-color, #{v.$color-emerald});
+    border: 2px solid v.$color-white;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
     transition: transform 0.1s;
     cursor: pointer;
 
@@ -185,13 +185,13 @@ form {
       transform: scale(1.1);
     }
   }
-  
+
   &::-moz-range-thumb {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: var(--thumb-color, var(--color-primary-600, #059669));
-    border: 2px solid white;
+    background: var(--thumb-color, #{v.$color-emerald});
+    border: 2px solid v.$color-white;
     cursor: pointer;
   }
 }
@@ -200,37 +200,37 @@ form {
   display: flex;
   justify-content: space-between;
   font-size: 0.75rem;
-  color: var(--color-text-light, #6b7280);
+  color: v.$color-text-muted;
   margin-top: 0.5rem;
 }
 
 .textarea-input {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: 6px;
+  border: 1px solid v.$color-border-input;
+  border-radius: v.$radius-md;
   font-size: 0.875rem;
   font-family: inherit;
-  color: var(--color-text, #111827);
+  color: v.$color-text-primary;
   resize: vertical;
   min-height: 80px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base;
 
   &:focus {
     outline: none;
-    border-color: var(--color-primary-500, #10b981);
-    box-shadow: 0 0 0 2px var(--color-primary-100, #d1fae5);
+    border-color: v.$color-emerald;
+    box-shadow: v.$shadow-focus;
   }
 
   &::placeholder {
-    color: var(--color-text-lighter, #9ca3af);
+    color: v.$color-text-placeholder;
   }
 }
 
 .char-count {
   text-align: right;
   font-size: 0.75rem;
-  color: var(--color-text-light, #6b7280);
+  color: v.$color-text-muted;
   margin-top: 0.35rem;
 }
 
@@ -238,28 +238,28 @@ form {
   display: block;
   margin-top: 0.5rem;
   font-size: 0.8125rem;
-  color: #ef4444;
-  font-weight: 500;
+  color: v.$color-danger;
+  font-weight: v.$font-weight-medium;
 }
 
 .submit-btn {
   width: 100%;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: v.$radius-md;
   border: none;
-  background: var(--color-primary-600, #059669);
-  color: white;
+  background: v.$color-emerald;
+  color: v.$color-white;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: v.$font-weight-medium;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all v.$transition-base;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 1rem;
 
   &:hover:not(:disabled) {
-    background: var(--color-primary-700, #047857);
+    background: v.$color-emerald-hover;
   }
 
   &:disabled {
@@ -289,7 +289,7 @@ form {
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  border-top-color: v.$color-white;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -301,7 +301,7 @@ form {
 .privacy-note {
   text-align: center;
   font-size: 0.8125rem;
-  color: var(--color-text-light, #6b7280);
+  color: v.$color-text-muted;
   margin-top: 1rem;
   margin-bottom: 0;
 }
