@@ -245,18 +245,10 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       this.fallbackRoomUrl = resolvedRoomUrl;
       this.roomUrl = resolvedRoomUrl;
 
-      // Step 2: Now open the popup with the URL ready.
-      const popup = window.open(resolvedRoomUrl, '_blank', 'noopener,noreferrer');
-
-      if (!popup) {
-        // Popup was blocked — show user-friendly error with fallback options.
-        this.errorMessage = 'Popup blocked. Use "Open Here" or "Copy Link" to continue.';
-        this.callActive = false;
-        return;
-      }
-
+      // Navigate in the same tab — avoids popup blockers on all browsers/devices.
       this.callActive = true;
       this.startElapsedTimer();
+      window.location.href = resolvedRoomUrl;
     } finally {
       this.joiningCall = false;
     }

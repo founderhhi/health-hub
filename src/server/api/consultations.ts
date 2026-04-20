@@ -52,6 +52,78 @@ consultationsRouter.post('/', requireAuth, async (req: Request, res: Response) =
   }
 });
 
+// ── GET /api/consultations/:id/join-link ─────────────────────────────────────
+// Returns the Daily.co room URL for an active consultation.
+// Called by ConsultShellComponent before opening the video/audio popup.
+consultationsRouter.get('/:id/join-link', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { id } = req.params;
+
+    const { rows } = await db.query(
+      `SELECT id, daily_room_url, status, patient_id, gp_id
+       FROM consultations
+       WHERE id = $1`,
+      [id]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Consultation not found' });
+    }
+
+    const consultation = rows[0];
+
+    // Verify the requesting user is a participant or admin.
+    const isParticipant =
+      consultation.patient_id === user.userId ||
+      consultation.gp_id === user.userId;
+    if (!isParticipant && user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const roomUrl: string = consultation.daily_room_url || '';
+    if (!roomUrl) {
+      return res.status(503).json({ error: 'Call room is not ready yet' });
+    }
+
+    return res.json({ roomUrl, tokenStatus: 'fallback' as const });
+  } catch (err) {
+    console.error('[consultations] join-link error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── POST /api/consultations/:id/activate ─────────────────────────────────────
+// Transitions a consultation from 'ready' to 'active' (used by chat mode on init).
+consultationsRouter.post('/:id/activate', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { id } = req.params;
+
+    const { rows } = await db.query(
+      `UPDATE consultations
+       SET status = 'active',
+           started_at = COALESCE(started_at, NOW())
+       WHERE id = $1
+         AND status IN ('ready', 'active')
+         AND (patient_id = $2 OR gp_id = $2)
+       RETURNING id, status, started_at`,
+      [id, user.userId]
+    );
+
+    if (!rows.length) {
+      // Either not found or caller is not a participant — return 200 so the
+      // patient shell does not show a blocking error for this non-critical step.
+      return res.json({ ok: true, note: 'no-op' });
+    }
+
+    return res.json({ ok: true, consultation: rows[0] });
+  } catch (err) {
+    console.error('[consultations] activate error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ── GET /api/consultations/:id ────────────────────────────────────────────────
 consultationsRouter.get('/:id', requireAuth, async (req: Request, res: Response) => {
   try {

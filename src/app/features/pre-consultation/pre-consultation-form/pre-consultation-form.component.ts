@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ConsultationService } from '../../../shared/services/consultation.service';
 
 export const SYMPTOM_OPTIONS = [
@@ -17,7 +17,7 @@ export const DURATION_OPTIONS = [
 @Component({
   selector: 'app-pre-consultation-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './pre-consultation-form.component.html',
   styleUrls: ['./pre-consultation-form.component.scss'],
 })

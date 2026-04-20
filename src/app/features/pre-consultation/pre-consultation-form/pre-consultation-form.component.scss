@@ -1,43 +1,115 @@
 @use '../../../shared/styles/variables' as v;
 
+/* ─── Page Shell ─────────────────────────────────────────────────────────── */
+
 .form-page {
   min-height: 100vh;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem 1rem 4rem;
-  background-color: v.$color-surface;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-primary, #{v.$color-surface});
+  padding-bottom: 3rem;
 }
+
+/* ─── Top Navigation Bar ─────────────────────────────────────────────────── */
+
+.form-topbar {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.5rem;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: v.$radius-md;
+  border: 1px solid var(--border-color, #{v.$color-border});
+  background: var(--bg-card, #{v.$color-white});
+  color: var(--text-secondary, #{v.$color-text-secondary});
+  font-size: 0.875rem;
+  font-weight: v.$font-weight-medium;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: var(--bg-secondary, #{v.$color-surface});
+    color: var(--text-primary, #{v.$color-text-primary});
+    border-color: var(--border-color, #{v.$color-border-input});
+  }
+}
+
+.topbar-brand {
+  font-size: 0.875rem;
+  font-weight: v.$font-weight-semibold;
+  color: v.$color-emerald;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
 
 .form-card {
   width: 100%;
   max-width: 560px;
-  background: v.$color-white;
-  border-radius: v.$radius-lg;
-  border: 1px solid v.$color-border;
-  box-shadow: v.$shadow-md;
+  background: var(--bg-card, #{v.$color-white});
+  border-radius: v.$radius-xl;
+  border: 1px solid var(--border-color, #{v.$color-border});
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
   overflow: hidden;
+  margin-top: 0.5rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
 
 .form-header {
   padding: 2rem 2rem 1.5rem;
-  background: v.$color-emerald-light;
-  border-bottom: 1px solid rgba(0, 106, 81, 0.12);
+  background: linear-gradient(135deg, v.$color-emerald 0%, v.$color-emerald-hover 100%);
   text-align: center;
-  color: v.$color-emerald-dark;
+  color: #ffffff;
+}
+
+.form-header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    color: #ffffff;
+  }
 }
 
 .form-title {
   font-size: 1.25rem;
   font-weight: v.$font-weight-semibold;
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.375rem;
+  color: #ffffff;
 }
 
 .form-subtitle {
-  font-size: 0.875rem;
-  color: v.$color-emerald;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.82);
   margin: 0;
 }
+
+/* ─── Form Body ──────────────────────────────────────────────────────────── */
 
 form {
   padding: 1.75rem 2rem 2rem;
@@ -57,7 +129,7 @@ form {
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: v.$font-weight-semibold;
-  color: v.$color-text-primary;
+  color: var(--text-primary, #{v.$color-text-primary});
   margin-bottom: 0.75rem;
 
   .required {
@@ -67,12 +139,14 @@ form {
   .optional {
     font-size: 0.75rem;
     font-weight: v.$font-weight-medium;
-    color: v.$color-text-muted;
-    border: 1px solid v.$color-border;
+    color: var(--text-muted, #{v.$color-text-muted});
+    border: 1px solid var(--border-color, #{v.$color-border});
     padding: 0.1rem 0.4rem;
     border-radius: v.$radius-sm;
   }
 }
+
+/* ─── Symptom Chips ──────────────────────────────────────────────────────── */
 
 .chips-grid {
   display: flex;
@@ -85,10 +159,10 @@ form {
   align-items: center;
   gap: 0.35rem;
   padding: 0.5rem 0.875rem;
-  border-radius: v.$radius-md;
-  border: 1px solid v.$color-border-input;
-  background: v.$color-white;
-  color: v.$color-text-secondary;
+  border-radius: v.$radius-full;
+  border: 1px solid var(--border-color, #{v.$color-border-input});
+  background: var(--bg-card, #{v.$color-white});
+  color: var(--text-secondary, #{v.$color-text-secondary});
   font-size: 0.875rem;
   font-weight: v.$font-weight-medium;
   cursor: pointer;
@@ -96,8 +170,9 @@ form {
   user-select: none;
 
   &:hover {
-    border-color: v.$color-text-light;
-    background: v.$color-surface;
+    border-color: v.$color-emerald;
+    background: rgba(0, 106, 81, 0.06);
+    color: v.$color-emerald-dark;
   }
 
   &--selected {
@@ -106,24 +181,27 @@ form {
     color: v.$color-emerald-dark;
 
     &:hover {
-      background: rgba(0, 106, 81, 0.12);
+      background: rgba(0, 106, 81, 0.14);
     }
   }
 
   .chip-check {
     width: 14px;
     height: 14px;
+    color: v.$color-emerald;
   }
 }
+
+/* ─── Select & Textarea ──────────────────────────────────────────────────── */
 
 .select-input {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  border: 1px solid v.$color-border-input;
+  border: 1px solid var(--border-color, #{v.$color-border-input});
   border-radius: v.$radius-md;
   font-size: 0.875rem;
-  color: v.$color-text-primary;
-  background: v.$color-white;
+  color: var(--text-primary, #{v.$color-text-primary});
+  background: var(--bg-card, #{v.$color-white});
   transition: border-color v.$transition-base, box-shadow v.$transition-base;
   cursor: pointer;
   appearance: auto;
@@ -131,13 +209,15 @@ form {
   &:focus {
     outline: none;
     border-color: v.$color-emerald;
-    box-shadow: v.$shadow-focus;
+    box-shadow: 0 0 0 3px rgba(0, 106, 81, 0.14);
   }
 
   &--error {
     border-color: v.$color-danger;
   }
 }
+
+/* ─── Severity Slider ────────────────────────────────────────────────────── */
 
 .severity-badge {
   display: inline-flex;
@@ -156,7 +236,7 @@ form {
 
 .slider-label {
   font-size: 0.8rem;
-  color: v.$color-text-muted;
+  color: var(--text-muted, #{v.$color-text-muted});
   min-width: 1.2rem;
   text-align: center;
 }
@@ -166,18 +246,18 @@ form {
   appearance: none;
   height: 6px;
   border-radius: 3px;
-  background: v.$color-border;
+  background: var(--border-color, #{v.$color-border});
   outline: none;
   cursor: pointer;
 
   &::-webkit-slider-thumb {
     appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: var(--thumb-color, #{v.$color-emerald});
-    border: 2px solid v.$color-white;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+    border: 3px solid var(--bg-card, #{v.$color-white});
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
     transition: transform 0.1s;
     cursor: pointer;
 
@@ -187,11 +267,11 @@ form {
   }
 
   &::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: var(--thumb-color, #{v.$color-emerald});
-    border: 2px solid v.$color-white;
+    border: 3px solid var(--bg-card, #{v.$color-white});
     cursor: pointer;
   }
 }
@@ -200,18 +280,19 @@ form {
   display: flex;
   justify-content: space-between;
   font-size: 0.75rem;
-  color: v.$color-text-muted;
+  color: var(--text-muted, #{v.$color-text-muted});
   margin-top: 0.5rem;
 }
 
 .textarea-input {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  border: 1px solid v.$color-border-input;
+  border: 1px solid var(--border-color, #{v.$color-border-input});
   border-radius: v.$radius-md;
   font-size: 0.875rem;
   font-family: inherit;
-  color: v.$color-text-primary;
+  color: var(--text-primary, #{v.$color-text-primary});
+  background: var(--bg-card, #{v.$color-white});
   resize: vertical;
   min-height: 80px;
   transition: border-color v.$transition-base, box-shadow v.$transition-base;
@@ -219,18 +300,18 @@ form {
   &:focus {
     outline: none;
     border-color: v.$color-emerald;
-    box-shadow: v.$shadow-focus;
+    box-shadow: 0 0 0 3px rgba(0, 106, 81, 0.14);
   }
 
   &::placeholder {
-    color: v.$color-text-placeholder;
+    color: var(--text-muted, #{v.$color-text-placeholder});
   }
 }
 
 .char-count {
   text-align: right;
   font-size: 0.75rem;
-  color: v.$color-text-muted;
+  color: var(--text-muted, #{v.$color-text-muted});
   margin-top: 0.35rem;
 }
 
@@ -242,29 +323,36 @@ form {
   font-weight: v.$font-weight-medium;
 }
 
+/* ─── Submit Button ──────────────────────────────────────────────────────── */
+
 .submit-btn {
   width: 100%;
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 1.5rem;
   border-radius: v.$radius-md;
   border: none;
-  background: v.$color-emerald;
-  color: v.$color-white;
+  background: linear-gradient(135deg, v.$color-emerald 0%, v.$color-emerald-hover 100%);
+  color: #ffffff;
   font-size: 1rem;
-  font-weight: v.$font-weight-medium;
+  font-weight: v.$font-weight-semibold;
   cursor: pointer;
   transition: all v.$transition-base;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 106, 81, 0.28);
 
   &:hover:not(:disabled) {
-    background: v.$color-emerald-hover;
+    background: linear-gradient(135deg, v.$color-emerald-hover 0%, v.$color-emerald-dark 100%);
+    box-shadow: 0 6px 16px rgba(0, 106, 81, 0.36);
+    transform: translateY(-1px);
   }
 
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.75;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 
   span {
@@ -286,10 +374,10 @@ form {
 }
 
 .spinner {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: v.$color-white;
+  border-top-color: #ffffff;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -301,7 +389,7 @@ form {
 .privacy-note {
   text-align: center;
   font-size: 0.8125rem;
-  color: v.$color-text-muted;
+  color: var(--text-muted, #{v.$color-text-muted});
   margin-top: 1rem;
   margin-bottom: 0;
 }

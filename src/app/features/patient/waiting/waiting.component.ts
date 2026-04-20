@@ -24,6 +24,9 @@ export class WaitingComponent implements OnInit, OnDestroy {
   isRefreshing = false;
   consultationFinished = false;
   statusMessage = 'Waiting for a Health Expert to accept your request...';
+  showAcceptedOverlay = false;
+  acceptCountdown = 3;
+  private acceptCountdownTimer?: ReturnType<typeof setInterval>;
 
   private platformId = inject(PLATFORM_ID);
   private requestId = '';
@@ -76,6 +79,10 @@ export class WaitingComponent implements OnInit, OnDestroy {
       clearInterval(this.activeConsultPollTimer);
       this.activeConsultPollTimer = undefined;
     }
+    if (this.acceptCountdownTimer) {
+      clearInterval(this.acceptCountdownTimer);
+      this.acceptCountdownTimer = undefined;
+    }
     this.clearDashboardRedirectTimer();
   }
 
@@ -83,11 +90,31 @@ export class WaitingComponent implements OnInit, OnDestroy {
     if (!this.canJoinConsultation) {
       return;
     }
-
+    this.clearAcceptedCountdown();
+    this.showAcceptedOverlay = false;
     this.statusMessage = this.gpName
-      ? `${this.gpName} is ready. Joining consultation...`
-      : 'Your Health Expert is ready. Joining consultation...';
+      ? `${this.gpName} is ready. Opening consultation...`
+      : 'Your Health Expert is ready. Opening consultation...';
     this.showConsultShell = true;
+  }
+
+  private startAcceptedCountdown(): void {
+    this.clearAcceptedCountdown();
+    this.showAcceptedOverlay = true;
+    this.acceptCountdown = 3;
+    this.acceptCountdownTimer = setInterval(() => {
+      this.acceptCountdown--;
+      if (this.acceptCountdown <= 0) {
+        this.joinConsult();
+      }
+    }, 1000);
+  }
+
+  private clearAcceptedCountdown(): void {
+    if (this.acceptCountdownTimer) {
+      clearInterval(this.acceptCountdownTimer);
+      this.acceptCountdownTimer = undefined;
+    }
   }
 
   refreshStatus(): void {
@@ -144,8 +171,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
     }
     if (this.hasAcceptedConsultation && !this.cancelPending) {
       this.statusMessage = this.gpName
-        ? `${this.gpName} is still available. Tap join when you are ready.`
-        : 'Your consultation is ready. Tap join when you are ready.';
+        ? `${this.gpName} is still available.`
+        : 'Your consultation is still available.';
     }
   }
 
@@ -219,19 +246,20 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.roomUrl = nextRoomUrl;
     this.consultationId = nextConsultationId;
     this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
-    if (this.consultMode === 'chat') {
-      this.showConsultShell = true;
-    }
+
     if (this.consultMode === 'chat') {
       this.statusMessage = this.gpName
         ? `${this.gpName} accepted your request. Opening the chat now.`
         : 'A Health Expert accepted your request. Opening the chat now.';
+      this.showConsultShell = true;
       return;
     }
 
+    // For video/audio: show the accepted overlay with a countdown, then open the shell
     this.statusMessage = this.gpName
-      ? `${this.gpName} accepted your request. Tap join when you are ready.`
-      : 'A Health Expert accepted your request. Tap join when you are ready.';
+      ? `${this.gpName} has accepted your request.`
+      : 'A Health Expert has accepted your request.';
+    this.startAcceptedCountdown();
   }
 
   private pollActiveConsult(): void {
@@ -312,8 +340,10 @@ export class WaitingComponent implements OnInit, OnDestroy {
   private finishWaitingFlow(message: string): void {
     this.consultationFinished = true;
     this.showConsultShell = false;
+    this.showAcceptedOverlay = false;
     this.showCancelConfirm = false;
     this.cancelPending = false;
+    this.clearAcceptedCountdown();
     this.clearConsultationState();
     this.statusMessage = `${message} Returning you to dashboard...`;
     this.scheduleDashboardRedirect();

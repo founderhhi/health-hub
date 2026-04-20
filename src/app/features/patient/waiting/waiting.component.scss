@@ -257,6 +257,111 @@
   }
 }
 
+/* ── Accepted Countdown Overlay ─────────────────────────────────────────── */
+
+.waiting-card--faded {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: blur(1px);
+  transition: all 0.3s ease;
+}
+
+.accepted-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(11, 15, 20, 0.55);
+  animation: fade-in 0.3s ease;
+}
+
+.accepted-card {
+  background: var(--bg-card);
+  border: 1px solid #BBF7D0;
+  border-radius: 20px;
+  padding: 40px 32px 32px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(46, 204, 113, 0.2);
+  animation: slide-up 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.accepted-icon-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(46, 204, 113, 0.14);
+  border: 2px solid rgba(46, 204, 113, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+
+  svg {
+    width: 36px;
+    height: 36px;
+    color: #2ECC71;
+  }
+}
+
+.accepted-title {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.accepted-name {
+  margin: 0 0 24px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.accepted-countdown-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+}
+
+.accepted-countdown-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.accepted-hint {
+  margin: 0 0 24px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.accepted-now-btn {
+  width: 100%;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Cancel Modal ────────────────────────────────────────────────────────── */
+
 .cancel-modal-overlay {
   position: fixed;
   inset: 0;

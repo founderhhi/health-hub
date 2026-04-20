@@ -175,7 +175,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
         ) {
           this.loadNotifications();
           this.loadPrescriptions();
-          this.loadStats();
+          if (!this.statsLoading) {
+            this.loadStats();
+          }
         }
       });
     }

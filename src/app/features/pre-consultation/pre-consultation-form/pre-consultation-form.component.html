@@ -1,10 +1,26 @@
 <div class="form-page">
+  <!-- Top bar -->
+  <div class="form-topbar">
+    <button class="back-btn" type="button" routerLink="/patient/dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Dashboard
+    </button>
+    <span class="topbar-brand">Health Hub</span>
+  </div>
+
   <div class="form-card">
 
     <!-- Header -->
     <div class="form-header">
+      <div class="form-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
       <h1 class="form-title">Pre-Consultation Check</h1>
-      <p class="form-subtitle">Takes less than 30 seconds • Helps your doctor prepare</p>
+      <p class="form-subtitle">Takes less than 30 seconds · Helps your Health Expert prepare</p>
     </div>
 
     <form (ngSubmit)="onSubmit()" novalidate>
@@ -63,7 +79,7 @@
       <div class="field-group">
         <label class="field-label">
           Severity
-          <span class="severity-badge" [style.background]="severityColor + '20'" [style.color]="severityColor">
+          <span class="severity-badge" [style.background]="severityColor + '22'" [style.color]="severityColor">
             {{ severity }}/10 — {{ severityLabel }}
           </span>
         </label>
@@ -117,19 +133,19 @@
         [disabled]="isSubmitting"
       >
         <span *ngIf="!isSubmitting">
-          Submit &amp; Continue
+          Connect with a Health Expert
           <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
           </svg>
         </span>
         <span *ngIf="isSubmitting" class="spinner-row">
           <span class="spinner"></span>
-          Connecting...
+          Finding your Health Expert...
         </span>
       </button>
 
       <p class="privacy-note">
-        🔒 Your information is shared only with your assigned doctor
+        Your information is shared only with your assigned Health Expert
       </p>
 
     </form>

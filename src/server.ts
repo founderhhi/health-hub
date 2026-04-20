@@ -186,14 +186,16 @@ app.use(express.json());
 
 const EXEMPT_PATHS = ['/api/healthz', '/api/health', '/api/ready']; // [AGENT_INFRA] ISS-05: exempt health endpoints from rate limiting
 
-// INF-03: Global rate limiter (100 req / 15 min per IP)
+// INF-03: Global rate limiter — raised to 600/5min per IP.
+// GP dashboard polls every 30s (2 calls each = ~4/min); patient flows
+// add another ~10/min. 600/5min gives ~100 req/50s of headroom.
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 5 * 60 * 1000,
+  max: 600,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' },
-  skip: (req) => isTestEnv || EXEMPT_PATHS.includes(req.path), // [AGENT_INFRA] ISS-05: skip rate limiting for health endpoints
+  skip: (req) => isTestEnv || EXEMPT_PATHS.includes(req.path),
 });
 
 // Signup limiter — login is rate-limited at the route level in src/server/api/auth.ts
