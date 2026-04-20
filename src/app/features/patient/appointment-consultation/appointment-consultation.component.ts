@@ -3,15 +3,17 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReferralsApiService } from '../../../core/api/referrals.service';
 import { ConsultMode, ConsultShellComponent } from '../../../shared/components/consult-shell/consult-shell';
+import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-appointment-consultation',
   standalone: true,
-  imports: [CommonModule, RouterModule, ConsultShellComponent],
+  imports: [CommonModule, RouterModule, ConsultShellComponent, BottomNavComponent],
   templateUrl: './appointment-consultation.component.html',
   styleUrl: './appointment-consultation.component.scss'
 })
 export class AppointmentConsultationComponent implements OnInit {
+  PATIENT_TABS = PATIENT_TABS;
   referral: any;
   consultationId = '';
   roomUrl = '';

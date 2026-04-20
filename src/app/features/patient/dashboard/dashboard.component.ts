@@ -401,7 +401,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   private completeWalkthrough(): void {
     this.walkthroughActive = false;
     this.spotlightRect = null;
-    this.api.patch<{ ok: boolean }>('/patient/tutorial-complete', {}).subscribe();
+    this.api.patch<{ ok: boolean }>('/patient/tutorial-complete', {}).subscribe({
+      error: () => { /* tutorial flag will retry on next dashboard load */ },
+    });
     this.cdr.detectChanges();
   }
 

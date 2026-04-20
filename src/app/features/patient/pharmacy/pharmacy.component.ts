@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { Component, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface NearbyPharmacy {
@@ -27,19 +27,16 @@ const NAIROBI_PHARMACIES: NearbyPharmacy[] = [
 export class PatientPharmacyComponent {
   PATIENT_TABS = PATIENT_TABS;
   pharmacies = NAIROBI_PHARMACIES;
-  directionMessage = '';
   showLiveNotice = true;
   readonly liveNotice = 'Live pharmacies will be added in coming updates.';
 
   private location = inject(Location);
-  private cdr = inject(ChangeDetectorRef);
+  private platformId = inject(PLATFORM_ID);
 
   getDirections(pharmacy: NearbyPharmacy): void {
-    this.directionMessage = `Directions to ${pharmacy.name} coming soon.`;
-    setTimeout(() => {
-      this.directionMessage = '';
-      this.cdr.detectChanges();
-    }, 3000);
+    if (!isPlatformBrowser(this.platformId)) return;
+    const query = encodeURIComponent(`${pharmacy.name} ${pharmacy.address}`);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank', 'noopener');
   }
 
   goBack(): void {

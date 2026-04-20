@@ -41,7 +41,7 @@ export class PatientSpecialistComponent implements OnInit {
   loadError = '';
   loading = true;
   showAvailabilityNotice = true;
-  readonly availabilityNotice = 'This feature is not yet active for personal specialist consultation — we will notify you as soon as it is live.';
+  readonly availabilityNotice = 'Specialist consultations are not yet live. Browse the directory below as a preview — we will notify you as soon as you can book.';
 
   private location = inject(Location);
   private patientApi = inject(PatientApiService);

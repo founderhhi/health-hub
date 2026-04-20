@@ -748,8 +748,6 @@ export class Practitioner implements OnInit, OnDestroy {
    * Skip a patient in the queue
    */
   skipPatient(patientId: string): void {
-    console.log('Skipping patient:', patientId);
-    // Move patient to end of queue
     const index = this.queue.findIndex(p => p.id === patientId);
     if (index > -1) {
       const patient = this.queue.splice(index, 1)[0];

@@ -170,10 +170,6 @@ export class ConsultationService {
     return `Patient reports ${symptomList} for ${session.duration} with ${severityLabel} severity${session.notes ? ': ' + session.notes : ''}.`;
   }
 
-  getPendingConsultations(): Observable<ConsultationSession[]> {
-    return this.http.get<ConsultationSession[]>('/api/consultations/pending/list').pipe(catchError(() => of([])));
-  }
-
   endSession(): void {
     this.clearStorage();
     this.sessionSubject.next(null);
