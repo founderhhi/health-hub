@@ -1,6 +1,7 @@
-<div class="form-page">
+<div class="wizard-page">
+
   <!-- Top bar -->
-  <div class="form-topbar">
+  <div class="wizard-topbar">
     <button class="back-btn" type="button" routerLink="/patient/dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="15 18 9 12 15 6"/>
@@ -10,122 +11,15 @@
     <span class="topbar-brand">Health Hub</span>
   </div>
 
-  <div class="form-card">
+  <div class="wizard-card">
 
-    <!-- Header -->
-    <div class="form-header">
-      <div class="form-header-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-        </svg>
-      </div>
-      <h1 class="form-title">Pre-Consultation Check</h1>
-      <p class="form-subtitle">Takes less than 30 seconds · Helps your Health Expert prepare</p>
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="progressPercent"></div>
     </div>
 
-    <form (ngSubmit)="onSubmit()" novalidate>
-
-      <!-- SYMPTOMS -->
-      <div class="field-group">
-        <label class="field-label">
-          What are your symptoms?
-          <span class="required">*</span>
-        </label>
-
-        <div class="chips-grid">
-          <button
-            *ngFor="let symptom of symptomOptions"
-            type="button"
-            class="chip"
-            [class.chip--selected]="isSelected(symptom)"
-            (click)="toggleSymptom(symptom)"
-          >
-            <svg *ngIf="isSelected(symptom)" class="chip-check" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z"/>
-            </svg>
-            {{ symptom }}
-          </button>
-        </div>
-
-        <span *ngIf="showSymptomsError" class="field-error">
-          Please select at least one symptom
-        </span>
-      </div>
-
-      <!-- DURATION -->
-      <div class="field-group">
-        <label class="field-label" for="duration">
-          How long have you had these symptoms?
-          <span class="required">*</span>
-        </label>
-
-        <select
-          id="duration"
-          class="select-input"
-          [(ngModel)]="selectedDuration"
-          name="duration"
-          [class.select-input--error]="showDurationError"
-        >
-          <option value="" disabled selected>Select duration</option>
-          <option *ngFor="let d of durationOptions" [value]="d">{{ d }}</option>
-        </select>
-
-        <span *ngIf="showDurationError" class="field-error">
-          Please select a duration
-        </span>
-      </div>
-
-      <!-- SEVERITY -->
-      <div class="field-group">
-        <label class="field-label">
-          Severity
-          <span class="severity-badge" [style.background]="severityColor + '22'" [style.color]="severityColor">
-            {{ severity }}/10 — {{ severityLabel }}
-          </span>
-        </label>
-
-        <div class="slider-wrapper">
-          <span class="slider-label">1</span>
-          <input
-            type="range"
-            class="slider"
-            min="1"
-            max="10"
-            step="1"
-            [(ngModel)]="severity"
-            name="severity"
-            [style.--thumb-color]="severityColor"
-          />
-          <span class="slider-label">10</span>
-        </div>
-
-        <div class="slider-track-labels">
-          <span>Mild</span>
-          <span>Moderate</span>
-          <span>Severe</span>
-        </div>
-      </div>
-
-      <!-- NOTES -->
-      <div class="field-group">
-        <label class="field-label" for="notes">
-          Additional notes
-          <span class="optional">optional</span>
-        </label>
-
-        <textarea
-          id="notes"
-          class="textarea-input"
-          [(ngModel)]="notes"
-          name="notes"
-          rows="3"
-          placeholder="e.g. Started after a cold last week, worse in the mornings..."
-          maxlength="500"
-        ></textarea>
-        <div class="char-count">{{ notes.length }}/500</div>
-      </div>
-
-      <!-- SUBMIT -->
+    <!-- Step dots -->
+    <div class="step-dots">
       <button
         *ngFor="let step of steps"
         class="step-dot"
@@ -288,20 +182,17 @@
       >
         <span *ngIf="!isSubmitting">
           Connect with a Health Expert
-          <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="btn-arrow">
             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
           </svg>
         </span>
         <span *ngIf="isSubmitting" class="spinner-row">
-          <span class="spinner"></span>
-          Finding your Health Expert...
+          <span class="spinner"></span> Finding your Health Expert...
         </span>
       </button>
     </div>
 
-      <p class="privacy-note">
-        Your information is shared only with your assigned Health Expert
-      </p>
+    <p class="privacy-note">🔒 Shared only with your assigned Health Expert</p>
 
   </div>
 </div>
