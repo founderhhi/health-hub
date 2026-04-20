@@ -323,14 +323,14 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
   private loadConsultation(id: string): void {
     this.loading = true;
     this.errorMessage = '';
-    
-    // Add a backup timeout manually mapped to avoid hanging
+    this.consultation = null;
+
     const timer = setTimeout(() => {
       if (this.loading) {
         this.loading = false;
-        this.errorMessage = 'Request timed out waiting for consultation details.';
+        this.errorMessage = 'Could not load consultation details. Please go back and try again.';
       }
-    }, 10000);
+    }, 8000);
 
     this.gpApi.getConsultation(id).subscribe({
       next: (response) => {

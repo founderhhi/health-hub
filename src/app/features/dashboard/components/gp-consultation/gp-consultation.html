@@ -1,7 +1,17 @@
 <section class="hhi-provider-page active-consultation">
   @if (loading) {
     <div class="loading-state">
-      Loading consultation...
+      <p>Loading consultation...</p>
+      <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()" style="margin-top:1rem">
+        Back to Dashboard
+      </button>
+    </div>
+  } @else if (errorMessage && !consultation) {
+    <div class="loading-state">
+      <p class="inline-notice inline-notice--error">{{ errorMessage }}</p>
+      <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()" style="margin-top:1rem">
+        Back to Dashboard
+      </button>
     </div>
   } @else {
     <div class="consultation-layout">
