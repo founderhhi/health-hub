@@ -50,7 +50,7 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
   { targetId: 'wt-bottom-nav', title: 'Your Navigation', body: 'Tap these icons to move between Home, Appointments, AI Chat, Records, and Profile.' },
   { targetId: 'wt-services-grid', title: 'Your Health Services', body: 'Tap any card to access GP, Specialist, Pharmacy, Diagnostics, and more.' },
   { targetId: 'wt-gp-tile', title: 'See a Health Expert Now', body: 'Get a video, audio, or chat consultation with a Health Expert in minutes.' },
-  { targetId: 'wt-healwell-tile', title: 'Care at Your Doorstep', body: 'Book professional home visits and access remote monitoring services.' },
+  { targetId: 'wt-healwell-tile', title: 'Expert Health Guidance On Demand', body: 'Browse curated videos from doctors, specialists, and health experts to understand symptoms and manage minor conditions confidently at home.' },
   { targetId: 'wt-africa-tile', title: 'Healthcare Across Africa', body: 'Access verified clinics and specialists across the continent.' },
   { targetId: 'wt-india-tile', title: 'Healthcare Across India', body: 'Connect with hospital networks and specialists across India.' },
   { targetId: 'wt-stats', title: 'Your Health at a Glance', body: 'Track your consultations, active prescriptions, and lab records here.' },
