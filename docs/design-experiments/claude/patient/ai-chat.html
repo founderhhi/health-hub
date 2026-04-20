@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Chat — Patient Design Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #F8F9FA; color: #0B0F14; padding: 40px 24px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #64748B; text-decoration: none; margin-bottom: 32px; }
+  .back:hover { color: #2ECC71; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; line-height: 1.6; }
+  .variations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 1100px) { .variations { grid-template-columns: 1fr; max-width: 480px; } }
+  .variation { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(15,23,42,0.06); overflow: hidden; }
+  .var-header { padding: 24px 28px 20px; border-bottom: 1px solid #F1F5F9; }
+  .var-header h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .var-header p { font-size: 13px; color: #64748B; line-height: 1.55; }
+  .var-body { padding: 28px; display: flex; flex-direction: column; gap: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 12px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch-color { width: 48px; height: 48px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); }
+  .swatch-label { font-size: 9px; font-weight: 600; color: #64748B; text-align: center; max-width: 56px; line-height: 1.3; }
+  .swatch-hex { font-size: 9px; color: #94A3B8; font-family: monospace; }
+  .type-sample { margin-bottom: 12px; }
+  .type-meta { font-size: 10px; color: #94A3B8; margin-top: 2px; }
+  .mockup-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 10px; color: #FFFFFF; font-size: 13px; font-weight: 600; border: none; cursor: default; }
+  .spacing-demo { display: flex; flex-direction: column; gap: 6px; }
+  .spacing-row { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+  .spacing-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #FFF; }
+  .spacing-label { font-size: 11px; color: #64748B; min-width: 100px; }
+  .surface-card { border-radius: 14px; padding: 20px; min-height: 70px; display: flex; flex-direction: column; gap: 6px; }
+  .surface-label { font-size: 11px; font-weight: 600; color: #64748B; }
+  .surface-detail { font-size: 10px; color: #94A3B8; font-family: monospace; line-height: 1.5; }
+
+  /* Chat mockup */
+  .chat-shell-mock { border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .usage-bar-mock { width: 100%; border-radius: 999px; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
+  .usage-track { width: 100%; background: #E8ECF0; border-radius: 999px; }
+  .usage-fill-mock { height: 100%; border-radius: 999px; }
+  .messages-mock { display: flex; flex-direction: column; }
+  .msg-mock { padding: 10px 14px; max-width: 80%; font-size: 14px; line-height: 1.5; }
+  .msg-user { align-self: flex-end; color: #FFF; }
+  .msg-assistant { align-self: flex-start; }
+  .input-row-mock { display: flex; gap: 10px; align-items: center; }
+  .chat-input-mock { flex: 1; padding: 10px 14px; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 14px; background: #FFF; color: #94A3B8; }
+  .send-btn-mock { min-width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 13px; font-weight: 600; cursor: default; }
+  .typing-dots { display: flex; gap: 4px; padding: 4px 0; }
+  .typing-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  @keyframes typingPulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">&#8592; Back to index</a>
+<div class="page-header">
+  <h1>AI Chat</h1>
+  <p>Message bubbles, chat input, usage indicator, and CTA buttons across three design directions.</p>
+</div>
+
+<div class="variations">
+  <!-- ==================== V1: CALM CLINICAL ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V1: Calm Clinical</h2>
+      <p>Lighter bubbles, more generous spacing, gentler usage bar. A supportive conversation space.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: color-mix(in srgb, #2ECC71 85%, white 15%);"></div><div class="swatch-label">User Bubble</div><div class="swatch-hex">85% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7);"></div><div class="swatch-label">Asst Bubble</div><div class="swatch-hex">70% border</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: color-mix(in srgb, #2ECC71 80%, white 20%);"></div><div class="swatch-label">Usage Fill</div><div class="swatch-hex">80% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #FEF2F2;"></div><div class="swatch-label">Error BG</div><div class="swatch-hex">#FEF2F2</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 20px; font-weight: 600;">HealthHub Guide</div><div class="type-meta">Page Title: Inter 600 (reduced from 700)</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 14px; color: #64748B; line-height: 1.6;">Your AI health assistant</div><div class="type-meta">Subtitle: Inter 400, line-height 1.6</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 14px; line-height: 1.55;">I have a headache and mild fever since yesterday.</div><div class="type-meta">Message: Inter 400, line-height 1.55</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Chat Interface</div>
+        <div class="chat-shell-mock" style="background: #FFF; border: 1px solid rgba(200,210,220,0.8); box-shadow: 0 1px 3px rgba(15,23,42,0.03); padding: 20px; gap: 18px;">
+          <!-- Usage bar -->
+          <div class="usage-bar-mock">
+            <div class="usage-track" style="height: 8px;">
+              <div class="usage-fill-mock" style="width: 35%; background: color-mix(in srgb, #2ECC71 80%, white 20%);"></div>
+            </div>
+            <div style="font-size: 11px; color: #64748B; line-height: 1.5;">7 of 20 messages used</div>
+          </div>
+          <!-- Messages -->
+          <div class="messages-mock" style="gap: 14px;">
+            <div class="msg-mock msg-user" style="background: color-mix(in srgb, #2ECC71 85%, white 15%); border-radius: 16px 16px 8px 16px; padding: 12px 16px; line-height: 1.55;">I have a headache and mild fever.</div>
+            <div class="msg-mock msg-assistant" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 16px 16px 16px 8px; padding: 12px 16px; color: #0B0F14; line-height: 1.55;">I understand. Could you tell me when the symptoms started?</div>
+            <div class="msg-mock msg-assistant" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 16px 16px 16px 8px; padding: 12px 16px;">
+              <div class="typing-dots">
+                <div class="typing-dot" style="background: #94A3B8; animation: typingPulse 1.4s infinite 0s;"></div>
+                <div class="typing-dot" style="background: #94A3B8; animation: typingPulse 1.4s infinite 0.2s;"></div>
+                <div class="typing-dot" style="background: #94A3B8; animation: typingPulse 1.4s infinite 0.4s;"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Input -->
+          <div class="input-row-mock" style="gap: 12px;">
+            <div class="chat-input-mock" style="border-radius: 12px;">Type your message...</div>
+            <div class="send-btn-mock" style="background: #2ECC71; border-radius: 12px;">Send</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">CTA Buttons (No Hover Lift)</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="mockup-btn" style="background: #2ECC71; width: 100%; justify-content: center;">Connect to Health Expert</div>
+          <div class="mockup-btn" style="background: transparent; color: #0B0F14; border: 1px solid #E2E8F0; width: 100%; justify-content: center;">Open Diagnostics</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Error Message</div>
+        <div style="background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; padding: 10px 14px; border-radius: 10px; font-size: 13px;">Failed to send. Please try again.</div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Shell padding</span><div class="spacing-bar" style="width: 80px; background: #DBEAFE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Shell gap</span><div class="spacing-bar" style="width: 72px; background: #DBEAFE;">18px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Message gap</span><div class="spacing-bar" style="width: 56px; background: #DBEAFE;">14px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Msg padding</span><div class="spacing-bar" style="width: 64px; background: #DBEAFE;">12px 16px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Input gap</span><div class="spacing-bar" style="width: 48px; background: #DBEAFE;">12px</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V2: PREMIUM GUIDED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V2: Premium Guided</h2>
+      <p>Fraunces title, gradient buttons, richer shell shadow. Premium AI health assistant.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: linear-gradient(135deg, #2ECC71, #27AE60);"></div><div class="swatch-label">Send Gradient</div><div class="swatch-hex">#2ECC71-#27AE60</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: linear-gradient(90deg, #2ECC71, #27AE60);"></div><div class="swatch-label">Usage Fill</div><div class="swatch-hex">gradient</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(200,210,220,0.5);"></div><div class="swatch-label">Asst Inset</div><div class="swatch-hex">50% border inset</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: color-mix(in srgb, #94A3B8 70%, #2ECC71 30%);"></div><div class="swatch-label">Typing Dots</div><div class="swatch-hex">emerald hint</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700;">HealthHub Guide</div><div class="type-meta">Page Title: Fraunces 700, 26px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; color: #64748B; line-height: 1.55;">Your AI health assistant</div><div class="type-meta">Subtitle: Inter 400, 15px, line-height 1.55</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 14px; line-height: 1.5; font-weight: 500;">Daily limit reached</div><div class="type-meta">Limit Message: Inter 500</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Chat Interface</div>
+        <div class="chat-shell-mock" style="background: linear-gradient(180deg, #FFF, color-mix(in srgb, #FFF 98%, #2ECC71 2%)); border: 1px solid #E8ECF0; border-radius: 18px; box-shadow: 0 4px 16px rgba(15,23,42,0.06);">
+          <!-- Usage bar -->
+          <div class="usage-bar-mock">
+            <div class="usage-track" style="height: 6px;">
+              <div class="usage-fill-mock" style="width: 35%; background: linear-gradient(90deg, #2ECC71, #27AE60);"></div>
+            </div>
+            <div style="font-size: 11px; color: #64748B;">7 of 20 messages used</div>
+          </div>
+          <!-- Messages -->
+          <div class="messages-mock" style="gap: 10px;">
+            <div class="msg-mock msg-user" style="background: #2ECC71; border-radius: 16px 16px 6px 16px; padding: 10px 14px; line-height: 1.5;">I have a headache and mild fever.</div>
+            <div class="msg-mock msg-assistant" style="background: #FFF; box-shadow: inset 0 0 0 1px rgba(200,210,220,0.5); border-radius: 16px 16px 16px 6px; padding: 10px 14px; color: #0B0F14; line-height: 1.5;">I understand. Could you tell me when the symptoms started?</div>
+            <div class="msg-mock msg-assistant" style="background: #FFF; box-shadow: inset 0 0 0 1px rgba(200,210,220,0.5); border-radius: 16px 16px 16px 6px; padding: 10px 14px;">
+              <div class="typing-dots">
+                <div class="typing-dot" style="background: color-mix(in srgb, #94A3B8 70%, #2ECC71 30%); animation: typingPulse 1.2s infinite 0s;"></div>
+                <div class="typing-dot" style="background: color-mix(in srgb, #94A3B8 70%, #2ECC71 30%); animation: typingPulse 1.2s infinite 0.2s;"></div>
+                <div class="typing-dot" style="background: color-mix(in srgb, #94A3B8 70%, #2ECC71 30%); animation: typingPulse 1.2s infinite 0.4s;"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Input -->
+          <div class="input-row-mock">
+            <div class="chat-input-mock">Type your message...</div>
+            <div class="send-btn-mock" style="background: linear-gradient(135deg, #2ECC71, #27AE60); border-radius: 10px; box-shadow: 0 2px 8px rgba(46,204,113,0.20);">Send</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">CTA Buttons (Gradient + Hover Lift)</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="mockup-btn" style="background: linear-gradient(135deg, #2ECC71, #27AE60); box-shadow: 0 3px 10px rgba(46,204,113,0.20); width: 100%; justify-content: center;">Connect to Health Expert</div>
+          <div class="mockup-btn" style="background: transparent; color: #0B0F14; border: 1px solid #E2E8F0; width: 100%; justify-content: center;">Open Diagnostics</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="surface-card" style="background: linear-gradient(180deg, #FFF, color-mix(in srgb, #FFF 98%, #2ECC71 2%)); border: 1px solid #E8ECF0; border-radius: 18px; box-shadow: 0 4px 16px rgba(15,23,42,0.06);">
+            <div class="surface-label">Chat Shell</div>
+            <div class="surface-detail">border-radius: 18px<br>box-shadow: 0 4px 16px 6%<br>subtle gradient bg</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Shell padding</span><div class="spacing-bar" style="width: 64px; background: #C7D2FE;">16px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Header margin</span><div class="spacing-bar" style="width: 96px; background: #C7D2FE;">24px</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V3: HALODOC-INSPIRED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V3: Halodoc-Inspired</h2>
+      <p>Flat chat container, compact bubbles, pill input, circular send button. Consumer messaging app.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: #F5F7FA;"></div><div class="swatch-label">Page BG</div><div class="swatch-hex">#F5F7FA</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #2ECC71;"></div><div class="swatch-label">User Bubble</div><div class="swatch-hex">#2ECC71</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #F1F5F9;"></div><div class="swatch-label">Asst Bubble</div><div class="swatch-hex">#F1F5F9</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #E2E8F0;"></div><div class="swatch-label">Usage Track</div><div class="swatch-hex">#E2E8F0</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #FEF2F2;"></div><div class="swatch-label">Error BG</div><div class="swatch-hex">#FEF2F2</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 20px; font-weight: 600;">HealthHub Guide</div><div class="type-meta">Page Title: Inter 600, 20px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 13px; color: #64748B;">Your AI health assistant</div><div class="type-meta">Subtitle: Inter 400, 13px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 14px; line-height: 1.5;">I have a headache and mild fever.</div><div class="type-meta">Message: Inter 400, 14px, line-height 1.5</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 12px; color: #64748B;">Daily limit reached</div><div class="type-meta">Limit: inline text, 12px, #64748B</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Chat Interface</div>
+        <div style="background: #F5F7FA; padding: 12px; border-radius: 16px;">
+          <div class="chat-shell-mock" style="background: #FFFFFF; border: none; box-shadow: none; border-radius: 16px; padding: 14px; gap: 12px;">
+            <!-- Usage bar -->
+            <div class="usage-bar-mock">
+              <div class="usage-track" style="height: 4px; background: #E2E8F0;">
+                <div class="usage-fill-mock" style="width: 35%; background: #2ECC71;"></div>
+              </div>
+              <div style="font-size: 11px; color: #64748B;">7 of 20</div>
+            </div>
+            <!-- CTAs as pills -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <div style="padding: 0 16px; min-height: 36px; border-radius: 999px; background: #2ECC71; color: #FFF; font-size: 13px; font-weight: 600; display: flex; align-items: center;">Health Expert</div>
+              <div style="padding: 0 16px; min-height: 36px; border-radius: 999px; background: transparent; color: #0B0F14; border: 1px solid #E2E8F0; font-size: 13px; font-weight: 600; display: flex; align-items: center;">Diagnostics</div>
+            </div>
+            <!-- Messages -->
+            <div class="messages-mock" style="gap: 8px;">
+              <div class="msg-mock msg-user" style="background: #2ECC71; border-radius: 18px 18px 6px 18px; padding: 8px 12px; font-size: 14px; line-height: 1.5;">I have a headache and mild fever.</div>
+              <div class="msg-mock msg-assistant" style="background: #F1F5F9; border: none; border-radius: 18px 18px 18px 6px; padding: 8px 12px; color: #0B0F14; font-size: 14px; line-height: 1.5;">I understand. Could you tell me when the symptoms started?</div>
+            </div>
+            <!-- Input -->
+            <div class="input-row-mock" style="gap: 8px;">
+              <div class="chat-input-mock" style="border-radius: 999px; background: #F1F5F9; border: none; padding: 0 16px; height: 44px; display: flex; align-items: center;">Type your message...</div>
+              <div class="send-btn-mock" style="background: #2ECC71; border-radius: 50%; width: 44px; min-width: 44px; height: 44px; font-size: 16px;">&#x27A4;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Limit Message (Inline)</div>
+        <div style="font-size: 12px; color: #64748B; padding: 8px 0;">You've reached your daily message limit. Try again tomorrow.</div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Shell padding</span><div class="spacing-bar" style="width: 56px; background: #BBF7D0;">14px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Shell gap</span><div class="spacing-bar" style="width: 48px; background: #BBF7D0;">12px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Message gap</span><div class="spacing-bar" style="width: 32px; background: #BBF7D0;">8px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Msg padding</span><div class="spacing-bar" style="width: 48px; background: #BBF7D0;">8px 12px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Input gap</span><div class="spacing-bar" style="width: 32px; background: #BBF7D0;">8px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Usage bar</span><div class="spacing-bar" style="width: 16px; background: #BBF7D0;">4px</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px; background: #F5F7FA; padding: 16px; border-radius: 14px;">
+          <div class="surface-card" style="background: #FFFFFF; border: none; border-radius: 16px; box-shadow: none;">
+            <div class="surface-label">Chat Shell — Flat</div>
+            <div class="surface-detail">border: none; box-shadow: none<br>border-radius: 16px</div>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <div style="flex: 1; background: #F1F5F9; border-radius: 999px; height: 44px; display: flex; align-items: center; padding: 0 16px; font-size: 12px; color: #94A3B8;">Pill input</div>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #2ECC71; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 16px;">&#x27A4;</div>
+          </div>
+          <div class="surface-detail">Input: border-radius 999px<br>Send: border-radius 50% (circular)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

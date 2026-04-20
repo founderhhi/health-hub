@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Design Variations — Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #F8F9FA;
+    color: #0B0F14;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 24px;
+  }
+  .masthead {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .masthead h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    color: #0B0F14;
+  }
+  .masthead p {
+    font-size: 16px;
+    color: #64748B;
+    line-height: 1.6;
+    max-width: 520px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 960px;
+    width: 100%;
+  }
+  .card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 32px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.10);
+  }
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  .card-icon.dashboard { background: rgba(46, 204, 113, 0.10); }
+  .card-icon.appointments { background: rgba(59, 130, 246, 0.10); }
+  .card-icon.records { background: rgba(245, 158, 11, 0.10); }
+  .card-icon.profile { background: rgba(139, 92, 246, 0.10); }
+  .card-icon.chat { background: rgba(236, 72, 153, 0.10); }
+  .card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .card p {
+    font-size: 14px;
+    color: #64748B;
+    line-height: 1.55;
+  }
+  .card .arrow {
+    margin-top: auto;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2ECC71;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer {
+    margin-top: 64px;
+    font-size: 12px;
+    color: #94A3B8;
+  }
+</style>
+</head>
+<body>
+  <div class="masthead">
+    <h1>Patient Design Variations</h1>
+    <p>Visual preview of three design directions across five patient-facing pages. Each page shows V1 Calm Clinical, V2 Premium Guided, and V3 Halodoc-Inspired side by side.</p>
+  </div>
+  <div class="grid">
+    <a href="dashboard.html" class="card">
+      <div class="card-icon dashboard">&#x1F3E0;</div>
+      <h2>Dashboard</h2>
+      <p>Health summary cards, service tiles, care hero section, prescription cards, and status banners.</p>
+      <span class="arrow">View variations &#8594;</span>
+    </a>
+    <a href="appointments.html" class="card">
+      <div class="card-icon appointments">&#x1F4C5;</div>
+      <h2>Appointments</h2>
+      <p>Appointment cards, tab bar, status badges, doctor info, and action buttons.</p>
+      <span class="arrow">View variations &#8594;</span>
+    </a>
+    <a href="records.html" class="card">
+      <div class="card-icon records">&#x1F4CB;</div>
+      <h2>Medical Records</h2>
+      <p>Record cards, medication lists, lab results, status badges, and QR modal treatment.</p>
+      <span class="arrow">View variations &#8594;</span>
+    </a>
+    <a href="profile.html" class="card">
+      <div class="card-icon profile">&#x1F464;</div>
+      <h2>Profile / Billing</h2>
+      <p>Form sections, payment cards, tab bar, quick links, and save button treatments.</p>
+      <span class="arrow">View variations &#8594;</span>
+    </a>
+    <a href="ai-chat.html" class="card">
+      <div class="card-icon chat">&#x1F4AC;</div>
+      <h2>AI Chat</h2>
+      <p>Message bubbles, chat input, usage bar, CTA buttons, and typing indicators.</p>
+      <span class="arrow">View variations &#8594;</span>
+    </a>
+  </div>
+  <div class="footer">Health Hub Design System &mdash; Patient Variations Preview</div>
+</body>
+</html>

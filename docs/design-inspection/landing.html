@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Hub — Landing Page (Design Inspection)</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+    body { font-family: 'Manrope', system-ui, sans-serif; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; font-family: 'Manrope', sans-serif; }
+
+    /* ── Material Symbols ── */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-size: inherit;
+      vertical-align: middle;
+      font-family: 'Material Symbols Outlined';
+      font-style: normal;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    .icon-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+    /* ── Design tokens ── */
+    :root {
+      --primary:              #0d631b;
+      --primary-container:    #2e7d32;
+      --primary-fixed-dim:    #88d982;
+      --primary-fixed:        #a3f69c;
+      --bg:                   #f5fced;
+      --surface:              #f5fced;
+      --surface-lowest:       #ffffff;
+      --surface-low:          #eff6e7;
+      --surface-high:         #e3ebdc;
+      --tertiary:             #9c2f00;
+      --tertiary-fixed-dim:   #ffb59d;
+      --dark-1:               #081a0a;
+      --dark-2:               #0d2b11;
+      --dark-3:               #163b1b;
+      --on-surface:           #171d14;
+      --on-surface-variant:   #40493d;
+      --outline-variant:      #bfcaba;
+    }
+
+    /* ── Scrollbar hide utility ── */
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* ── Landing wrapper ── */
+    .landing {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--on-surface);
+      font-family: 'Manrope', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ════════════════ NAV ════════════════ */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 64px;
+      background: rgba(255,255,255, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(191,202,186, 0.5);
+    }
+    .nav__logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .nav__logo:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+    .nav__logo img { width: 40px; height: 40px; }
+    .nav__logo-fallback { font-size: 20px; }
+    .nav__wordmark {
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--primary);
+      letter-spacing: -0.03em;
+    }
+    .nav__actions { display: flex; align-items: center; gap: 8px; }
+    .nav__btn {
+      min-height: 38px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 0 20px;
+      border-radius: 9999px;
+      font-family: 'Manrope', sans-serif;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .nav__btn--solid {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(13,99,27, 0.25);
+    }
+    .nav__btn--solid:hover { background: var(--primary-container); }
+    .nav__btn--solid:active { transform: scale(0.97); }
+    .nav__btn--outline {
+      background: transparent;
+      color: var(--on-surface);
+      border: 1.5px solid rgba(23,29,20, 0.25);
+    }
+    .nav__btn--outline:hover { background: rgba(23,29,20, 0.04); }
+    .nav__btn--outline:active { transform: scale(0.97); }
+
+    /* ════════════════ HERO ════════════════ */
+    .hero {
+      position: relative;
+      background: var(--dark-1) url('../../public/images/hero-clinical.jpg') center 30% / cover no-repeat;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(8,26,10, 0.93) 0%,
+        rgba(8,26,10, 0.72) 45%,
+        rgba(8,26,10, 0.28) 100%
+      );
+      z-index: 0;
+    }
+    .hero__inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 88px 32px 96px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .hero__left {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 560px;
+    }
+    .hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(255,255,255, 0.10);
+      border: 1px solid rgba(255,255,255, 0.18);
+      color: var(--primary-fixed-dim);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      width: fit-content;
+      backdrop-filter: blur(8px);
+    }
+    .hero__badge .material-symbols-outlined { font-size: 14px; }
+    .hero__title {
+      font-size: clamp(40px, 5.5vw, 68px);
+      font-weight: 800;
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+      color: #fff;
+    }
+    .hero__title--accent {
+      color: var(--primary-fixed-dim);
+      font-style: italic;
+    }
+    .hero__description {
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(255,255,255, 0.70);
+      max-width: 480px;
+      font-weight: 500;
+    }
+    .hero__cta-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .hero__trust {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255, 0.42);
+    }
+    .hero__right {
+      display: flex;
+      align-items: center;
+    }
+    .hero__stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .hero__stats-grid > * { aspect-ratio: 1; }
+    .hero__mini-stat {
+      background: rgba(13,43,17, 0.88);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(136,217,130, 0.14);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .hero__mini-stat .material-symbols-outlined { color: var(--primary-fixed-dim); font-size: 16px; }
+    .hero__mini-stat strong {
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 800;
+      color: var(--primary-fixed-dim);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      font-family: 'Manrope', sans-serif;
+    }
+    .hero__mini-stat p {
+      font-size: 10px;
+      color: rgba(255,255,255, 0.48);
+      font-weight: 600;
+      font-family: 'Manrope', sans-serif;
+      line-height: 1.3;
+    }
+    .hero__shield-outer {
+      position: relative;
+      cursor: pointer;
+    }
+    .hero__shield-outer:hover .hero__shield-tile { filter: brightness(1.1); }
+    .hero__shield-outer:hover .hero__shield-badge { transform: scale(1.1); }
+    .hero__shield-tile {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(136,217,130, 0.14);
+      transition: filter 0.25s ease;
+    }
+    .hero__shield-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 10%;
+      display: block;
+    }
+    .hero__shield-tile__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 30%, rgba(8,26,10, 0.68) 100%);
+    }
+    .hero__shield-badge {
+      position: absolute;
+      top: -14px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--dark-1);
+      border: 1.5px solid rgba(136,217,130, 0.30);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: transform 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0, 0.50);
+    }
+    .hero__shield-badge img { width: 22px; height: 22px; }
+
+    /* ── Hero outline button override ── */
+    .hero .btn--outline {
+      color: #fff;
+      border-color: rgba(255,255,255, 0.32);
+    }
+    .hero .btn--outline:hover { background: rgba(255,255,255, 0.08); }
+
+    /* ── Shared Buttons ── */
+    .btn {
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Manrope', sans-serif;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      cursor: pointer;
+      min-height: 44px;
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn--primary {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      box-shadow: 0 6px 20px rgba(13,99,27, 0.30);
+    }
+    .btn--primary:hover { background: var(--primary-container); box-shadow: 0 10px 28px rgba(13,99,27, 0.40); transform: translateY(-1px); }
+    .btn--primary:active { transform: scale(0.97); }
+    .btn--outline {
+      background: transparent;
+      color: var(--on-surface);
+      border: 1.5px solid rgba(23,29,20, 0.25);
+    }
+    .btn--outline:hover { background: rgba(23,29,20, 0.04); }
+    .btn--outline:active { transform: scale(0.97); }
+    .btn--white {
+      background: #fff;
+      color: var(--primary);
+      border: none;
+      box-shadow: 0 4px 16px rgba(0,0,0, 0.12);
+    }
+    .btn--white:hover { transform: scale(1.03); }
+    .btn--xl {
+      min-height: 52px;
+      padding: 0 36px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 14px;
+    }
+
+    /* ════════════════ CAPABILITIES ════════════════ */
+    .capabilities {
+      padding: 64px 0;
+      background: var(--dark-2);
+      overflow: hidden;
+    }
+    .capabilities__header {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 16px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .capabilities__title {
+      font-size: clamp(26px, 3.5vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+    .capabilities__subtitle {
+      margin-top: 8px;
+      font-size: 16px;
+      color: rgba(255,255,255, 0.58);
+      font-weight: 500;
+    }
+    .capabilities__strip {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 8px 32px 28px;
+      cursor: grab;
+    }
+    .capabilities__strip:active { cursor: grabbing; }
+    .cap-card {
+      flex: 0 0 220px;
+      scroll-snap-align: start;
+      background: var(--surface-lowest);
+      border: 1px solid rgba(191,202,186, 0.40);
+      border-radius: 20px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .cap-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0, 0.35);
+      border-color: rgba(13,99,27, 0.28);
+    }
+    .cap-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(13,99,27, 0.08);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cap-card__icon .material-symbols-outlined { font-size: 24px; }
+    .cap-card__title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--on-surface);
+      line-height: 1.3;
+    }
+    .cap-card__desc {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--on-surface-variant);
+      flex: 1;
+    }
+    .cap-card__badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      width: fit-content;
+    }
+    .cap-card__badge--live {
+      background: rgba(13,99,27, 0.10);
+      color: var(--primary);
+      border: 1px solid rgba(13,99,27, 0.20);
+    }
+    .cap-card__badge--soon {
+      background: rgba(156,47,0, 0.08);
+      color: var(--tertiary);
+      border: 1px solid rgba(156,47,0, 0.20);
+    }
+
+    /* ════════════════ RESULTS + HOW IT WORKS ════════════════ */
+    .results-how {
+      background: var(--surface-low);
+      padding: 64px 0;
+    }
+    .section-container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .results-how__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: start;
+    }
+    .results-how__results {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      background: var(--dark-2);
+      border-radius: 24px;
+      padding: 32px;
+    }
+    .results-how__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--primary-fixed-dim);
+    }
+    .results-how__eyebrow .material-symbols-outlined { font-size: 14px; }
+    .results-how__title {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+      line-height: 1.1;
+    }
+    .results-how__subtitle {
+      font-size: 16px;
+      color: rgba(255,255,255, 0.52);
+      font-weight: 500;
+      margin-top: -8px;
+    }
+    .results-how__filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .results-how__quotes {
+      display: flex;
+      flex-direction: column;
+      min-height: 200px;
+    }
+    .results-how__how {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .results-how__how-title {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--on-surface);
+      line-height: 1.1;
+    }
+    .results-how__how-subtitle {
+      font-size: 16px;
+      color: var(--on-surface-variant);
+      font-weight: 500;
+      margin-top: -8px;
+    }
+
+    /* Filter buttons */
+    .results-filter {
+      min-height: 44px;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'Manrope', sans-serif;
+      background: rgba(136,217,130, 0.07);
+      color: rgba(255,255,255, 0.55);
+      border: 1.5px solid rgba(136,217,130, 0.13);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .results-filter:hover { background: rgba(136,217,130, 0.14); color: rgba(255,255,255, 0.85); }
+    .results-filter--active {
+      background: var(--primary);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(13,99,27, 0.42);
+    }
+
+    /* Testimonials */
+    .rh-quote {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      animation: testimonialFade 0.4s ease;
+    }
+    .rh-quote--active { display: flex; }
+    .rh-quote__text {
+      font-size: clamp(15px, 2vw, 17px);
+      font-weight: 600;
+      line-height: 1.65;
+      color: rgba(255,255,255, 0.88);
+      font-style: italic;
+      border-left: 3px solid var(--primary-fixed-dim);
+      padding-left: 16px;
+      margin: 0;
+    }
+    .rh-quote__author {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .rh-quote__avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 2px solid rgba(136,217,130, 0.28);
+    }
+    .rh-quote__avatar .material-symbols-outlined { font-size: 20px; }
+    .rh-quote__avatar[data-type='doctor'] { background: #1e88e5; border-color: rgba(30,136,229, 0.28); }
+    .rh-quote__avatar[data-type='lab']    { background: var(--tertiary); border-color: rgba(156,47,0, 0.28); }
+    .rh-quote__name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Manrope', sans-serif;
+    }
+    .rh-quote__role {
+      font-size: 12px;
+      color: rgba(255,255,255, 0.45);
+      font-weight: 500;
+      font-family: 'Manrope', sans-serif;
+    }
+    .rh-quote__nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rh-quote__count {
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255, 0.38);
+      min-width: 44px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .rh-quote__arrow {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(136,217,130, 0.07);
+      border: 1px solid rgba(136,217,130, 0.14);
+      color: rgba(255,255,255, 0.60);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .rh-quote__arrow .material-symbols-outlined { font-size: 18px; }
+    .rh-quote__arrow:hover { background: rgba(136,217,130, 0.16); color: #fff; }
+    .rh-quote__arrow--filled {
+      background: var(--primary);
+      border-color: transparent;
+      color: #fff;
+    }
+    .rh-quote__arrow--filled:hover { background: var(--primary-container); }
+
+    /* Steps flow */
+    .steps-flow__dots {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-start;
+      margin-bottom: 32px;
+    }
+    .steps-flow__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(13,99,27, 0.18);
+      border: none;
+      padding: 0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      min-height: unset;
+    }
+    .steps-flow__dot--active {
+      background: var(--primary);
+      width: 28px;
+      border-radius: 5px;
+    }
+    .steps-flow__card {
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .steps-flow__step {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+      animation: stepFade 0.35s ease;
+    }
+    .steps-flow__step-num {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--primary);
+      background: rgba(13,99,27, 0.08);
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+    .steps-flow__icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: rgba(13,99,27, 0.08);
+      border: 1.5px solid rgba(13,99,27, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+    }
+    .steps-flow__icon .material-symbols-outlined { font-size: 32px; }
+    .steps-flow__title {
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 800;
+      color: var(--on-surface);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .steps-flow__body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--on-surface-variant);
+      font-weight: 500;
+    }
+    .steps-flow__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Manrope', sans-serif;
+      border: none;
+      box-shadow: 0 4px 16px rgba(13,99,27, 0.28);
+      transition: all 0.2s ease;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .steps-flow__btn .material-symbols-outlined { font-size: 16px; }
+    .steps-flow__btn:hover { background: var(--primary-container); transform: translateY(-1px); }
+    .steps-flow__btn:active { transform: scale(0.97); }
+
+    /* ════════════════ CTA BAND ════════════════ */
+    .cta-band {
+      padding: 48px 32px;
+      background: var(--bg);
+    }
+    .cta-band__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--primary);
+      border-radius: 28px;
+      padding: 64px 56px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .cta-band__pattern {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255, 0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+    .cta-band__content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .cta-band__title {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .cta-band__subtitle {
+      font-size: 16px;
+      color: rgba(255,255,255, 0.68);
+      max-width: 520px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+    .cta-band__note {
+      font-size: 12px;
+      color: rgba(255,255,255, 0.42);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 8px;
+    }
+
+    /* ════════════════ FOOTER ════════════════ */
+    .footer {
+      background: var(--dark-2);
+      padding: 64px 0 32px;
+    }
+    .footer__inner {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 64px;
+      align-items: start;
+    }
+    .footer__brand { display: flex; flex-direction: column; gap: 16px; }
+    .footer__logo-row { display: flex; align-items: center; gap: 10px; }
+    .footer__wordmark {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary-fixed-dim);
+      letter-spacing: -0.03em;
+    }
+    .footer__tagline {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255, 0.32);
+    }
+    .footer__description {
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(255,255,255, 0.42);
+      font-weight: 500;
+      max-width: 280px;
+    }
+    .footer__links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .footer__col { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255, 0.32);
+      margin-bottom: 6px;
+    }
+    .footer__link {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255, 0.62);
+      text-align: left;
+      cursor: pointer;
+      font-family: 'Manrope', sans-serif;
+      transition: color 0.2s ease;
+    }
+    .footer__link:hover { color: var(--primary-fixed-dim); }
+    .footer__text {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255, 0.62);
+      display: block;
+    }
+    .footer__text--muted { color: rgba(255,255,255, 0.32); }
+    .footer__bottom {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255, 0.07);
+    }
+    .footer__copy {
+      font-size: 12px;
+      color: rgba(255,255,255, 0.28);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* ════════════════ ANIMATIONS ════════════════ */
+    @keyframes testimonialFade {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes stepFade {
+      from { opacity: 0; transform: translateX(8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ════════════════ RESPONSIVE ════════════════ */
+    @media (max-width: 960px) {
+      .results-how__inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+    }
+    @media (max-width: 900px) {
+      .hero__inner {
+        grid-template-columns: 1fr;
+        padding: 64px 32px 72px;
+      }
+      .hero__stats-grid {
+        max-width: 280px;
+        margin: 0 auto;
+      }
+    }
+    @media (max-width: 768px) {
+      .footer__inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+    }
+    @media (max-width: 600px) {
+      .hero__stats-grid { gap: 8px; max-width: 240px; }
+      .cta-band__inner { padding: 40px 24px; border-radius: 20px; }
+      .results-how { padding: 48px 16px; }
+    }
+    @media (max-width: 520px) {
+      .nav { padding: 4px 16px; height: auto; min-height: 56px; gap: 4px; }
+      .nav__wordmark { font-size: 14px; }
+      .nav__logo img { width: 26px; height: 26px; }
+      .nav__btn { font-size: 11px; padding: 0 12px; min-height: 32px; }
+    }
+    @media (max-width: 480px) {
+      .footer__links { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="landing" id="landing-top">
+
+  <!-- ── Sticky Nav ── -->
+  <nav class="nav" aria-label="Landing navigation">
+    <a class="nav__logo" onclick="scrollToTop()" role="button" tabindex="0">
+      <img src="../../public/images/logo-hhi.svg" alt="Health Hub logo" width="40" height="40"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+      <span class="nav__logo-fallback" style="display:none;" aria-hidden="true">🌳</span>
+      <span class="nav__wordmark">Health Hub</span>
+    </a>
+    <div class="nav__actions">
+      <button class="nav__btn nav__btn--solid" type="button">Patient Login</button>
+      <button class="nav__btn nav__btn--outline" type="button">Provider Login</button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <header class="hero" id="main-content">
+    <div class="hero__inner">
+
+      <!-- Left column -->
+      <div class="hero__left">
+        <span class="hero__badge">
+          <span class="material-symbols-outlined icon-fill" aria-hidden="true">verified</span>
+          Trusted Care, Anywhere
+        </span>
+        <h1 class="hero__title">
+          Your health,<br />
+          <span class="hero__title--accent">reimagined</span><br />
+          as one ecosystem.
+        </h1>
+        <p class="hero__description">
+          Access world-class healthcare consultants from the comfort of your home.
+          We combine medical rigor with compassionate digital experiences in one unified ecosystem.
+        </p>
+        <div class="hero__cta-area">
+          <button class="btn btn--primary btn--xl" type="button" onclick="scrollToSection('capabilities')">
+            Get Started
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+          <button class="btn btn--outline btn--xl" type="button" onclick="scrollToSection('capabilities')">
+            View Services
+          </button>
+        </div>
+        <p class="hero__trust">Trusted by 12,000+ patients &amp; 500+ providers</p>
+      </div>
+
+      <!-- Right column — Stats widget -->
+      <div class="hero__right" aria-hidden="true">
+        <div class="hero__stats-grid">
+
+          <div class="hero__shield-outer" onclick="scrollToSection('capabilities')" role="button" tabindex="0" aria-label="Explore platform capabilities">
+            <div class="hero__shield-tile">
+              <img src="../../public/images/doctor-m3.jpg" alt="" />
+              <div class="hero__shield-tile__overlay"></div>
+            </div>
+            <div class="hero__shield-badge">
+              <img src="../../public/images/logo-hhi.svg" alt="" />
+            </div>
+          </div>
+
+          <div class="hero__mini-stat">
+            <span class="material-symbols-outlined icon-fill">groups</span>
+            <strong>12,000+</strong>
+            <p>Patients Served</p>
+          </div>
+
+          <div class="hero__mini-stat">
+            <span class="material-symbols-outlined icon-fill">verified_user</span>
+            <strong>500+</strong>
+            <p>Verified Providers</p>
+          </div>
+
+          <div class="hero__mini-stat">
+            <span class="material-symbols-outlined icon-fill">timer</span>
+            <strong>&lt;2 min</strong>
+            <p>Avg. Setup Time</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ── Platform Capabilities ── -->
+  <section class="capabilities" id="capabilities" aria-labelledby="capabilities-title">
+    <div class="capabilities__header">
+      <h2 class="capabilities__title" id="capabilities-title">Platform Capabilities</h2>
+      <p class="capabilities__subtitle">Dive deeper into the services tailored for your modern lifestyle.</p>
+    </div>
+    <div class="capabilities__strip hide-scrollbar" role="list" id="cap-strip">
+      <!-- Cards injected by JS -->
+    </div>
+  </section>
+
+  <!-- ── Results + How It Works ── -->
+  <section class="results-how" id="outcomes" aria-labelledby="results-how-title">
+    <div class="section-container results-how__inner">
+
+      <!-- Left: Testimonials -->
+      <div class="results-how__results">
+        <span class="results-how__eyebrow">
+          <span class="material-symbols-outlined icon-fill">format_quote</span>
+          What They Say
+        </span>
+        <h2 class="results-how__title" id="results-how-title">Patients, Providers, Results.</h2>
+        <p class="results-how__subtitle">Real outcomes from the Health Hub ecosystem.</p>
+
+        <div class="results-how__filters" role="tablist" id="stats-filters">
+          <!-- Injected by JS -->
+        </div>
+
+        <div class="results-how__quotes" id="quotes-container">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Right: How It Works -->
+      <div class="results-how__how" id="how-it-works">
+        <h2 class="results-how__how-title">How It Works</h2>
+        <p class="results-how__how-subtitle">Your healthcare journey in four simple steps</p>
+
+        <div class="steps-flow__dots" role="tablist" aria-label="Step progress" id="step-dots">
+          <!-- Injected by JS -->
+        </div>
+
+        <div class="steps-flow__card" id="step-card">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CTA Band ── -->
+  <section class="cta-band">
+    <div class="cta-band__inner">
+      <div class="cta-band__pattern" aria-hidden="true"></div>
+      <div class="cta-band__content">
+        <h2 class="cta-band__title">Ready to transform your<br />health journey?</h2>
+        <p class="cta-band__subtitle">Join thousands of members accessing world-class clinical care securely from their pocket.</p>
+        <button class="btn btn--white btn--xl" type="button">
+          Get Your Free Account
+        </button>
+        <p class="cta-band__note">Setup takes &lt;2 minutes</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="section-container footer__inner">
+      <div class="footer__brand">
+        <div class="footer__logo-row">
+          <img src="../../public/images/logo-hhi.svg" alt="Health Hub logo" width="32" height="32"
+               onerror="this.style.display='none'" />
+          <span class="footer__wordmark">Health Hub</span>
+        </div>
+        <p class="footer__tagline">Trusted Care, Anywhere</p>
+        <p class="footer__description">
+          Expert consultations, specialist referrals, pharmacy pickup, diagnostic testing, digital health records,
+          and wellness content — one platform for complete healthcare.
+        </p>
+      </div>
+
+      <div class="footer__links">
+        <div class="footer__col">
+          <h4 class="footer__col-title">Platform</h4>
+          <button class="footer__link" type="button" onclick="scrollToSection('how-it-works')">How It Works</button>
+          <button class="footer__link" type="button" onclick="scrollToSection('capabilities')">Services</button>
+          <button class="footer__link" type="button">Sign Up</button>
+          <button class="footer__link" type="button">Patient Login</button>
+          <button class="footer__link" type="button">Provider Login</button>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Live Services</h4>
+          <span class="footer__text">Health Expert Consultations</span>
+          <span class="footer__text">Specialist Referrals</span>
+          <span class="footer__text">Smart Pharmacy Network</span>
+          <span class="footer__text">Diagnostics &amp; Lab Tests</span>
+          <span class="footer__text">Digital Health Records</span>
+          <span class="footer__text">Heal Well Wellness</span>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Coming Soon</h4>
+          <span class="footer__text footer__text--muted">Travel &amp; Medical Tourism</span>
+          <span class="footer__text footer__text--muted">Insurance Services</span>
+          <span class="footer__text footer__text--muted">Inpatient Care</span>
+          <span class="footer__text footer__text--muted">Community Health</span>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__copy">&copy; 2026 Health Hub International. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  /* ═══════════════════════════════════════════════
+     DATA
+  ═══════════════════════════════════════════════ */
+  const capabilities = [
+    { icon: 'video_camera_front', label: '24/7 Health Expert Consultations', desc: 'Immediate video & audio access to certified professionals anytime, anywhere.', live: true },
+    { icon: 'local_pharmacy',     label: 'Smart E-Pharmacy',                  desc: 'Instant e-prescription fulfillment.',                                        live: true },
+    { icon: 'science',            label: 'Advanced Diagnostics',              desc: 'Home collection & trusted partners.',                                         live: true },
+    { icon: 'folder_managed',     label: 'Secured Health Records',            desc: 'A centralized vault for every prescription, scan, and note.',                 live: true },
+    { icon: 'stethoscope',        label: 'Specialist Consultations',          desc: 'Top-tier hospital doctors on referral.',                                       live: true },
+    { icon: 'self_improvement',   label: 'Heal Well At Home',                 desc: 'Curated recovery guides, daily check-ins, and holistic routines.',            live: true },
+    { icon: 'support_agent',      label: 'Dedicated Patient Support',         desc: 'Your personal health concierge.',                                              live: true },
+    { icon: 'shield_with_heart',  label: 'Complete Insurance',                desc: 'Cashless claims & verification.',                                              live: false },
+    { icon: 'flight_takeoff',     label: 'Medical Travel Services',           desc: 'Cross-border care coordination.',                                              live: false },
+  ];
+
+  const statsCategories = ['All', 'Consultations', 'Diagnostics', 'Pharmacy', 'Records'];
+
+  const testimonials = [
+    {
+      quote: 'I booked a consultation at midnight and had my prescription ready by morning. Health Hub made what felt impossible, completely effortless.',
+      name: 'Priya S.',
+      role: 'Patient',
+      type: 'patient',
+    },
+    {
+      quote: 'Referring patients and tracking their progress across the platform saves me real clinical hours every week. It just works.',
+      name: 'Dr. Arvind M.',
+      role: 'General Practitioner',
+      type: 'doctor',
+    },
+    {
+      quote: 'Results reach the patient and their doctor instantly. The workflow is clean, modern, and cuts our admin load in half.',
+      name: 'Nadia K.',
+      role: 'Senior Lab Technician',
+      type: 'lab',
+    },
+  ];
+
+  const steps = [
+    {
+      icon: 'person_add',
+      title: 'Create Your Account',
+      body: 'Sign up in minutes. Choose Basic, Premium, or Family for full access to the Health Hub ecosystem.',
+    },
+    {
+      icon: 'stethoscope',
+      title: 'Meet a Health Expert',
+      body: 'Talk to a qualified Health Expert anytime via video or audio. Get diagnosed, prescribed, or referred — all in one session.',
+    },
+    {
+      icon: 'medication',
+      title: 'Continue Into Services',
+      body: 'Receive e-prescriptions instantly. Pick up at partner pharmacies, book lab tests, or see a specialist — all tracked in-app.',
+    },
+    {
+      icon: 'health_and_safety',
+      title: 'Return to One Record',
+      body: 'Every update and follow-up stays visible from your Health Hub home. Access records, track appointments, and manage your health.',
+    },
+  ];
+
+  /* ═══════════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════════ */
+  let activeTestimonial = 0;
+  let activeStat = 0;
+  let activeStep = 0;
+  let testimonialTimer = null;
+
+  /* ═══════════════════════════════════════════════
+     RENDER — Capabilities
+  ═══════════════════════════════════════════════ */
+  function renderCapabilities() {
+    const strip = document.getElementById('cap-strip');
+    strip.innerHTML = capabilities.map(cap => `
+      <div class="cap-card" role="listitem">
+        <div class="cap-card__icon">
+          <span class="material-symbols-outlined icon-fill">${cap.icon}</span>
+        </div>
+        <h3 class="cap-card__title">${cap.label}</h3>
+        <p class="cap-card__desc">${cap.desc}</p>
+        <span class="cap-card__badge ${cap.live ? 'cap-card__badge--live' : 'cap-card__badge--soon'}">
+          ${cap.live ? 'Live' : 'Coming soon'}
+        </span>
+      </div>
+    `).join('');
+
+    // Drag-to-scroll
+    let isDown = false, startX, scrollLeft;
+    strip.addEventListener('mousedown', e => {
+      isDown = true; strip.style.cursor = 'grabbing';
+      startX = e.pageX - strip.offsetLeft; scrollLeft = strip.scrollLeft;
+    });
+    strip.addEventListener('mouseleave', () => { isDown = false; strip.style.cursor = 'grab'; });
+    strip.addEventListener('mouseup',    () => { isDown = false; strip.style.cursor = 'grab'; });
+    strip.addEventListener('mousemove',  e => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - strip.offsetLeft;
+      strip.scrollLeft = scrollLeft - (x - startX) * 1.5;
+    });
+  }
+
+  /* ═══════════════════════════════════════════════
+     RENDER — Stats filter tabs
+  ═══════════════════════════════════════════════ */
+  function renderFilters() {
+    const container = document.getElementById('stats-filters');
+    container.innerHTML = statsCategories.map((cat, i) => `
+      <button
+        class="results-filter${i === activeStat ? ' results-filter--active' : ''}"
+        type="button"
+        role="tab"
+        aria-selected="${i === activeStat}"
+        onclick="setActiveStat(${i})">${cat}</button>
+    `).join('');
+  }
+
+  function setActiveStat(i) {
+    activeStat = i;
+    renderFilters();
+  }
+
+  /* ═══════════════════════════════════════════════
+     RENDER — Testimonials
+  ═══════════════════════════════════════════════ */
+  function testimonialIcon(type) {
+    if (type === 'doctor') return 'stethoscope';
+    if (type === 'lab')    return 'science';
+    return 'person';
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function renderTestimonials() {
+    const container = document.getElementById('quotes-container');
+    container.innerHTML = testimonials.map((t, i) => `
+      <div class="rh-quote${i === activeTestimonial ? ' rh-quote--active' : ''}" aria-hidden="${i !== activeTestimonial}">
+        <blockquote class="rh-quote__text">"\u00A0${t.quote}\u00A0"</blockquote>
+        <div class="rh-quote__author">
+          <div class="rh-quote__avatar" data-type="${t.type}">
+            <span class="material-symbols-outlined icon-fill">${testimonialIcon(t.type)}</span>
+          </div>
+          <div>
+            <p class="rh-quote__name">${t.name}</p>
+            <p class="rh-quote__role">${t.role}</p>
+          </div>
+          <div class="rh-quote__nav">
+            <button class="rh-quote__arrow" type="button" onclick="setTestimonial((${i} - 1 + ${testimonials.length}) % ${testimonials.length})" aria-label="Previous testimonial">
+              <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <span class="rh-quote__count">${pad(i + 1)} / ${pad(testimonials.length)}</span>
+            <button class="rh-quote__arrow rh-quote__arrow--filled" type="button" onclick="setTestimonial((${i} + 1) % ${testimonials.length})" aria-label="Next testimonial">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function setTestimonial(i) {
+    activeTestimonial = i;
+    renderTestimonials();
+    // Reset auto-timer on manual nav
+    clearInterval(testimonialTimer);
+    testimonialTimer = setInterval(autoAdvanceTestimonial, 5000);
+  }
+
+  function autoAdvanceTestimonial() {
+    activeTestimonial = (activeTestimonial + 1) % testimonials.length;
+    renderTestimonials();
+  }
+
+  /* ═══════════════════════════════════════════════
+     RENDER — Steps flow
+  ═══════════════════════════════════════════════ */
+  function renderSteps() {
+    const dotsEl = document.getElementById('step-dots');
+    dotsEl.innerHTML = steps.map((s, i) => `
+      <button
+        class="steps-flow__dot${i === activeStep ? ' steps-flow__dot--active' : ''}"
+        type="button"
+        role="tab"
+        aria-selected="${i === activeStep}"
+        aria-label="Step ${i + 1}: ${s.title}"
+        onclick="setStep(${i})"></button>
+    `).join('');
+
+    const cardEl = document.getElementById('step-card');
+    const s = steps[activeStep];
+    cardEl.innerHTML = `
+      <div class="steps-flow__step" role="tabpanel">
+        <div class="steps-flow__step-num">Step 0${activeStep + 1} of 04</div>
+        <div class="steps-flow__icon">
+          <span class="material-symbols-outlined icon-fill">${s.icon}</span>
+        </div>
+        <h3 class="steps-flow__title">${s.title}</h3>
+        <p class="steps-flow__body">${s.body}</p>
+        <button class="steps-flow__btn" type="button" onclick="nextStep()">
+          ${activeStep === steps.length - 1 ? 'Start Over' : 'Next Step'}
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    `;
+  }
+
+  function setStep(i) {
+    activeStep = i;
+    renderSteps();
+  }
+
+  function nextStep() {
+    activeStep = (activeStep + 1) % steps.length;
+    renderSteps();
+  }
+
+  /* ═══════════════════════════════════════════════
+     SCROLL HELPERS
+  ═══════════════════════════════════════════════ */
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ═══════════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCapabilities();
+    renderFilters();
+    renderTestimonials();
+    renderSteps();
+    testimonialTimer = setInterval(autoAdvanceTestimonial, 5000);
+  });
+</script>
+
+</body>
+</html>

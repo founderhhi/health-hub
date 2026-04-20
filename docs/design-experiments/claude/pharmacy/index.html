@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy Design Variations -- Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F1F5F9; color: #1E293B; min-height: 100vh; }
+  .hero { background: linear-gradient(180deg, #ECFDF3 0%, #F1F5F9 200px); padding: 60px 24px 48px; text-align: center; }
+  .hero h1 { font-family: 'Fraunces', serif; font-size: 42px; font-weight: 600; color: #0F172A; margin-bottom: 12px; letter-spacing: -0.01em; }
+  .hero p { font-size: 16px; color: #64748B; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+  .hero .subtitle { font-size: 13px; color: #94A3B8; margin-top: 8px; }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 880px; margin: 0 auto; padding: 0 24px 60px; }
+  .card { background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.06); transition: all 0.2s ease; text-decoration: none; color: inherit; display: block; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,23,42,0.10); }
+  .card-visual { height: 160px; position: relative; overflow: hidden; }
+  .card-body { padding: 24px; }
+  .card-body h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #0F172A; }
+  .card-body p { font-size: 14px; color: #64748B; line-height: 1.5; margin-bottom: 16px; }
+  .card-body .variations { display: flex; gap: 8px; }
+  .card-body .var-tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; }
+  .var-tag--v1 { background: #F0FDF4; color: #166534; }
+  .var-tag--v2 { background: #F1F5F9; color: #475569; }
+  .var-tag--v3 { background: #ECFDF3; color: #166534; }
+
+  /* Card visuals */
+  .visual-scanner { background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); display: flex; align-items: center; justify-content: center; }
+  .visual-scanner .frame { width: 120px; height: 90px; border: 2px solid #2ECC71; border-radius: 12px; position: relative; background: rgba(255,255,255,0.7); }
+  .visual-scanner .frame .line { position: absolute; left: 10px; right: 10px; top: 50%; height: 2px; background: linear-gradient(90deg, transparent, #AEEA00, transparent); }
+  .visual-scanner .corner { position: absolute; width: 16px; height: 16px; }
+  .visual-scanner .corner--tl { top: 6px; left: 6px; border-top: 3px solid #2ECC71; border-left: 3px solid #2ECC71; border-top-left-radius: 4px; }
+  .visual-scanner .corner--tr { top: 6px; right: 6px; border-top: 3px solid #2ECC71; border-right: 3px solid #2ECC71; border-top-right-radius: 4px; }
+  .visual-scanner .corner--bl { bottom: 6px; left: 6px; border-bottom: 3px solid #2ECC71; border-left: 3px solid #2ECC71; border-bottom-left-radius: 4px; }
+  .visual-scanner .corner--br { bottom: 6px; right: 6px; border-bottom: 3px solid #2ECC71; border-right: 3px solid #2ECC71; border-bottom-right-radius: 4px; }
+
+  .visual-details { background: linear-gradient(135deg, #F8FAFC 0%, #ECFDF3 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 24px; }
+  .visual-details .progress-mock { width: 200px; height: 8px; background: #E2E8F0; border-radius: 99px; overflow: hidden; }
+  .visual-details .progress-fill { width: 66%; height: 100%; background: linear-gradient(90deg, #2ECC71, #AEEA00); border-radius: 99px; }
+  .visual-details .med-mock { display: flex; align-items: center; gap: 8px; background: #FFF; padding: 8px 14px; border-radius: 8px; box-shadow: 0 1px 3px rgba(15,23,42,0.06); width: 200px; }
+  .visual-details .med-mock .check { width: 16px; height: 16px; border-radius: 4px; background: #2ECC71; flex-shrink: 0; }
+  .visual-details .med-mock .text { font-size: 11px; font-weight: 500; color: #475569; }
+
+  .visual-history { background: linear-gradient(135deg, #F1F5F9 0%, #F0FDF4 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; padding: 24px; }
+  .visual-history .row-mock { display: flex; align-items: center; gap: 8px; background: #FFF; padding: 8px 12px; border-radius: 6px; width: 220px; border-left: 3px solid; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+  .visual-history .row-mock .icon { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; }
+  .visual-history .row-mock .info { flex: 1; }
+  .visual-history .row-mock .code { font-family: 'SF Mono', monospace; font-size: 10px; font-weight: 500; }
+  .visual-history .row-mock .badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+
+  .visual-profile { background: linear-gradient(135deg, #ECFDF3 0%, #F8FAFC 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; }
+  .visual-profile .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #2ECC71, #27AE60); display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: 700; font-size: 18px; box-shadow: 0 0 0 3px rgba(46,204,113,0.2); }
+  .visual-profile .field-row { width: 180px; padding: 8px 12px; background: #FFF; border-radius: 6px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+  .visual-profile .field-row .fl { font-size: 9px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .visual-profile .field-row .fv { font-size: 12px; font-weight: 500; margin-top: 2px; }
+
+  .footer { text-align: center; padding: 32px 24px; font-size: 13px; color: #94A3B8; }
+  .footer a { color: #2ECC71; text-decoration: none; }
+
+  @media (max-width: 680px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>Pharmacy Design Variations</h1>
+  <p>Visual previews comparing three design directions across four pharmacy pages: Premium Guided, Calm Clinical, and MyDawa-Inspired.</p>
+  <div class="subtitle">Health Hub Design Experiments</div>
+</div>
+
+<div class="cards">
+
+  <a class="card" href="scanner.html">
+    <div class="card-visual visual-scanner">
+      <div class="frame">
+        <div class="corner corner--tl"></div>
+        <div class="corner corner--tr"></div>
+        <div class="corner corner--bl"></div>
+        <div class="corner corner--br"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h2>Scanner</h2>
+      <p>Prescription scanning interface with barcode frame, manual input, and recent scans list.</p>
+      <div class="variations">
+        <span class="var-tag var-tag--v1">V1 Premium</span>
+        <span class="var-tag var-tag--v2">V2 Calm</span>
+        <span class="var-tag var-tag--v3">V3 MyDawa</span>
+      </div>
+    </div>
+  </a>
+
+  <a class="card" href="prescription-details.html">
+    <div class="card-visual visual-details">
+      <div class="progress-mock"><div class="progress-fill"></div></div>
+      <div class="med-mock"><div class="check"></div><div class="text">Amoxicillin 500mg</div></div>
+      <div class="med-mock"><div class="check" style="background:#E2E8F0;"></div><div class="text">Ibuprofen 400mg</div></div>
+    </div>
+    <div class="card-body">
+      <h2>Prescription Details</h2>
+      <p>Verification and dispensing view with progress bar, medication cards, prescriber info, and action footer.</p>
+      <div class="variations">
+        <span class="var-tag var-tag--v1">V1 Premium</span>
+        <span class="var-tag var-tag--v2">V2 Calm</span>
+        <span class="var-tag var-tag--v3">V3 MyDawa</span>
+      </div>
+    </div>
+  </a>
+
+  <a class="card" href="history.html">
+    <div class="card-visual visual-history">
+      <div class="row-mock" style="border-left-color:#2ECC71;">
+        <div class="icon" style="background:#F0FDF4;"></div>
+        <div class="info"><div class="code">RX-2024-001234</div></div>
+        <div class="badge" style="background:#DCFCE7; color:#15803D;">Done</div>
+      </div>
+      <div class="row-mock" style="border-left-color:#F59E0B;">
+        <div class="icon" style="background:#FFFBEB;"></div>
+        <div class="info"><div class="code">RX-2024-001230</div></div>
+        <div class="badge" style="background:#FEF3C7; color:#92400E;">Pending</div>
+      </div>
+      <div class="row-mock" style="border-left-color:#EF4444;">
+        <div class="icon" style="background:#FEF2F2;"></div>
+        <div class="info"><div class="code">RX-2024-001225</div></div>
+        <div class="badge" style="background:#FEE2E2; color:#991B1B;">Cancelled</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h2>History</h2>
+      <p>Prescription activity log with date groups, status badges, filters, and search.</p>
+      <div class="variations">
+        <span class="var-tag var-tag--v1">V1 Premium</span>
+        <span class="var-tag var-tag--v2">V2 Calm</span>
+        <span class="var-tag var-tag--v3">V3 MyDawa</span>
+      </div>
+    </div>
+  </a>
+
+  <a class="card" href="profile.html">
+    <div class="card-visual visual-profile">
+      <div class="avatar">HP</div>
+      <div class="field-row"><div class="fl">Pharmacy</div><div class="fv">HealthHub</div></div>
+      <div class="field-row"><div class="fl">License</div><div class="fv">PPB-2024-00142</div></div>
+    </div>
+    <div class="card-body">
+      <h2>Profile</h2>
+      <p>Pharmacy credential card with avatar, field cards, operational status, and sign-out.</p>
+      <div class="variations">
+        <span class="var-tag var-tag--v1">V1 Premium</span>
+        <span class="var-tag var-tag--v2">V2 Calm</span>
+        <span class="var-tag var-tag--v3">V3 MyDawa</span>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<div class="footer">
+  Health Hub Design Experiments &middot; <a href="../">Back to all experiments</a>
+</div>
+</body>
+</html>

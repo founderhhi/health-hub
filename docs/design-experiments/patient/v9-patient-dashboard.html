@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Hub | Patient Dashboard V9 (Olive Sanctuary)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300..600,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4e635a",
+                        "primary-container": "#8da399",
+                        "primary-fixed": "#d1e8dd",
+                        "secondary": "#924a28",
+                        "background": "#fdf9f3",
+                        "surface-low": "#f7f3ed",
+                        "surface": "#ffffff",
+                        "on-surface": "#1c1c18",
+                        "on-surface-variant": "#424845"
+                    },
+                    fontFamily: {
+                        "headline": ["Epilogue", "sans-serif"],
+                        "body": ["Be Vietnam Pro", "sans-serif"]
+                    },
+                    boxShadow: {
+                        "ambient": "0 20px 40px rgba(28, 28, 24, 0.05)"
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+        .glass-nav {
+            background: rgba(253, 249, 243, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(141, 163, 153, 0.2);
+        }
+        .organic-card {
+            border-radius: 2rem;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+        .organic-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(28, 28, 24, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased relative min-h-screen pb-32">
+
+    <!-- Very Soft Organic Glow -->
+    <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-primary-fixed rounded-full blur-[120px] opacity-40 z-0 pointer-events-none"></div>
+
+    <div class="max-w-md mx-auto relative z-10 p-5 pt-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-start mb-8">
+            <div class="flex flex-col">
+                <p class="font-headline text-[13px] font-bold text-on-surface-variant tracking-widest uppercase mb-1">Your Sanctuary</p>
+                <h1 class="font-headline text-3xl font-black tracking-tight text-on-surface m-0 leading-tight">Hello, Anuraag</h1>
+            </div>
+            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="w-14 h-14 rounded-full object-cover shadow-ambient border-2 border-surface" />
+        </header>
+
+        <!-- Stats Overview -->
+        <section class="mb-8 w-full flex gap-4">
+            <div class="flex-1 organic-card p-5 flex flex-col justify-between cursor-pointer border border-transparent hover:border-primary-container/30">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs font-bold uppercase text-on-surface-variant tracking-wider">Consults</span>
+                    <span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-full text-[20px]">psychiatry</span>
+                </div>
+                <div>
+                    <h2 class="font-headline text-3xl font-black text-on-surface leading-none">4</h2>
+                    <span class="text-[11px] font-bold text-primary uppercase tracking-wider mt-1 block">Scheduled</span>
+                </div>
+            </div>
+            
+            <div class="flex-1 organic-card p-5 flex flex-col justify-between cursor-pointer border border-transparent hover:border-primary-container/30">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs font-bold uppercase text-on-surface-variant tracking-wider">Meds</span>
+                    <span class="material-symbols-outlined text-secondary bg-secondary/10 p-2 rounded-full text-[20px]">local_pharmacy</span>
+                </div>
+                <div>
+                    <h2 class="font-headline text-3xl font-black text-on-surface leading-none">2</h2>
+                    <span class="text-[11px] font-bold text-secondary uppercase tracking-wider mt-1 block">Refill Ready</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Services 3x3 Grid (Asymmetrical/Organic look) -->
+        <section class="mb-10 w-full">
+            <h2 class="font-headline font-bold text-[11px] text-on-surface-variant uppercase tracking-widest pl-2 mb-4">Wellness Ecosystem</h2>
+            <div class="grid grid-cols-3 gap-3">
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">monitor_heart</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">Vitals</span>
+                </button>
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">videocam</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">Video</span>
+                </button>
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">stethoscope</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">Doctor</span>
+                </button>
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-secondary/5 transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-secondary group-hover:scale-110 transition-transform">pill</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-secondary">Pharmacy</span>
+                </button>
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">science</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">Labs</span>
+                </button>
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">public</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">Global</span>
+                </button>
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">shield_with_heart</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">Shield</span>
+                </button>
+                <button class="bg-surface rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">self_improvement</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">Home</span>
+                </button>
+                <button class="bg-transparent rounded-3xl aspect-square flex flex-col items-center justify-center gap-2 border border-primary-container/30 hover:bg-primary-container/10 transition-colors group">
+                    <span class="material-symbols-outlined text-[28px] text-on-surface-variant group-hover:text-primary">grid_view</span>
+                    <span class="text-xs font-semibold text-on-surface-variant group-hover:text-primary">More</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Holistic Action Area -->
+        <section class="mb-4">
+            <button class="w-full organic-card p-6 flex items-center justify-between group hover:border-primary-container transition-all">
+                <div class="flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-full bg-primary-fixed text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined text-[26px]">folder_special</span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="font-headline font-bold text-[19px] leading-tight text-on-surface">Health Archive</h3>
+                        <p class="text-[13px] font-medium text-on-surface-variant mt-0.5">Your curated medical history</p>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-primary/50 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </button>
+        </section>
+
+    </div>
+
+    <!-- Floating Glass Nav -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[360px] h-20 glass-nav rounded-full z-50 flex justify-between items-center px-6 shadow-ambient">
+        <button class="flex items-center justify-center text-primary group">
+            <span class="material-symbols-outlined icon-fill text-[28px] group-hover:-translate-y-1 transition-transform">home</span>
+        </button>
+        <button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group">
+            <span class="material-symbols-outlined text-[28px] group-hover:-translate-y-1 transition-transform">calendar_today</span>
+        </button>
+        <!-- The Main Action Button - Organic Pill -->
+        <button class="relative w-16 h-16 bg-primary flex items-center justify-center text-white hover:scale-105 transition-transform rounded-full shadow-lg border-[4px] border-background -translate-y-3">
+            <span class="material-symbols-outlined text-[32px]">add</span>
+        </button>
+        <button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group">
+            <span class="material-symbols-outlined text-[28px] group-hover:-translate-y-1 transition-transform">chat</span>
+        </button>
+        <button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group">
+            <span class="material-symbols-outlined text-[28px] group-hover:-translate-y-1 transition-transform">person</span>
+        </button>
+    </nav>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "pair-programmer": {
+      "source": "video-db/pair-programmer",
+      "sourceType": "github",
+      "computedHash": "c14468bbc6155287918bad4de9f10b11b60af0b29a2bfce5c360af267c9c9bd1"
+    }
+  }
+}

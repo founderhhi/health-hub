@@ -71,7 +71,7 @@ export class PreConsultationFormComponent implements OnInit {
 
       // If they were already past the form stage, skip ahead
       if (existing.patient_status === 'waiting' || existing.patient_status === 'ready') {
-        this.router.navigate(['/pre-consultation/waiting']);
+        this.router.navigate(['/patient/waiting']);
         return;
       }
     }
@@ -123,7 +123,7 @@ export class PreConsultationFormComponent implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.router.navigate(['/pre-consultation/waiting']);
+          this.router.navigate(['/patient/waiting']);
         },
         error: () => {
           this.isSubmitting = false;

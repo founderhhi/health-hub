@@ -323,8 +323,19 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
   private loadConsultation(id: string): void {
     this.loading = true;
     this.errorMessage = '';
+    
+    // Add a backup timeout manually mapped to avoid hanging
+    const timer = setTimeout(() => {
+      if (this.loading) {
+        this.loading = false;
+        this.errorMessage = 'Request timed out waiting for consultation details.';
+      }
+    }, 10000);
+
     this.gpApi.getConsultation(id).subscribe({
       next: (response) => {
+        clearTimeout(timer);
+        try {
         this.consultation = response.consultation;
         this.roomUrl = response.consultation?.daily_room_url || response.consultation?.roomUrl || '';
         this.consultMode = 'video';
@@ -340,11 +351,17 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
              symptoms: typeof response.consultation.triage_context === 'string' ? response.consultation.triage_context : parsed.symptomsText
            };
         }
-        this.loading = false;
+        } catch (err) {
+           console.error('Error parsing triage context:', err);
+        } finally {
+           this.loading = false;
+        }
       },
-      error: () => {
+      error: (err) => {
+        clearTimeout(timer);
+        console.error('Consultation fetch failed:', err);
         this.loading = false;
-        this.errorMessage = 'Unable to load consultation details.';
+        this.errorMessage = err?.error?.error || 'Unable to load consultation details.';
       }
     });
   }

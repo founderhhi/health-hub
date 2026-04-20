@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostics Profile -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F0F2F5; color: #0B0F14; padding: 40px 24px; }
+  h1.page-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .page-subtitle { text-align: center; color: #64748B; font-size: 15px; margin-bottom: 48px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .column h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .column .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-bottom: 20px; }
+  .v1 .tag { background: #DCFCE7; color: #166534; }
+  .v2 .tag { background: #EFF6FF; color: #1E40AF; }
+  .v3 .tag { background: #FEF3C7; color: #92400E; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; margin: 28px 0 12px; }
+  .section-label:first-of-type { margin-top: 0; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { width: 48px; height: 48px; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .swatch-label { font-size: 9px; color: #64748B; text-align: center; margin-top: 4px; word-break: break-all; }
+  .swatch-wrap { display: flex; flex-direction: column; align-items: center; width: 56px; }
+  .type-sample { margin-bottom: 12px; }
+  .type-sample .label { font-size: 10px; color: #94A3B8; margin-bottom: 2px; }
+
+  /* Avatar */
+  .avatar { width: 80px; height: 80px; border-radius: 50%; background: #2ECC71; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 32px; font-weight: 700; margin: 0 auto 16px; }
+
+  /* Field card */
+  .field-card { border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; margin-bottom: 12px; transition: all 0.2s; }
+  .field-label { font-size: 12px; color: #64748B; margin-bottom: 4px; }
+  .field-value { font-size: 16px; font-weight: 500; color: #0B0F14; }
+
+  /* Sign out */
+  .btn-signout { display: block; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
+
+  /* Operational status card */
+  .op-status { display: flex; align-items: center; gap: 10px; }
+  .op-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .op-dot.active { background: #2ECC71; }
+  .op-dot.inactive { background: #DC2626; }
+
+  /* ===== V1 ===== */
+  .v1 .avatar { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2ECC71, 0 4px 12px rgba(0,0,0,0.1); }
+  .v1 .field-label { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B; border-left: 3px solid #2ECC71; padding-left: 8px; }
+  .v1 .field-card { border-color: #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 14px; }
+  .v1 .field-card:hover { border-color: #2ECC71; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .v1 .field-value { font-weight: 600; color: #0B0F14; }
+  .v1 .profile-name { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 24px; }
+  .v1 .op-card-active { background: #ECFDF3; border: 2px solid #2ECC71; }
+  .v1 .op-card-inactive { background: #FEF2F2; border: 2px solid #DC2626; }
+  .v1 .btn-signout { border: 1px solid #DC2626; color: #DC2626; background: transparent; margin-top: 24px; }
+  .v1 .btn-signout:hover { background: #FEF2F2; }
+
+  /* ===== V2 ===== */
+  .v2 .avatar { background: #34D399; box-shadow: none; margin-bottom: 32px; }
+  .v2 .field-label { font-weight: 400; font-size: 13px; color: #94A3B8; }
+  .v2 .field-card { border-color: #EDF2F7; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.02); }
+  .v2 .field-value { font-weight: 400; color: #475569; line-height: 1.6; }
+  .v2 .profile-name { font-size: 20px; font-weight: 500; text-align: center; color: #475569; margin-bottom: 32px; }
+  .v2 .op-card-active { background: #F0FDF4; }
+  .v2 .btn-signout { border: 1px solid #E2E8F0; color: #64748B; background: transparent; margin-top: 32px; }
+  .v2 .btn-signout:hover { border-color: #DC2626; color: #DC2626; background: #FEF2F2; }
+
+  /* ===== V3 ===== */
+  .v3 .profile-card-wrap { background: #fff; border-radius: 12px; border-top: 3px solid #2ECC71; box-shadow: 0 2px 8px rgba(15,23,42,0.06); padding: 24px; }
+  .v3 .avatar { border: 3px solid #fff; box-shadow: 0 2px 8px rgba(15,23,42,0.12); margin-bottom: 12px; }
+  .v3 .profile-name { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 16px; }
+  .v3 .op-banner { padding: 12px 16px; border-radius: 8px; font-weight: 700; text-transform: uppercase; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .v3 .op-banner.active { background: #2ECC71; color: #fff; }
+  .v3 .op-banner.inactive { background: #DC2626; color: #fff; }
+  .v3 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .v3 .field-card { border: none; box-shadow: none; border-radius: 0; padding: 16px 0; margin-bottom: 0; border-bottom: 1px solid #EDF2F7; }
+  .v3 .field-card:last-of-type { border-bottom: none; }
+  .v3 .field-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; }
+  .v3 .field-value { font-weight: 500; }
+  .v3 .credential-badge { display: inline-block; background: #ECFDF3; color: #166534; padding: 2px 10px; border-radius: 9999px; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 14px; }
+  .v3 .btn-signout { border: 1px solid #E2E8F0; color: #64748B; background: transparent; margin-top: 24px; border-radius: 8px; }
+  .v3 .btn-signout:hover { border-color: #DC2626; color: #DC2626; background: #FEF2F2; }
+
+  @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Diagnostics Profile</h1>
+<p class="page-subtitle">Three design variations compared side by side</p>
+
+<div class="grid">
+
+  <!-- ==================== V1: Operational Clarity ==================== -->
+  <div class="column v1">
+    <h2>V1: Operational Clarity</h2>
+    <span class="tag">Operational</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#F8FAFC"></div><div class="swatch-label">#F8FAFC<br>Page BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#E2E8F0"></div><div class="swatch-label">#E2E8F0<br>Borders</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#64748B"></div><div class="swatch-label">#64748B<br>Labels</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#0B0F14"></div><div class="swatch-label">#0B0F14<br>Values</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#ECFDF3"></div><div class="swatch-label">#ECFDF3<br>Op Active</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#FEF2F2"></div><div class="swatch-label">#FEF2F2<br>Op Inactive</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>Emerald</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Profile Name -- 20px / 700</div><div style="font-size:20px;font-weight:700">HealWell Diagnostics</div></div>
+    <div class="type-sample"><div class="label">Field Label -- 12px / 600 / uppercase / 0.04em</div><div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#64748B;border-left:3px solid #2ECC71;padding-left:8px">Facility Name</div></div>
+    <div class="type-sample"><div class="label">Field Value -- 16px / 600</div><div style="font-size:16px;font-weight:600">HealWell Diagnostics Center</div></div>
+    <div class="type-sample"><div class="label">Op Status Label -- 14px / 700</div><div style="font-size:14px;font-weight:700;color:#166534">OPERATING</div></div>
+    <div class="type-sample"><div class="label">Back Button -- 14px / 600</div><div style="font-size:14px;font-weight:600;color:#64748B">&larr; Back</div></div>
+
+    <div class="section-label">Avatar (double ring)</div>
+    <div class="avatar">HD</div>
+    <div class="profile-name">HealWell Diagnostics</div>
+
+    <div class="section-label">Field Cards (emerald left-bar labels, hover lift)</div>
+    <div class="field-card">
+      <div class="field-label">Facility Name</div>
+      <div class="field-value">HealWell Diagnostics Center</div>
+    </div>
+    <div class="field-card">
+      <div class="field-label">Registration Number</div>
+      <div class="field-value">REG-ETH-2024-0847</div>
+    </div>
+    <div class="field-card">
+      <div class="field-label">Email Address</div>
+      <div class="field-value">admin@healwell-diag.com</div>
+    </div>
+    <div class="field-card">
+      <div class="field-label">Location</div>
+      <div class="field-value">Addis Ababa, Ethiopia</div>
+    </div>
+
+    <div class="section-label">Operational Status (focal point)</div>
+    <div class="field-card op-card-active">
+      <div class="field-label" style="border-left-color:#166534">Operational Status</div>
+      <div class="op-status"><div class="op-dot active"></div><div class="field-value" style="color:#166534">Currently Operating</div></div>
+    </div>
+    <div class="field-card op-card-inactive" style="margin-top:8px">
+      <div class="field-label" style="border-left-color:#DC2626">Operational Status</div>
+      <div class="op-status"><div class="op-dot inactive"></div><div class="field-value" style="color:#991B1B">Not Operating</div></div>
+    </div>
+
+    <button class="btn-signout">Sign Out</button>
+
+    <div class="section-label" style="margin-top:24px">Key Specs</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">Avatar: double ring (2px white + 2px emerald + shadow). Field labels: 3px emerald left-bar. Card hover: emerald border + shadow-md. Op status: background tint + 2px colored border. Sign out: 1px red border, transparent bg. Page bg: #F8FAFC (design system token).</p>
+  </div>
+
+  <!-- ==================== V2: Calm Clinical ==================== -->
+  <div class="column v2">
+    <h2>V2: Calm Clinical</h2>
+    <span class="tag">Calm</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#F8FAFC"></div><div class="swatch-label">#F8FAFC<br>Page BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EDF2F7"></div><div class="swatch-label">#EDF2F7<br>Borders</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#94A3B8"></div><div class="swatch-label">#94A3B8<br>Labels</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#475569"></div><div class="swatch-label">#475569<br>Values</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#34D399"></div><div class="swatch-label">#34D399<br>Avatar</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#F0FDF4"></div><div class="swatch-label">#F0FDF4<br>Op Tint</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#E2E8F0"></div><div class="swatch-label">#E2E8F0<br>Signout Bdr</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Profile Name -- 20px / 500 / secondary</div><div style="font-size:20px;font-weight:500;color:#475569">HealWell Diagnostics</div></div>
+    <div class="type-sample"><div class="label">Field Label -- 13px / 400 / lightest</div><div style="font-size:13px;font-weight:400;color:#94A3B8">Facility name</div></div>
+    <div class="type-sample"><div class="label">Field Value -- 16px / 400 / secondary / lh 1.6</div><div style="font-size:16px;font-weight:400;color:#475569;line-height:1.6">HealWell Diagnostics Center</div></div>
+    <div class="type-sample"><div class="label">Sign Out -- 14px / 500</div><div style="font-size:14px;font-weight:500;color:#64748B">Sign Out</div></div>
+
+    <div class="section-label">Avatar (flat, no ring)</div>
+    <div class="avatar" style="background:#34D399;box-shadow:none;margin-bottom:32px">HD</div>
+    <div class="profile-name">HealWell Diagnostics</div>
+
+    <div class="section-label">Field Cards (12px radius, 20px pad, soft)</div>
+    <div class="field-card">
+      <div class="field-label">Facility name</div>
+      <div class="field-value">HealWell Diagnostics Center</div>
+    </div>
+    <div class="field-card">
+      <div class="field-label">Registration number</div>
+      <div class="field-value">REG-ETH-2024-0847</div>
+    </div>
+    <div class="field-card">
+      <div class="field-label">Email address</div>
+      <div class="field-value">admin@healwell-diag.com</div>
+    </div>
+    <div class="field-card">
+      <div class="field-label">Location</div>
+      <div class="field-value">Addis Ababa, Ethiopia</div>
+    </div>
+
+    <div class="section-label">Operational Status (barely-there tint)</div>
+    <div class="field-card op-card-active">
+      <div class="field-label">Operational status</div>
+      <div class="op-status"><div class="op-dot active"></div><div class="field-value" style="color:#166534">Currently Operating</div></div>
+    </div>
+
+    <button class="btn-signout">Sign Out</button>
+
+    <div class="section-label" style="margin-top:24px">Key Specs</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">Avatar: flat #34D399, no ring/shadow. 32px margin below avatar and heading. Field cards: 20px pad, 16px gap, #EDF2F7 borders, 12px radius. Labels: 400 weight, #94A3B8. Values: 400 weight, #475569. No card hover changes. Op status: barely-there #F0FDF4 tint, no border change. Sign out: neutral gray, red only on hover.</p>
+  </div>
+
+  <!-- ==================== V3: Tenadoc-Inspired ==================== -->
+  <div class="column v3">
+    <h2>V3: Tenadoc-Inspired</h2>
+    <span class="tag">Competitor</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#F1F5F9"></div><div class="swatch-label">#F1F5F9<br>Page BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>Top Border</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EDF2F7"></div><div class="swatch-label">#EDF2F7<br>Dividers</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#ECFDF3"></div><div class="swatch-label">#ECFDF3<br>Credential</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#DC2626"></div><div class="swatch-label">#DC2626<br>Inactive</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Facility Name -- 20px / 700</div><div style="font-size:20px;font-weight:700">HealWell Diagnostics</div></div>
+    <div class="type-sample"><div class="label">Field Label -- 11px / 700 / uppercase / 0.05em</div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#64748B">FACILITY NAME</div></div>
+    <div class="type-sample"><div class="label">Field Value -- 16px / 500</div><div style="font-size:16px;font-weight:500">HealWell Diagnostics Center</div></div>
+    <div class="type-sample"><div class="label">Registration -- mono / 14px / 600 / credential</div><div style="display:inline-block;background:#ECFDF3;color:#166534;padding:2px 10px;border-radius:9999px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px">REG-ETH-2024-0847</div></div>
+    <div class="type-sample"><div class="label">Op Banner -- 14px / 700 / uppercase</div><div style="font-size:14px;font-weight:700;text-transform:uppercase;color:#fff;background:#2ECC71;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px"><span style="width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block"></span>OPERATING</div></div>
+
+    <div class="section-label">Profile Card (single card, divider rows)</div>
+    <div class="profile-card-wrap" style="background:#F1F5F9;border-radius:12px;padding:16px">
+      <div style="background:#fff;border-radius:12px;border-top:3px solid #2ECC71;box-shadow:0 2px 8px rgba(15,23,42,0.06);padding:24px">
+
+        <div style="text-align:center">
+          <div class="avatar" style="border:3px solid #fff;box-shadow:0 2px 8px rgba(15,23,42,0.12);margin-bottom:12px">HD</div>
+          <div class="profile-name" style="margin-bottom:16px">HealWell Diagnostics</div>
+        </div>
+
+        <!-- Operational banner -->
+        <div class="op-banner active"><div class="live-dot"></div>OPERATING</div>
+
+        <!-- Fields as divider rows -->
+        <div class="field-card">
+          <div class="field-label">FACILITY NAME</div>
+          <div class="field-value">HealWell Diagnostics Center</div>
+        </div>
+        <div class="field-card">
+          <div class="field-label">REGISTRATION NUMBER</div>
+          <div class="credential-badge">REG-ETH-2024-0847</div>
+        </div>
+        <div class="field-card">
+          <div class="field-label">EMAIL ADDRESS</div>
+          <div class="field-value">admin@healwell-diag.com</div>
+        </div>
+        <div class="field-card">
+          <div class="field-label">LOCATION</div>
+          <div class="field-value">Addis Ababa, Ethiopia</div>
+        </div>
+        <div class="field-card" style="border-bottom:none">
+          <div class="field-label">PHONE</div>
+          <div class="field-value">+251 11 234 5678</div>
+        </div>
+
+        <div style="border-top:1px solid #EDF2F7;padding-top:16px;margin-top:8px">
+          <button class="btn-signout">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px">Inactive State</div>
+    <div style="display:flex;gap:8px;align-items:center;background:#DC2626;color:#fff;padding:10px 16px;border-radius:8px;font-weight:700;text-transform:uppercase;font-size:14px;width:fit-content">
+      <span style="width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block"></span>NOT OPERATING
+    </div>
+
+    <div class="section-label" style="margin-top:20px">Key Specs</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">Page bg: #F1F5F9. Single white card with 3px emerald top-border and 12px radius. Avatar: 3px white ring + shadow. Op status: full-width banner (emerald active, red inactive) with pulsing white dot. Fields: divider rows not separate cards. Reg number: monospace credential badge in emerald-light pill. Labels: 11px/700/uppercase/0.05em. Sign out: ghost button at card bottom. Inspired by Tenadoc + Practo provider profiles.</p>
+  </div>
+
+</div>
+</body>
+</html>

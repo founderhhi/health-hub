@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Hub | Emerald Marketplace Landing</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300..600,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#006a51",
+                        "primary-container": "#108567",
+                        "on-primary": "#ffffff",
+                        "secondary": "#50625d",
+                        "secondary-container": "#d0e4dd",
+                        "on-secondary-container": "#546661",
+                        "tertiary": "#745825",
+                        "surface": "#f1fcf6",
+                        "on-surface": "#141d1a",
+                        "on-surface-variant": "#3e4944",
+                        "surface-container-low": "#ecf6f1",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#dbe5e0",
+                        "outline-variant": "#bdc9c2",
+                        "outline": "#6e7a74"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .bento-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .bento-item-large {
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-primary-container selection:text-white pb-0">
+    <!-- Top Nav -->
+    <header class="sticky top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-surface-container-low/80 backdrop-blur-xl border-b border-surface-container-highest shadow-sm">
+        <div class="flex items-center gap-2 text-xl font-black text-primary font-headline tracking-tighter">
+            <span class="material-symbols-outlined icon-fill">park</span>
+            Health Hub
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="hidden md:block px-5 py-2 text-sm font-bold text-secondary hover:text-primary transition-colors">Login</button>
+            <span class="material-symbols-outlined text-secondary text-2xl md:hidden cursor-pointer" data-icon="account_circle">account_circle</span>
+            <button class="hidden md:block px-6 py-2.5 text-sm font-bold bg-gradient-to-br from-primary to-primary-container text-white rounded-xl hover:opacity-90 transition-all active:scale-95">Book Appointment</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto md:px-8">
+        <!-- New Choice Layout: Care-Lane Marketplace Hero -->
+        <section class="min-h-[700px] flex flex-col lg:flex-row items-center gap-12 pt-12 pb-24 px-6 md:px-0">
+            <!-- Left Side Content -->
+            <div class="flex-1 space-y-8 w-full">
+                <div class="space-y-4">
+                    <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold tracking-wide uppercase">
+                        <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                        30+ Specialist Clinics Available
+                    </span>
+                    <h1 class="font-headline text-5xl md:text-7xl font-extrabold text-on-surface leading-[1.1] tracking-tight">
+                        Care that moves <br/> <span class="text-primary italic">with you.</span>
+                    </h1>
+                    <p class="font-body text-lg text-secondary max-w-xl leading-relaxed">
+                        Discover world-class healthcare tailored to your journey. From preventive wellness to specialized treatments, access the care you deserve with unparalleled ease.
+                    </p>
+                </div>
+
+                <!-- Centralized Search Marketplace Component -->
+                <div class="bg-surface-container-lowest p-2 rounded-2xl shadow-sm max-w-2xl border border-outline-variant/30 focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-300">
+                    <div class="flex flex-col md:flex-row items-center gap-2">
+                        <div class="flex-1 flex items-center gap-3 px-4 py-3 w-full">
+                            <span class="material-symbols-outlined text-outline">search</span>
+                            <input class="bg-transparent border-none outline-none focus:ring-0 w-full font-body text-on-surface placeholder:text-outline/70" placeholder="Search specialists or symptoms..." type="text"/>
+                        </div>
+                        <div class="hidden md:block w-px h-8 bg-outline-variant/50"></div>
+                        <div class="flex-1 flex items-center gap-3 px-4 py-3 w-full border-t border-outline-variant/30 md:border-t-0">
+                            <span class="material-symbols-outlined text-outline">location_on</span>
+                            <input class="bg-transparent border-none outline-none focus:ring-0 w-full font-body text-on-surface placeholder:text-outline/70" placeholder="Your location" type="text"/>
+                        </div>
+                        <button class="w-full md:w-auto bg-primary text-on-primary px-8 py-4 rounded-xl font-headline font-bold hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md">
+                            Explore
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Links Chips -->
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-xs font-semibold text-secondary uppercase tracking-widest block w-full mb-1">Quick Access Pathways:</span>
+                    <a class="px-5 py-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-secondary text-sm font-semibold hover:bg-secondary-container hover:border-transparent transition-all shadow-sm" href="#">Pediatrics</a>
+                    <a class="px-5 py-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-secondary text-sm font-semibold hover:bg-secondary-container hover:border-transparent transition-all shadow-sm" href="#">Dermatology</a>
+                    <a class="px-5 py-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-secondary text-sm font-semibold hover:bg-secondary-container hover:border-transparent transition-all shadow-sm" href="#">Cardiology</a>
+                    <a class="px-5 py-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-secondary text-sm font-semibold hover:bg-secondary-container hover:border-transparent transition-all shadow-sm" href="#">Mental Health</a>
+                </div>
+            </div>
+
+            <!-- Right Side Imagery (Asymmetric Mosaic) -->
+            <div class="flex-1 w-full relative h-[400px] md:h-[500px]">
+                <div class="grid grid-cols-12 gap-4 h-full">
+                    <div class="col-span-8 h-full rounded-[2rem] overflow-hidden shadow-2xl">
+                        <img alt="Medical Team" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" />
+                    </div>
+                    <div class="col-span-4 flex flex-col gap-4">
+                        <div class="h-1/2 rounded-3xl overflow-hidden shadow-xl">
+                            <img alt="Patient Care" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" />
+                        </div>
+                        <div class="h-1/2 rounded-3xl bg-secondary-container p-5 flex flex-col justify-end">
+                            <span class="material-symbols-outlined text-primary text-3xl mb-2 icon-fill">health_and_safety</span>
+                            <h3 class="font-headline font-bold text-on-secondary-container text-sm sm:text-lg leading-tight">Vetted Expert Network</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Metric Card -->
+                <div class="absolute -bottom-6 -left-2 bg-surface-container-lowest p-5 rounded-2xl shadow-xl border border-outline-variant/20 max-w-[240px]">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-xl">calendar_today</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-secondary font-bold uppercase tracking-tighter">Availability</p>
+                            <p class="text-on-surface font-black text-sm">Same-day bookings</p>
+                        </div>
+                    </div>
+                    <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                        <div class="h-full bg-primary w-11/12"></div>
+                    </div>
+                    <p class="text-[10px] text-secondary mt-2 font-bold">94% of clinics have open slots today</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capabilities Bento Grid (Platform Details) -->
+        <section class="px-4 py-8 md:py-16 bg-transparent">
+            <div class="mb-8 md:mb-12 px-2 text-center md:text-left">
+                <h3 class="text-3xl md:text-4xl font-headline font-black tracking-tight text-on-surface">Platform Capabilities</h3>
+                <p class="text-on-surface-variant text-base md:text-lg mt-2 font-medium">Dive deeper into the services tailored for your modern lifestyle.</p>
+            </div>
+            
+            <div class="bento-grid">
+                
+                <!-- 1. 24/7 care -->
+                <div class="bento-item-large bg-primary text-white rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col justify-between group shadow-xl hover:-translate-y-1 transition-transform border border-primary-container">
+                    <div class="absolute right-0 top-0 bottom-0 w-2/3 bg-gradient-to-l from-black/20 to-transparent mix-blend-overlay"></div>
+                    <div class="absolute -right-10 -bottom-10 opacity-20 transform group-hover:scale-110 transition-transform duration-700">
+                        <span class="material-symbols-outlined text-[15rem] icon-fill">video_camera_front</span>
+                    </div>
+                    
+                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center mb-10 shadow-inner">
+                        <span class="material-symbols-outlined text-3xl icon-fill">video_camera_front</span>
+                    </div>
+                    <div class="relative z-10 w-2/3">
+                        <h4 class="font-headline font-black text-2xl md:text-3xl leading-tight mb-2">24/7 Health Expert<br/>Consultations</h4>
+                        <p class="text-white/80 text-sm font-medium">Immediate video & audio access to certified professionals anytime, anywhere.</p>
+                    </div>
+                </div>
+
+                <!-- 2. E pharmacy -->
+                <div class="bg-surface-container-low rounded-3xl p-6 md:p-8 flex flex-col justify-between h-48 md:h-64 border-2 border-primary/20 shadow-sm hover:border-primary transition-colors group">
+                    <span class="material-symbols-outlined text-primary text-4xl icon-fill bg-white w-14 h-14 flex items-center justify-center rounded-2xl group-hover:scale-110 transition-transform shadow-sm">local_pharmacy</span>
+                    <div>
+                        <h4 class="font-headline font-extrabold text-primary text-lg md:text-xl leading-tight mb-1">Smart<br/>E-Pharmacy</h4>
+                        <p class="text-secondary text-xs font-medium">Instant e-prescription fulfillment.</p>
+                    </div>
+                </div>
+
+                <!-- 3. E diagnostics -->
+                <div class="bg-surface-container-lowest text-on-surface rounded-3xl p-6 md:p-8 flex flex-col justify-between h-48 md:h-64 border border-outline-variant shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-lg transition-shadow group">
+                    <span class="material-symbols-outlined text-secondary text-4xl icon-fill bg-surface-container-highest w-14 h-14 flex items-center justify-center rounded-2xl group-hover:rotate-12 transition-transform">science</span>
+                    <div>
+                        <h4 class="font-headline font-extrabold text-lg md:text-xl leading-tight mb-1">Advanced<br/>Diagnostics</h4>
+                        <p class="text-outline text-xs font-medium">Home collection & trusted partners.</p>
+                    </div>
+                </div>
+
+                <!-- 4. Electronic Health Records -->
+                <div class="bento-item-large bg-secondary-container text-on-secondary-container rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden shadow-xl group">
+                    <div class="w-14 h-14 md:hidden rounded-2xl bg-white/50 backdrop-blur-md flex items-center justify-center mb-2">
+                        <span class="material-symbols-outlined text-3xl icon-fill">folder_managed</span>
+                    </div>
+                    <div class="flex-1 relative z-10">
+                        <h4 class="font-headline font-black text-2xl md:text-3xl mb-2">Secured Health Records</h4>
+                        <p class="text-sm font-medium max-w-sm">A centralized, hyper-secure vault for every prescription, scan, and note.</p>
+                    </div>
+                    <div class="hidden md:flex w-20 h-20 rounded-full bg-white/40 items-center justify-center border border-white/50 shadow-inner group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-4xl icon-fill">folder_managed</span>
+                    </div>
+                </div>
+
+                <!-- 5. Insurance -->
+                <div class="bg-tertiary text-white rounded-3xl p-6 md:p-8 flex flex-col justify-between h-48 md:h-64 shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    <span class="material-symbols-outlined text-white text-4xl icon-fill bg-white/20 w-14 h-14 flex items-center justify-center rounded-2xl relative z-10">shield_with_heart</span>
+                    <div class="relative z-10">
+                        <h4 class="font-headline font-extrabold text-lg md:text-xl leading-tight mb-1">Complete<br/>Insurance</h4>
+                    </div>
+                </div>
+
+                <!-- 6. Specialist Consultations -->
+                <div class="bg-surface-container-lowest rounded-3xl p-6 md:p-8 flex flex-col justify-between h-48 md:h-64 border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+                    <span class="material-symbols-outlined text-primary text-4xl icon-fill bg-primary/10 w-14 h-14 flex items-center justify-center rounded-2xl">stethoscope</span>
+                    <div>
+                        <h4 class="font-headline font-extrabold text-on-surface text-lg md:text-xl leading-tight mb-1">Specialist<br/>Consultations</h4>
+                        <p class="text-secondary text-xs font-medium">Access top-tier hospital docs.</p>
+                    </div>
+                </div>
+
+                <!-- 7. Heal Well At Home -->
+                <div class="bento-item-large bg-gradient-to-br from-surface-container-low to-white text-primary rounded-3xl p-6 md:p-8 flex flex-col justify-between h-56 md:h-64 shadow-md border border-white border-b-outline-variant">
+                    <div class="flex items-center justify-between">
+                        <span class="material-symbols-outlined text-primary text-4xl bg-primary/10 w-14 h-14 flex items-center justify-center rounded-2xl">self_improvement</span>
+                        <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded-full">Premium</span>
+                    </div>
+                    <div>
+                        <h4 class="font-headline font-black text-2xl md:text-3xl mb-1 mt-6">Heal Well At Home</h4>
+                        <p class="text-sm font-medium text-secondary max-w-sm">Curated recovery guides, daily check-ins, and holistic routines pushed directly to your device.</p>
+                    </div>
+                </div>
+
+                <!-- 8. Travel Services -->
+                <div class="bg-secondary text-white rounded-3xl p-6 md:p-8 flex flex-col justify-between h-56 md:h-64 shadow-xl hover:-translate-y-1 transition-transform">
+                    <span class="material-symbols-outlined text-white text-4xl icon-fill bg-white/20 w-14 h-14 flex items-center justify-center rounded-2xl">flight_takeoff</span>
+                    <div>
+                        <h4 class="font-headline font-extrabold text-lg md:text-xl leading-snug mb-1">Medical Travel<br/>Services</h4>
+                    </div>
+                </div>
+
+                <!-- 9. Patient Services -->
+                <div class="bg-surface-container-lowest rounded-3xl p-6 md:p-8 flex flex-col justify-between h-56 md:h-64 border border-outline-variant/50 shadow-sm">
+                    <span class="material-symbols-outlined text-primary text-4xl bg-primary/10 w-14 h-14 flex items-center justify-center rounded-2xl icon-fill">support_agent</span>
+                    <div>
+                        <h4 class="font-headline font-extrabold text-on-surface text-lg md:text-xl leading-snug mb-1">Dedicated<br/>Patient Support</h4>
+                        <p class="text-secondary text-xs font-medium">Your personal health concierge.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Coming Soon -->
+        <section class="px-6 py-16 md:py-24 border-t border-outline-variant/30 mt-8 max-w-5xl mx-auto">
+            <h3 class="text-center font-headline text-[10px] md:text-xs font-black tracking-widest text-outline uppercase mb-8">Coming Soon to Health Hub</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 opacity-60 mix-blend-luminosity hover:mix-blend-normal transition-all duration-700">
+                <div class="text-center flex flex-col items-center">
+                    <span class="material-symbols-outlined text-3xl text-outline mb-3">local_hospital</span>
+                    <h4 class="font-headline font-bold text-sm text-secondary">Outpatient Services</h4>
+                </div>
+                <div class="text-center flex flex-col items-center">
+                    <span class="material-symbols-outlined text-3xl text-outline mb-3">health_metrics</span>
+                    <h4 class="font-headline font-bold text-sm text-secondary">Insurance Claims</h4>
+                </div>
+                <div class="text-center flex flex-col items-center">
+                    <span class="material-symbols-outlined text-3xl text-outline mb-3">bed</span>
+                    <h4 class="font-headline font-bold text-sm text-secondary">Inpatient Care</h4>
+                </div>
+                <div class="text-center flex flex-col items-center">
+                    <span class="material-symbols-outlined text-3xl text-outline mb-3">emergency</span>
+                    <h4 class="font-headline font-bold text-sm text-secondary">Emergency Access</h4>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Call to Action -->
+        <section class="px-4 py-16 md:py-24 mb-16 md:mb-0">
+            <div class="bg-primary text-white rounded-[2rem] p-10 md:p-16 text-center shadow-[0_20px_60px_rgba(0,106,81,0.3)] relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50"></div>
+                <div class="relative z-10 w-full max-w-2xl mx-auto">
+                    <h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight mb-6 leading-tight">Ready to transform your<br/>health journey?</h2>
+                    <p class="text-white/80 text-lg mb-10 font-medium">Join thousands of members accessing world-class clinical care securely from their pocket.</p>
+                    <button class="w-full md:w-auto px-10 py-5 bg-white text-primary font-headline font-black text-xl rounded-2xl shadow-xl hover:scale-105 transition-transform">
+                        Get Your Free Account
+                    </button>
+                    <p class="mt-6 text-xs text-white/50 font-bold uppercase tracking-widest">Setup takes <2 minutes</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Desktop Footer -->
+    <footer class="flex flex-col md:flex-row justify-between items-center py-8 px-6 md:px-8 border-t border-outline-variant/30 text-secondary text-sm bg-surface">
+        <div class="font-headline font-extrabold text-primary mb-4 md:mb-0">Health Hub &copy; 2026</div>
+        <div class="flex flex-wrap justify-center gap-6 font-medium">
+            <a href="#" class="hover:text-primary transition-colors">Privacy Policy</a>
+            <a href="#" class="hover:text-primary transition-colors">Terms of Service</a>
+            <a href="#" class="hover:text-primary transition-colors">Support center</a>
+        </div>
+    </footer>
+</body>
+</html>

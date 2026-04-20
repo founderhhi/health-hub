@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "health-hub",
+      "runtimeExecutable": "/opt/homebrew/bin/node",
+      "runtimeArgs": ["/Users/anuraaggudimella/Documents/health-hub/node_modules/@angular/cli/bin/ng.js", "serve", "--port", "4200"],
+      "port": 4200
+    }
+  ]
+}

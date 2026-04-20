@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%">
+  <!-- Typographic Connection -->
+  <g transform="translate(20, 55)">
+    <!-- Bold "HEALTH" -->
+    <text x="0" y="0" font-family="'Roboto', sans-serif" font-weight="900" font-size="26" fill="#064e3b">HEALTH</text>
+    <!-- Light "HUB" in Rust Orange -->
+    <text x="115" y="0" font-family="'Roboto', sans-serif" font-weight="300" font-size="26" fill="#ea580c">HUB</text>
+    <!-- Connecting Line / Hub element -->
+    <rect x="98" y="-8" width="12" height="4" fill="#10b981" />
+  </g>
+  <!-- Tracked out Subtitle -->
+  <text x="22" y="75" font-family="'Roboto', sans-serif" font-weight="500" font-size="11" letter-spacing="5" fill="#64748b">INTERNATIONAL</text>
+</svg>

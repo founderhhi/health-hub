@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Design Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0F1117;
+    color: #E2E8F0;
+    padding: 40px 24px;
+    line-height: 1.5;
+  }
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    font-size: 16px;
+    color: #94A3B8;
+  }
+
+  /* -- Grid layout for 3 columns -- */
+  .variations-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .variation {
+    background: #1A1D27;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #2A2D3A;
+  }
+  .variation-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #2A2D3A;
+  }
+  .variation-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+  .variation-header .subtitle {
+    font-size: 13px;
+    color: #64748B;
+    font-style: italic;
+  }
+  .variation-body {
+    padding: 24px;
+  }
+
+  /* -- Section labels -- */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 12px;
+    margin-top: 28px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #2A2D3A;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* -- Color swatches -- */
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #12141C;
+    border-radius: 6px;
+    border: 1px solid #2A2D3A;
+  }
+  .swatch-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .swatch-label {
+    font-size: 11px;
+    color: #94A3B8;
+  }
+  .swatch-hex {
+    font-size: 10px;
+    color: #64748B;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* -- Typography samples -- */
+  .type-sample {
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    background: #12141C;
+    border-radius: 6px;
+    border: 1px solid #2A2D3A;
+  }
+  .type-meta {
+    font-size: 10px;
+    color: #64748B;
+    margin-bottom: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* -- Mockup containers -- */
+  .mockup {
+    background: #FFFFFF;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .mockup-dark {
+    background: #12141C;
+  }
+
+  /* -- Spacing demo -- */
+  .spacing-demo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .spacing-bar {
+    height: 8px;
+    background: #2ECC71;
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+  .spacing-label {
+    font-size: 11px;
+    color: #94A3B8;
+    white-space: nowrap;
+  }
+
+  /* -- Surface treatment cards -- */
+  .surface-demo {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .surface-card {
+    width: 100px;
+    height: 70px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 500;
+    color: #374151;
+    text-align: center;
+    padding: 8px;
+  }
+
+  /* == Navigation links == */
+  .nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .nav-links a {
+    color: #2ECC71;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 16px;
+    border: 1px solid #2ECC71;
+    border-radius: 8px;
+    transition: all 150ms;
+  }
+  .nav-links a:hover {
+    background: #2ECC71;
+    color: #0B0F14;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Admin Dashboard - Design Variations</h1>
+  <p>Side-by-side comparison of three design directions for the Health Hub admin dashboard</p>
+</div>
+
+<nav class="nav-links">
+  <a href="index.html">Index</a>
+  <a href="users.html">Users Page</a>
+</nav>
+
+<div class="variations-grid">
+
+  <!-- ============ V1: Operational Clarity ============ -->
+  <div class="variation">
+    <div class="variation-header">
+      <h2>V1: Operational Clarity</h2>
+      <div class="subtitle">Data density with visual clarity. Every pixel earns its place.</div>
+    </div>
+    <div class="variation-body">
+
+      <!-- COLORS -->
+      <div class="section-label">Color Palette</div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#2ECC71"></div>
+          <div><div class="swatch-label">Tab Active / Accent</div><div class="swatch-hex">#2ECC71</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#0B0F14"></div>
+          <div><div class="swatch-label">Tab Active Text</div><div class="swatch-hex">#0B0F14</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F1F5F9"></div>
+          <div><div class="swatch-label">Table Header BG</div><div class="swatch-hex">#F1F5F9</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FAFBFC"></div>
+          <div><div class="swatch-label">Alternating Row</div><div class="swatch-hex">#FAFBFC</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.20)"></div>
+          <div><div class="swatch-label">Active Badge BG</div><div class="swatch-hex">rgba(46,204,113,0.20)</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(239,68,68,0.20)"></div>
+          <div><div class="swatch-label">Disabled Badge BG</div><div class="swatch-hex">rgba(239,68,68,0.20)</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F59E0B"></div>
+          <div><div class="swatch-label">Claimed Border</div><div class="swatch-hex">#F59E0B</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#3B82F6"></div>
+          <div><div class="swatch-label">Fulfilled Border</div><div class="swatch-hex">#3B82F6</div></div>
+        </div>
+      </div>
+
+      <!-- TYPOGRAPHY -->
+      <div class="section-label">Typography</div>
+      <div class="type-sample">
+        <div class="type-meta">Health Value: Inter 32px / 800 weight, tabular-nums</div>
+        <div style="font-family:Inter; font-size:32px; font-weight:800; color:#2ECC71; font-variant-numeric:tabular-nums;">2,847</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Table Header: Inter 12px / 600 weight, uppercase</div>
+        <div style="font-family:Inter; font-size:12px; font-weight:600; text-transform:uppercase; color:#94A3B8; letter-spacing:0.04em;">USERNAME &nbsp; PHONE &nbsp; ROLE &nbsp; STATUS</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Tab Text Active: Inter 14px / 700 weight</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:700; color:#FFFFFF;">Users</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">User Count: Inter 14px / 500 weight</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:500; color:#E2E8F0;">47 users found</div>
+      </div>
+
+      <!-- TAB BAR MOCKUP -->
+      <div class="section-label">Tab Bar (Filled + Bottom Border)</div>
+      <div class="mockup" style="padding:12px 16px; background:#1A1D27; display:flex; gap:8px;">
+        <div style="background:#2ECC71; color:#0B0F14; padding:8px 20px; border-radius:8px; font-size:14px; font-weight:700; border-bottom:2px solid #0B0F14;">Users</div>
+        <div style="background:rgba(255,255,255,0.06); color:#94A3B8; padding:8px 20px; border-radius:8px; font-size:14px; font-weight:500;">Prescriptions</div>
+        <div style="background:rgba(255,255,255,0.06); color:#94A3B8; padding:8px 20px; border-radius:8px; font-size:14px; font-weight:500;">System Health</div>
+      </div>
+
+      <!-- HEALTH METRIC CARDS -->
+      <div class="section-label">Health Metric Cards (3px Left Border)</div>
+      <div class="mockup" style="padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div style="background:#F8FAFC; border-left:3px solid #2ECC71; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; color:#6B7280; margin-bottom:4px;">Total Users</div>
+          <div style="font-size:32px; font-weight:800; color:#111827; font-variant-numeric:tabular-nums;">2,847</div>
+        </div>
+        <div style="background:#F8FAFC; border-left:3px solid #2ECC71; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; color:#6B7280; margin-bottom:4px;">Active Sessions</div>
+          <div style="font-size:32px; font-weight:800; color:#111827; font-variant-numeric:tabular-nums;">142</div>
+        </div>
+        <div style="background:#F8FAFC; border-left:3px solid #2ECC71; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; color:#6B7280; margin-bottom:4px;">DB Response</div>
+          <div style="font-size:32px; font-weight:800; color:#111827; font-variant-numeric:tabular-nums;">24ms</div>
+        </div>
+        <div style="background:#F8FAFC; border-left:3px solid #2ECC71; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; color:#6B7280; margin-bottom:4px;">Uptime</div>
+          <div style="font-size:32px; font-weight:800; color:#111827; font-variant-numeric:tabular-nums;">99.9%</div>
+        </div>
+      </div>
+
+      <!-- DATA TABLE -->
+      <div class="section-label">Data Table (Framed, Alternating Rows)</div>
+      <div class="mockup" style="padding:0;">
+        <div style="border:1px solid #E2E8F0; border-radius:8px; overflow:hidden; margin:16px;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#F1F5F9;">
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0; letter-spacing:0.02em;">Name</th>
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0; letter-spacing:0.02em;">Role</th>
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0; letter-spacing:0.02em;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:10px 12px; color:#111827; font-weight:500;">Dr. Sarah Chen</td>
+                <td style="padding:10px 12px; color:#374151;">Specialist</td>
+                <td style="padding:10px 12px;">
+                  <span style="background:rgba(46,204,113,0.20); color:#15803D; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Active</span>
+                </td>
+              </tr>
+              <tr style="background:#FAFBFC;">
+                <td style="padding:10px 12px; color:#111827; font-weight:500;">James Okafor</td>
+                <td style="padding:10px 12px; color:#374151;">Pharmacist</td>
+                <td style="padding:10px 12px;">
+                  <span style="background:rgba(46,204,113,0.20); color:#15803D; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Active</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px; color:#111827; font-weight:500;">Maria Gonzalez</td>
+                <td style="padding:10px 12px; color:#374151;">Admin</td>
+                <td style="padding:10px 12px;">
+                  <span style="background:rgba(239,68,68,0.20); color:#991B1B; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Disabled</span>
+                </td>
+              </tr>
+              <tr style="background:#FAFBFC;">
+                <td style="padding:10px 12px; color:#111827; font-weight:500;">Aisha Patel</td>
+                <td style="padding:10px 12px; color:#374151;">GP</td>
+                <td style="padding:10px 12px;">
+                  <span style="background:rgba(245,158,11,0.15); color:#92400E; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em; border-left:3px solid #F59E0B;">Claimed</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- STATUS BADGES -->
+      <div class="section-label">Status Badges (6px Radius Chips)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <span style="background:rgba(46,204,113,0.20); color:#15803D; padding:4px 12px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Active</span>
+        <span style="background:rgba(239,68,68,0.20); color:#991B1B; padding:4px 12px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Disabled</span>
+        <span style="background:rgba(245,158,11,0.15); color:#92400E; padding:4px 12px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em; border-left:3px solid #F59E0B;">Claimed</span>
+        <span style="background:rgba(59,130,246,0.15); color:#1E40AF; padding:4px 12px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em; border-left:3px solid #3B82F6;">Fulfilled</span>
+      </div>
+
+      <!-- SPACING -->
+      <div class="section-label">Spacing</div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:80px;"></div><div class="spacing-label">Table cell: 10px vert / 12px horiz</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Health grid gap: 12px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:32px;"></div><div class="spacing-label">Tab bar gap: 8px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Controls-to-table: 12px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:64px;"></div><div class="spacing-label">Pagination margin-top: 16px</div></div>
+
+      <!-- SURFACES -->
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#F8FAFC; border-left:3px solid #2ECC71; border-radius:8px;">Health Card<br>8px radius<br>Left accent</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px;">Table Wrap<br>8px radius<br>1px border</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; border-top:3px solid #2ECC71;">Create Panel<br>10px radius<br>Top accent</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ V2: Premium Guided ============ -->
+  <div class="variation">
+    <div class="variation-header">
+      <h2>V2: Premium Guided</h2>
+      <div class="subtitle">Operational confidence through visual refinement and intentional depth.</div>
+    </div>
+    <div class="variation-body">
+
+      <!-- COLORS -->
+      <div class="section-label">Color Palette</div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:linear-gradient(135deg,#2ECC71,#27AE60)"></div>
+          <div><div class="swatch-label">Tab Active Gradient</div><div class="swatch-hex">#2ECC71 -> #27AE60</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FAFAF9"></div>
+          <div><div class="swatch-label">Warm Page BG</div><div class="swatch-hex">#FAFAF9</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F8FAF9"></div>
+          <div><div class="swatch-label">Table Header BG</div><div class="swatch-hex">#F8FAF9</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#2ECC71"></div>
+          <div><div class="swatch-label">Card Top Border</div><div class="swatch-hex">#2ECC71</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.04)"></div>
+          <div><div class="swatch-label">Row Hover</div><div class="swatch-hex">rgba(46,204,113,0.04)</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#E74C3C"></div>
+          <div><div class="swatch-label">Notice Error Border</div><div class="swatch-hex">#E74C3C</div></div>
+        </div>
+      </div>
+
+      <!-- TYPOGRAPHY -->
+      <div class="section-label">Typography</div>
+      <div class="type-sample">
+        <div class="type-meta">Page Title: Fraunces 28px / 600 weight, -0.02em tracking</div>
+        <div style="font-family:Fraunces,serif; font-size:28px; font-weight:600; color:#FFFFFF; letter-spacing:-0.02em;">Admin Dashboard</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Health Card Label: Fraunces 14px / 500 weight</div>
+        <div style="font-family:Fraunces,serif; font-size:14px; font-weight:500; color:#94A3B8;">Total Users</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Role Heading: Fraunces 20px / 600 weight</div>
+        <div style="font-family:Fraunces,serif; font-size:20px; font-weight:600; color:#FFFFFF;">Role Breakdown</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Table Header: Inter 11px / 500, 0.08em spacing</div>
+        <div style="font-family:Inter; font-size:11px; font-weight:500; text-transform:uppercase; color:#94A3B8; letter-spacing:0.08em;">USERNAME &nbsp; PHONE &nbsp; ROLE &nbsp; STATUS</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Health Value: Inter 32px / 700 + emerald text-shadow</div>
+        <div style="font-family:Inter; font-size:32px; font-weight:700; color:#2ECC71; text-shadow:0 1px 2px rgba(46,204,113,0.15);">2,847</div>
+      </div>
+
+      <!-- TAB BAR MOCKUP -->
+      <div class="section-label">Tab Bar (Gradient Fill, 10px Radius)</div>
+      <div class="mockup" style="padding:12px 16px; background:#1A1D27; display:flex; gap:8px;">
+        <div style="background:linear-gradient(135deg,#2ECC71,#27AE60); color:#0B0F14; padding:10px 24px; border-radius:10px; font-size:14px; font-weight:600;">Users</div>
+        <div style="background:rgba(255,255,255,0.06); color:#94A3B8; padding:10px 24px; border-radius:10px; font-size:14px; font-weight:500; transition:all 200ms;">Prescriptions</div>
+        <div style="background:rgba(255,255,255,0.06); color:#94A3B8; padding:10px 24px; border-radius:10px; font-size:14px; font-weight:500;">System Health</div>
+      </div>
+
+      <!-- HEALTH METRIC CARDS -->
+      <div class="section-label">Health Metric Cards (Shadow + Top Border + Hover Lift)</div>
+      <div class="mockup" style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px; background:#FAFAF9;">
+        <div style="background:#FFFFFF; border-top:3px solid #2ECC71; border-radius:16px; padding:20px; box-shadow:0 4px 6px rgba(15,23,42,0.08); transition:all 200ms;">
+          <div style="font-family:Fraunces,serif; font-size:14px; font-weight:500; color:#6B7280; margin-bottom:6px;">Total Users</div>
+          <div style="font-size:32px; font-weight:700; color:#2ECC71; text-shadow:0 1px 2px rgba(46,204,113,0.15);">2,847</div>
+        </div>
+        <div style="background:#FFFFFF; border-top:3px solid #2ECC71; border-radius:16px; padding:20px; box-shadow:0 4px 6px rgba(15,23,42,0.08);">
+          <div style="font-family:Fraunces,serif; font-size:14px; font-weight:500; color:#6B7280; margin-bottom:6px;">Active Sessions</div>
+          <div style="font-size:32px; font-weight:700; color:#2ECC71; text-shadow:0 1px 2px rgba(46,204,113,0.15);">142</div>
+        </div>
+        <div style="background:#FFFFFF; border-top:3px solid #2ECC71; border-radius:16px; padding:20px; box-shadow:0 4px 6px rgba(15,23,42,0.08);">
+          <div style="font-family:Fraunces,serif; font-size:14px; font-weight:500; color:#6B7280; margin-bottom:6px;">DB Response</div>
+          <div style="font-size:32px; font-weight:700; color:#2ECC71; text-shadow:0 1px 2px rgba(46,204,113,0.15);">24ms</div>
+        </div>
+        <div style="background:#FFFFFF; border-top:3px solid #2ECC71; border-radius:16px; padding:20px; box-shadow:0 4px 6px rgba(15,23,42,0.08);">
+          <div style="font-family:Fraunces,serif; font-size:14px; font-weight:500; color:#6B7280; margin-bottom:6px;">Uptime</div>
+          <div style="font-size:32px; font-weight:700; color:#2ECC71; text-shadow:0 1px 2px rgba(46,204,113,0.15);">99.9%</div>
+        </div>
+      </div>
+
+      <!-- DATA TABLE -->
+      <div class="section-label">Data Table (Shadowed Wrap, Emerald Row Hover)</div>
+      <div class="mockup" style="padding:0; background:#FAFAF9;">
+        <div style="border:1px solid #E2E8F0; border-radius:12px; overflow:hidden; margin:16px; box-shadow:0 1px 3px rgba(15,23,42,0.06); background:#FFFFFF;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#F8FAF9;">
+                <th style="text-align:left; padding:14px 12px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Name</th>
+                <th style="text-align:left; padding:14px 12px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Role</th>
+                <th style="text-align:left; padding:14px 12px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:14px 12px; color:#111827; font-weight:500;">Dr. Sarah Chen</td>
+                <td style="padding:14px 12px; color:#374151;">Specialist</td>
+                <td style="padding:14px 12px;">
+                  <span style="background:rgba(46,204,113,0.15); color:#15803D; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.06);">Active</span>
+                </td>
+              </tr>
+              <tr style="background:rgba(46,204,113,0.04);">
+                <td style="padding:14px 12px; color:#111827; font-weight:500;">James Okafor</td>
+                <td style="padding:14px 12px; color:#374151;">Pharmacist</td>
+                <td style="padding:14px 12px;">
+                  <span style="background:rgba(46,204,113,0.15); color:#15803D; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.06);">Active</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 12px; color:#111827; font-weight:500;">Maria Gonzalez</td>
+                <td style="padding:14px 12px; color:#374151;">Admin</td>
+                <td style="padding:14px 12px;">
+                  <span style="background:rgba(239,68,68,0.15); color:#991B1B; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.06);">Disabled</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- STATUS BADGES -->
+      <div class="section-label">Status Badges (12px Pill + Shadow)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <span style="background:rgba(46,204,113,0.15); color:#15803D; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.06);">Active</span>
+        <span style="background:rgba(239,68,68,0.15); color:#991B1B; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.06);">Disabled</span>
+        <span style="background:rgba(245,158,11,0.15); color:#92400E; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.06);">Claimed</span>
+        <span style="background:rgba(59,130,246,0.15); color:#1E40AF; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.06);">Fulfilled</span>
+      </div>
+
+      <!-- NOTICE BANNERS -->
+      <div class="section-label">Notice Banners (Left Border Accent)</div>
+      <div class="mockup" style="padding:16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="background:rgba(46,204,113,0.06); border-left:4px solid #2ECC71; padding:12px 16px; border-radius:6px; font-size:13px; color:#15803D;">User created successfully.</div>
+        <div style="background:rgba(231,76,60,0.06); border-left:4px solid #E74C3C; padding:12px 16px; border-radius:6px; font-size:13px; color:#991B1B;">Failed to update user role.</div>
+      </div>
+
+      <!-- SPACING -->
+      <div class="section-label">Spacing</div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:128px;"></div><div class="spacing-label">Dashboard padding: 32px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:80px;"></div><div class="spacing-label">Health grid gap: 20px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:56px;"></div><div class="spacing-label">Table cell: 14px vert / 12px horiz</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:96px;"></div><div class="spacing-label">Tab padding: 10px 24px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:128px;"></div><div class="spacing-label">Header margin-bottom: 32px</div></div>
+
+      <!-- SURFACES -->
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFFFFF; border-top:3px solid #2ECC71; border-radius:16px; box-shadow:0 4px 6px rgba(15,23,42,0.08);">Health Card<br>16px radius<br>Shadow-md</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; box-shadow:0 1px 3px rgba(15,23,42,0.06);">Table Wrap<br>12px radius<br>Light shadow</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:14px; box-shadow:0 4px 6px rgba(15,23,42,0.08);">Create Panel<br>14px radius<br>Shadow-md</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ V3: Helium Health ============ -->
+  <div class="variation">
+    <div class="variation-header">
+      <h2>V3: Helium Health-Inspired</h2>
+      <div class="subtitle">Enterprise-grade clarity with SaaS-product polish.</div>
+    </div>
+    <div class="variation-body">
+
+      <!-- COLORS -->
+      <div class="section-label">Color Palette</div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F8FAFC"></div>
+          <div><div class="swatch-label">Page Background</div><div class="swatch-hex">#F8FAFC</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F9FAFB"></div>
+          <div><div class="swatch-label">Table Header BG</div><div class="swatch-hex">#F9FAFB</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#E5E7EB"></div>
+          <div><div class="swatch-label">Border / Card Stroke</div><div class="swatch-hex">#E5E7EB</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F3F4F6"></div>
+          <div><div class="swatch-label">Row Separator</div><div class="swatch-hex">#F3F4F6</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#6B7280"></div>
+          <div><div class="swatch-label">Secondary Text</div><div class="swatch-hex">#6B7280</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#111827"></div>
+          <div><div class="swatch-label">Primary Text / Value</div><div class="swatch-hex">#111827</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#22C55E"></div>
+          <div><div class="swatch-label">Active Dot</div><div class="swatch-hex">#22C55E</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#EF4444"></div>
+          <div><div class="swatch-label">Disabled Dot</div><div class="swatch-hex">#EF4444</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F59E0B"></div>
+          <div><div class="swatch-label">Claimed Dot</div><div class="swatch-hex">#F59E0B</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#3B82F6"></div>
+          <div><div class="swatch-label">Fulfilled Dot</div><div class="swatch-hex">#3B82F6</div></div>
+        </div>
+      </div>
+
+      <!-- TYPOGRAPHY -->
+      <div class="section-label">Typography</div>
+      <div class="type-sample">
+        <div class="type-meta">Page Title: Inter 22px / 600 weight</div>
+        <div style="font-family:Inter; font-size:22px; font-weight:600; color:#FFFFFF;">Admin Dashboard</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Health Value: Inter 28px / 700 weight, #111827 (not emerald)</div>
+        <div style="font-family:Inter; font-size:28px; font-weight:700; color:#111827; background:#F8FAFC; display:inline-block; padding:2px 8px; border-radius:4px;">2,847</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Health Label: Inter 13px / 400 weight, #6B7280</div>
+        <div style="font-family:Inter; font-size:13px; font-weight:400; color:#6B7280;">Total Users</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Table Header: Inter 12px / 500, uppercase, 0.06em, #6B7280</div>
+        <div style="font-family:Inter; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; letter-spacing:0.06em;">USERNAME &nbsp; PHONE &nbsp; ROLE &nbsp; STATUS</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Table Body: Inter 14px / 400 weight (names: 500)</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:400; color:#374151;"><span style="font-weight:500; color:#111827;">Dr. Sarah Chen</span> &mdash; Specialist</div>
+      </div>
+
+      <!-- TAB BAR MOCKUP -->
+      <div class="section-label">Tab Bar (Underline Only)</div>
+      <div class="mockup" style="padding:0 16px; background:#FFFFFF; border-bottom:1px solid #E5E7EB; display:flex; gap:0;">
+        <div style="padding:12px 20px; font-size:14px; font-weight:600; color:#111827; border-bottom:2px solid #2ECC71; margin-bottom:-1px;">Users</div>
+        <div style="padding:12px 20px; font-size:14px; font-weight:500; color:#6B7280; border-bottom:2px solid transparent;">Prescriptions</div>
+        <div style="padding:12px 20px; font-size:14px; font-weight:500; color:#6B7280; border-bottom:2px solid transparent;">System Health</div>
+      </div>
+
+      <!-- HEALTH METRIC CARDS -->
+      <div class="section-label">Health Metric Cards (Flat, No Shadow)</div>
+      <div class="mockup" style="padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px; background:#F8FAFC;">
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; font-weight:400; color:#6B7280; margin-bottom:4px;">Total Users</div>
+          <div style="font-size:28px; font-weight:700; color:#111827;">2,847</div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; font-weight:400; color:#6B7280; margin-bottom:4px;">Active Sessions</div>
+          <div style="font-size:28px; font-weight:700; color:#111827;">142</div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; font-weight:400; color:#6B7280; margin-bottom:4px;">DB Response</div>
+          <div style="font-size:28px; font-weight:700; color:#111827;">24ms</div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:8px; padding:16px;">
+          <div style="font-size:13px; font-weight:400; color:#6B7280; margin-bottom:4px;">Uptime</div>
+          <div style="font-size:28px; font-weight:700; color:#111827;">99.9%</div>
+        </div>
+      </div>
+
+      <!-- DATA TABLE -->
+      <div class="section-label">Data Table (No Outer Border, Horizontal Rules Only)</div>
+      <div class="mockup" style="padding:16px; background:#FFFFFF;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:12px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em; background:#F9FAFB;">Name</th>
+              <th style="text-align:left; padding:12px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em; background:#F9FAFB;">Role</th>
+              <th style="text-align:left; padding:12px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em; background:#F9FAFB;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:12px 16px; color:#111827; font-weight:500; border-bottom:1px solid #F3F4F6;">Dr. Sarah Chen</td>
+              <td style="padding:12px 16px; color:#374151; font-weight:400; border-bottom:1px solid #F3F4F6;">Specialist</td>
+              <td style="padding:12px 16px; border-bottom:1px solid #F3F4F6;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#15803D;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Active
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px; color:#111827; font-weight:500; border-bottom:1px solid #F3F4F6;">James Okafor</td>
+              <td style="padding:12px 16px; color:#374151; font-weight:400; border-bottom:1px solid #F3F4F6;">Pharmacist</td>
+              <td style="padding:12px 16px; border-bottom:1px solid #F3F4F6;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#15803D;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Active
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px; color:#111827; font-weight:500; border-bottom:1px solid #F3F4F6;">Maria Gonzalez</td>
+              <td style="padding:12px 16px; color:#374151; font-weight:400; border-bottom:1px solid #F3F4F6;">Admin</td>
+              <td style="padding:12px 16px; border-bottom:1px solid #F3F4F6;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#991B1B;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#EF4444; display:inline-block;"></span>Disabled
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px; color:#111827; font-weight:500;">Aisha Patel</td>
+              <td style="padding:12px 16px; color:#374151; font-weight:400;">GP</td>
+              <td style="padding:12px 16px;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#92400E;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#F59E0B; display:inline-block;"></span>Claimed
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- STATUS INDICATORS -->
+      <div class="section-label">Status Indicators (Dot + Text, No Background)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:20px; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#15803D;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Active
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#991B1B;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#EF4444; display:inline-block;"></span>Disabled
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#92400E;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#F59E0B; display:inline-block;"></span>Claimed
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#1E40AF;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#3B82F6; display:inline-block;"></span>Fulfilled
+        </span>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="section-label">Filter Bar (Bottom Border Separator)</div>
+      <div class="mockup" style="padding:16px 16px 0; background:#FFFFFF;">
+        <div style="display:flex; gap:10px; padding-bottom:12px; border-bottom:1px solid #E5E7EB; align-items:center;">
+          <input type="text" placeholder="Search users..." style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; flex:1; outline:none; height:40px;">
+          <select style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; height:40px; color:#374151; background:#FFFFFF;">
+            <option>All Roles</option>
+          </select>
+          <button style="font-family:Inter; font-size:13px; padding:0 16px; height:40px; background:#2ECC71; color:#FFFFFF; border:none; border-radius:6px; font-weight:500; cursor:pointer;">+ Create User</button>
+        </div>
+        <div style="padding:8px 0; font-size:13px; color:#6B7280; font-weight:400;">47 users found</div>
+      </div>
+
+      <!-- SPACING -->
+      <div class="section-label">Spacing</div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:96px;"></div><div class="spacing-label">Dashboard padding: 24px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:64px;"></div><div class="spacing-label">Health grid gap: 16px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:80px;"></div><div class="spacing-label">Table cell: 12px vert / 16px horiz</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:0px; border:1px dashed #64748B; width:2px; height:8px;"></div><div class="spacing-label">Tab bar gap: 0 (adjacent)</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Filter bar padding-bottom: 12px</div></div>
+
+      <!-- SURFACES -->
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:8px; box-shadow:none;">Health Card<br>8px radius<br>Flat, no shadow</div>
+        <div class="surface-card" style="background:#FFFFFF; border:none; border-radius:0;">Table Wrap<br>No border<br>No radius</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:8px; box-shadow:none;">Create Panel<br>8px radius<br>Flat, 1px border</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

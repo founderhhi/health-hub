@@ -114,13 +114,7 @@ export const routes: Routes = [
           import('./features/pre-consultation/pre-consultation-form/pre-consultation-form.component')
             .then(m => m.PreConsultationFormComponent)
       },
-      {
-        path: 'waiting',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./features/pre-consultation/waiting-screen/waiting-screen.component')
-            .then(m => m.WaitingScreenComponent)
-      },
+
       {
         path: 'doctor-panel',
         canActivate: [authGuard, roleGuard],

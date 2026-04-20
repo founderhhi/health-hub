@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy History -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F1F5F9; color: #1E293B; padding: 40px 24px; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; color: #0F172A; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; max-width: 680px; margin: 0 auto; line-height: 1.6; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+  .col-header { padding: 24px 28px; border-bottom: 1px solid #E2E8F0; }
+  .col-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .col-header .tag { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 4px; margin-bottom: 8px; }
+  .col-header p { font-size: 13px; color: #64748B; line-height: 1.5; }
+  .col-body { padding: 28px; }
+  .section { margin-bottom: 32px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #F1F5F9; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .swatch-color { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .swatch-label { font-size: 11px; color: #475569; line-height: 1.3; }
+  .swatch-label code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px; color: #64748B; display: block; }
+  .type-demo { margin-bottom: 14px; padding: 12px 16px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .type-demo .label { font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .type-demo .spec { font-size: 10px; color: #94A3B8; margin-top: 4px; font-family: 'SF Mono', monospace; }
+  .mockup { border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; }
+  .mockup-inner { padding: 20px; }
+  /* Filter mockup */
+  .filter-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .filter-input { padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-family: inherit; font-size: 13px; background: #FFF; color: #475569; }
+  .filter-clear { font-size: 12px; color: #2ECC71; font-weight: 500; cursor: pointer; text-align: right; }
+  /* Date group header */
+  .date-header { font-size: 12px; font-weight: 600; color: #64748B; padding: 8px 0; margin-bottom: 8px; }
+  /* History card */
+  .history-card { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 10px; }
+  .history-card:last-child { margin-bottom: 0; }
+  .history-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .history-info { flex: 1; }
+  .history-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .history-sub { font-size: 12px; color: #64748B; }
+  .history-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+  /* Shadow demos */
+  .shadow-demo { display: flex; flex-wrap: wrap; gap: 16px; }
+  .shadow-card { width: 80px; height: 56px; border-radius: 10px; background: #FFF; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94A3B8; }
+  /* Spacing */
+  .spacing-demo { display: flex; flex-direction: column; gap: 8px; }
+  .spacing-row { display: flex; align-items: center; gap: 10px; }
+  .spacing-box { height: 12px; background: #2ECC71; border-radius: 3px; opacity: 0.3; }
+  .spacing-label { font-size: 11px; color: #64748B; white-space: nowrap; font-family: 'SF Mono', monospace; }
+  .v1 .col-header { background: linear-gradient(180deg, #ECFDF3 0%, #FFF 100%); }
+  .v1 .tag { background: #F0FDF4; color: #166534; }
+  .v2 .col-header { background: #FAFBFC; }
+  .v2 .tag { background: #F1F5F9; color: #475569; }
+  .v3 .col-header { background: #FFF; border-top: 4px solid #2ECC71; }
+  .v3 .tag { background: #ECFDF3; color: #166534; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; max-width: 560px; } }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>Pharmacy History</h1>
+  <p>Three design variations for the pharmacist's prescription history log. Date group headers, history cards with status badges, filter sections, and empty states.</p>
+</div>
+<div class="grid">
+
+<!-- V1: Premium Guided -->
+<div class="column v1">
+  <div class="col-header">
+    <span class="tag">V1</span>
+    <h2>Premium Guided</h2>
+    <p>Polished activity ledger with Fraunces date headers, gradient icon wrappers, deeper shadows, and status-colored left borders on hover.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(180deg,#ECFDF3,#F8FAFC)"></div><div class="swatch-label">Page gradient<code>#ECFDF3 &rarr; #F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#166534"></div><div class="swatch-label">Date header<code>#166534</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#DCFCE7"></div><div class="swatch-label">Completed badge<code>#DCFCE7 / #15803D</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FEF3C7"></div><div class="swatch-label">Pending badge<code>#FEF3C7 / #92400E</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FAFAF8"></div><div class="swatch-label">Filter BG<code>#FAFAF8</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7)"></div><div class="swatch-label">Icon gradient<code>#F0FDF4 &rarr; #DCFCE7</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Page Title</div>
+        <div style="font-family:'Fraunces',serif; font-size:28px; font-weight:600;">Prescription History</div>
+        <div class="spec">Fraunces 28px / 600</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Date Header</div>
+        <div style="font-family:'Fraunces',serif; font-size:14px; font-weight:500; color:#166534;">March 25, 2026</div>
+        <div class="spec">Fraunces 14px / 500 / emerald-dark</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Results Count</div>
+        <div style="font-family:'Fraunces',serif; font-size:13px; font-style:italic; color:#64748B;">Showing 24 prescriptions</div>
+        <div class="spec">Fraunces 13px / italic</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Filter Section</div>
+      <div class="mockup" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); background:#FAFAF8;">
+        <div class="mockup-inner" style="padding:20px;">
+          <div class="filter-bar" style="gap:20px;">
+            <input class="filter-input" placeholder="Search..." value="">
+            <select class="filter-input"><option>All Statuses</option></select>
+            <select class="filter-input"><option>All Dates</option></select>
+          </div>
+          <div class="filter-clear">Clear Filters</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">BG: #FAFAF8 &middot; radius: 12px &middot; shadow-md &middot; 20px pad &middot; 20px grid gap</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Date Group + History Cards</div>
+      <!-- Date header -->
+      <div class="date-header" style="font-family:'Fraunces',serif; font-size:14px; font-weight:500; color:#166534; border-bottom:1px solid #EDF2F7; padding-bottom:8px;">March 25, 2026</div>
+      <!-- History cards -->
+      <div class="history-card" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); padding:18px; margin-top:12px;">
+        <div class="history-icon" style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border-radius:12px;">&#128138;</div>
+        <div class="history-info">
+          <div class="history-title">RX-2024-001234</div>
+          <div class="history-sub" style="line-height:1.6;">Amoxicillin 500mg, Ibuprofen 400mg</div>
+        </div>
+        <div class="history-badge" style="background:#DCFCE7; color:#15803D; border:1px solid #BBF7D0;">Completed</div>
+      </div>
+      <div class="history-card" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); padding:18px;">
+        <div class="history-icon" style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7); border-radius:12px;">&#128138;</div>
+        <div class="history-info">
+          <div class="history-title">RX-2024-001230</div>
+          <div class="history-sub" style="line-height:1.6;">Metformin 850mg</div>
+        </div>
+        <div class="history-badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">Pending</div>
+      </div>
+      <div style="margin-top:12px; font-size:11px; color:#94A3B8;">radius: 12px &middot; shadow-md &middot; 18px pad &middot; hover: translateY(-1px) + shadow-lg &middot; badges: 1px border</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:0 4px 6px -1px rgba(15,23,42,0.08);">Resting</div>
+        <div class="shadow-card" style="box-shadow:0 10px 15px -3px rgba(15,23,42,0.08); transform:translateY(-1px);">Hover</div>
+        <div class="shadow-card" style="box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); background:#FAFAF8;">Filter</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:128px;"></div><div class="spacing-label">32px container pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:80px;"></div><div class="spacing-label">20px card list gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:144px;"></div><div class="spacing-label">36px group gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:72px;"></div><div class="spacing-label">18px card padding</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V2: Calm Clinical -->
+<div class="column v2">
+  <div class="col-header">
+    <span class="tag">V2</span>
+    <h2>Calm Clinical</h2>
+    <p>Quiet scannable log with softened borders, 10% opacity status badges, no transforms, and background-only hover states.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#F8FAFC"></div><div class="swatch-label">Page BG (flat)<code>#F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EDF2F7"></div><div class="swatch-label">Calm border<code>#EDF2F7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:rgba(34,197,94,0.10)"></div><div class="swatch-label">Success 10%<code>rgba(success, 0.10)</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:rgba(245,158,11,0.10)"></div><div class="swatch-label">Warning 10%<code>rgba(warning, 0.10)</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F7FFF7"></div><div class="swatch-label">Icon completed<code>#F7FFF7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFFCF0"></div><div class="swatch-label">Icon pending<code>#FFFCF0</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FAFBFC"></div><div class="swatch-label">Hover BG<code>#FAFBFC</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Page Title</div>
+        <div style="font-size:24px; font-weight:600;">Prescription History</div>
+        <div class="spec">Inter 24px / 600</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Date Header</div>
+        <div style="font-size:12px; font-weight:500; color:#64748B;">March 25, 2026</div>
+        <div class="spec">Inter 12px / 500 / text-secondary</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">History Title</div>
+        <div style="font-size:14px; font-weight:500;">RX-2024-001234</div>
+        <div class="spec">Inter 14px / 500 (down from 600)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Filter Section</div>
+      <div class="mockup" style="border-color:#EDF2F7;">
+        <div class="mockup-inner">
+          <div class="filter-bar">
+            <input class="filter-input" placeholder="Search..." style="border-color:#D4D9E0;">
+            <select class="filter-input" style="border-color:#D4D9E0;"><option>All Statuses</option></select>
+            <select class="filter-input" style="border-color:#D4D9E0;"><option>All Dates</option></select>
+          </div>
+          <div class="filter-clear" style="color:#2ECC71;">Clear Filters</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">border: #EDF2F7 &middot; inputs: #D4D9E0 &middot; shadow-sm &middot; margin-bottom: 28px</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Date Group + History Cards</div>
+      <div class="date-header" style="font-weight:500; color:#64748B;">March 25, 2026</div>
+      <div class="history-card" style="border-color:#EDF2F7; box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+        <div class="history-icon" style="background:#F7FFF7;">&#128138;</div>
+        <div class="history-info">
+          <div class="history-title" style="font-weight:500;">RX-2024-001234</div>
+          <div class="history-sub" style="line-height:1.6;">Amoxicillin 500mg, Ibuprofen 400mg</div>
+        </div>
+        <div class="history-badge" style="background:rgba(34,197,94,0.10); color:#15803D;">Completed</div>
+      </div>
+      <div class="history-card" style="border-color:#EDF2F7; box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+        <div class="history-icon" style="background:#FFFCF0;">&#128138;</div>
+        <div class="history-info">
+          <div class="history-title" style="font-weight:500;">RX-2024-001230</div>
+          <div class="history-sub" style="line-height:1.6;">Metformin 850mg</div>
+        </div>
+        <div class="history-badge" style="background:rgba(245,158,11,0.10); color:#92400E;">Pending</div>
+      </div>
+      <div style="margin-top:12px; font-size:11px; color:#94A3B8;">border: #EDF2F7 &middot; shadow-sm &middot; hover: #FAFBFC BG only &middot; badges: 10% opacity</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04);">Resting</div>
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04); background:#FAFBFC;">Hover</div>
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04); border:1px solid #EDF2F7;">Filter</div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">All surfaces: shadow-sm. No shadow escalation on hover.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:96px;"></div><div class="spacing-label">24px container pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">16px card list gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:112px;"></div><div class="spacing-label">28px group gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">16px card padding</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V3: MyDawa-Inspired -->
+<div class="column v3">
+  <div class="col-header">
+    <span class="tag">V3</span>
+    <h2>MyDawa-Inspired</h2>
+    <p>Dense fulfillment log with left-border status coding, alternating row tints, monospace codes, full-width date strips, and sharp 4px badges.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#FFF; border:1px solid #E2E8F0;"></div><div class="swatch-label">Page BG<code>#FFFFFF</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2ECC71; height:6px; border-radius:2px;"></div><div class="swatch-label">Top strip<code>4px #2ECC71</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0F4F8"></div><div class="swatch-label">Date strip<code>#F0F4F8</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="border-left:4px solid #2ECC71; background:#FAFBFC;"></div><div class="swatch-label">Left: completed<code>3px emerald</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="border-left:4px solid #F59E0B; background:#FAFBFC;"></div><div class="swatch-label">Left: pending<code>3px amber</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="border-left:4px solid #EF4444; background:#FAFBFC;"></div><div class="swatch-label">Left: cancelled<code>3px red</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FAFBFC"></div><div class="swatch-label">Even rows<code>#FAFBFC</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Page Title</div>
+        <div style="font-size:22px; font-weight:700;">Prescription History</div>
+        <div class="spec">Inter 22px / 700</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Date Header</div>
+        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#64748B; background:#F0F4F8; padding:10px 16px; margin:-12px -16px; margin-bottom:0; border-radius:4px;">MARCH 25, 2026</div>
+        <div class="spec" style="margin-top:12px;">11px / 600 / uppercase / wide tracking / #F0F4F8 strip</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Prescription Code</div>
+        <div style="font-family:'SF Mono','Fira Code',monospace; font-size:12px; font-weight:500;">RX-2024-001234</div>
+        <div class="spec">Monospace 12px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Results Count</div>
+        <div style="font-family:'SF Mono','Fira Code',monospace; font-size:12px; color:#64748B;">24 results</div>
+        <div class="spec">Monospace 12px</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Status Badge</div>
+        <div>
+          <span style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; background:rgba(34,197,94,0.15); color:#15803D; padding:3px 8px; border-radius:4px;">COMPLETED</span>
+          <span style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; background:rgba(245,158,11,0.15); color:#92400E; padding:3px 8px; border-radius:4px;">PENDING</span>
+          <span style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; background:rgba(239,68,68,0.15); color:#991B1B; padding:3px 8px; border-radius:4px;">CANCELLED</span>
+        </div>
+        <div class="spec">10px / 600 / uppercase / radius-sm (4px) / 15% opacity</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Filter Section</div>
+      <div class="mockup" style="background:#FAFBFC; box-shadow:none;">
+        <div class="mockup-inner" style="padding:14px;">
+          <div class="filter-bar" style="gap:12px;">
+            <input class="filter-input" placeholder="Search..." style="border-radius:4px; font-size:12px;">
+            <select class="filter-input" style="border-radius:4px; font-size:12px;"><option>All Statuses</option></select>
+            <select class="filter-input" style="border-radius:4px; font-size:12px;"><option>All Dates</option></select>
+          </div>
+          <div class="filter-clear" style="color:#166534; font-size:11px;">Clear Filters</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">BG: #FAFBFC &middot; no shadow &middot; 14px pad &middot; 12px gap &middot; radius-sm inputs</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Date Strip + History Items</div>
+      <!-- Full-width date strip -->
+      <div style="background:#F0F4F8; padding:10px 16px; margin:0 -28px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#64748B;">MARCH 25, 2026</div>
+      <!-- History items -->
+      <div style="margin-top:8px;">
+        <div class="history-card" style="border-radius:4px; box-shadow:none; border-left:3px solid #2ECC71; padding:12px 14px; margin-bottom:8px;">
+          <div class="history-icon" style="width:36px; height:36px; border-radius:4px; background:#F0FDF4;">&#128138;</div>
+          <div class="history-info">
+            <div class="history-title" style="font-family:'SF Mono','Fira Code',monospace; font-size:12px;">RX-2024-001234</div>
+            <div class="history-sub" style="font-size:11px;">Amoxicillin, Ibuprofen</div>
+          </div>
+          <div class="history-badge" style="background:rgba(34,197,94,0.15); color:#15803D; border-radius:4px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">COMPLETED</div>
+        </div>
+        <div class="history-card" style="border-radius:4px; box-shadow:none; border-left:3px solid #F59E0B; padding:12px 14px; background:#FAFBFC;">
+          <div class="history-icon" style="width:36px; height:36px; border-radius:4px; background:#FFFBEB;">&#128138;</div>
+          <div class="history-info">
+            <div class="history-title" style="font-family:'SF Mono','Fira Code',monospace; font-size:12px;">RX-2024-001230</div>
+            <div class="history-sub" style="font-size:11px;">Metformin 850mg</div>
+          </div>
+          <div class="history-badge" style="background:rgba(245,158,11,0.15); color:#92400E; border-radius:4px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">PENDING</div>
+        </div>
+      </div>
+      <div style="margin-top:12px; font-size:11px; color:#94A3B8;">radius: 4px &middot; no shadow &middot; 3px left border by status &middot; 8px gap &middot; even rows: #FAFBFC &middot; hover: border-left 4px</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:none; border:1px solid #E2E8F0; border-left:3px solid #2ECC71; border-radius:4px;">Item</div>
+        <div class="shadow-card" style="box-shadow:none; background:#F5F7FA; border:1px solid #E2E8F0; border-left:4px solid #2ECC71; border-radius:4px;">Hover</div>
+        <div class="shadow-card" style="box-shadow:none; background:#FAFBFC; border:1px solid #E2E8F0;">Filter</div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">Fully flat. No shadows anywhere. Left-border + BG differentiation only.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:48px;"></div><div class="spacing-label">max-width: 720px</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:32px;"></div><div class="spacing-label">8px card list gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:48px;"></div><div class="spacing-label">12px 14px card padding</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:56px;"></div><div class="spacing-label">14px filter padding</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</body>
+</html>

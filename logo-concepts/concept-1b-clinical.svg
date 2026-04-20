@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%">
+  <g transform="translate(15, 20)">
+    <!-- Top -->
+    <rect x="15" y="0" width="10" height="15" rx="5" fill="#10b981" />
+    <!-- Bottom -->
+    <rect x="15" y="25" width="10" height="15" rx="5" fill="#064e3b" />
+    <!-- Left -->
+    <rect x="0" y="15" width="15" height="10" rx="5" fill="#064e3b" />
+    <!-- Right -->
+    <rect x="25" y="15" width="15" height="10" rx="5" fill="#10b981" />
+  </g>
+  <text x="75" y="50" font-family="'Roboto', sans-serif" font-weight="700" font-size="30" fill="#064e3b">Health Hub</text>
+  <text x="76" y="72" font-family="'Roboto', sans-serif" font-weight="400" font-size="12" letter-spacing="4" fill="#64748b">INTERNATIONAL</text>
+</svg>

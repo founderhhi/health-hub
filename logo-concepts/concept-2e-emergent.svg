@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%">
+  <g transform="translate(20, 15)">
+    <!-- Back Pane -->
+    <rect x="20" y="0" width="14" height="35" rx="3" fill="#064e3b" opacity="0.4" />
+    <!-- Middle Pane -->
+    <rect x="10" y="5" width="14" height="35" rx="3" fill="#ea580c" opacity="0.6" style="mix-blend-mode: multiply;" />
+    <!-- Front Pane -->
+    <rect x="0" y="10" width="14" height="35" rx="3" fill="#10b981" opacity="0.9" />
+  </g>
+  <text x="75" y="45" font-family="'Roboto', sans-serif" font-weight="800" font-size="28" fill="#064e3b">Health Hub</text>
+  <text x="77" y="65" font-family="'Roboto', sans-serif" font-weight="400" font-size="11" letter-spacing="3" fill="#64748b">INTERNATIONAL</text>
+</svg>

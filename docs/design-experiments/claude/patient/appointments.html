@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appointments — Patient Design Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #F8F9FA; color: #0B0F14; padding: 40px 24px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #64748B; text-decoration: none; margin-bottom: 32px; }
+  .back:hover { color: #2ECC71; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; line-height: 1.6; }
+  .variations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 1100px) { .variations { grid-template-columns: 1fr; max-width: 480px; } }
+  .variation { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(15,23,42,0.06); overflow: hidden; }
+  .var-header { padding: 24px 28px 20px; border-bottom: 1px solid #F1F5F9; }
+  .var-header h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .var-header p { font-size: 13px; color: #64748B; line-height: 1.55; }
+  .var-body { padding: 28px; display: flex; flex-direction: column; gap: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 12px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch-color { width: 48px; height: 48px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); }
+  .swatch-label { font-size: 9px; font-weight: 600; color: #64748B; text-align: center; max-width: 56px; line-height: 1.3; }
+  .swatch-hex { font-size: 9px; color: #94A3B8; font-family: monospace; }
+  .type-sample { margin-bottom: 12px; }
+  .type-meta { font-size: 10px; color: #94A3B8; margin-top: 2px; }
+  .mockup-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 10px; color: #FFFFFF; font-size: 13px; font-weight: 600; border: none; cursor: default; }
+  .mockup-badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .spacing-demo { display: flex; flex-direction: column; gap: 6px; }
+  .spacing-row { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+  .spacing-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #FFF; }
+  .spacing-label { font-size: 11px; color: #64748B; min-width: 100px; }
+  .surface-card { border-radius: 14px; padding: 20px; min-height: 70px; display: flex; flex-direction: column; gap: 6px; }
+  .surface-label { font-size: 11px; font-weight: 600; color: #64748B; }
+  .surface-detail { font-size: 10px; color: #94A3B8; font-family: monospace; line-height: 1.5; }
+
+  /* Appointment card mockup */
+  .appt-card { border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .appt-header { display: flex; align-items: center; gap: 12px; }
+  .avatar-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #FFF; flex-shrink: 0; }
+  .appt-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .appt-name { font-size: 15px; font-weight: 600; }
+  .appt-spec { font-size: 12px; color: #64748B; }
+  .appt-details { display: flex; gap: 16px; font-size: 12px; color: #64748B; }
+  .tab-bar-mock { display: flex; gap: 4px; padding: 4px; border-radius: 12px; }
+  .tab-mock { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; color: #64748B; cursor: default; }
+  .tab-mock.active { color: #FFF; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">&#8592; Back to index</a>
+<div class="page-header">
+  <h1>Appointments</h1>
+  <p>Appointment cards, tab navigation, status badges, and action buttons across three design directions.</p>
+</div>
+
+<div class="variations">
+  <!-- ==================== V1: CALM CLINICAL ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V1: Calm Clinical</h2>
+      <p>Softer cards, more breathing room, lighter status badges. Unhurried and easy to scan.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.15);"></div><div class="swatch-label">Confirmed</div><div class="swatch-hex">15% opacity</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(245,158,11,0.15);"></div><div class="swatch-label">Pending</div><div class="swatch-hex">15% opacity</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(96,165,250,0.15);"></div><div class="swatch-label">Completed</div><div class="swatch-hex">15% opacity</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(239,68,68,0.15);"></div><div class="swatch-label">Cancelled</div><div class="swatch-hex">15% opacity</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: color-mix(in srgb, #2ECC71 85%, white 15%);"></div><div class="swatch-label">Active Tab</div><div class="swatch-hex">85% emerald</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 18px; font-weight: 500;">My Appointments</div><div class="type-meta">Page Title: Inter 500 (reduced from 600)</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; font-weight: 600; line-height: 1.4;">Dr. Sarah Chen</div><div class="type-meta">Doctor Name: Inter 600, line-height 1.4</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 13px; color: #64748B; line-height: 1.6;">Cardiologist</div><div class="type-meta">Specialty: Inter 400, line-height 1.6</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Tab Bar</div>
+        <div class="tab-bar-mock" style="background: color-mix(in srgb, #F8FAFC 80%, #F1F5F9 20%); border-radius: 14px;">
+          <div class="tab-mock active" style="background: color-mix(in srgb, #2ECC71 85%, white 15%); border-radius: 10px;">Upcoming</div>
+          <div class="tab-mock" style="border-radius: 10px;">Past</div>
+          <div class="tab-mock" style="border-radius: 10px;">All</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Appointment Card</div>
+        <div class="appt-card" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 14px; padding: 20px;">
+          <div class="appt-header">
+            <div class="avatar-circle" style="background: color-mix(in srgb, #2ECC71 80%, white 20%); color: #166534;">SC</div>
+            <div class="appt-info">
+              <div class="appt-name" style="line-height: 1.4;">Dr. Sarah Chen</div>
+              <div class="appt-spec" style="line-height: 1.6;">Cardiologist</div>
+            </div>
+            <span class="mockup-badge" style="background: rgba(46,204,113,0.15); color: #166534;">Confirmed</span>
+          </div>
+          <div class="appt-details" style="padding-bottom: 20px; border-bottom: 1px solid rgba(200,210,220,0.5);">
+            <span>Mar 28, 10:00 AM</span><span>Video Call</span>
+          </div>
+          <div class="mockup-btn" style="background: #2ECC71; align-self: flex-start;">Join Consultation</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Card padding</span><div class="spacing-bar" style="width: 80px; background: #DBEAFE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">List gap</span><div class="spacing-bar" style="width: 80px; background: #DBEAFE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Header margin</span><div class="spacing-bar" style="width: 80px; background: #DBEAFE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Tab margin</span><div class="spacing-bar" style="width: 144px; background: #DBEAFE;">36px</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="surface-card" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 14px;">
+            <div class="surface-label">Card (rest)</div>
+            <div class="surface-detail">border-radius: 14px<br>border: 70% opacity<br>No hover transform</div>
+          </div>
+          <div class="surface-card" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 8px; opacity: 0.75;">
+            <div class="surface-label">Past Card</div>
+            <div class="surface-detail">opacity: 0.75<br>(improved from 0.7)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V2: PREMIUM GUIDED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V2: Premium Guided</h2>
+      <p>Richer cards, gradient CTAs, Fraunces headings. Premium booking confirmations.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: linear-gradient(135deg, #2ECC71, #27AE60);"></div><div class="swatch-label">Active Tab</div><div class="swatch-hex">gradient</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: linear-gradient(135deg, #2ECC71, #27AE60);"></div><div class="swatch-label">CTA Gradient</div><div class="swatch-hex">#2ECC71-#27AE60</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.20);"></div><div class="swatch-label">Avatar Ring</div><div class="swatch-hex">20% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.25);"></div><div class="swatch-label">CTA Hover Glow</div><div class="swatch-hex">25% emerald</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 600;">My Appointments</div><div class="type-meta">Page Title: Fraunces 600, 22px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 17px; font-weight: 600;">Dr. Sarah Chen</div><div class="type-meta">Doctor Name: Inter 600, 17px</div></div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 500; color: #64748B;">No upcoming appointments</div><div class="type-meta">Empty Title: Fraunces</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Tab Bar</div>
+        <div class="tab-bar-mock" style="background: #F8FAFC; border-radius: 12px; box-shadow: 0 1px 3px rgba(15,23,42,0.04);">
+          <div class="tab-mock active" style="background: linear-gradient(135deg, #2ECC71, #27AE60); border-radius: 8px;">Upcoming</div>
+          <div class="tab-mock">Past</div>
+          <div class="tab-mock">All</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Appointment Card</div>
+        <div class="appt-card" style="background: #FFF; border: 1px solid #E8ECF0; border-radius: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.05); padding: 16px; padding-left: 20px;">
+          <div class="appt-header">
+            <div class="avatar-circle" style="background: #2ECC71; box-shadow: 0 0 0 3px rgba(46,204,113,0.20);">SC</div>
+            <div class="appt-info">
+              <div class="appt-name" style="font-size: 17px;">Dr. Sarah Chen</div>
+              <div class="appt-spec">Cardiologist</div>
+            </div>
+            <span class="mockup-badge" style="background: rgba(46,204,113,0.20); color: #166534; font-weight: 700;">Confirmed</span>
+          </div>
+          <div class="appt-details" style="padding-bottom: 16px; border-bottom: 1px solid #F1F5F9;">
+            <span>Mar 28, 10:00 AM</span>
+            <span style="background: #F1F5F9; padding: 3px 10px; border-radius: 999px; font-size: 11px;">Video Call</span>
+          </div>
+          <div style="padding-top: 20px;">
+            <div class="mockup-btn" style="background: linear-gradient(135deg, #2ECC71, #27AE60); border-radius: 10px; box-shadow: 0 4px 12px rgba(46,204,113,0.25);">Join Consultation</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Card padding</span><div class="spacing-bar" style="width: 64px; background: #C7D2FE;">16px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Card left pad</span><div class="spacing-bar" style="width: 80px; background: #C7D2FE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Actions pad-top</span><div class="spacing-bar" style="width: 80px; background: #C7D2FE;">20px</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="surface-card" style="background: #FFF; border: 1px solid #E8ECF0; border-radius: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.05);">
+            <div class="surface-label">Card (rest)</div>
+            <div class="surface-detail">box-shadow: 0 2px 8px 5%<br>border-radius: 14px</div>
+          </div>
+          <div class="surface-card" style="background: #FFF; border: 1px solid #E8ECF0; border-radius: 14px; box-shadow: 0 4px 12px rgba(15,23,42,0.08); transform: translateY(-1px);">
+            <div class="surface-label">Card (hover)</div>
+            <div class="surface-detail">translateY(-1px)<br>box-shadow: 0 4px 12px 8%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V3: HALODOC-INSPIRED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V3: Halodoc-Inspired</h2>
+      <p>Flat borderless cards, underline tabs, compact doctor info, consumer booking feed.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: #F5F7FA;"></div><div class="swatch-label">Page BG</div><div class="swatch-hex">#F5F7FA</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #ECFDF3; border: 1px solid #BBF7D0;"></div><div class="swatch-label">Confirmed</div><div class="swatch-hex">#ECFDF3</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #FEF3C7; border: 1px solid #FDE68A;"></div><div class="swatch-label">Pending</div><div class="swatch-hex">#FEF3C7</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #DBEAFE; border: 1px solid #93C5FD;"></div><div class="swatch-label">Completed</div><div class="swatch-hex">#DBEAFE</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #FEF2F2; border: 1px solid #FECACA;"></div><div class="swatch-label">Cancelled</div><div class="swatch-hex">#FEF2F2</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #F8FAF9;"></div><div class="swatch-label">Card Hover</div><div class="swatch-hex">#F8FAF9</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 20px; font-weight: 600;">My Appointments</div><div class="type-meta">Page Title: Inter 600, 20px (no serif)</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; font-weight: 600;">Dr. Sarah Chen</div><div class="type-meta">Doctor Name: Inter 600, 15px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 12px; color: #64748B;">Cardiologist</div><div class="type-meta">Specialty: Inter 400, 12px, #64748B</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Tab Bar (Underline Style)</div>
+        <div style="display: flex; gap: 0; border-bottom: 1px solid #E2E8F0;">
+          <div style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #0B0F14; border-bottom: 2px solid #2ECC71;">Upcoming</div>
+          <div style="padding: 10px 16px; font-size: 13px; font-weight: 500; color: #64748B; border-bottom: 2px solid transparent;">Past</div>
+          <div style="padding: 10px 16px; font-size: 13px; font-weight: 500; color: #64748B; border-bottom: 2px solid transparent;">All</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Appointment Card</div>
+        <div style="background: #F5F7FA; padding: 12px; border-radius: 14px;">
+          <div class="appt-card" style="background: #FFFFFF; border: none; border-radius: 14px; box-shadow: none; padding: 16px;">
+            <div class="appt-header">
+              <div class="avatar-circle" style="background: #2ECC71; width: 40px; height: 40px; font-size: 13px;">SC</div>
+              <div class="appt-info">
+                <div class="appt-name" style="font-size: 15px;">Dr. Sarah Chen</div>
+                <div class="appt-spec" style="font-size: 12px; color: #64748B;">Cardiologist</div>
+              </div>
+              <span class="mockup-badge" style="background: #ECFDF3; color: #166534; border: 1px solid #BBF7D0; border-radius: 999px;">Confirmed</span>
+            </div>
+            <div class="appt-details">
+              <span>Mar 28, 10:00 AM</span><span>Video Call</span>
+            </div>
+            <div class="mockup-btn" style="background: #2ECC71; border-radius: 12px; width: 100%; justify-content: center; font-size: 14px;">Join Consultation</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Card padding</span><div class="spacing-bar" style="width: 64px; background: #BBF7D0;">16px</div></div>
+          <div class="spacing-row"><span class="spacing-label">List gap</span><div class="spacing-bar" style="width: 40px; background: #BBF7D0;">10px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Avatar size</span><div class="spacing-bar" style="width: 40px; background: #BBF7D0;">40px</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px; background: #F5F7FA; padding: 16px; border-radius: 14px;">
+          <div class="surface-card" style="background: #FFFFFF; border: none; border-radius: 14px; box-shadow: none;">
+            <div class="surface-label">Card (rest)</div>
+            <div class="surface-detail">border: none<br>box-shadow: none<br>border-radius: 14px</div>
+          </div>
+          <div class="surface-card" style="background: #F8FAF9; border: none; border-radius: 14px; box-shadow: none;">
+            <div class="surface-label">Card (hover)</div>
+            <div class="surface-detail">background: #F8FAF9<br>no transform</div>
+          </div>
+          <div class="surface-card" style="background: #FFF; border: none; border-radius: 14px; opacity: 0.65;">
+            <div class="surface-label">Past Card</div>
+            <div class="surface-detail">opacity: 0.65</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

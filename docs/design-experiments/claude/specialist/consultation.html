@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specialist Consultation Room - Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #0B0F14; color: #E2E8F0; padding: 40px 24px; }
+  a.back { color: #2ECC71; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block; margin-bottom: 24px; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; color: #FFF; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .subtitle { color: #94A3B8; font-size: 15px; margin-bottom: 48px; line-height: 1.6; }
+  .columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 48px; }
+  @media (max-width: 1100px) { .columns { grid-template-columns: 1fr; } }
+  .col-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .col-title.v1 { color: #3B82F6; }
+  .col-title.v2 { color: #A855F7; }
+  .col-title.v3 { color: #F59E0B; }
+  .col-subtitle { font-size: 12px; color: #64748B; margin-bottom: 20px; }
+  .section { margin-bottom: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748B; margin-bottom: 12px; border-bottom: 1px solid #1E293B; padding-bottom: 6px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .swatch-group { display: flex; flex-direction: column; align-items: center; }
+  .swatch { width: 48px; height: 48px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+  .swatch-label { font-size: 9px; color: #94A3B8; margin-top: 4px; text-align: center; width: 48px; word-break: break-all; }
+  .type-sample { margin-bottom: 12px; }
+  .type-meta { font-size: 10px; color: #475569; margin-top: 2px; }
+  .mockup-frame { border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .mockup-light { background: #F8FAFC; color: #0B0F14; }
+  .mockup-warm { background: #FAFAF8; color: #0B0F14; }
+  .mockup-dark { background: #121826; color: #E2E8F0; }
+  .spacing-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .spacing-box { background: rgba(46,204,113,0.2); border: 1px dashed #2ECC71; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #2ECC71; }
+  .spacing-label { font-size: 10px; color: #64748B; min-width: 100px; }
+  .surface-demo { display: flex; gap: 12px; flex-wrap: wrap; }
+  .surface-card { width: 120px; height: 72px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #475569; text-align: center; padding: 4px; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back">&larr; Back to Index</a>
+<h1>Consultation Room</h1>
+<p class="subtitle">Video panel, chat, patient info, vitals grid, quick actions toolbar, and session timer across three design variations.</p>
+
+<!-- COLOR SWATCHES -->
+<div class="columns">
+  <div class="col">
+    <div class="col-title v1">V1: Operational Clarity</div>
+    <div class="col-subtitle">Clinical workstation, tighter, monospace vitals</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#E2E8F0;"></div><div class="swatch-label">#E2E8F0 Panel border</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#F59E0B;"></div><div class="swatch-label">#F59E0B Complaint accent</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#F8FAFC;"></div><div class="swatch-label">#F8FAFC Vital cell bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:rgba(29,78,216,0.15);border:1px solid #1D4ED8;"></div><div class="swatch-label">Blue chat (me)</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#2ECC71;"></div><div class="swatch-label">#2ECC71 Timer bar</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#1E293B;"></div><div class="swatch-label">#1E293B Video border</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#991B1B;"></div><div class="swatch-label">#991B1B End call</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="col-title v2">V2: Premium Guided</div>
+    <div class="col-subtitle">Immersive, polished, Fraunces headings</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#FEFDFB;"></div><div class="swatch-label">#FEFDFB Panel bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#EDF2F7;"></div><div class="swatch-label">#EDF2F7 Soft border</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:linear-gradient(135deg,#2ECC71,#166534);"></div><div class="swatch-label">Avatar gradient</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#27AE60;"></div><div class="swatch-label">#27AE60 Chat (me)</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:linear-gradient(90deg,#2ECC71,#22C55E);"></div><div class="swatch-label">Timer gradient</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:linear-gradient(180deg,rgba(18,24,38,0.95),#121826);"></div><div class="swatch-label">Action bar bg</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="col-title v3">V3: Vezeeta-Inspired</div>
+    <div class="col-subtitle">Portal-structured, flat, light-mode toolbar</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#FFFFFF;border:1px solid #E2E8F0;"></div><div class="swatch-label">#FFF Panel flat</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#F8FAFC;"></div><div class="swatch-label">#F8FAFC Chat area</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#DBEAFE;"></div><div class="swatch-label">#DBEAFE Specialist chat</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#F1F5F9;"></div><div class="swatch-label">#F1F5F9 Patient chat</div></div>
+        <div class="swatch-group"><div class="swatch" style="border-top:2px solid #DC2626;background:#FFF;"></div><div class="swatch-label">Heart rate top</div></div>
+        <div class="swatch-group"><div class="swatch" style="border-top:2px solid #3B82F6;background:#FFF;"></div><div class="swatch-label">BP top border</div></div>
+        <div class="swatch-group"><div class="swatch" style="border-top:2px solid #F59E0B;background:#FFF;"></div><div class="swatch-label">Temp top</div></div>
+        <div class="swatch-group"><div class="swatch" style="border-top:2px solid #2ECC71;background:#FFF;"></div><div class="swatch-label">O2 top</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TYPOGRAPHY -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-size:13px;font-weight:700;letter-spacing:0.06em;color:#94A3B8;text-transform:uppercase;">Chief Complaint</div>
+      <div class="type-meta">Card title: 13px / 700 / 0.06em</div>
+      <div class="type-sample" style="font-size:20px;font-weight:700;color:#FFF;margin-top:12px;">Sarah Ahmed</div>
+      <div class="type-meta">Patient name: 20px / 700</div>
+      <div class="type-sample" style="font-family:monospace;font-size:16px;font-weight:700;color:#FFF;margin-top:12px;">120/80</div>
+      <div class="type-meta">Vital values: monospace for numeric precision</div>
+      <div class="type-sample" style="font-size:12px;color:#94A3B8;margin-top:12px;">Blood Pressure</div>
+      <div class="type-meta">Vital label: 12px (up from 11px)</div>
+      <div class="type-sample" style="font-size:12px;font-weight:600;color:#FFF;margin-top:12px;">Prescribe</div>
+      <div class="type-meta">Quick action label: 12px / 600</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-family:'Fraunces',serif;font-size:13px;font-weight:600;color:#94A3B8;">Chief Complaint</div>
+      <div class="type-meta">Card title: Fraunces 13px / 600</div>
+      <div class="type-sample" style="font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:#FFF;margin-top:12px;">Sarah Ahmed</div>
+      <div class="type-meta">Patient name: Fraunces 20px / 600</div>
+      <div class="type-sample" style="font-size:20px;font-weight:700;color:#FFF;margin-top:12px;">12:34</div>
+      <div class="type-meta">Timer time: 20px (increased)</div>
+      <div class="type-sample" style="font-size:15px;color:#FFF;margin-top:12px;">The patient reports...</div>
+      <div class="type-meta">Complaint text: line-height 1.7</div>
+      <div class="type-sample" style="font-size:15px;color:#FFF;margin-top:12px;">Chat bubble text</div>
+      <div class="type-meta">Chat text: 15px (comfortable reading)</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#94A3B8;">Patient Info</div>
+      <div class="type-meta">Tab label: 13px / 600 / uppercase / 0.04em</div>
+      <div class="type-sample" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#64748B;margin-top:12px;">VITALS</div>
+      <div class="type-meta">Section header: 12px / 700 / uppercase</div>
+      <div class="type-sample" style="font-size:18px;font-weight:700;color:#FFF;margin-top:12px;">120/80</div>
+      <div class="type-meta">Vital value: 18px / 700 (smaller, compact)</div>
+      <div class="type-sample" style="font-size:14px;color:#FFF;margin-top:12px;">Chat bubble text</div>
+      <div class="type-meta">Chat: 14px (standard portal size)</div>
+      <div class="type-sample" style="font-size:14px;font-weight:600;color:#FFF;margin-top:12px;">Consulting: Sarah Ahmed</div>
+      <div class="type-meta">Timer bar patient name: 14px / 600</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: VITALS GRID -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Vitals Grid</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div class="mockup-light" style="border-radius:4px;padding:8px;border:1px solid #E2E8F0;border-left:3px solid #E2E8F0;">
+          <div style="font-size:12px;color:#64748B;">Heart Rate</div>
+          <div style="font-family:monospace;font-size:16px;font-weight:700;color:#0B0F14;">72 bpm</div>
+        </div>
+        <div class="mockup-light" style="border-radius:4px;padding:8px;border:1px solid #E2E8F0;border-left:3px solid #E2E8F0;">
+          <div style="font-size:12px;color:#64748B;">Blood Pressure</div>
+          <div style="font-family:monospace;font-size:16px;font-weight:700;color:#0B0F14;">120/80</div>
+        </div>
+        <div class="mockup-light" style="border-radius:4px;padding:8px;border:1px solid #E2E8F0;border-left:3px solid #E2E8F0;">
+          <div style="font-size:12px;color:#64748B;">Temperature</div>
+          <div style="font-family:monospace;font-size:16px;font-weight:700;color:#0B0F14;">37.1 C</div>
+        </div>
+        <div class="mockup-light" style="border-radius:4px;padding:8px;border:1px solid #E2E8F0;border-left:3px solid #E2E8F0;">
+          <div style="font-size:12px;color:#64748B;">O2 Saturation</div>
+          <div style="font-family:monospace;font-size:16px;font-weight:700;color:#0B0F14;">98%</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">12px gap, bordered cells with #F8FAFC bg, monospace values, 3px left-border</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Vitals Grid</div>
+      <div class="mockup-warm" style="padding:20px;border-radius:16px;border:1px solid #EDF2F7;box-shadow:0 2px 8px rgba(15,23,42,0.06);">
+        <div style="font-family:'Fraunces',serif;font-size:13px;font-weight:600;color:#64748B;margin-bottom:12px;">Vitals</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+          <div><div style="font-size:11px;color:#94A3B8;">Heart Rate</div><div style="font-size:18px;font-weight:700;color:#0B0F14;">72 bpm</div></div>
+          <div><div style="font-size:11px;color:#94A3B8;">Blood Pressure</div><div style="font-size:18px;font-weight:700;color:#0B0F14;">120/80</div></div>
+          <div><div style="font-size:11px;color:#94A3B8;">Temperature</div><div style="font-size:18px;font-weight:700;color:#0B0F14;">37.1 C</div></div>
+          <div><div style="font-size:11px;color:#94A3B8;">O2 Saturation</div><div style="font-size:18px;font-weight:700;color:#0B0F14;">98%</div></div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Warm bg, 16px radius, Fraunces header, shadow, 20px padding</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Vitals Grid (Colored Top-Border)</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div class="mockup-light" style="border-radius:8px;padding:8px;border:1px solid #E2E8F0;border-top:2px solid #DC2626;">
+          <div style="font-size:11px;color:#64748B;">Heart Rate</div>
+          <div style="font-size:18px;font-weight:700;color:#0B0F14;">72 bpm</div>
+        </div>
+        <div class="mockup-light" style="border-radius:8px;padding:8px;border:1px solid #E2E8F0;border-top:2px solid #3B82F6;">
+          <div style="font-size:11px;color:#64748B;">Blood Pressure</div>
+          <div style="font-size:18px;font-weight:700;color:#0B0F14;">120/80</div>
+        </div>
+        <div class="mockup-light" style="border-radius:8px;padding:8px;border:1px solid #E2E8F0;border-top:2px solid #F59E0B;">
+          <div style="font-size:11px;color:#64748B;">Temperature</div>
+          <div style="font-size:18px;font-weight:700;color:#0B0F14;">37.1 C</div>
+        </div>
+        <div class="mockup-light" style="border-radius:8px;padding:8px;border:1px solid #E2E8F0;border-top:2px solid #2ECC71;">
+          <div style="font-size:11px;color:#64748B;">O2 Saturation</div>
+          <div style="font-size:18px;font-weight:700;color:#0B0F14;">98%</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">2x2 grid, 12px gap, colored top-border per metric type, flat, 8px radius</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: VIDEO + CHAT PANEL -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Video & Chat Panel</div>
+      <!-- V1 Video -->
+      <div style="background:#1E293B;border-radius:12px;border:2px solid #1E293B;height:140px;position:relative;overflow:hidden;margin-bottom:12px;">
+        <div style="position:absolute;top:0;left:0;right:0;padding:8px 12px;background:linear-gradient(to bottom,rgba(0,0,0,0.5),transparent);display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:50%;background:#2ECC71;border:2px solid #121826;"></div><span style="font-size:12px;color:#E2E8F0;">Connected</span></div>
+          <div style="background:rgba(46,204,113,0.1);padding:2px 8px;border-radius:4px;font-size:13px;font-weight:600;color:#2ECC71;">12:34</div>
+        </div>
+        <div style="position:absolute;bottom:8px;right:8px;width:60px;height:44px;background:#334155;border-radius:8px;border:1px solid #475569;"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#334155;"><div style="width:60%;height:100%;background:#2ECC71;"></div></div>
+      </div>
+      <!-- V1 Chat -->
+      <div style="background:#121826;border-radius:8px;border:2px solid #1E293B;padding:8px;height:120px;overflow:hidden;">
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="align-self:flex-start;background:#1E293B;padding:6px 12px;border-radius:6px;font-size:13px;color:#E2E8F0;">Patient is reporting chest pain</div>
+          <div style="align-self:flex-end;background:rgba(29,78,216,0.15);padding:6px 12px;border-radius:6px;font-size:13px;color:#BFDBFE;">Noted. Let me check your vitals.</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Video: 2px dark border, 12px radius. Chat: blue bubbles for specialist, 6px radius, 6px 12px padding. Timer in emerald pill.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Video & Chat Panel</div>
+      <!-- V2 Video -->
+      <div style="background:#1E293B;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.2);height:140px;position:relative;overflow:hidden;margin-bottom:12px;">
+        <div style="position:absolute;top:0;left:0;right:0;height:56px;background:linear-gradient(to bottom,rgba(0,0,0,0.4),transparent);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;align-items:center;gap:6px;background:rgba(46,204,113,0.1);padding:2px 10px;border-radius:9999px;"><div style="width:8px;height:8px;border-radius:50%;background:#2ECC71;box-shadow:0 0 12px rgba(46,204,113,0.3);"></div><span style="font-size:12px;color:#E2E8F0;">Connected</span></div>
+          <div style="font-size:20px;font-weight:700;color:#FFF;">12:34</div>
+        </div>
+        <div style="position:absolute;bottom:8px;right:8px;width:64px;height:48px;background:#334155;border-radius:12px;border:1px solid #475569;"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#334155;"><div style="width:60%;height:100%;background:linear-gradient(90deg,#2ECC71,#22C55E);"></div></div>
+      </div>
+      <!-- V2 Chat -->
+      <div style="background:#121826;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.08);padding:10px;height:130px;overflow:hidden;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="align-self:flex-start;background:#1E293B;padding:8px 16px;border-radius:8px;font-size:15px;color:#E2E8F0;">Patient is reporting chest pain</div>
+          <div style="align-self:flex-end;background:#27AE60;padding:8px 16px;border-radius:8px;font-size:15px;color:#FFFFFF;">Noted. Let me check your vitals.</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Video: 16px radius, cinematic shadow. Chat: 16px radius, emerald bubbles for specialist, 15px text. PIP: 12px radius. Timer: 20px. Connection pill with glow dot.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Video & Chat Panel</div>
+      <!-- V3 Video -->
+      <div style="background:#1E293B;border-radius:8px;border:1px solid #1E293B;height:120px;position:relative;overflow:hidden;margin-bottom:12px;">
+        <div style="position:absolute;top:0;left:0;right:0;padding:6px 12px;background:rgba(0,0,0,0.4);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;font-weight:600;color:#E2E8F0;">Consulting: Sarah Ahmed</span>
+          <span style="font-size:13px;color:#2ECC71;">Connected</span>
+        </div>
+      </div>
+      <!-- V3 Chat (light) -->
+      <div style="background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;padding:10px;height:100px;overflow:hidden;">
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="align-self:flex-start;background:#F1F5F9;padding:6px 12px;border-radius:8px 8px 8px 0;font-size:14px;color:#0B0F14;">Patient is reporting chest pain</div>
+          <div style="align-self:flex-end;background:#DBEAFE;padding:6px 12px;border-radius:8px 8px 0 8px;font-size:14px;color:#1E40AF;">Noted. Let me check your vitals.</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Video: 8px radius, thin border. Chat: light bg #F8FAFC, blue specialist / gray patient bubbles, 14px text, 240px height. Timer shows patient name. No connection dot animation.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: QUICK ACTION TOOLBAR -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Quick Actions Toolbar</div>
+      <div style="background:#121826;border-top:2px solid #1E293B;padding:12px 16px;border-radius:0 0 12px 12px;display:flex;gap:12px;justify-content:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:#2ECC71;display:flex;align-items:center;justify-content:center;font-size:18px;color:#FFF;">&#9733;</div>
+          <span style="font-size:12px;font-weight:600;color:#E2E8F0;">Prescribe</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:#1E293B;display:flex;align-items:center;justify-content:center;font-size:18px;color:#94A3B8;">&#9881;</div>
+          <span style="font-size:12px;font-weight:600;color:#94A3B8;">Order Lab</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:#1E293B;display:flex;align-items:center;justify-content:center;font-size:18px;color:#94A3B8;">&#9998;</div>
+          <span style="font-size:12px;font-weight:600;color:#94A3B8;">Notes</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:#991B1B;border:2px solid #991B1B;display:flex;align-items:center;justify-content:center;font-size:18px;color:#FFF;">&#9747;</div>
+          <span style="font-size:12px;font-weight:600;color:#FCA5A5;">End</span>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Rounded square icons (12px radius), 2px top border, 12px gap. Active = solid emerald. End = red with border.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Quick Actions Toolbar</div>
+      <div style="background:linear-gradient(180deg,rgba(18,24,38,0.95),#121826);padding:14px 20px;border-radius:0 0 16px 16px;display:flex;gap:16px;justify-content:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#1E293B;display:flex;align-items:center;justify-content:center;font-size:18px;color:#E2E8F0;transition:all 200ms;" onmouseenter="this.style.background='#2ECC71';this.style.boxShadow='0 4px 12px rgba(46,204,113,0.3)'" onmouseleave="this.style.background='#1E293B';this.style.boxShadow=''">&#9733;</div>
+          <span style="font-size:11px;font-weight:500;color:#94A3B8;">Prescribe</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#1E293B;display:flex;align-items:center;justify-content:center;font-size:18px;color:#E2E8F0;">&#9881;</div>
+          <span style="font-size:11px;font-weight:500;color:#94A3B8;">Order Lab</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#1E293B;display:flex;align-items:center;justify-content:center;font-size:18px;color:#E2E8F0;">&#9998;</div>
+          <span style="font-size:11px;font-weight:500;color:#94A3B8;">Notes</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#DC2626;display:flex;align-items:center;justify-content:center;font-size:18px;color:#FFF;transition:all 200ms;" onmouseenter="this.style.transform='scale(1.02) translateY(-2px)'" onmouseleave="this.style.transform=''">&#9747;</div>
+          <span style="font-size:11px;font-weight:500;color:#FCA5A5;">End</span>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Circles (48px), gradient backdrop, emerald glow on hover, end button scales on hover. 16px gap.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Quick Actions Toolbar (Light)</div>
+      <div style="background:#FFFFFF;border-top:1px solid #E2E8F0;padding:8px 16px;border-radius:0 0 8px 8px;display:flex;gap:12px;justify-content:center;height:48px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E2E8F0;border-radius:6px;background:#FFF;font-size:12px;font-weight:500;color:#0B0F14;cursor:pointer;transition:all 150ms;" onmouseenter="this.style.background='#ECFDF3';this.style.borderColor='#2ECC71'" onmouseleave="this.style.background='#FFF';this.style.borderColor='#E2E8F0'">
+          <div style="width:28px;height:28px;border-radius:4px;background:#F8FAFC;display:flex;align-items:center;justify-content:center;font-size:14px;">&#9733;</div>
+          Prescribe
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E2E8F0;border-radius:6px;background:#FFF;font-size:12px;font-weight:500;color:#0B0F14;">
+          <div style="width:28px;height:28px;border-radius:4px;background:#F8FAFC;display:flex;align-items:center;justify-content:center;font-size:14px;">&#9881;</div>
+          Order Lab
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E2E8F0;border-radius:6px;background:#FFF;font-size:12px;font-weight:500;color:#0B0F14;">
+          <div style="width:28px;height:28px;border-radius:4px;background:#F8FAFC;display:flex;align-items:center;justify-content:center;font-size:14px;">&#9998;</div>
+          Notes
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #DC2626;border-radius:6px;background:#FFF;font-size:12px;font-weight:500;color:#DC2626;">
+          &#9747; End
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Light-mode toolbar, horizontal row buttons (icon + label), 6px radius, bordered, 28px icon boxes. No circles. Hover = green bg + border.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: PANEL CARDS -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Patient Panel Card</div>
+      <div class="mockup-light" style="border:1px solid #E2E8F0;border-left:3px solid #F59E0B;border-radius:8px;padding:14px;box-shadow:none;">
+        <div style="font-size:13px;font-weight:700;letter-spacing:0.06em;color:#64748B;text-transform:uppercase;margin-bottom:6px;">Chief Complaint</div>
+        <div style="font-size:14px;color:#0B0F14;line-height:1.6;">Persistent chest discomfort with radiating pain to left arm, worsening over the last 48 hours.</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">8px radius, no shadow, border only, 3px amber left-border for complaint, 14px padding</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Patient Panel Card</div>
+      <div class="mockup-warm" style="border:1px solid #EDF2F7;border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(15,23,42,0.06);transition:box-shadow 200ms;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(15,23,42,0.1)'" onmouseleave="this.style.boxShadow='0 2px 8px rgba(15,23,42,0.06)'">
+        <div style="font-family:'Fraunces',serif;font-size:13px;font-weight:600;color:#64748B;margin-bottom:8px;">Chief Complaint</div>
+        <div style="font-size:14px;color:#0B0F14;line-height:1.7;">Persistent chest discomfort with radiating pain to left arm, worsening over the last 48 hours.</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">16px radius, warm bg, Fraunces title, shadow with hover increase, 20px padding, line-height 1.7</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Patient Panel Card (Flat)</div>
+      <div class="mockup-light" style="border:1px solid #E2E8F0;border-radius:8px;padding:16px;box-shadow:none;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#64748B;margin-bottom:6px;">Chief Complaint</div>
+        <div style="font-size:14px;color:#0B0F14;line-height:1.6;">Persistent chest discomfort with radiating pain to left arm, worsening over the last 48 hours.</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">8px radius, flat white, no shadow, 1px border, 16px padding, uppercase header</div>
+    </div>
+  </div>
+</div>
+
+<!-- SPACING & SURFACE -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing Summary</div>
+      <div class="spacing-row"><div class="spacing-label">Panel padding</div><div class="spacing-box" style="width:14px;height:14px;">14</div></div>
+      <div class="spacing-row"><div class="spacing-label">Vitals gap</div><div class="spacing-box" style="width:12px;height:12px;">12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Chat padding</div><div class="spacing-box" style="width:6px;height:6px;">6</div><div class="spacing-box" style="width:12px;height:12px;">12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Action gap</div><div class="spacing-box" style="width:12px;height:12px;">12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Panel radius</div><div class="spacing-box" style="width:8px;height:8px;">8</div></div>
+      <div class="spacing-row"><div class="spacing-label">Bubble radius</div><div class="spacing-box" style="width:6px;height:6px;">6</div></div>
+      <div class="spacing-row"><div class="spacing-label">Notes radius</div><div class="spacing-box" style="width:4px;height:4px;">4</div></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing Summary</div>
+      <div class="spacing-row"><div class="spacing-label">Panel padding</div><div class="spacing-box" style="width:20px;height:20px;">20</div></div>
+      <div class="spacing-row"><div class="spacing-label">Layout gap</div><div class="spacing-box" style="width:32px;height:16px;">32</div></div>
+      <div class="spacing-row"><div class="spacing-label">Chat height</div><div class="spacing-box" style="width:40px;height:16px;">320</div></div>
+      <div class="spacing-row"><div class="spacing-label">Notes min-h</div><div class="spacing-box" style="width:40px;height:16px;">140</div></div>
+      <div class="spacing-row"><div class="spacing-label">Panel radius</div><div class="spacing-box" style="width:16px;height:16px;">16</div></div>
+      <div class="spacing-row"><div class="spacing-label">Action icons</div><div class="spacing-box" style="width:48px;height:16px;">48px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Header gap</div><div class="spacing-box" style="width:20px;height:16px;">20</div></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing Summary</div>
+      <div class="spacing-row"><div class="spacing-label">Panel padding</div><div class="spacing-box" style="width:16px;height:16px;">16</div></div>
+      <div class="spacing-row"><div class="spacing-label">Layout gap</div><div class="spacing-box" style="width:16px;height:16px;">16</div></div>
+      <div class="spacing-row"><div class="spacing-label">Chat height</div><div class="spacing-box" style="width:40px;height:16px;">240</div></div>
+      <div class="spacing-row"><div class="spacing-label">Action bar h</div><div class="spacing-box" style="width:48px;height:16px;">48px</div></div>
+      <div class="spacing-row"><div class="spacing-label">All radius</div><div class="spacing-box" style="width:8px;height:8px;">8</div></div>
+      <div class="spacing-row"><div class="spacing-label">Action radius</div><div class="spacing-box" style="width:6px;height:6px;">6</div></div>
+      <div class="spacing-row"><div class="spacing-label">Tab bar</div><div class="spacing-box" style="width:40px;height:16px;">40px h</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SURFACE TREATMENT -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFF;border:1px solid #E2E8F0;border-left:3px solid #E2E8F0;">Panel: border only</div>
+        <div class="surface-card" style="background:#121826;border:2px solid #1E293B;color:#94A3B8;">Video: 2px frame</div>
+        <div class="surface-card" style="background:#121826;border:2px solid #1E293B;border-top:2px solid #1E293B;color:#94A3B8;">Action: thick top</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">No shadows on panels. Thick borders for visual separation. Clinical workspace.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FEFDFB;border:1px solid #EDF2F7;box-shadow:0 2px 8px rgba(15,23,42,0.06);border-radius:16px;">Panel: shadow</div>
+        <div class="surface-card" style="background:#121826;box-shadow:0 8px 24px rgba(0,0,0,0.2);border-radius:16px;color:#94A3B8;">Video: cinematic</div>
+        <div class="surface-card" style="background:linear-gradient(180deg,rgba(18,24,38,0.95),#121826);border-radius:16px;color:#94A3B8;">Action: gradient</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Rich shadows, warm backgrounds, cinematic video depth, gradient action bar.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFF;border:1px solid #E2E8F0;border-radius:8px;">Panel: flat border</div>
+        <div class="surface-card" style="background:#1E293B;border:1px solid #1E293B;border-radius:8px;color:#94A3B8;">Video: thin border</div>
+        <div class="surface-card" style="background:#FFF;border-top:1px solid #E2E8F0;border-radius:8px;">Action: light mode</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Fully flat everywhere. No shadows. No hover transforms. Portal-utilitarian.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
