@@ -118,7 +118,8 @@ const aliveMap = new WeakMap<WebSocket, boolean>();
 function resolveTokenClaims(token: string): WsAuthClaims | null {
   try {
     const payload = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
-    const userId = typeof payload['userId'] === 'string' ? payload['userId'] : '';
+    // userId may be stored as a number (DB integer) or string — normalise to string
+    const userId = payload['userId'] != null ? String(payload['userId']) : '';
     const role = typeof payload['role'] === 'string' ? payload['role'] : '';
     const tokenType = typeof payload['tokenType'] === 'string' ? payload['tokenType'] : '';
     if (!userId || !role || tokenType !== 'access') {
@@ -235,8 +236,9 @@ export function broadcastToRole(role: Role, event: string, data: unknown) {
   });
 }
 
-export function broadcastToUser(userId: string, event: string, data: unknown) {
-  void distributedBroadcast('user', userId, { event, data }).catch((error) => {
+// Accept string | number so callers can pass raw DB integer IDs without converting
+export function broadcastToUser(userId: string | number, event: string, data: unknown) {
+  void distributedBroadcast('user', String(userId), { event, data }).catch((error) => {
     console.error('WS broadcastToUser failed:', error);
   });
 }

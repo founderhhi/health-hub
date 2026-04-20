@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom, timeout } from 'rxjs';
 import { WsService } from '../../../core/realtime/ws.service';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { ConsultShellComponent, ConsultMode } from '../../../shared/components/consult-shell/consult-shell';
@@ -86,16 +86,51 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.clearDashboardRedirectTimer();
   }
 
-  joinConsult(): void {
+  async joinConsult(): Promise<void> {
     if (!this.canJoinConsultation) {
       return;
     }
     this.clearAcceptedCountdown();
     this.showAcceptedOverlay = false;
+
+    // Chat mode: open the in-app chat shell
+    if (this.consultMode === 'chat') {
+      this.statusMessage = this.gpName
+        ? `${this.gpName} is ready. Opening chat...`
+        : 'Your Health Expert is ready. Opening chat...';
+      this.showConsultShell = true;
+      return;
+    }
+
+    // Video / audio: navigate directly to the Daily.co room — no extra click needed
     this.statusMessage = this.gpName
-      ? `${this.gpName} is ready. Opening consultation...`
-      : 'Your Health Expert is ready. Opening consultation...';
-    this.showConsultShell = true;
+      ? `Connecting you to ${this.gpName}...`
+      : 'Connecting to your Health Expert...';
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    let roomUrl = this.roomUrl;
+
+    // Fetch the authoritative room URL if we don't have one cached
+    if (!roomUrl && this.consultationId) {
+      try {
+        const resp = await firstValueFrom(
+          this.patientApi.getConsultationJoinLink(this.consultationId).pipe(timeout(8000))
+        );
+        roomUrl = resp.roomUrl || '';
+      } catch {
+        // fall through — will show error below
+      }
+    }
+
+    if (!roomUrl) {
+      this.statusMessage = 'Unable to join the room right now. Please try refreshing.';
+      return;
+    }
+
+    window.location.href = roomUrl;
   }
 
   private startAcceptedCountdown(): void {
@@ -255,11 +290,14 @@ export class WaitingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // For video/audio: show the accepted overlay with a countdown, then open the shell
+    // For video/audio: show the accepted overlay with a countdown, then navigate to Daily.co.
+    // Guard: don't restart the countdown if it's already running or we're already navigating.
     this.statusMessage = this.gpName
       ? `${this.gpName} has accepted your request.`
       : 'A Health Expert has accepted your request.';
-    this.startAcceptedCountdown();
+    if (!this.showAcceptedOverlay && !this.showConsultShell) {
+      this.startAcceptedCountdown();
+    }
   }
 
   private pollActiveConsult(): void {
