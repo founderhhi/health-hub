@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -11,6 +11,7 @@ import { ReferralsApiService } from '../../../../core/api/referrals.service';
 import { LabsApiService, DiagnosticCentre } from '../../../../core/api/labs.service';
 import { WsService } from '../../../../core/realtime/ws.service';
 import { formatTriageSourceLabel, normalizeTriageHandoff } from './triage-handoff';
+import { ConsultShellComponent, ConsultMode } from '../../../../shared/components/consult-shell/consult-shell';
 
 interface QueuePatient {
   id: string;
@@ -68,7 +69,7 @@ interface ConsultationHistory {
 @Component({
   selector: 'app-practitioner',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ConsultShellComponent],
   templateUrl: './practitioner.html',
   styleUrl: './practitioner.scss'
 })
@@ -147,6 +148,14 @@ export class Practitioner implements OnInit, OnDestroy {
     'ENT',
     'Ophthalmology'
   ];
+
+  // ── Inline Consult Shell State ──
+  showConsultShell = false;
+  activeConsultationId = '';
+  activeConsultRoomUrl = '';
+  activeConsultPatientId = '';
+  activeConsultMode: ConsultMode = 'video';
+  activeConsultPatientName = '';
 
   // ── Lab Order Modal State ──
   showLabModal = false;
@@ -497,7 +506,7 @@ export class Practitioner implements OnInit, OnDestroy {
   }
 
   /**
-   * Accept a patient from the queue
+   * Accept a patient from the queue — opens inline ConsultShell directly.
    */
   acceptPatient(patientId: string): void {
     if (this.deletingPatientIds.has(patientId) || this.acceptingPatientIds.has(patientId)) {
@@ -506,7 +515,6 @@ export class Practitioner implements OnInit, OnDestroy {
 
     this.acceptingPatientIds.add(patientId);
     const selected = this.queue.find((item) => item.id === patientId);
-    const snapshot = selected ? { ...selected } : null;
 
     this.gpApi.acceptRequest(patientId).subscribe({
       next: (response) => {
@@ -516,6 +524,8 @@ export class Practitioner implements OnInit, OnDestroy {
           response.consultation?.id ||
           response.consultationId ||
           '';
+
+        const roomUrl = response.roomUrl || response.consultation?.daily_room_url || response.consultation?.roomUrl || '';
 
         const item = this.queue.find((p) => p.id === patientId);
         if (item) {
@@ -528,7 +538,15 @@ export class Practitioner implements OnInit, OnDestroy {
         this.acceptingPatientIds.delete(patientId);
 
         if (consultationId) {
-          this.router.navigate(['/gp/consultation', consultationId]);
+          this.activeConsultationId = consultationId;
+          this.activeConsultRoomUrl = roomUrl;
+          this.activeConsultPatientId = selected?.patientId || '';
+          this.activeConsultPatientName = selected?.displayName || '';
+          this.activeConsultMode = selected?.mode || 'video';
+          this.showConsultShell = true;
+          this.renderNow();
+        } else {
+          this.showUnavailableNotice('Consultation created but no ID returned. Please refresh and try again.');
         }
       },
       error: (err) => {
@@ -538,6 +556,51 @@ export class Practitioner implements OnInit, OnDestroy {
         this.acceptingPatientIds.delete(patientId);
       }
     });
+  }
+
+  onConsultEnd(event: { notes: string }): void {
+    if (!this.activeConsultationId) {
+      return;
+    }
+    this.gpApi.completeConsultation(this.activeConsultationId, event.notes).subscribe({
+      next: () => {
+        this.closeConsultShell();
+        this.showUnavailableNotice('Consultation completed successfully.');
+        this.refreshDashboard();
+      },
+      error: (err) => {
+        const message = this.resolveCompleteConsultationError(err);
+        this.showUnavailableNotice(message);
+        // Signal the shell to reset its ending state so the GP can retry
+        this.renderNow();
+      }
+    });
+  }
+
+  onConsultPrescribe(): void {
+    this.prescribe(this.activeConsultPatientId);
+  }
+
+  onConsultRefer(): void {
+    this.referToSpecialist(this.activeConsultPatientId);
+  }
+
+  onConsultLabs(): void {
+    this.orderLabs(this.activeConsultPatientId);
+  }
+
+  onConsultLeave(): void {
+    this.closeConsultShell();
+  }
+
+  private closeConsultShell(): void {
+    this.showConsultShell = false;
+    this.activeConsultationId = '';
+    this.activeConsultRoomUrl = '';
+    this.activeConsultPatientId = '';
+    this.activeConsultPatientName = '';
+    this.activeConsultMode = 'video';
+    this.renderNow();
   }
 
   // ── Lab Order Methods ──

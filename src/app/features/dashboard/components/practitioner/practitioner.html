@@ -1,3 +1,20 @@
+@if (showConsultShell) {
+  <div class="consult-shell-overlay">
+    <app-consult-shell
+      [consultationId]="activeConsultationId"
+      [roomUrl]="activeConsultRoomUrl"
+      [mode]="activeConsultMode"
+      role="gp"
+      [patientName]="activeConsultPatientName"
+      (endConsultation)="onConsultEnd($event)"
+      (prescribe)="onConsultPrescribe()"
+      (refer)="onConsultRefer()"
+      (requestLabs)="onConsultLabs()"
+      (leave)="onConsultLeave()"
+    ></app-consult-shell>
+  </div>
+}
+
 <section class="gp-dashboard">
   <!-- Header -->
   <header class="dashboard-header">
