@@ -117,8 +117,9 @@
         </div>
         <div class="test-chip-list">
         @for (test of labTestOptions; track test) {
-          <label class="test-chip" [class.test-chip--selected]="isTestSelected(test)">
-            <input type="checkbox" [checked]="isTestSelected(test)" (change)="toggleTest(test)" class="test-chip__input" />
+          <label class="test-chip" [class.test-chip--selected]="isTestSelected(test)"
+                 (click)="toggleTest(test); $event.preventDefault()">
+            <input type="checkbox" [checked]="isTestSelected(test)" class="test-chip__input" />
             {{ test }}
           </label>
         }

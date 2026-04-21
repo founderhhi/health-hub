@@ -709,8 +709,9 @@
         <label class="form-label">Select Tests</label>
         <div class="test-chip-list">
           @for (test of labTestOptions; track test) {
-            <label class="test-chip" [class.test-chip--selected]="isLabTestSelected(test)">
-              <input type="checkbox" [checked]="isLabTestSelected(test)" (change)="toggleLabTest(test)" class="test-chip__input" />
+            <label class="test-chip" [class.test-chip--selected]="isLabTestSelected(test)"
+                   (click)="toggleLabTest(test); $event.preventDefault()">
+              <input type="checkbox" [checked]="isLabTestSelected(test)" class="test-chip__input" />
               {{ test }}
             </label>
           }
