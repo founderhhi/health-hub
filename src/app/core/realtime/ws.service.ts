@@ -185,6 +185,7 @@ export class WsService {
       
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.5);
+      osc.onended = () => { void ctx.close(); };
     } catch (e) {
       // Ignore audio initialization errors (e.g., auto-play policies)
     }

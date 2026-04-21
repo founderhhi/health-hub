@@ -133,7 +133,7 @@ async function listAvailableSpecialists(currentUserId: string) {
 referralsRouter.post('/', requireAuth, requireRole(['gp', 'specialist']), async (req, res) => { // allow GPs and specialists to create referrals; specialists use this to refer patients to other specialists
   try {
     const user = (req as any).user;
-    const { patientId, toSpecialistId, urgency, reason, appointmentDate, appointmentTime, consultationMode, location, specialty } = req.body as {
+    const { patientId, toSpecialistId, urgency, reason, appointmentDate, appointmentTime, consultationMode, location, specialty, specialistName } = req.body as {
       patientId?: string;
       toSpecialistId?: string;
       urgency?: string;

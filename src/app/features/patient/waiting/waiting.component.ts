@@ -83,7 +83,6 @@ export class WaitingComponent implements OnInit, OnDestroy {
     if (!this.canJoinConsultation) {
       return;
     }
-    this.clearAcceptedCountdown();
     this.showAcceptedOverlay = false;
 
     // Chat mode: open the in-app chat shell
@@ -262,6 +261,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
         : 'A Health Expert accepted your request. Opening the chat now.';
       this.showConsultShell = true;
       return;
+    }
+
     // For video/audio: immediately show the consultation shell so they can click to join.
     this.statusMessage = this.gpName
       ? `${this.gpName} has accepted your request.`
