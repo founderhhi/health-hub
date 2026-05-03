@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -43,7 +43,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
   constructor(
     private ws: WsService,
     private router: Router,
-    private patientApi: PatientApiService
+    private patientApi: PatientApiService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -266,6 +267,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
       this.statusMessage = gpName
         ? `${gpName} has accepted your request. Preparing your session...`
         : 'A Health Expert has accepted your request. Preparing your session...';
+      this.cdr.detectChanges();
       return;
     }
 
@@ -280,6 +282,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
         ? `${this.gpName} accepted your request. Opening the chat now.`
         : 'A Health Expert accepted your request. Opening the chat now.';
       this.showConsultShell = true;
+      this.cdr.detectChanges();
       return;
     }
 
@@ -290,6 +293,9 @@ export class WaitingComponent implements OnInit, OnDestroy {
       ? `${this.gpName} has accepted your request.`
       : 'A Health Expert has accepted your request.';
     this.showAcceptedOverlay = true;
+    // Force UI update immediately — WS events run outside Angular's zone
+    // so change detection doesn't fire automatically without this call.
+    this.cdr.detectChanges();
   }
 
   private pollActiveConsult(): void {
