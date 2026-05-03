@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectorRef, ApplicationRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -38,16 +38,17 @@ export class WaitingComponent implements OnInit, OnDestroy {
   private requestId = '';
   private activeConsultPollTimer?: ReturnType<typeof setInterval>;
   private dashboardRedirectTimer?: ReturnType<typeof setTimeout>;
-  private overlayForceTimer?: ReturnType<typeof setInterval>;
   private wsSubscription?: Subscription;
+
+  // "Check if doctor joined" button state
+  checkingDoctorStatus = false;
+  showDoctorNotJoinedMsg = false;
 
   constructor(
     private ws: WsService,
     private router: Router,
     private patientApi: PatientApiService,
-    private cdr: ChangeDetectorRef,
-    private appRef: ApplicationRef,
-    private ngZone: NgZone
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -79,18 +80,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
       // Recover from missed websocket events (refresh/WS drop) while user is waiting.
       this.pollActiveConsult();
-      this.activeConsultPollTimer = setInterval(() => this.pollActiveConsult(), 2000);
-
-      // Safety net: every 1s, if showAcceptedOverlay is true but hasn't rendered yet,
-      // force a full app tick to guarantee the popup appears.
-      this.overlayForceTimer = setInterval(() => {
-        if (this.showAcceptedOverlay && !this.showConsultShell) {
-          this.ngZone.run(() => {
-            this.cdr.detectChanges();
-            this.appRef.tick();
-          });
-        }
-      }, 1000);
+      this.activeConsultPollTimer = setInterval(() => this.pollActiveConsult(), 5000);
     }
   }
 
@@ -99,10 +89,6 @@ export class WaitingComponent implements OnInit, OnDestroy {
     if (this.activeConsultPollTimer) {
       clearInterval(this.activeConsultPollTimer);
       this.activeConsultPollTimer = undefined;
-    }
-    if (this.overlayForceTimer) {
-      clearInterval(this.overlayForceTimer);
-      this.overlayForceTimer = undefined;
     }
     this.clearDashboardRedirectTimer();
   }
@@ -304,19 +290,15 @@ export class WaitingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // For video/audio: show the "doctor has joined" popup immediately.
-    // Use ngZone.run() to guarantee execution inside Angular's zone,
-    // then force a full app tick so the view updates regardless of detection strategy.
-    this.ngZone.run(() => {
-      this.statusMessage = this.gpName
-        ? `${this.gpName} has accepted your request.`
-        : 'A Health Expert has accepted your request.';
-      this.showAcceptedOverlay = true;
-      this.cdr.detectChanges();
-      // appRef.tick() forces a full change detection cycle across the entire app —
-      // this is the most reliable way to guarantee the popup renders immediately.
-      this.appRef.tick();
-    });
+    // For video/audio: set the overlay flag. The button-based check
+    // (checkDoctorJoined) is the reliable trigger. WS/poll also set this
+    // and cdr.detectChanges() is called; if that doesn't fire the view
+    // the patient can use the button as a guaranteed fallback.
+    this.statusMessage = this.gpName
+      ? `${this.gpName} has accepted your request.`
+      : 'A Health Expert has accepted your request.';
+    this.showAcceptedOverlay = true;
+    this.cdr.detectChanges();
   }
 
   private pollActiveConsult(): void {
@@ -445,6 +427,35 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   get canJoinConsultation(): boolean {
     return this.hasAcceptedConsultation && !this.cancelPending;
+  }
+
+  // "Check if doctor joined" button — guaranteed to work because button clicks
+  // are always inside Angular's zone, so state changes immediately update the view.
+  checkDoctorJoined(): void {
+    if (this.checkingDoctorStatus) return;
+    this.checkingDoctorStatus = true;
+    this.showDoctorNotJoinedMsg = false;
+
+    this.patientApi.getActiveConsult().subscribe({
+      next: (response) => {
+        this.checkingDoctorStatus = false;
+        const active = response?.active;
+        if (active && active.status === 'accepted') {
+          this.requestId = active.id || this.requestId;
+          this.applyAcceptedConsultation(active);
+        } else {
+          this.showDoctorNotJoinedMsg = true;
+        }
+      },
+      error: () => {
+        this.checkingDoctorStatus = false;
+        this.showDoctorNotJoinedMsg = true;
+      }
+    });
+  }
+
+  dismissDoctorNotJoined(): void {
+    this.showDoctorNotJoinedMsg = false;
   }
 
   setReviewRating(rating: number): void {
