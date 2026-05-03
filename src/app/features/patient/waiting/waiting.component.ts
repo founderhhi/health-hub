@@ -32,6 +32,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
   cancelPending = false;
   isRefreshing = false;
   consultationFinished = false;
+  hasJoinedCall = false; // true once the patient actually opens the call window
   statusMessage = 'Waiting for a Health Expert to accept your request...';
   showAcceptedOverlay = false;
   private platformId = inject(PLATFORM_ID);
@@ -137,8 +138,16 @@ export class WaitingComponent implements OnInit, OnDestroy {
     }
 
     window.open(roomUrl, '_blank');
+    this.hasJoinedCall = true;
     // Show consult shell on the original tab so the patient can rejoin if needed
     this.showConsultShell = true;
+  }
+
+  private stopPolling(): void {
+    if (this.activeConsultPollTimer) {
+      clearInterval(this.activeConsultPollTimer);
+      this.activeConsultPollTimer = undefined;
+    }
   }
 
   refreshStatus(): void {
@@ -189,10 +198,14 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
   onLeaveConsultShell(): void {
     this.showConsultShell = false;
-    if (this.consultationFinished) {
-      this.navigateToDashboard();
+    // Stop polling — patient has already been in the call, no need to re-trigger accepted overlay
+    this.stopPolling();
+    // Always show the review page when leaving a consultation (whether ended by GP or by patient)
+    if (this.hasAcceptedConsultation || this.consultationFinished) {
+      this.showReviewPage = true;
       return;
     }
+    // If they hadn't actually joined yet, go back to waiting
     if (this.hasAcceptedConsultation && !this.cancelPending) {
       this.statusMessage = this.gpName
         ? `${this.gpName} is still available.`
@@ -201,12 +214,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
   }
 
   confirmCancel(): void {
-    if (this.cancelPending) {
-      return;
-    }
-
+    if (this.cancelPending) return;
     this.cancelPending = true;
     this.showCancelConfirm = false;
+    this.showAcceptedOverlay = false; // dismiss any doctor-joined popup
+    this.stopPolling(); // stop poll so overlay never re-appears
     this.statusMessage = 'Cancelling your consultation request...';
 
     if (this.requestId) {
@@ -302,6 +314,9 @@ export class WaitingComponent implements OnInit, OnDestroy {
   }
 
   private pollActiveConsult(): void {
+    // Do not poll after patient has already joined — prevents re-showing the overlay
+    if (this.hasJoinedCall || this.showReviewPage || this.cancelPending) return;
+
     this.patientApi.getActiveConsult().subscribe({
       next: (response) => {
         const active = response?.active;
@@ -319,7 +334,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
         this.requestId = active.id || this.requestId;
 
         if (active.status === 'accepted') {
-          // Immediately update message so patient is never left on "Waiting..." after GP accepts
+          // Don't show accepted overlay again if patient already joined
+          if (this.hasJoinedCall || this.showConsultShell) return;
           if (!this.showConsultShell && !this.consultationId) {
             const gpName = active?.gp_name || active?.gpName || this.gpName || '';
             this.statusMessage = gpName
@@ -389,6 +405,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.showAcceptedOverlay = false;
     this.showCancelConfirm = false;
     this.cancelPending = false;
+    this.stopPolling();
     this.clearConsultationState();
     this.statusMessage = message;
     // Show review page instead of auto-redirecting

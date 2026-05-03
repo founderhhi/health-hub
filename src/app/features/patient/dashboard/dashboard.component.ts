@@ -218,7 +218,8 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   navigateToService(service: ServiceCard): void {
     switch (service.id) {
       case 'gp':
-        this.showPaymentConfirm = true;
+        this.selectedMode = 'video';
+        this.showModeSelector = true;
         break;
       case 'healwell':
         this.router.navigate(['/heal-well/videos']);
