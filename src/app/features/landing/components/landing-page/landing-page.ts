@@ -173,6 +173,16 @@ export class LandingPage implements OnInit, OnDestroy {
     },
   ];
 
+  get liveServicesGrid(): Capability[] {
+    return this.capabilities.filter(
+      c => c.live && c.label !== 'Heal Well in India' && c.label !== 'Heal Well in Africa'
+    );
+  }
+
+  get comingSoonCapabilities(): Capability[] {
+    return this.capabilities.filter(c => !c.live);
+  }
+
   readonly statsCategories = ['All', 'Consultations', 'Diagnostics', 'Pharmacy', 'Records'];
   activeStatsCategory = signal(0);
 

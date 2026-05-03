@@ -16,7 +16,7 @@
     </div>
   </nav>
 
-  <!-- ── Hero — Split Editorial ── -->
+  <!-- ── Hero — Glassmorphism Services + Global Reach ── -->
   <header class="hero" id="main-content">
 
     <!-- Background slideshow — crossfades between hospital/clinical images -->
@@ -32,105 +32,117 @@
 
     <div class="hero__inner">
 
-      <!-- Left column -->
+      <!-- Headline card — frosted glass -->
       <div class="hero__left">
         <span class="hero__badge">
           <span class="material-symbols-outlined icon-fill" aria-hidden="true">verified</span>
           Trusted Care, Anywhere
         </span>
         <h1 class="hero__title">
-          Your health,<br />
-          <span class="hero__title--accent">reimagined</span><br />
-          as one ecosystem.
+          On Demand<br />
+          <span class="hero__title--accent">Health Ecosystem</span>
         </h1>
-        <p class="hero__description">
-          Access world-class healthcare consultants from the comfort of your home.
-          We combine medical rigor with compassionate digital experiences in one unified ecosystem.
-        </p>
+        <p class="hero__tagline">One platform. Every care pathway. Anywhere in the world.</p>
         <div class="hero__cta-area">
-          <button class="btn btn--primary btn--xl" id="hero-cta-signup" type="button" (click)="navigate('signup')">
-            Get Started
+          <button class="btn btn--hero-login btn--xl" id="hero-cta-signup" type="button" (click)="navigate('signup')">
+            Login / Sign Up
             <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
           </button>
-          <button class="btn btn--outline btn--xl" id="hero-cta-services" type="button" (click)="scrollToSection('capabilities')">
-            View Services
-          </button>
         </div>
-        <p class="hero__trust">Trusted by 12,000+ patients &amp; 500+ providers</p>
       </div>
 
-      <!-- Right column — Stats widget -->
-      <div class="hero__right" aria-hidden="true">
-        <div class="hero__stats-grid">
-
-          <!-- Doctor tile — TOP-LEFT. Outer allows badge to overflow top edge -->
-          <div class="hero__shield-outer" (click)="scrollToSection('capabilities')" role="button" tabindex="0" aria-label="Explore platform capabilities">
-            <div class="hero__shield-tile">
-              <img src="images/doctor-m3.jpg" alt="" />
-              <div class="hero__shield-tile__overlay"></div>
+      <!-- Live services — glassmorphism 2-column grid -->
+      <div class="hero__services-grid" role="list" aria-label="Live services">
+        @for (service of liveServicesGrid; track service.label) {
+          <div class="hero__service-card" role="listitem">
+            <div class="hero__service-icon">
+              @if (service.svgPaths) {
+                <svg width="18" height="18" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  @for (p of service.svgPaths; track p.d) {
+                    <path [attr.d]="p.d" fill="currentColor"/>
+                  }
+                </svg>
+              } @else {
+                <span class="material-symbols-outlined icon-fill">{{ service.icon }}</span>
+              }
             </div>
-            <div class="hero__shield-badge">
-              <img src="images/logo-hhi.svg" alt="" />
-            </div>
+            <span class="hero__service-name">{{ service.label }}</span>
+            <span class="hero__service-live" aria-label="Live service">Live</span>
           </div>
+        }
+      </div>
 
-          <div class="hero__mini-stat">
-            <span class="material-symbols-outlined icon-fill">groups</span>
-            <strong>12,000+</strong>
-            <p>Patients Served</p>
+      <!-- Global Reach — India & Africa side by side -->
+      <div class="hero__global-reach" aria-label="Global reach">
+
+        <!-- Heal Well in India -->
+        <div class="hero__reach-card">
+          <div class="hero__reach-map" aria-hidden="true">
+            <svg viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="india-tricolor" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#FF9933" stop-opacity="0.90"/>
+                  <stop offset="42%"  stop-color="#f4f4f4" stop-opacity="0.82"/>
+                  <stop offset="58%"  stop-color="#f4f4f4" stop-opacity="0.82"/>
+                  <stop offset="100%" stop-color="#138808" stop-opacity="0.90"/>
+                </linearGradient>
+              </defs>
+              <path d="M50,4 L62,3 L74,10 L78,20 L76,30 L78,40 L74,52 L70,62 L65,72 L60,82 L55,90 L50,97 L46,90 L41,82 L36,72 L32,62 L28,52 L26,42 L22,32 L20,22 L24,14 L34,7 L42,4 Z"
+                    fill="url(#india-tricolor)"
+                    stroke="rgba(255,255,255,0.28)"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"/>
+            </svg>
           </div>
-
-          <div class="hero__mini-stat">
-            <span class="material-symbols-outlined icon-fill">verified_user</span>
-            <strong>500+</strong>
-            <p>Verified Providers</p>
-          </div>
-
-          <div class="hero__mini-stat">
-            <span class="material-symbols-outlined icon-fill">timer</span>
-            <strong>&lt;2 min</strong>
-            <p>Avg. Setup Time</p>
-          </div>
-
+          <span class="hero__reach-label">Heal Well<br/>in India</span>
         </div>
+
+        <!-- Heal Well in Africa -->
+        <div class="hero__reach-card">
+          <div class="hero__reach-map" aria-hidden="true">
+            <svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="africa-multicolor" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%"   stop-color="#E74C3C" stop-opacity="0.85"/>
+                  <stop offset="25%"  stop-color="#F39C12" stop-opacity="0.82"/>
+                  <stop offset="50%"  stop-color="#27AE60" stop-opacity="0.85"/>
+                  <stop offset="75%"  stop-color="#2980B9" stop-opacity="0.82"/>
+                  <stop offset="100%" stop-color="#E67E22" stop-opacity="0.85"/>
+                </linearGradient>
+              </defs>
+              <path d="M24,4 L76,4 L84,12 L88,22 L90,28 L85,36 L82,44 L78,54 L74,64 L68,74 L62,84 L57,92 L52,100 L50,108 L48,100 L43,92 L38,84 L32,74 L26,64 L22,54 L18,44 L16,32 L18,20 L22,12 Z"
+                    fill="url(#africa-multicolor)"
+                    stroke="rgba(255,255,255,0.28)"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"/>
+              <path d="M84,30 L92,26 L93,20 L87,18 L84,24 Z"
+                    fill="url(#africa-multicolor)"
+                    stroke="rgba(255,255,255,0.22)"
+                    stroke-width="1"
+                    stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="hero__reach-label">Heal Well<br/>in Africa</span>
+        </div>
+
       </div>
 
     </div>
   </header>
 
-  <!-- ── Platform Capabilities — Horizontal Scroll Strip ── -->
-  <section class="capabilities" id="capabilities" aria-labelledby="capabilities-title">
-    <div class="capabilities__header section-container">
-      <h2 class="capabilities__title" id="capabilities-title">Platform Capabilities</h2>
-      <p class="capabilities__subtitle">Dive deeper into the services tailored for your modern lifestyle.</p>
+  <!-- ── Coming Soon Strip — replaces Platform Capabilities ── -->
+  <section class="coming-soon-strip" aria-labelledby="coming-soon-title">
+    <div class="coming-soon-strip__header section-container">
+      <span class="coming-soon-strip__eyebrow" id="coming-soon-title">Coming Soon</span>
     </div>
-    <div class="capabilities__strip hide-scrollbar" role="list">
-      @for (cap of capabilities; track cap.label) {
-      <div class="cap-card" role="listitem">
-        <div class="cap-card__icon">
-          @if (cap.svgPaths) {
-            <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              @for (p of cap.svgPaths; track p.d) {
-                <path [attr.d]="p.d" fill="currentColor"/>
-              }
-            </svg>
-          } @else {
-            <span class="material-symbols-outlined icon-fill">{{ cap.icon }}</span>
-          }
+    <div class="coming-soon-strip__scroll hide-scrollbar" role="list">
+      @for (cap of comingSoonCapabilities; track cap.label) {
+        <div class="cs-pill" role="listitem">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ cap.icon }}</span>
+          <span>{{ cap.label }}</span>
+          <span class="cs-pill__badge">Coming Soon</span>
         </div>
-        <h3 class="cap-card__title">{{ cap.label }}</h3>
-        <p class="cap-card__desc">{{ cap.desc }}</p>
-        <span class="cap-card__badge"
-          [class.cap-card__badge--live]="cap.live"
-          [class.cap-card__badge--soon]="!cap.live">
-          {{ cap.live ? 'Live' : 'Coming soon' }}
-        </span>
-      </div>
       }
-    </div>
-    <div class="capabilities__scroll-hint" aria-hidden="true">
-      <span>Scroll to explore</span>
-      <span class="material-symbols-outlined">chevron_right</span>
     </div>
   </section>
 
