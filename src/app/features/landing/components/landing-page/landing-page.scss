@@ -432,9 +432,11 @@ $outline:            var(--landing-outline);
     align-items: center;
     justify-content: center;
 
-    svg {
+    svg,
+    img {
       width: 100%;
       height: 100%;
+      object-fit: contain;
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.50));
     }
   }
@@ -1407,6 +1409,31 @@ $outline:            var(--landing-outline);
     padding: 22px 22px;
   }
 
+  .hero__services-grid { gap: 8px; }
+
+  .hero__service-card {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .hero__service-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .hero__service-name { font-size: 10px; letter-spacing: 0.04em; }
+
+  .hero__service-live { font-size: 8px; padding: 2px 5px; }
+
+  .hero__global-reach { gap: 10px; }
+
+  .hero__reach-card { padding: 12px 14px; gap: 10px; }
+
+  .hero__reach-map { width: 40px; height: 40px; }
+
+  .hero__reach-label { font-size: 10px; letter-spacing: 0.06em; }
+
   .cta-band__inner {
     padding: 40px 24px;
     border-radius: 20px;
@@ -1418,9 +1445,21 @@ $outline:            var(--landing-outline);
 }
 
 @media (max-width: 420px) {
-  .hero__services-grid {
-    grid-template-columns: 1fr;
-  }
+  .hero__services-grid { gap: 6px; }
+
+  .hero__service-card { padding: 8px 10px; gap: 8px; }
+
+  .hero__service-icon { width: 26px; height: 26px; }
+
+  .hero__service-name { font-size: 9px; }
+
+  .hero__service-live { display: none; }
+
+  .hero__global-reach { gap: 8px; }
+
+  .hero__reach-card { padding: 10px 12px; gap: 8px; }
+
+  .hero__reach-map { width: 36px; height: 36px; }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1460,13 +1499,5 @@ $outline:            var(--landing-outline);
 
   .hero__left {
     padding: 20px 18px;
-  }
-
-  .hero__services-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero__global-reach {
-    flex-direction: column;
   }
 }
