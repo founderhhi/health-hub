@@ -31,6 +31,9 @@ export class ReferralDetailsComponent implements OnInit {
   patientPrescriptions: any[] = [];
   loadingPatientPrescriptions = false;
   showPatientPrescriptions = false;
+
+  // Lab order dialog
+  showLabModal = false;
   labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
   selectedTests: string[] = [];
   customTest = '';
