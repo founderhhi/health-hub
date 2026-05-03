@@ -311,6 +311,28 @@
 </section>
 
 <!-- ═══════════════════════════════════════════
+     Upcoming Appointment Popup (Issue 9)
+     ═══════════════════════════════════════════ -->
+@if (showUpcomingAppointmentPopup) {
+<div class="pd-sheet-backdrop" (click)="dismissAppointmentPopup()">
+  <div class="pd-sheet" (click)="$event.stopPropagation()">
+    <div class="pd-sheet__icon pd-sheet__icon--green">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2" stroke-linecap="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+    <h2 class="pd-sheet__title">Upcoming Appointment</h2>
+    <p class="pd-sheet__body">You have an appointment starting in the next 5 minutes. Would you like to join now?</p>
+    <button class="pd-sheet__btn pd-sheet__btn--primary" type="button" (click)="joinUpcomingAppointment()">Yes, Join Now</button>
+    <button class="pd-sheet__btn pd-sheet__btn--outline" type="button" (click)="dismissAppointmentPopup()">Maybe Later</button>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════════════════════════════
      Emergency SOS Modal
      ═══════════════════════════════════════════ -->
 @if (showSosModal) {

@@ -235,6 +235,51 @@
         <p class="inline-notice inline-notice--error" *ngIf="errorMessage">{{ errorMessage }}</p>
         <p class="inline-notice" *ngIf="actionNotice">{{ actionNotice }}</p>
         <p class="inline-notice" *ngIf="requestInfoNotice">{{ requestInfoNotice }}</p>
+
+        <!-- Patient Prescription History (Issue 12: shared across all doctors/specialists) -->
+        <div class="info-card patient-prescriptions-card">
+          <div class="patient-prescriptions-header" (click)="showPatientPrescriptions = !showPatientPrescriptions">
+            <h3 class="info-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;display:inline;margin-right:6px">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              Previous Prescriptions
+              @if (patientPrescriptions.length > 0) {
+                <span class="hhi-badge">{{ patientPrescriptions.length }}</span>
+              }
+            </h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;transition:transform 0.2s" [style.transform]="showPatientPrescriptions ? 'rotate(180deg)' : 'rotate(0deg)'">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          @if (showPatientPrescriptions) {
+            @if (loadingPatientPrescriptions) {
+              <p class="info-value" style="padding:12px 0;">Loading prescription history...</p>
+            } @else if (patientPrescriptions.length === 0) {
+              <p class="info-value" style="padding:12px 0;">No previous prescriptions found for this patient.</p>
+            } @else {
+              <div class="prescriptions-list">
+                @for (rx of patientPrescriptions; track rx.id) {
+                  <div class="prescription-history-card">
+                    <div class="prescription-history-header">
+                      <span class="prescription-code">{{ rx.code || 'RX' }}</span>
+                      <span class="hhi-badge" [class.hhi-badge--success]="rx.status === 'active'">{{ rx.status | titlecase }}</span>
+                      <span class="prescription-date">{{ rx.created_at | date:'mediumDate' }}</span>
+                    </div>
+                    @if (rx.items?.length > 0) {
+                      <ul class="prescription-items-list">
+                        @for (item of rx.items; track $index) {
+                          <li>{{ item.name }} — {{ item.dosage }}{{ item.frequency ? ', ' + item.frequency : '' }}</li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        </div>
       </div>
     }
   </div>

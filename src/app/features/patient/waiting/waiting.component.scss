@@ -405,3 +405,99 @@
   gap: 10px;
   justify-content: flex-end;
 }
+
+/* ── Post-Call Review Styles (Issues 2 & 3) ── */
+.review-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(46, 204, 113, 0.1);
+  border-radius: 50%;
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.review-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #d1d5db;
+  transition: color 0.15s ease, transform 0.1s ease;
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  &--active {
+    color: #f59e0b;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    color: #f59e0b;
+  }
+}
+
+.review-comment-group {
+  margin: 16px 0;
+  text-align: left;
+}
+
+.review-textarea {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  resize: vertical;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #2ECC71;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+  }
+}
+
+.close-tab-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(46, 204, 113, 0.06);
+  border: 1px solid rgba(46, 204, 113, 0.2);
+  border-radius: 12px;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    color: #2ECC71;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    text-align: center;
+  }
+}

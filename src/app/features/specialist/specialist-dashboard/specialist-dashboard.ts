@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ReferralsApiService } from '../../../core/api/referrals.service';
 import { WsService } from '../../../core/realtime/ws.service';
+import { AuthApiService } from '../../../core/api/auth.service';
 
 interface SpecialistReferral {
   id: string;
@@ -172,8 +173,22 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private referralsApi: ReferralsApiService,
     private ws: WsService,
-    private router: Router
+    private router: Router,
+    private authApi: AuthApiService
   ) {}
+
+  signOut(): void {
+    this.authApi.logout().subscribe({
+      next: () => {
+        this.authApi.clearSession();
+        this.router.navigate(['/landing']);
+      },
+      error: () => {
+        this.authApi.clearSession();
+        this.router.navigate(['/landing']);
+      }
+    });
+  }
 
   ngOnInit(): void {
     const cachedReferrals = this.referralsApi.getCachedSpecialistReferrals();
@@ -294,8 +309,16 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
 
   private loadReferrals(showLoader = true): void {
     this.loading = showLoader && this.referrals.length === 0;
+    const loadTimeout = setTimeout(() => {
+      if (this.loading) {
+        this.loading = false;
+        this.errorMessage = 'Referrals are taking longer than expected. Please check your connection.';
+        this.hasResolvedInitialLoad = true;
+      }
+    }, 10000);
     this.referralsApi.listForSpecialist().subscribe({
       next: (response) => {
+        clearTimeout(loadTimeout);
         this.referrals = Array.isArray(response.referrals) ? response.referrals : [];
         this.recalculateStats();
         this.errorMessage = '';
@@ -304,6 +327,7 @@ export class SpecialistDashboardComponent implements OnInit, OnDestroy {
         this.handlePostLoadConsistencyRefresh();
       },
       error: () => {
+        clearTimeout(loadTimeout);
         this.errorMessage = 'Unable to load referrals right now.';
         this.loading = false;
         this.hasResolvedInitialLoad = true;

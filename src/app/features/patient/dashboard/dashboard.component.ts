@@ -107,6 +107,11 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   comingSoonMessage = '';
   private wsSubscription?: Subscription;
   private routerSub?: Subscription;
+  private appointmentCheckInterval?: ReturnType<typeof setInterval>;
+
+  // Upcoming appointment popup (Issue 9)
+  showUpcomingAppointmentPopup = false;
+  upcomingAppointmentReferral: any = null;
 
   // Health statistics
   stats: HealthStats = {
@@ -180,6 +185,10 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         }
       });
+
+      // Check for upcoming appointments every 60 seconds (Issue 9)
+      this.checkUpcomingAppointments();
+      this.appointmentCheckInterval = setInterval(() => this.checkUpcomingAppointments(), 60000);
     }
   }
 
@@ -187,6 +196,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.wsSubscription?.unsubscribe();
     this.themeSubscription?.unsubscribe();
     this.routerSub?.unsubscribe();
+    if (this.appointmentCheckInterval) {
+      clearInterval(this.appointmentCheckInterval);
+    }
   }
 
   toggleTheme(): void {
@@ -480,6 +492,44 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       width: `${this.spotlightRect.width + pad * 2}px`,
       height: `${this.spotlightRect.height + pad * 2}px`,
     };
+  }
+
+  dismissAppointmentPopup(): void {
+    this.showUpcomingAppointmentPopup = false;
+    this.upcomingAppointmentReferral = null;
+  }
+
+  joinUpcomingAppointment(): void {
+    this.showUpcomingAppointmentPopup = false;
+    if (this.upcomingAppointmentReferral?.id) {
+      this.router.navigate(['/patient/appointments', this.upcomingAppointmentReferral.id, 'consultation']);
+    } else {
+      this.router.navigate(['/patient/appointments']);
+    }
+  }
+
+  private checkUpcomingAppointments(): void {
+    this.patientApi.getReferrals().pipe(
+      timeout(8000),
+      catchError(() => of(null))
+    ).subscribe((response: any) => {
+      if (!response?.referrals) return;
+      const now = new Date();
+      const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
+      const upcoming = (response.referrals as any[]).find((r: any) => {
+        if (!r.appointment_date || !r.appointment_time) return false;
+        if (r.consultation_mode !== 'online') return false;
+        if (!['accepted', 'confirmed'].includes(r.status)) return false;
+        const apptStr = `${r.appointment_date.split('T')[0]}T${r.appointment_time}`;
+        const apptTime = new Date(apptStr);
+        return apptTime >= now && apptTime <= fiveMinutesFromNow;
+      });
+      if (upcoming && !this.showUpcomingAppointmentPopup) {
+        this.upcomingAppointmentReferral = upcoming;
+        this.showUpcomingAppointmentPopup = true;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   private loadStats(): void {

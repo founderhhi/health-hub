@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Subscription, firstValueFrom, timeout } from 'rxjs';
 import { WsService } from '../../../core/realtime/ws.service';
 import { PatientApiService } from '../../../core/api/patient.service';
@@ -9,7 +10,7 @@ import { ConsultShellComponent, ConsultMode } from '../../../shared/components/c
 @Component({
   selector: 'app-patient-waiting',
   standalone: true,
-  imports: [CommonModule, RouterModule, ConsultShellComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ConsultShellComponent],
   templateUrl: './waiting.component.html',
   styleUrl: './waiting.component.scss'
 })
@@ -18,6 +19,14 @@ export class WaitingComponent implements OnInit, OnDestroy {
   consultationId = '';
   consultMode: ConsultMode = 'video';
   gpName = '';
+
+  // Post-call review state
+  showReviewPage = false;
+  reviewRating = 0;
+  reviewComment = '';
+  reviewSubmitted = false;
+  submittingReview = false;
+  showCloseTabPrompt = false;
   showConsultShell = false;
   showCancelConfirm = false;
   cancelPending = false;
@@ -352,8 +361,9 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.showCancelConfirm = false;
     this.cancelPending = false;
     this.clearConsultationState();
-    this.statusMessage = `${message} Returning you to dashboard...`;
-    this.scheduleDashboardRedirect();
+    this.statusMessage = message;
+    // Show review page instead of auto-redirecting
+    this.showReviewPage = true;
   }
 
   private clearConsultationState(): void {
@@ -390,7 +400,35 @@ export class WaitingComponent implements OnInit, OnDestroy {
     return this.hasAcceptedConsultation && !this.cancelPending;
   }
 
+  setReviewRating(rating: number): void {
+    this.reviewRating = rating;
+  }
+
+  submitReview(): void {
+    if (this.submittingReview) return;
+    this.submittingReview = true;
+    // Submit review to API (fire-and-forget, non-blocking)
+    this.patientApi.submitConsultationReview({
+      rating: this.reviewRating,
+      comment: this.reviewComment
+    }).subscribe({ error: () => {} });
+    setTimeout(() => {
+      this.submittingReview = false;
+      this.reviewSubmitted = true;
+      this.showCloseTabPrompt = true;
+    }, 600);
+  }
+
+  skipReview(): void {
+    this.reviewSubmitted = true;
+    this.showCloseTabPrompt = true;
+  }
+
+  goToDashboard(): void {
+    this.navigateToDashboard();
+  }
+
   get showRefreshButton(): boolean {
-    return !this.hasAcceptedConsultation && !this.cancelPending && !this.consultationFinished;
+    return false; // Auto-polling handles status refresh — manual button removed (Issue 1)
   }
 }

@@ -50,6 +50,11 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
 
   triageContext: any = null;
 
+  // Patient prescription history (Issue 12: shared across all doctors)
+  patientPrescriptions: any[] = [];
+  loadingPatientPrescriptions = false;
+  showPatientPrescriptions = false;
+
   // Lab order dialog
   showLabModal = false;
   labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
@@ -179,7 +184,11 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
   }
 
   submitLabOrder(): void {
-    if (!this.consultation?.patient_id || this.submittingLabs) return;
+    if (this.submittingLabs) return;
+    if (!this.consultation?.patient_id) {
+      this.errorMessage = 'Unable to submit: patient information is missing. Please go back and reload.';
+      return;
+    }
     const tests = [...this.selectedTests];
     if (this.customTest.trim()) tests.push(this.customTest.trim());
     if (tests.length === 0 || !this.labNote.trim()) return;
@@ -187,16 +196,17 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
     this.submittingLabs = true;
     this.errorMessage = '';
     this.statusMessage = '';
+    this.labOrderNotice = '';
     
     this.labsApi.createOrder(this.consultation.patient_id, tests, this.selectedCentre || undefined, this.labNote.trim()).subscribe({
       next: () => {
         this.submittingLabs = false;
         this.showLabModal = false;
-        this.statusMessage = `Lab order submitted: ${tests.join(', ')}.`;
+        this.statusMessage = `Lab order submitted successfully: ${tests.join(', ')}.`;
       },
-      error: () => {
+      error: (err) => {
         this.submittingLabs = false;
-        this.errorMessage = 'Unable to submit lab order right now.';
+        this.errorMessage = err?.error?.error || 'Unable to submit lab order right now. Please try again.';
       }
     });
   }
@@ -364,12 +374,30 @@ export class GpConsultationComponent implements OnInit, OnDestroy {
         } finally {
            this.loading = false;
         }
+        // Load patient's full prescription history for cross-doctor visibility (Issue 12)
+        if (this.consultation?.patient_id) {
+          this.loadPatientPrescriptions(this.consultation.patient_id);
+        }
       },
       error: (err) => {
         clearTimeout(timer);
         console.error('Consultation fetch failed:', err);
         this.loading = false;
         this.errorMessage = err?.error?.error || 'Unable to load consultation details.';
+      }
+    });
+  }
+
+  private loadPatientPrescriptions(patientId: string): void {
+    this.loadingPatientPrescriptions = true;
+    this.prescriptionsApi.listForPatient(patientId).subscribe({
+      next: (response) => {
+        this.patientPrescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
+        this.loadingPatientPrescriptions = false;
+      },
+      error: () => {
+        this.patientPrescriptions = [];
+        this.loadingPatientPrescriptions = false;
       }
     });
   }

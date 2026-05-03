@@ -27,8 +27,10 @@ export class ReferralDetailsComponent implements OnInit {
   declining = false;
   submittingInfo = false;
 
-  // Lab order dialog
-  showLabModal = false;
+  // Shared prescription history (Issue 12)
+  patientPrescriptions: any[] = [];
+  loadingPatientPrescriptions = false;
+  showPatientPrescriptions = false;
   labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
   selectedTests: string[] = [];
   customTest = '';
@@ -45,6 +47,7 @@ export class ReferralDetailsComponent implements OnInit {
   loadingSpecialists = false;
   reassigningReferral = false;
   reassignError = '';
+  referralReassigned = false;
   scheduleForm = {
     appointmentDate: '',
     appointmentTime: '',
@@ -135,7 +138,7 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   get canReassignReferral(): boolean {
-    return Boolean(this.referral?.id) && this.referral?.status !== 'declined';
+    return Boolean(this.referral?.id) && this.referral?.status !== 'declined' && !this.referralReassigned;
   }
 
   get canEditSchedule(): boolean {
@@ -361,6 +364,7 @@ export class ReferralDetailsComponent implements OnInit {
       next: (response) => {
         this.reassigningReferral = false;
         this.referral = response.referral || this.referral;
+        this.referralReassigned = true;
         this.closeReassignModal();
         const specialistName = response.targetSpecialist?.display_name || 'the selected specialist';
         this.actionNotice = `Referral forwarded to ${specialistName}. Returning to your dashboard...`;
@@ -521,11 +525,31 @@ export class ReferralDetailsComponent implements OnInit {
         this.syncScheduleFormFromReferral();
         this.loading = false;
         this.cdr.detectChanges();
+        // Load patient's full prescription history for cross-doctor visibility (Issue 12)
+        if (this.referral?.patient_id) {
+          this.loadPatientPrescriptions(this.referral.patient_id);
+        }
       },
       error: (err) => {
         console.error('[AGENT_SPECIALIST] failed to load referral', err);
         this.errorMessage = 'Unable to load referral details.';
         this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private loadPatientPrescriptions(patientId: string): void {
+    this.loadingPatientPrescriptions = true;
+    this.prescriptionsApi.listForPatient(patientId).subscribe({
+      next: (response) => {
+        this.patientPrescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
+        this.loadingPatientPrescriptions = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.patientPrescriptions = [];
+        this.loadingPatientPrescriptions = false;
         this.cdr.detectChanges();
       }
     });

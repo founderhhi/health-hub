@@ -47,6 +47,45 @@
         <!-- Pre-Consultation Summary: AI triage, patient symptoms, duration, severity, notes -->
         <app-patient-summary-panel [zoomUrl]="roomUrl" [triageContext]="triageContext"></app-patient-summary-panel>
 
+        <!-- Previous Prescriptions (Issue 12: visible to all treating providers) -->
+        <div class="panel-card">
+          <h3 class="card-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" (click)="showPatientPrescriptions = !showPatientPrescriptions">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline;margin-right:6px">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              Previous Prescriptions
+            </span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;transition:transform 0.2s" [style.transform]="showPatientPrescriptions ? 'rotate(180deg)' : 'rotate(0)'">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </h3>
+          @if (showPatientPrescriptions) {
+            @if (loadingPatientPrescriptions) {
+              <p class="complaint-text">Loading...</p>
+            } @else if (patientPrescriptions.length === 0) {
+              <p class="complaint-text">No previous prescriptions found.</p>
+            } @else {
+              @for (rx of patientPrescriptions; track rx.id) {
+                <div style="border:1px solid #e5e7eb;border-radius:6px;padding:10px;margin-bottom:8px;font-size:0.82rem;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <strong>{{ rx.code || 'RX' }}</strong>
+                    <span style="color:#6b7280;">{{ rx.created_at | date:'mediumDate' }}</span>
+                  </div>
+                  @if (rx.items?.length > 0) {
+                    <ul style="margin:0;padding-left:1rem;color:#4b5563;">
+                      @for (item of rx.items; track $index) {
+                        <li>{{ item.name }} — {{ item.dosage }}</li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
+            }
+          }
+        </div>
+
         <div class="panel-card">
           <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()">Back to Dashboard</button>
         </div>

@@ -449,9 +449,10 @@
 }
 
 .secondary-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: v.$space-md;
+  align-items: center;
 }
 
 // [AGENT_SPECIALIST] ISS-14: request-info form styles
@@ -1241,5 +1242,67 @@
 
   .attachment-item {
     padding: v.$space-sm;
+  }
+}
+
+/* ── Patient Prescription History (Issue 12) ── */
+.patient-prescriptions-card {
+  margin-top: v.$space-lg;
+}
+
+.patient-prescriptions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.prescriptions-list {
+  margin-top: v.$space-md;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-sm;
+}
+
+.prescription-history-card {
+  background: var(--bg-surface, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  padding: v.$space-md;
+}
+
+.prescription-history-header {
+  display: flex;
+  align-items: center;
+  gap: v.$space-sm;
+  flex-wrap: wrap;
+  margin-bottom: v.$space-xs;
+}
+
+.prescription-code {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.prescription-date {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.prescription-items-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+
+  li {
+    margin-bottom: 2px;
   }
 }

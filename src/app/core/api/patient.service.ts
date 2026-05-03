@@ -107,6 +107,10 @@ export class PatientApiService {
     return this.api.get<{ specialists: any[] }>('/patient/specialists');
   }
 
+  submitConsultationReview(data: { rating: number; comment: string }) {
+    return this.api.post<{ ok: boolean }>('/patient/consultation-review', data);
+  }
+
   getCachedProfile() {
     return this.profileCache;
   }

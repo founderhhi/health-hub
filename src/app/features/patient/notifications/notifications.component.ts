@@ -94,6 +94,23 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.load();
   }
 
+  friendlyType(type: string): string {
+    const map: Record<string, string> = {
+      'consultation.accepted': 'Consultation',
+      'consultation.completed': 'Consultation',
+      'consultation.started': 'Consultation',
+      'consultation.cancelled': 'Consultation',
+      'prescription.created': 'Prescription',
+      'prescription.claimed': 'Prescription',
+      'lab.status.updated': 'Lab Results',
+      'referral.created': 'Referral',
+      'referral.status': 'Referral Update',
+      'consult.accepted': 'Consultation',
+      'consult.completed': 'Consultation',
+    };
+    return map[type] || 'Notification';
+  }
+
   private load(): void {
     if (this.loadTimeoutRef) {
       clearTimeout(this.loadTimeoutRef);

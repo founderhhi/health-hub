@@ -25,7 +25,7 @@
       <div class="note-content">
         <div class="note-message">{{ note.message }}</div>
         <div class="note-meta">
-          <span class="note-type">{{ note.type }}</span>
+          <span class="note-type">{{ friendlyType(note.type) }}</span>
           <span>{{ note.created_at | date:'short' }}</span>
         </div>
       </div>
