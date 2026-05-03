@@ -132,6 +132,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
     }
 
     window.open(roomUrl, '_blank');
+    // Show consult shell on the original tab so the patient can rejoin if needed
+    this.showConsultShell = true;
   }
 
   refreshStatus(): void {
@@ -281,11 +283,13 @@ export class WaitingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // For video/audio: immediately show the consultation shell so they can click to join.
+    // For video/audio: show the "doctor has joined" popup so the patient
+    // can see a clear prompt and choose to join the call. (Bug fix: patient
+    // was previously getting stuck on waiting room with no visible prompt.)
     this.statusMessage = this.gpName
       ? `${this.gpName} has accepted your request.`
       : 'A Health Expert has accepted your request.';
-    this.showConsultShell = true;
+    this.showAcceptedOverlay = true;
   }
 
   private pollActiveConsult(): void {
