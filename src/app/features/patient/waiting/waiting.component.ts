@@ -75,7 +75,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
       // Recover from missed websocket events (refresh/WS drop) while user is waiting.
       this.pollActiveConsult();
-      this.activeConsultPollTimer = setInterval(() => this.pollActiveConsult(), 5000);
+      this.activeConsultPollTimer = setInterval(() => this.pollActiveConsult(), 2000);
     }
   }
 
@@ -250,11 +250,20 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
     const nextConsultationId = this.extractConsultationId(data);
     const nextRoomUrl = this.extractRoomUrl(data);
-    if (!nextConsultationId) {
+    const gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
+
+    if (this.cancelPending) {
       return;
     }
 
-    if (this.cancelPending) {
+    // Doctor has accepted but the consultation room is not provisioned yet.
+    // Update the status message so the patient knows they're not still waiting,
+    // and let the poll timer retry until the room is ready.
+    if (!nextConsultationId && !nextRoomUrl) {
+      if (gpName) this.gpName = gpName;
+      this.statusMessage = gpName
+        ? `${gpName} has accepted your request. Preparing your session...`
+        : 'A Health Expert has accepted your request. Preparing your session...';
       return;
     }
 
@@ -262,7 +271,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.consultationFinished = false;
     this.roomUrl = nextRoomUrl;
     this.consultationId = nextConsultationId;
-    this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
+    this.gpName = gpName;
 
     if (this.consultMode === 'chat') {
       this.statusMessage = this.gpName
@@ -297,6 +306,13 @@ export class WaitingComponent implements OnInit, OnDestroy {
         this.requestId = active.id || this.requestId;
 
         if (active.status === 'accepted') {
+          // Immediately update message so patient is never left on "Waiting..." after GP accepts
+          if (!this.showConsultShell && !this.consultationId) {
+            const gpName = active?.gp_name || active?.gpName || this.gpName || '';
+            this.statusMessage = gpName
+              ? `${gpName} has accepted your request. Preparing your session...`
+              : 'A Health Expert has accepted your request. Preparing your session...';
+          }
           this.applyAcceptedConsultation(active);
         } else if (!this.roomUrl) {
           this.statusMessage = 'Waiting for a Health Expert to accept your request...';
