@@ -222,6 +222,7 @@
           </svg>
           <span class="mode-option-label">Video</span>
           <span class="mode-option-desc">Face-to-face video call</span>
+          <span class="mode-option-price">$5</span>
         </button>
         <button class="mode-option" [class.selected]="selectedMode === 'audio'" (click)="selectedMode = 'audio'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -229,6 +230,7 @@
           </svg>
           <span class="mode-option-label">Audio</span>
           <span class="mode-option-desc">Voice-only call</span>
+          <span class="mode-option-price">$3</span>
         </button>
         <button class="mode-option" [class.selected]="selectedMode === 'chat'" (click)="selectedMode = 'chat'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -236,6 +238,7 @@
           </svg>
           <span class="mode-option-label">Chat</span>
           <span class="mode-option-desc">Text-based consultation</span>
+          <span class="mode-option-price">$1</span>
         </button>
       </div>
       <div class="mode-selector-actions">
@@ -253,9 +256,9 @@
   <div class="mode-selector-overlay" (click)="cancelPayment()">
     <div class="mode-selector-modal" (click)="$event.stopPropagation()">
       <h2 class="mode-selector-title">Confirm Consultation</h2>
-      <p class="mode-selector-desc">Are you sure you want to proceed with the Health Expert consultation?</p>
+      <p class="mode-selector-desc">You're about to start a <strong>{{ consultationModeLabel }}</strong>. A Health Expert will join shortly.</p>
       <div class="payment-cost">
-        <span class="cost-label">Consultation Fee</span>
+        <span class="cost-label">{{ consultationModeLabel }}</span>
         <span class="cost-value">{{ consultationCost }}</span>
       </div>
       <div class="mode-selector-actions">

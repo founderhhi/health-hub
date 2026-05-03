@@ -14,19 +14,6 @@ export const DURATION_OPTIONS = [
   '4–5 days', '1 week', '> 1 week'
 ];
 
-export interface Step {
-  id: number;
-  question: string;
-  hint?: string;
-}
-
-export const STEPS: Step[] = [
-  { id: 1, question: 'What are your symptoms?',              hint: 'Select all that apply' },
-  { id: 2, question: 'How long have you had these symptoms?', hint: 'Pick the closest estimate' },
-  { id: 3, question: 'How severe are your symptoms?',         hint: 'Drag the slider to rate 1–10' },
-  { id: 4, question: 'Anything else to tell your doctor?',    hint: 'Optional — but helps a lot' },
-];
-
 @Component({
   selector: 'app-pre-consultation-form',
   standalone: true,
@@ -40,10 +27,8 @@ export class PreConsultationFormComponent implements OnInit {
 
   readonly symptomOptions = SYMPTOM_OPTIONS;
   readonly durationOptions = DURATION_OPTIONS;
-  readonly steps = STEPS;
 
-  // ── Form state ──────────────────────────────────────────────────────────────
-  currentStep = 1;
+  // Form state
   selectedSymptoms: string[] = [];
   otherSymptom = '';
   showOtherInput = false;
@@ -51,37 +36,8 @@ export class PreConsultationFormComponent implements OnInit {
   severity = 5;
   notes = '';
   isSubmitting = false;
+  submitAttempted = false;
 
-  // track which steps have been answered (for progress)
-  answered: Record<number, boolean> = { 1: false, 2: false, 3: true, 4: true };
-
-  get currentStepData(): Step {
-    return this.steps[this.currentStep - 1];
-  }
-
-  get totalSteps(): number { return this.steps.length; }
-
-  get progressPercent(): number {
-    return ((this.currentStep - 1) / (this.totalSteps - 1)) * 100;
-  }
-
-  get isLastStep(): boolean { return this.currentStep === this.totalSteps; }
-
-  get canProceed(): boolean {
-    switch (this.currentStep) {
-      case 1: return this.selectedSymptoms.length > 0 || this.otherSymptom.trim().length > 0;
-      case 2: return this.selectedDuration.trim().length > 0;
-      case 3: return true;
-      case 4: return true;
-      default: return false;
-    }
-  }
-
-  get allAnswered(): boolean {
-    return Object.values(this.answered).every(v => v);
-  }
-
-  // ── Severity helpers ────────────────────────────────────────────────────────
   get severityLabel(): string {
     if (this.severity <= 3) return 'Mild';
     if (this.severity <= 6) return 'Moderate';
@@ -96,7 +52,16 @@ export class PreConsultationFormComponent implements OnInit {
     return '#ef4444';
   }
 
-  // ── Lifecycle ───────────────────────────────────────────────────────────────
+  get finalSymptoms(): string[] {
+    const list = [...this.selectedSymptoms];
+    if (this.otherSymptom.trim()) list.push(this.otherSymptom.trim());
+    return list;
+  }
+
+  get isValid(): boolean {
+    return this.finalSymptoms.length > 0 && this.selectedDuration.trim().length > 0;
+  }
+
   ngOnInit(): void {
     const existing = this.consultationService.currentSession;
     if (existing) {
@@ -111,14 +76,12 @@ export class PreConsultationFormComponent implements OnInit {
           this.router.navigate(['/patient/waiting']);
           return;
         }
-        this.updateAnswered();
       } else {
         this.consultationService.resetForNewConsultation();
       }
     }
   }
 
-  // ── Step 1: Symptoms ────────────────────────────────────────────────────────
   toggleSymptom(symptom: string): void {
     const idx = this.selectedSymptoms.indexOf(symptom);
     if (idx === -1) {
@@ -126,7 +89,6 @@ export class PreConsultationFormComponent implements OnInit {
     } else {
       this.selectedSymptoms = this.selectedSymptoms.filter(s => s !== symptom);
     }
-    this.answered[1] = this.canProceed;
   }
 
   isSelected(symptom: string): boolean {
@@ -135,58 +97,14 @@ export class PreConsultationFormComponent implements OnInit {
 
   toggleOther(): void {
     this.showOtherInput = !this.showOtherInput;
-    if (!this.showOtherInput) {
-      this.otherSymptom = '';
-    }
-    this.answered[1] = this.canProceed;
+    if (!this.showOtherInput) this.otherSymptom = '';
   }
 
-  onOtherInput(): void {
-    this.answered[1] = this.canProceed;
-  }
+  onOtherInput(): void {}
 
-  // ── Step 2: Duration ────────────────────────────────────────────────────────
-  onDurationChange(): void {
-    this.answered[2] = this.selectedDuration.trim().length > 0;
-  }
-
-  // ── Navigation ──────────────────────────────────────────────────────────────
-  nextStep(): void {
-    if (!this.canProceed) return;
-    this.saveCurrentStep();
-    if (this.currentStep < this.totalSteps) {
-      this.currentStep++;
-    }
-  }
-
-  prevStep(): void {
-    if (this.currentStep > 1) this.currentStep--;
-  }
-
-  goToStep(step: number): void {
-    // only allow going back to completed steps
-    if (step < this.currentStep) this.currentStep = step;
-  }
-
-  private saveCurrentStep(): void {
-    this.answered[this.currentStep] = true;
-  }
-
-  private updateAnswered(): void {
-    this.answered[1] = this.selectedSymptoms.length > 0;
-    this.answered[2] = this.selectedDuration.trim().length > 0;
-  }
-
-  // ── Get final symptoms list ─────────────────────────────────────────────────
-  get finalSymptoms(): string[] {
-    const list = [...this.selectedSymptoms];
-    if (this.otherSymptom.trim()) list.push(this.otherSymptom.trim());
-    return list;
-  }
-
-  // ── Submit ──────────────────────────────────────────────────────────────────
   onSubmit(): void {
-    if (!this.allAnswered || this.isSubmitting) return;
+    this.submitAttempted = true;
+    if (!this.isValid || this.isSubmitting) return;
     this.isSubmitting = true;
     this.consultationService
       .submitConsultation({

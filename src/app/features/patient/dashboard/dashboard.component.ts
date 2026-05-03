@@ -27,7 +27,7 @@ interface ServiceCard {
   comingSoon?: boolean;
 }
 
-const GP_CONSULT_PRICE_USD = 5;
+const MODE_PRICES: Record<string, number> = { video: 5, audio: 3, chat: 1 };
 
 const DASHBOARD_SERVICES: ServiceCard[] = [
   { id: 'gp', title: 'Talk to a Health Expert', icon: 'pulse', description: 'Start your first guided care conversation.', tone: 'emerald' },
@@ -93,11 +93,6 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   walkthroughSteps = WALKTHROUGH_STEPS;
   spotlightRect: DOMRect | null = null;
   tooltipPlacement: 'above' | 'below' = 'below';
-  consultationCost = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(GP_CONSULT_PRICE_USD);
   selectedMode: 'video' | 'audio' | 'chat' = 'video';
   recentPrescriptions: any[] = [];
   statsLoading = true;
@@ -492,6 +487,15 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       width: `${this.spotlightRect.width + pad * 2}px`,
       height: `${this.spotlightRect.height + pad * 2}px`,
     };
+  }
+
+  get consultationCost(): string {
+    const price = MODE_PRICES[this.selectedMode] ?? 5;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(price);
+  }
+
+  get consultationModeLabel(): string {
+    return { video: 'Video Call', audio: 'Audio Call', chat: 'Chat' }[this.selectedMode] ?? 'Consultation';
   }
 
   dismissAppointmentPopup(): void {

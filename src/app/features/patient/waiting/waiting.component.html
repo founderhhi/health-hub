@@ -118,15 +118,12 @@
             Back to Dashboard
           </button>
         } @else {
-          <!-- Check if doctor has joined button — guaranteed reliable via user-click change detection -->
-          @if (!showAcceptedOverlay && !cancelPending) {
-            <button class="btn btn-check-doctor" type="button" (click)="checkDoctorJoined()" [disabled]="checkingDoctorStatus">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91A16 16 0 0 0 14 14.91l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              {{ checkingDoctorStatus ? 'Checking...' : 'Check if Doctor Has Joined' }}
-            </button>
-          }
+          <button class="btn btn-check-doctor" type="button" (click)="checkDoctorJoined()" [disabled]="checkingDoctorStatus">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91A16 16 0 0 0 14 14.91l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            {{ checkingDoctorStatus ? 'Checking...' : 'Check if Doctor Has Joined' }}
+          </button>
           <button class="btn btn-ghost" type="button" (click)="requestCancel()" [disabled]="cancelPending">
             {{ cancelPending ? 'Cancelling...' : 'Cancel & Go Back' }}
           </button>
