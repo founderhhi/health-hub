@@ -212,64 +212,40 @@
   @if (showModeSelector) {
   <div class="mode-selector-overlay" (click)="closeModeSelector()">
     <div class="mode-selector-modal" (click)="$event.stopPropagation()">
-      <h2 class="mode-selector-title">Choose Consultation Mode</h2>
-      <p class="mode-selector-desc">How would you like to connect with your Health Expert?</p>
+      <h2 class="mode-selector-title">How would you like to connect?</h2>
+      <p class="mode-selector-desc">Tap your preferred option to get started</p>
       <div class="mode-options">
-        <button class="mode-option" [class.selected]="selectedMode === 'video'" (click)="selectedMode = 'video'">
+        <button class="mode-option" (click)="selectedMode = 'video'; requestWithMode()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="23 7 16 12 23 17 23 7" />
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
           </svg>
-          <span class="mode-option-label">Video</span>
-          <span class="mode-option-desc">Face-to-face video call</span>
-          <span class="mode-option-price">$5</span>
+          <span class="mode-option-label">Video Call</span>
+          <span class="mode-option-desc">Face-to-face with your Health Expert</span>
         </button>
-        <button class="mode-option" [class.selected]="selectedMode === 'audio'" (click)="selectedMode = 'audio'">
+        <button class="mode-option" (click)="selectedMode = 'audio'; requestWithMode()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
           </svg>
-          <span class="mode-option-label">Audio</span>
-          <span class="mode-option-desc">Voice-only call</span>
-          <span class="mode-option-price">$3</span>
+          <span class="mode-option-label">Audio Call</span>
+          <span class="mode-option-desc">Voice-only with your Health Expert</span>
         </button>
-        <button class="mode-option" [class.selected]="selectedMode === 'chat'" (click)="selectedMode = 'chat'">
+        <button class="mode-option" (click)="selectedMode = 'chat'; requestWithMode()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span class="mode-option-label">Chat</span>
           <span class="mode-option-desc">Text-based consultation</span>
-          <span class="mode-option-price">$1</span>
         </button>
       </div>
       <div class="mode-selector-actions">
         <button class="btn-mode-cancel" type="button" (click)="closeModeSelector()">Cancel</button>
-        <button class="btn-mode-confirm" type="button" (click)="requestWithMode()">
-          Continue
-        </button>
       </div>
     </div>
   </div>
   }
 
-  <!-- Payment Confirmation Modal -->
-  @if (showPaymentConfirm) {
-  <div class="mode-selector-overlay" (click)="cancelPayment()">
-    <div class="mode-selector-modal" (click)="$event.stopPropagation()">
-      <h2 class="mode-selector-title">Confirm Consultation</h2>
-      <p class="mode-selector-desc">You're about to start a <strong>{{ consultationModeLabel }}</strong>. A Health Expert will join shortly.</p>
-      <div class="payment-cost">
-        <span class="cost-label">{{ consultationModeLabel }}</span>
-        <span class="cost-value">{{ consultationCost }}</span>
-      </div>
-      <div class="mode-selector-actions">
-        <button class="btn-mode-cancel" type="button" (click)="cancelPayment()">Cancel</button>
-        <button class="btn-mode-confirm" type="button" (click)="confirmPayment()" [disabled]="requestingConsult">
-          @if (requestingConsult) { Processing... } @else { Yes, Pay Now }
-        </button>
-      </div>
-    </div>
-  </div>
-  }
+  <!-- Payment Confirmation Modal removed — fee shown on mode cards on dashboard -->
 
   <!-- Recent Prescriptions -->
   <section class="recent-section" *ngIf="prescriptionsLoading || recentPrescriptions.length > 0">

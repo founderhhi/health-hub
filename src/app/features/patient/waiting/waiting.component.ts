@@ -33,6 +33,10 @@ export class WaitingComponent implements OnInit, OnDestroy {
   isRefreshing = false;
   consultationFinished = false;
   hasJoinedCall = false; // true once the patient actually opens the call window
+
+  get hasCompletedOrJoined(): boolean {
+    return this.hasJoinedCall || this.consultationFinished;
+  }
   statusMessage = 'Waiting for a Health Expert to accept your request...';
   showAcceptedOverlay = false;
   private platformId = inject(PLATFORM_ID);
@@ -62,6 +66,14 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
       const userId = localStorage.getItem('hhi_user_id') || '';
       this.ws.connect('patient', userId);
+
+      // Restore hasJoinedCall from sessionStorage so it survives page reload/navigation
+      if (sessionStorage.getItem('hhi_has_joined_call') === '1') {
+        this.hasJoinedCall = true;
+      }
+
+      // Clear the flag if this is a fresh consultation (no active consult found on first poll)
+      // The first pollActiveConsult call will clear it if there's no active session
 
       this.wsSubscription = this.ws.events$.subscribe((event) => {
         if (event.event === 'consult.accepted') {
@@ -139,6 +151,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
 
     window.open(roomUrl, '_blank');
     this.hasJoinedCall = true;
+    sessionStorage.setItem('hhi_has_joined_call', '1');
     // Show consult shell on the original tab so the patient can rejoin if needed
     this.showConsultShell = true;
   }
@@ -303,9 +316,10 @@ export class WaitingComponent implements OnInit, OnDestroy {
     }
 
     // For video/audio: set the overlay flag. The button-based check
-    // (checkDoctorJoined) is the reliable trigger. WS/poll also set this
-    // and cdr.detectChanges() is called; if that doesn't fire the view
-    // the patient can use the button as a guaranteed fallback.
+    // (checkDoctorJoined) is the reliable trigger. WS/poll also set this.
+    // Never show if patient already joined or meeting is finished.
+    if (this.hasJoinedCall || this.consultationFinished || this.showReviewPage) return;
+
     this.statusMessage = this.gpName
       ? `${this.gpName} has accepted your request.`
       : 'A Health Expert has accepted your request.';
@@ -322,9 +336,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
         const active = response?.active;
 
         if (!active) {
-          if (this.consultationFinished && this.showConsultShell) {
-            return;
-          }
+          // No active consult — clear stale join flag from any previous session
+          sessionStorage.removeItem('hhi_has_joined_call');
+          this.hasJoinedCall = false;
+
+          if (this.consultationFinished && this.showConsultShell) return;
           if (this.consultationId || this.roomUrl) {
             this.finishWaitingFlow('Consultation is no longer active.');
           }
@@ -334,15 +350,19 @@ export class WaitingComponent implements OnInit, OnDestroy {
         this.requestId = active.id || this.requestId;
 
         if (active.status === 'accepted') {
-          // Don't show accepted overlay again if patient already joined
-          if (this.hasJoinedCall || this.showConsultShell) return;
-          if (!this.showConsultShell && !this.consultationId) {
+          // Don't show accepted overlay again if patient already joined or call is finished
+          if (this.hasJoinedCall || this.showConsultShell || this.consultationFinished) return;
+          if (!this.consultationId) {
             const gpName = active?.gp_name || active?.gpName || this.gpName || '';
             this.statusMessage = gpName
               ? `${gpName} has accepted your request. Preparing your session...`
               : 'A Health Expert has accepted your request. Preparing your session...';
           }
           this.applyAcceptedConsultation(active);
+        } else if (active.status === 'completed') {
+          // Meeting ended server-side — block joining and go to review
+          sessionStorage.removeItem('hhi_has_joined_call');
+          this.finishWaitingFlow('Your consultation has been completed.');
         } else if (!this.roomUrl) {
           this.statusMessage = 'Waiting for a Health Expert to accept your request...';
         }
@@ -457,7 +477,11 @@ export class WaitingComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.checkingDoctorStatus = false;
         const active = response?.active;
-        if (active && active.status === 'accepted') {
+        if (active?.status === 'completed') {
+          // Meeting ended — go to review, block re-joining
+          sessionStorage.removeItem('hhi_has_joined_call');
+          this.finishWaitingFlow('Your consultation has been completed.');
+        } else if (active?.status === 'accepted') {
           this.requestId = active.id || this.requestId;
           this.applyAcceptedConsultation(active);
         } else {
