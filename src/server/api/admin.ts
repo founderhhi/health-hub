@@ -5,9 +5,17 @@ import { requireAuth, requireRole, type AuthUser } from '../middleware/auth';
 
 export const adminRouter = Router();
 
-function isUndefinedColumnError(error: unknown): boolean {
+function isUndefinedColumnError(error: unknown, columnName?: string): boolean {
   const err = error as { code?: string };
-  return err?.code === '42703';
+  if (err?.code !== '42703') {
+    return false;
+  }
+
+  if (!columnName) {
+    return true;
+  }
+
+  return String((error as { message?: string })?.message || '').includes(columnName);
 }
 
 function isUndefinedTableError(error: unknown): boolean {
@@ -21,6 +29,58 @@ function isUniqueViolation(error: unknown): boolean {
 }
 
 const VALID_ROLES = ['patient', 'gp', 'doctor', 'specialist', 'pharmacist', 'pharmacy_tech', 'lab_tech', 'radiologist', 'pathologist', 'admin'];
+const VALID_SERVICE_REQUEST_STATUSES = ['new', 'contacted', 'closed'];
+const VALID_ADMIN_WORKFLOW_STATUSES = ['contacted', 'completed', 'accepted', 'rejected', 'home_delivery', 'in_service'] as const;
+const VALID_ADMIN_WORKFLOW_ENTITY_TYPES = ['service_request', 'referral', 'prescription'] as const;
+const VALID_ACCOUNT_REVIEW_STATUSES = ['new', 'under_review', 'review_completed', 'account_handed_over'] as const;
+
+type AdminWorkflowStatus = (typeof VALID_ADMIN_WORKFLOW_STATUSES)[number];
+type AdminWorkflowEntityType = (typeof VALID_ADMIN_WORKFLOW_ENTITY_TYPES)[number];
+type AccountReviewStatus = (typeof VALID_ACCOUNT_REVIEW_STATUSES)[number];
+
+function buildAdminUsersQueries(
+  role: string | undefined,
+  search: string | undefined,
+  includeNameColumns: boolean,
+  includeOperatingColumn: boolean,
+  includeAccountStatusColumn: boolean
+) {
+  const nameColumns = includeNameColumns
+    ? 'first_name, last_name'
+    : `null::text as first_name, null::text as last_name`;
+  const operatingColumn = includeOperatingColumn
+    ? 'is_operating'
+    : 'true as is_operating';
+  const accountStatusColumn = includeAccountStatusColumn
+    ? 'account_status'
+    : includeOperatingColumn
+      ? `case when is_operating = false then 'disabled' else 'active' end as account_status`
+      : `'active'::text as account_status`;
+  const params: unknown[] = [];
+  const conditions: string[] = [];
+
+  if (role) {
+    params.push(role);
+    conditions.push(`role = $${params.length}`);
+  }
+
+  if (search) {
+    params.push(`%${search}%`);
+    if (includeNameColumns) {
+      conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length} or first_name ilike $${params.length} or last_name ilike $${params.length})`);
+    } else {
+      conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length})`);
+    }
+  }
+
+  const whereClause = conditions.length > 0 ? ` where ${conditions.join(' and ')}` : '';
+
+  return {
+    params,
+    countQuery: `select count(*) from users${whereClause}`,
+    listQuery: `select id, role, phone, display_name, ${nameColumns}, ${operatingColumn}, ${accountStatusColumn}, created_at from users${whereClause} order by created_at desc`
+  };
+}
 
 async function logAdminActivity(
   actorUserId: string | undefined,
@@ -43,6 +103,57 @@ async function logAdminActivity(
   }
 }
 
+function isValidWorkflowStatus(value: string | undefined): value is AdminWorkflowStatus {
+  return Boolean(value && VALID_ADMIN_WORKFLOW_STATUSES.includes(value as AdminWorkflowStatus));
+}
+
+function isValidAccountReviewStatus(value: string | undefined): value is AccountReviewStatus {
+  return Boolean(value && VALID_ACCOUNT_REVIEW_STATUSES.includes(value as AccountReviewStatus));
+}
+
+async function addWorkflowTracking(
+  entityType: AdminWorkflowEntityType,
+  entityId: string,
+  workflowStatus: AdminWorkflowStatus,
+  updatedBy: string | undefined,
+  notes?: string
+): Promise<void> {
+  await db.query(
+    `insert into admin_workflow_tracking (entity_type, entity_id, workflow_status, notes, updated_by)
+     values ($1, $2, $3, $4, $5)`,
+    [entityType, entityId, workflowStatus, notes?.trim() || null, updatedBy || null]
+  );
+}
+
+const ACCESS_REQUEST_SELECT = `
+  select
+    aar.id,
+    aar.user_id,
+    aar.requested_role,
+    aar.requested_specialty,
+    aar.organization_name,
+    aar.contacted,
+    aar.review_status,
+    aar.admin_notes,
+    aar.contacted_at,
+    aar.reviewed_at,
+    aar.approved_at,
+    aar.created_at,
+    aar.updated_at,
+    u.display_name,
+    u.phone,
+    u.account_status,
+    u.is_operating,
+    contacted_by_user.display_name as contacted_by_name,
+    reviewed_by_user.display_name as reviewed_by_name,
+    approved_by_user.display_name as approved_by_name
+  from account_access_requests aar
+  join users u on u.id = aar.user_id
+  left join users contacted_by_user on contacted_by_user.id = aar.contacted_by
+  left join users reviewed_by_user on reviewed_by_user.id = aar.reviewed_by
+  left join users approved_by_user on approved_by_user.id = aar.approved_by
+`;
+
 // API-14: List all users (paginated)
 adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) => {
   try {
@@ -53,46 +164,22 @@ adminRouter.get('/users', requireAuth, requireRole(['admin']), async (req, res) 
     const search = req.query['search'] as string | undefined;
 
     const queryUsers = async (includeNameColumns: boolean, includeOperatingColumn: boolean) => {
-      const nameColumns = includeNameColumns
-        ? 'first_name, last_name'
-        : `null::text as first_name, null::text as last_name`;
-      const operatingColumn = includeOperatingColumn
-        ? 'is_operating'
-        : 'true as is_operating';
-      let query = `select id, role, phone, display_name, ${nameColumns}, ${operatingColumn}, created_at from users`;
-      const params: unknown[] = [];
-      const conditions: string[] = [];
-
-      if (role) {
-        params.push(role);
-        conditions.push(`role = $${params.length}`);
-      }
-
-      if (search) {
-        params.push(`%${search}%`);
-        if (includeNameColumns) {
-          conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length} or first_name ilike $${params.length} or last_name ilike $${params.length})`);
-        } else {
-          conditions.push(`(display_name ilike $${params.length} or phone ilike $${params.length})`);
-        }
-      }
-
-      if (conditions.length > 0) {
-        query += ` where ${conditions.join(' and ')}`;
-      }
-
-      query += ` order by created_at desc`;
-
-      const countQuery = query.replace(/select[\s\S]+? from/, 'select count(*) from');
+      const includeAccountStatusColumn = includeOperatingColumn;
+      const { params, countQuery, listQuery } = buildAdminUsersQueries(
+        role,
+        search,
+        includeNameColumns,
+        includeOperatingColumn,
+        includeAccountStatusColumn
+      );
       const countResult = await db.query(countQuery, params);
       const total = parseInt(countResult.rows[0].count);
 
-      params.push(limit);
-      query += ` limit $${params.length}`;
-      params.push(offset);
-      query += ` offset $${params.length}`;
-
-      const result = await db.query(query, params);
+      const listParams = [...params, limit, offset];
+      const result = await db.query(
+        `${listQuery} limit $${listParams.length - 1} offset $${listParams.length}`,
+        listParams
+      );
       return {
         users: result.rows,
         pagination: { page, limit, total, pages: Math.ceil(total / limit) }
@@ -166,9 +253,9 @@ adminRouter.post('/users', requireAuth, requireRole(['admin']), async (req, res)
 
     const passwordHash = await bcrypt.hash(normalizedPassword, 10);
     const result = await db.query(
-      `insert into users (role, phone, password_hash, display_name, first_name, last_name, is_operating)
-       values ($1, $2, $3, $4, $5, $6, true)
-       returning id, role, phone, display_name, first_name, last_name, is_operating, created_at`,
+      `insert into users (role, phone, password_hash, display_name, first_name, last_name, account_status, is_operating)
+       values ($1, $2, $3, $4, $5, $6, 'active', true)
+       returning id, role, phone, display_name, first_name, last_name, account_status, is_operating, created_at`,
       [
         normalizedRole,
         normalizedPhone,
@@ -200,9 +287,10 @@ adminRouter.get('/users/:id', requireAuth, requireRole(['admin']), async (req, r
   try {
     const { id } = req.params;
     const variants = [
-      `select id, role, phone, display_name, first_name, last_name, is_operating, created_at from users where id = $1`,
-      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, is_operating, created_at from users where id = $1`,
-      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, true as is_operating, created_at from users where id = $1`
+      `select id, role, phone, display_name, first_name, last_name, account_status, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, account_status, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, 'active'::text as account_status, is_operating, created_at from users where id = $1`,
+      `select id, role, phone, display_name, null::text as first_name, null::text as last_name, 'active'::text as account_status, true as is_operating, created_at from users where id = $1`
     ];
 
     let result: { rows: any[] } | null = null;
@@ -246,7 +334,7 @@ adminRouter.patch('/users/:id/role', requireAuth, requireRole(['admin']), async 
     }
 
     const result = await db.query(
-      `update users set role = $2 where id = $1 returning id, role, phone, display_name`,
+      `update users set role = $2 where id = $1 returning id, role, phone, display_name, account_status, is_operating`,
       [id, role]
     );
 
@@ -282,10 +370,29 @@ adminRouter.patch('/users/:id/status', requireAuth, requireRole(['admin']), asyn
       return res.status(400).json({ error: 'Cannot disable your own account' });
     }
 
-    const result = await db.query(
-      `update users set is_operating = $2 where id = $1 returning id, role, phone, display_name, is_operating`,
-      [id, active]
-    );
+    let result;
+    try {
+      result = await db.query(
+        `update users
+         set is_operating = $2,
+             account_status = case when $2 then 'active' else 'disabled' end
+         where id = $1
+         returning id, role, phone, display_name, account_status, is_operating`,
+        [id, active]
+      );
+    } catch (error) {
+      if (!isUndefinedColumnError(error, 'account_status')) {
+        throw error;
+      }
+
+      result = await db.query(
+        `update users
+         set is_operating = $2
+         where id = $1
+         returning id, role, phone, display_name, is_operating, case when $2 then 'active' else 'disabled' end as account_status`,
+        [id, active]
+      );
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -300,6 +407,129 @@ adminRouter.patch('/users/:id/status', requireAuth, requireRole(['admin']), asyn
   } catch (error) {
     console.error('Admin update status error', error);
     return res.status(500).json({ error: 'Unable to update user status' });
+  }
+});
+
+adminRouter.get('/access-requests', requireAuth, requireRole(['admin']), async (_req, res) => {
+  try {
+    const result = await db.query(`${ACCESS_REQUEST_SELECT} order by aar.created_at desc`);
+    return res.json({ requests: result.rows });
+  } catch (error) {
+    if (isUndefinedTableError(error)) {
+      return res.json({ requests: [] });
+    }
+    console.error('Admin access requests error', error);
+    return res.status(500).json({ error: 'Unable to fetch access requests' });
+  }
+});
+
+adminRouter.patch('/access-requests/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  const client = await db.connect();
+
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { contacted, reviewStatus, notes, approve } = req.body as {
+      contacted?: boolean;
+      reviewStatus?: string;
+      notes?: string;
+      approve?: boolean;
+    };
+
+    if (
+      typeof contacted !== 'boolean'
+      && !reviewStatus
+      && typeof approve !== 'boolean'
+      && typeof notes !== 'string'
+    ) {
+      return res.status(400).json({ error: 'contacted, reviewStatus, notes, or approve is required' });
+    }
+
+    if (reviewStatus && !isValidAccountReviewStatus(reviewStatus)) {
+      return res.status(400).json({
+        error: `Invalid reviewStatus. Must be one of: ${VALID_ACCOUNT_REVIEW_STATUSES.join(', ')}`
+      });
+    }
+
+    await client.query('begin');
+
+    const existingResult = await client.query(
+      `${ACCESS_REQUEST_SELECT} where aar.id = $1 limit 1`,
+      [id]
+    );
+
+    if (existingResult.rows.length === 0) {
+      await client.query('rollback');
+      return res.status(404).json({ error: 'Access request not found' });
+    }
+
+    const existingRequest = existingResult.rows[0] as {
+      user_id: string;
+      phone: string;
+      contacted: boolean;
+      review_status: AccountReviewStatus;
+      admin_notes: string | null;
+      account_status: string;
+    };
+
+    const nextContacted = typeof contacted === 'boolean' ? contacted : existingRequest.contacted;
+    const nextReviewStatus = approve
+      ? 'account_handed_over'
+      : (reviewStatus || existingRequest.review_status);
+    const normalizedNotes = typeof notes === 'string' ? notes.trim() : existingRequest.admin_notes;
+
+    const updatedUserStatus = approve ? 'active' : existingRequest.account_status;
+    if (approve) {
+      await client.query(
+        `update users
+         set account_status = 'active',
+             is_operating = true
+         where id = $1`,
+        [existingRequest.user_id]
+      );
+    }
+
+    await client.query(
+      `update account_access_requests
+       set contacted = $2,
+           review_status = $3,
+           admin_notes = $4,
+           contacted_by = case when $2 then coalesce(contacted_by, $5) else null end,
+           contacted_at = case when $2 then coalesce(contacted_at, now()) else null end,
+           reviewed_by = case when $3 is distinct from review_status or $6 then $5 else reviewed_by end,
+           reviewed_at = case when $3 is distinct from review_status or $6 then now() else reviewed_at end,
+           approved_by = case when $6 then $5 else approved_by end,
+           approved_at = case when $6 then now() else approved_at end,
+           updated_at = now()
+       where id = $1`,
+      [id, nextContacted, nextReviewStatus, normalizedNotes || null, actor?.userId || null, Boolean(approve)]
+    );
+
+    await client.query('commit');
+
+    await logAdminActivity(actor?.userId, 'access_request.review.updated', existingRequest.user_id, existingRequest.phone, {
+      accessRequestId: id,
+      contacted: nextContacted,
+      reviewStatus: nextReviewStatus,
+      approved: Boolean(approve),
+      accountStatus: updatedUserStatus
+    });
+
+    if (approve) {
+      await logAdminActivity(actor?.userId, 'access_request.approved', existingRequest.user_id, existingRequest.phone, {
+        accessRequestId: id,
+        reviewStatus: nextReviewStatus
+      });
+    }
+
+    const hydrated = await db.query(`${ACCESS_REQUEST_SELECT} where aar.id = $1 limit 1`, [id]);
+    return res.json({ request: hydrated.rows[0] });
+  } catch (error) {
+    await client.query('rollback').catch(() => undefined);
+    console.error('Admin update access request error', error);
+    return res.status(500).json({ error: 'Unable to update access request' });
+  } finally {
+    client.release();
   }
 });
 
@@ -358,6 +588,370 @@ adminRouter.get('/activity', requireAuth, requireRole(['admin']), async (req, re
   }
 });
 
+adminRouter.get('/service-requests', requireAuth, requireRole(['admin']), async (_req, res) => {
+  try {
+    const result = await db.query(
+      `select
+         sr.*,
+         patient.display_name as patient_name,
+         patient.phone as patient_phone,
+         handler.display_name as handled_by_name,
+         workflow.workflow_status as admin_workflow_status,
+         workflow.updated_by_name as admin_workflow_updated_by_name,
+         workflow.created_at as admin_workflow_updated_at
+       from service_requests sr
+       join users patient on patient.id = sr.patient_id
+       left join users handler on handler.id = sr.handled_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'service_request'
+           and awt.entity_id = sr.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       order by sr.created_at desc`
+    );
+
+    return res.json({ requests: result.rows });
+  } catch (error) {
+    console.error('Admin service requests error', error);
+    return res.status(500).json({ error: 'Unable to fetch service requests' });
+  }
+});
+
+adminRouter.patch('/service-requests/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { status, workflowStatus, notes } = req.body as {
+      status?: string;
+      workflowStatus?: string;
+      notes?: string;
+    };
+
+    if (!status && !workflowStatus) {
+      return res.status(400).json({ error: 'status or workflowStatus is required' });
+    }
+
+    if (status && !VALID_SERVICE_REQUEST_STATUSES.includes(status)) {
+      return res.status(400).json({
+        error: `Invalid status. Must be one of: ${VALID_SERVICE_REQUEST_STATUSES.join(', ')}`
+      });
+    }
+    if (workflowStatus && !isValidWorkflowStatus(workflowStatus)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
+
+    let result;
+    if (status) {
+      result = await db.query(
+        `update service_requests
+         set status = $2,
+             handled_by = $3,
+             updated_at = now()
+         where id = $1
+         returning id`,
+        [id, status, actor?.userId || null]
+      );
+    } else {
+      result = await db.query(`select id from service_requests where id = $1`, [id]);
+    }
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Service request not found' });
+    }
+
+    if (status) {
+      await logAdminActivity(actor?.userId, 'service_request.status.updated', null, null, {
+        requestId: id,
+        status,
+      });
+    }
+    if (workflowStatus && isValidWorkflowStatus(workflowStatus)) {
+      await addWorkflowTracking('service_request', id, workflowStatus, actor?.userId, notes);
+      await logAdminActivity(actor?.userId, 'service_request.workflow.updated', null, null, {
+        requestId: id,
+        workflowStatus,
+      });
+    }
+
+    const hydratedRequest = await db.query(
+      `select
+         sr.*,
+         patient.display_name as patient_name,
+         patient.phone as patient_phone,
+         handler.display_name as handled_by_name,
+         workflow.workflow_status as admin_workflow_status,
+         workflow.updated_by_name as admin_workflow_updated_by_name,
+         workflow.created_at as admin_workflow_updated_at
+       from service_requests sr
+       join users patient on patient.id = sr.patient_id
+       left join users handler on handler.id = sr.handled_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'service_request'
+           and awt.entity_id = sr.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       where sr.id = $1
+       limit 1`,
+      [id]
+    );
+
+    return res.json({ request: hydratedRequest.rows[0] });
+  } catch (error) {
+    console.error('Admin update service request error', error);
+    return res.status(500).json({ error: 'Unable to update service request' });
+  }
+});
+
+// Admin: List prescriptions (for Pharmacy tab)
+adminRouter.get('/prescriptions', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query['page'] as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query['limit'] as string) || 25));
+    const offset = (page - 1) * limit;
+
+    let total = 0;
+    try {
+      const countResult = await db.query('select count(*) from prescriptions');
+      total = parseInt(countResult.rows[0].count || '0');
+    } catch (error) {
+      if (!isUndefinedTableError(error)) {
+        throw error;
+      }
+      return res.json({
+        prescriptions: [],
+        pagination: { page, limit, total: 0, pages: 0 }
+      });
+    }
+
+    const result = await db.query(
+      `select p.id, p.code, p.items, p.status, p.created_at,
+              p.patient_contacted, p.patient_contacted_at, p.patient_contact_note,
+              u.display_name as patient_name, u.phone as patient_phone,
+              contact_admin.display_name as patient_contacted_by_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
+       from prescriptions p
+       join users u on u.id = p.patient_id
+       left join users contact_admin on contact_admin.id = p.patient_contacted_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'prescription'
+           and awt.entity_id = p.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       order by p.created_at desc
+       limit $1 offset $2`,
+      [limit, offset]
+    );
+
+    return res.json({
+      prescriptions: result.rows,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    console.error('Admin prescriptions error', error);
+    return res.status(500).json({ error: 'Unable to fetch prescriptions' });
+  }
+});
+
+adminRouter.patch('/prescriptions/:id/contact', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { contacted, note, workflowStatus } = req.body as {
+      contacted?: boolean;
+      note?: string;
+      workflowStatus?: string;
+    };
+
+    if (typeof contacted !== 'boolean') {
+      return res.status(400).json({ error: 'contacted field (boolean) is required' });
+    }
+    if (workflowStatus && !isValidWorkflowStatus(workflowStatus)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
+
+    const updated = await db.query(
+      `update prescriptions
+       set patient_contacted = $2,
+           patient_contacted_by = case when $2 then $3 else null end,
+           patient_contacted_at = case when $2 then now() else null end,
+           patient_contact_note = $4
+       where id = $1
+       returning id, patient_id`,
+      [id, contacted, actor?.userId || null, note?.trim() || null]
+    );
+    if (updated.rows.length === 0) {
+      return res.status(404).json({ error: 'Prescription not found' });
+    }
+
+    await logAdminActivity(actor?.userId, 'prescription.patient_contact.updated', updated.rows[0].patient_id, null, {
+      prescriptionId: id,
+      contacted,
+      note: note?.trim() || null
+    });
+
+    if (workflowStatus && isValidWorkflowStatus(workflowStatus)) {
+      await addWorkflowTracking('prescription', id, workflowStatus, actor?.userId, note);
+      await logAdminActivity(actor?.userId, 'prescription.workflow.updated', updated.rows[0].patient_id, null, {
+        prescriptionId: id,
+        workflowStatus
+      });
+    }
+
+    const hydrated = await db.query(
+      `select p.id, p.code, p.items, p.status, p.created_at,
+              p.patient_contacted, p.patient_contacted_at, p.patient_contact_note,
+              u.display_name as patient_name, u.phone as patient_phone,
+              contact_admin.display_name as patient_contacted_by_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
+       from prescriptions p
+       join users u on u.id = p.patient_id
+       left join users contact_admin on contact_admin.id = p.patient_contacted_by
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'prescription'
+           and awt.entity_id = p.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       where p.id = $1
+       limit 1`,
+      [id]
+    );
+
+    return res.json({ prescription: hydrated.rows[0] });
+  } catch (error) {
+    console.error('Admin update prescription contact error', error);
+    return res.status(500).json({ error: 'Unable to update prescription contact' });
+  }
+});
+
+adminRouter.get('/referrals', requireAuth, requireRole(['admin']), async (_req, res) => {
+  try {
+    const result = await db.query(
+      `select r.id, r.status, r.urgency, r.reason, r.specialty, r.created_at,
+              patient.display_name as patient_name,
+              patient.phone as patient_phone,
+              specialist.display_name as specialist_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
+       from referrals r
+       join users patient on patient.id = r.patient_id
+       left join users specialist on specialist.id = r.to_specialist_id
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'referral'
+           and awt.entity_id = r.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       order by r.created_at desc`
+    );
+
+    return res.json({ referrals: result.rows });
+  } catch (error) {
+    console.error('Admin referrals error', error);
+    return res.status(500).json({ error: 'Unable to fetch referrals' });
+  }
+});
+
+adminRouter.patch('/referrals/:id/workflow', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { workflowStatus, notes } = req.body as { workflowStatus?: string; notes?: string };
+
+    if (!isValidWorkflowStatus(workflowStatus)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
+
+    const exists = await db.query(`select id, patient_id from referrals where id = $1`, [id]);
+    if (exists.rows.length === 0) {
+      return res.status(404).json({ error: 'Referral not found' });
+    }
+
+    await addWorkflowTracking('referral', id, workflowStatus, actor?.userId, notes);
+    await logAdminActivity(actor?.userId, 'referral.workflow.updated', exists.rows[0].patient_id, null, {
+      referralId: id,
+      workflowStatus
+    });
+
+    const hydrated = await db.query(
+      `select r.id, r.status, r.urgency, r.reason, r.specialty, r.created_at,
+              patient.display_name as patient_name,
+              patient.phone as patient_phone,
+              specialist.display_name as specialist_name,
+              workflow.workflow_status as admin_workflow_status,
+              workflow.updated_by_name as admin_workflow_updated_by_name,
+              workflow.created_at as admin_workflow_updated_at
+       from referrals r
+       join users patient on patient.id = r.patient_id
+       left join users specialist on specialist.id = r.to_specialist_id
+       left join lateral (
+         select
+           awt.workflow_status,
+           awt.created_at,
+           updater.display_name as updated_by_name
+         from admin_workflow_tracking awt
+         left join users updater on updater.id = awt.updated_by
+         where awt.entity_type = 'referral'
+           and awt.entity_id = r.id
+         order by awt.created_at desc
+         limit 1
+       ) workflow on true
+       where r.id = $1
+       limit 1`,
+      [id]
+    );
+
+    return res.json({ referral: hydrated.rows[0] });
+  } catch (error) {
+    console.error('Admin update referral workflow error', error);
+    return res.status(500).json({ error: 'Unable to update referral workflow' });
+  }
+});
+
 // API-14: System health overview for admin
 adminRouter.get('/system/health', requireAuth, requireRole(['admin']), async (_req, res) => {
   try {
@@ -389,5 +983,150 @@ adminRouter.get('/system/health', requireAuth, requireRole(['admin']), async (_r
   } catch (error) {
     console.error('Admin system health error', error);
     return res.status(500).json({ error: 'Unable to fetch system health' });
+  }
+});
+
+// ── Diagnostics Admin ────────────────────────────────────────────────────────
+
+adminRouter.get('/diagnostics', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query['page'] as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query['limit'] as string) || 25));
+    const offset = (page - 1) * limit;
+    const orderSource = req.query['orderSource'] as string | undefined;
+    const status = req.query['status'] as string | undefined;
+
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+
+    if (orderSource) {
+      params.push(orderSource);
+      conditions.push(`lo.order_source = $${params.length}`);
+    }
+    if (status) {
+      params.push(status);
+      conditions.push(`lo.status = $${params.length}`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const countResult = await db.query(
+      `SELECT count(*) FROM lab_orders lo ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.rows[0].count || '0');
+
+    params.push(limit);
+    params.push(offset);
+
+    const result = await db.query(
+      `SELECT lo.id, lo.tests, lo.status, lo.notes, lo.order_source,
+              lo.admin_workflow_status, lo.created_at,
+              u.display_name AS patient_name, u.phone AS patient_phone,
+              dc.name AS centre_name
+       FROM lab_orders lo
+       JOIN users u ON u.id = lo.patient_id
+       LEFT JOIN diagnostic_centres dc ON dc.id = lo.diagnostic_centre_id
+       ${whereClause}
+       ORDER BY lo.created_at DESC
+       LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      params
+    );
+
+    return res.json({
+      orders: result.rows,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    console.error('Admin diagnostics list error', error);
+    return res.status(500).json({ error: 'Unable to fetch diagnostic orders' });
+  }
+});
+
+adminRouter.patch('/diagnostics/:id/workflow', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const actor = (req as { user?: AuthUser }).user;
+    const { id } = req.params;
+    const { workflowStatus } = req.body as { workflowStatus?: string };
+
+    if (!workflowStatus || !VALID_ADMIN_WORKFLOW_STATUSES.includes(workflowStatus as any)) {
+      return res.status(400).json({
+        error: `Invalid workflowStatus. Must be one of: ${VALID_ADMIN_WORKFLOW_STATUSES.join(', ')}`
+      });
+    }
+
+    const result = await db.query(
+      `UPDATE lab_orders SET admin_workflow_status = $1 WHERE id = $2 RETURNING id, patient_id`,
+      [workflowStatus, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Lab order not found' });
+    }
+
+    await logAdminActivity(actor?.userId, 'diagnostics.workflow.updated', result.rows[0].patient_id, null, {
+      orderId: id,
+      workflowStatus
+    });
+
+    return res.json({ ok: true, orderId: id, workflowStatus });
+  } catch (error) {
+    console.error('Admin diagnostics workflow update error', error);
+    return res.status(500).json({ error: 'Unable to update diagnostic order workflow' });
+  }
+});
+
+// ── Grievances Admin ─────────────────────────────────────────────────────────
+
+adminRouter.get('/grievances', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query['page'] as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query['limit'] as string) || 25));
+    const offset = (page - 1) * limit;
+
+    const countResult = await db.query('SELECT count(*) FROM grievances');
+    const total = parseInt(countResult.rows[0].count || '0');
+
+    const result = await db.query(
+      `SELECT g.id, g.message, g.status, g.created_at,
+              u.display_name AS patient_name, u.phone AS patient_phone
+       FROM grievances g
+       JOIN users u ON u.id = g.patient_id
+       ORDER BY g.created_at DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    return res.json({
+      grievances: result.rows,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    console.error('Admin grievances list error', error);
+    return res.status(500).json({ error: 'Unable to fetch grievances' });
+  }
+});
+
+adminRouter.patch('/grievances/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body as { status?: string };
+    const validStatuses = ['new', 'reviewed', 'resolved'];
+
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+    }
+
+    const result = await db.query(
+      `UPDATE grievances SET status = $1 WHERE id = $2 RETURNING id`,
+      [status, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Grievance not found' });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Admin grievance update error', error);
+    return res.status(500).json({ error: 'Unable to update grievance' });
   }
 });

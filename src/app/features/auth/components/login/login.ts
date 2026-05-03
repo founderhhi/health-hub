@@ -34,20 +34,16 @@ export class LoginComponent {
       rememberMe: [false]
     });
 
-    const role = this.route.snapshot.queryParamMap.get('role');
-    this.loginRole = role === 'provider' ? 'provider' : 'patient';
+    this.route.queryParamMap.subscribe((params) => {
+      const role = params.get('role');
+      this.loginRole = role === 'provider' ? 'provider' : 'patient';
+    });
   }
 
-  /**
-   * Toggle password visibility
-   */
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  /**
-   * Handle login
-   */
   login(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -67,6 +63,10 @@ export class LoginComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
+        if (err.status === 403 && err.error?.error === 'Account is pending manual verification') {
+          this.errorMessage = 'Your account is pending manual verification. An admin will contact you offline before access is enabled.';
+          return;
+        }
         if (err.status === 403 && err.error?.error === 'Account is disabled') {
           this.errorMessage = 'This account is disabled. Please contact support.';
           return;
@@ -80,18 +80,29 @@ export class LoginComponent {
     });
   }
 
-  /**
-   * Navigate to forgot password
-   */
   forgotPassword(): void {
     this.router.navigate(['/auth/forgot-password']);
   }
 
-  /**
-   * Navigate to signup
-   */
   goToSignup(): void {
-    this.router.navigate(['/auth/signup']);
+    this.router.navigate(['/auth/signup'], {
+      queryParams: this.loginRole === 'provider' ? { role: 'provider' } : {}
+    });
+  }
+
+  switchLoginRole(role: 'patient' | 'provider'): void {
+    if (this.loginRole === role) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.loginRole = role;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { role },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   goToLanding(): void {

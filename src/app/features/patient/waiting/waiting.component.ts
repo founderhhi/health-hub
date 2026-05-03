@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom, timeout } from 'rxjs';
 import { WsService } from '../../../core/realtime/ws.service';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { ConsultShellComponent, ConsultMode } from '../../../shared/components/consult-shell/consult-shell';
@@ -23,8 +23,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
   cancelPending = false;
   isRefreshing = false;
   consultationFinished = false;
-  statusMessage = 'Waiting for a GP to accept your request...';
-
+  statusMessage = 'Waiting for a Health Expert to accept your request...';
+  showAcceptedOverlay = false;
   private platformId = inject(PLATFORM_ID);
   private requestId = '';
   private activeConsultPollTimer?: ReturnType<typeof setInterval>;
@@ -56,7 +56,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
           const data = event.data as any;
           const id = data?.consultationId || data?.consultation?.id;
           if (id === this.consultationId) {
-            this.handleConsultationCompleted('Consultation has been completed by your GP.');
+            this.handleConsultationCompleted('Consultation has been completed by your Health Expert.');
           }
         }
         if (event.event === 'consult.removed') {
@@ -79,15 +79,50 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.clearDashboardRedirectTimer();
   }
 
-  joinConsult(): void {
+  async joinConsult(): Promise<void> {
     if (!this.canJoinConsultation) {
       return;
     }
+    this.showAcceptedOverlay = false;
 
+    // Chat mode: open the in-app chat shell
+    if (this.consultMode === 'chat') {
+      this.statusMessage = this.gpName
+        ? `${this.gpName} is ready. Opening chat...`
+        : 'Your Health Expert is ready. Opening chat...';
+      this.showConsultShell = true;
+      return;
+    }
+
+    // Video / audio: navigate directly to the Daily.co room — no extra click needed
     this.statusMessage = this.gpName
-      ? `${this.gpName} is ready. Joining consultation...`
-      : 'Your GP is ready. Joining consultation...';
-    this.showConsultShell = true;
+      ? `Connecting you to ${this.gpName}...`
+      : 'Connecting to your Health Expert...';
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    let roomUrl = this.roomUrl;
+
+    // Fetch the authoritative room URL if we don't have one cached
+    if (!roomUrl && this.consultationId) {
+      try {
+        const resp = await firstValueFrom(
+          this.patientApi.getConsultationJoinLink(this.consultationId).pipe(timeout(8000))
+        );
+        roomUrl = resp.roomUrl || '';
+      } catch {
+        // fall through — will show error below
+      }
+    }
+
+    if (!roomUrl) {
+      this.statusMessage = 'Unable to join the room right now. Please try refreshing.';
+      return;
+    }
+
+    window.open(roomUrl, '_blank');
   }
 
   refreshStatus(): void {
@@ -107,7 +142,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
           if (this.hasAcceptedConsultation || this.showConsultShell || this.consultationFinished) {
             this.finishWaitingFlow('Consultation is no longer active.');
           } else {
-            this.statusMessage = 'No active consultation found. The GP may not have accepted yet.';
+            this.statusMessage = 'No active consultation found. Your Health Expert may not have accepted yet.';
           }
         }
         this.isRefreshing = false;
@@ -144,8 +179,8 @@ export class WaitingComponent implements OnInit, OnDestroy {
     }
     if (this.hasAcceptedConsultation && !this.cancelPending) {
       this.statusMessage = this.gpName
-        ? `${this.gpName} is still available. Tap join when you are ready.`
-        : 'Your consultation is ready. Tap join when you are ready.';
+        ? `${this.gpName} is still available.`
+        : 'Your consultation is still available.';
     }
   }
 
@@ -219,9 +254,20 @@ export class WaitingComponent implements OnInit, OnDestroy {
     this.roomUrl = nextRoomUrl;
     this.consultationId = nextConsultationId;
     this.gpName = data?.gpName || data?.consultation?.gp_name || data?.gp_name || '';
+
+    if (this.consultMode === 'chat') {
+      this.statusMessage = this.gpName
+        ? `${this.gpName} accepted your request. Opening the chat now.`
+        : 'A Health Expert accepted your request. Opening the chat now.';
+      this.showConsultShell = true;
+      return;
+    }
+
+    // For video/audio: immediately show the consultation shell so they can click to join.
     this.statusMessage = this.gpName
-      ? `${this.gpName} accepted your request. Tap join when you are ready.`
-      : 'A GP accepted your request. Tap join when you are ready.';
+      ? `${this.gpName} has accepted your request.`
+      : 'A Health Expert has accepted your request.';
+    this.showConsultShell = true;
   }
 
   private pollActiveConsult(): void {
@@ -244,7 +290,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
         if (active.status === 'accepted') {
           this.applyAcceptedConsultation(active);
         } else if (!this.roomUrl) {
-          this.statusMessage = 'Waiting for a GP to accept your request...';
+          this.statusMessage = 'Waiting for a Health Expert to accept your request...';
         }
       },
       error: () => {
@@ -302,6 +348,7 @@ export class WaitingComponent implements OnInit, OnDestroy {
   private finishWaitingFlow(message: string): void {
     this.consultationFinished = true;
     this.showConsultShell = false;
+    this.showAcceptedOverlay = false;
     this.showCancelConfirm = false;
     this.cancelPending = false;
     this.clearConsultationState();

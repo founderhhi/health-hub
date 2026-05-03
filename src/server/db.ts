@@ -41,7 +41,10 @@ let ensureRuntimeSchemaPromise: Promise<void> | null = null;
 const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'users', column: 'first_name' },
   { table: 'users', column: 'last_name' },
+  { table: 'users', column: 'account_status' },
   { table: 'users', column: 'is_operating' },
+  { table: 'chat_messages', column: 'image_data' },
+  { table: 'chat_messages', column: 'image_mime' },
   { table: 'consult_requests', column: 'removed_at' },
   { table: 'consult_requests', column: 'removed_reason' },
   { table: 'consult_requests', column: 'removed_by' },
@@ -52,6 +55,11 @@ const REQUIRED_SCHEMA_COLUMNS: Array<{ table: string; column: string }> = [
   { table: 'referrals', column: 'requested_info_note' },
   { table: 'referrals', column: 'requested_info_at' },
   { table: 'referrals', column: 'requested_info_by' },
+  { table: 'referrals', column: 'triage_context' },
+  { table: 'prescriptions', column: 'patient_contacted' },
+  { table: 'prescriptions', column: 'patient_contacted_by' },
+  { table: 'prescriptions', column: 'patient_contacted_at' },
+  { table: 'prescriptions', column: 'patient_contact_note' },
   { table: 'pharmacy_claims', column: 'dispensed_at' },
   { table: 'pharmacy_claims', column: 'dispensed_items' },
 ];
@@ -66,10 +74,13 @@ const REQUIRED_SCHEMA_CONSTRAINTS: Array<{
     mustInclude: "'removed'"
   }
 ];
-const REQUIRED_SCHEMA_TABLES = ['chat_messages'];
+const REQUIRED_SCHEMA_TABLES = ['chat_messages', 'admin_workflow_tracking', 'account_access_requests'];
 const REQUIRED_SCHEMA_INDEXES = [
   'idx_chat_messages_consultation_created_at',
-  'idx_referrals_consultation_id'
+  'idx_referrals_consultation_id',
+  'idx_admin_workflow_entity_created',
+  'idx_account_access_requests_status_created',
+  'idx_account_access_requests_contacted'
 ];
 
 async function findMissingSchemaColumns() {
@@ -192,11 +203,168 @@ async function ensureChatMessagesTableAndIndexes(): Promise<void> {
       id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
       consultation_id uuid NOT NULL REFERENCES consultations(id) ON DELETE CASCADE,
       user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      message text NOT NULL,
+      message text,
+      image_data text,
+      image_mime text,
       created_at timestamptz NOT NULL DEFAULT now()
     );`
   );
+  await db.query(
+    `ALTER TABLE chat_messages
+       ADD COLUMN IF NOT EXISTS image_data text,
+       ADD COLUMN IF NOT EXISTS image_mime text;`
+  );
+  await db.query(`ALTER TABLE chat_messages ALTER COLUMN message DROP NOT NULL;`);
   await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
+}
+
+async function ensureServiceRequestsTableAndIndexes(): Promise<void> {
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS service_requests (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      patient_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type text NOT NULL,
+      status text NOT NULL DEFAULT 'new'
+        CHECK (status IN ('new', 'contacted', 'closed')),
+      region text,
+      city text,
+      hospital_name text,
+      notes text,
+      handled_by uuid REFERENCES users(id) ON DELETE SET NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );`
+  );
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_service_requests_created_at ON service_requests (created_at desc);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_service_requests_status ON service_requests (status, created_at desc);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_service_requests_patient_id ON service_requests (patient_id, created_at desc);`);
+}
+
+async function ensurePrescriptionAdminColumns(): Promise<void> {
+  await db.query(
+    `ALTER TABLE prescriptions
+       ADD COLUMN IF NOT EXISTS patient_contacted boolean NOT NULL DEFAULT false,
+       ADD COLUMN IF NOT EXISTS patient_contacted_by uuid REFERENCES users(id) ON DELETE SET NULL,
+       ADD COLUMN IF NOT EXISTS patient_contacted_at timestamptz,
+       ADD COLUMN IF NOT EXISTS patient_contact_note text;`
+  );
+}
+
+async function ensureUserApprovalColumns(): Promise<void> {
+  await db.query(
+    `ALTER TABLE users
+       ADD COLUMN IF NOT EXISTS account_status text NOT NULL DEFAULT 'active';`
+  );
+
+  await db.query(
+    `UPDATE users
+     SET account_status = 'disabled'
+     WHERE is_operating = false
+       AND account_status = 'active';`
+  );
+
+  await db.query(`ALTER TABLE users DROP CONSTRAINT IF EXISTS users_account_status_check;`);
+  await db.query(
+    `ALTER TABLE users
+     ADD CONSTRAINT users_account_status_check
+     CHECK (account_status IN ('active', 'pending_review', 'disabled'));`
+  );
+}
+
+async function ensureAdminWorkflowTrackingTableAndIndexes(): Promise<void> {
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS admin_workflow_tracking (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      entity_type text NOT NULL CHECK (entity_type IN ('service_request','referral','prescription')),
+      entity_id uuid NOT NULL,
+      workflow_status text NOT NULL CHECK (workflow_status IN ('contacted','completed','accepted','rejected','home_delivery','in_service')),
+      notes text,
+      updated_by uuid REFERENCES users(id) ON DELETE SET NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );`
+  );
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_admin_workflow_entity_created ON admin_workflow_tracking (entity_type, entity_id, created_at desc);`);
+}
+
+async function ensureAccountAccessRequestsTableAndIndexes(): Promise<void> {
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS account_access_requests (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      user_id uuid NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      requested_role text NOT NULL CHECK (requested_role IN ('gp','specialist','pharmacist','lab_tech','radiologist','pathologist')),
+      requested_specialty text,
+      organization_name text,
+      contacted boolean NOT NULL DEFAULT false,
+      review_status text NOT NULL DEFAULT 'new'
+        CHECK (review_status IN ('new','under_review','review_completed','account_handed_over')),
+      admin_notes text,
+      contacted_by uuid REFERENCES users(id) ON DELETE SET NULL,
+      contacted_at timestamptz,
+      reviewed_by uuid REFERENCES users(id) ON DELETE SET NULL,
+      reviewed_at timestamptz,
+      approved_at timestamptz,
+      approved_by uuid REFERENCES users(id) ON DELETE SET NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );`
+  );
+  await db.query(
+    `CREATE INDEX IF NOT EXISTS idx_account_access_requests_status_created
+     ON account_access_requests (review_status, created_at desc);`
+  );
+  await db.query(
+    `CREATE INDEX IF NOT EXISTS idx_account_access_requests_contacted
+     ON account_access_requests (contacted, created_at desc);`
+  );
+}
+
+async function ensureLabOrderFields(): Promise<void> {
+  // Migration 015: notes, order_source, admin_workflow_status on lab_orders
+  await db.query(`
+    ALTER TABLE lab_orders
+      ADD COLUMN IF NOT EXISTS notes TEXT NOT NULL DEFAULT '',
+      ADD COLUMN IF NOT EXISTS order_source VARCHAR(20) NOT NULL DEFAULT 'specialist',
+      ADD COLUMN IF NOT EXISTS admin_workflow_status VARCHAR(50) NOT NULL DEFAULT 'new';
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_lab_orders_order_source ON lab_orders (order_source);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_lab_orders_admin_workflow_status ON lab_orders (admin_workflow_status);`);
+}
+
+async function ensureReferralTriageContext(): Promise<void> {
+  // Migration 017: referrals.triage_context carries patient-entered symptoms
+  // from consult_requests to the specialist's view.
+  await db.query(
+    `ALTER TABLE referrals
+       ADD COLUMN IF NOT EXISTS triage_context jsonb NOT NULL DEFAULT '{}'::jsonb;`
+  );
+}
+
+async function ensureGrievancesAndTutorialSchema(): Promise<void> {
+  // Migration 016: tutorial_completed on patient_profiles + grievances + feature_interest tables
+  await db.query(`ALTER TABLE patient_profiles ADD COLUMN IF NOT EXISTS tutorial_completed BOOLEAN NOT NULL DEFAULT FALSE;`);
+  await db.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS grievances (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      patient_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      message TEXT NOT NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'new',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_grievances_patient_id ON grievances (patient_id);`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_grievances_status ON grievances (status);`);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS feature_interest (
+      id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+      patient_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (patient_id)
+    );
+  `);
 }
 
 export async function ensureRuntimeSchema(): Promise<void> {
@@ -211,6 +379,14 @@ export async function ensureRuntimeSchema(): Promise<void> {
   ensureRuntimeSchemaPromise = (async () => {
     await ensureConsultRequestStatusConstraintIncludesRemoved();
     await ensureChatMessagesTableAndIndexes();
+    await ensureServiceRequestsTableAndIndexes();
+    await ensurePrescriptionAdminColumns();
+    await ensureUserApprovalColumns();
+    await ensureAdminWorkflowTrackingTableAndIndexes();
+    await ensureAccountAccessRequestsTableAndIndexes();
+    await ensureLabOrderFields();
+    await ensureGrievancesAndTutorialSchema();
+    await ensureReferralTriageContext();
 
     const missingColumns = await findMissingSchemaColumns();
     const invalidConstraints = await findInvalidSchemaConstraints();
@@ -243,6 +419,9 @@ export async function ensureRuntimeSchema(): Promise<void> {
 
     await db.query(`CREATE INDEX IF NOT EXISTS idx_referrals_consultation_id ON referrals (consultation_id);`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_consultation_created_at ON chat_messages (consultation_id, created_at);`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_admin_workflow_entity_created ON admin_workflow_tracking (entity_type, entity_id, created_at desc);`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_account_access_requests_status_created ON account_access_requests (review_status, created_at desc);`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_account_access_requests_contacted ON account_access_requests (contacted, created_at desc);`);
     console.log('Runtime schema compatibility check passed.');
   })();
 

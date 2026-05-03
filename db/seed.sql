@@ -17,6 +17,11 @@ values
   ('specialist', '+17000000301', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Cardiology', 'Demo', 'Cardiology', true),
   ('specialist', '+17000000302', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Dermatology', 'Demo', 'Dermatology', true),
   ('specialist', '+17000000303', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Orthopedics', 'Demo', 'Orthopedics', true),
+  ('specialist', '+17000000304', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Neurology', 'Demo', 'Neurology', true),
+  ('specialist', '+17000000305', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Pediatrics', 'Demo', 'Pediatrics', true),
+  ('specialist', '+17000000306', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Oncology', 'Demo', 'Oncology', true),
+  ('specialist', '+17000000307', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo ENT', 'Demo', 'ENT', true),
+  ('specialist', '+17000000308', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Ophthalmology', 'Demo', 'Ophthalmology', true),
 
   ('specialist', '+17000000002', '$2a$10$OE2hhxnWq5T/Z3c3uQQZM.oCYxKCSc0KKpG/xfDtYtdM7iCtxZK2W', 'Dr Demo Specialist Legacy', 'Demo', 'Specialist Legacy', true),
 
@@ -55,6 +60,11 @@ from (
     ('+17000000301', 'Cardiology', 'HealthHub Specialist Centre - Cardiology'),
     ('+17000000302', 'Dermatology', 'HealthHub Specialist Centre - Dermatology'),
     ('+17000000303', 'Orthopedics', 'HealthHub Specialist Centre - Orthopedics'),
+    ('+17000000304', 'Neurology', 'HealthHub Specialist Centre - Neurology'),
+    ('+17000000305', 'Pediatrics', 'HealthHub Specialist Centre - Pediatrics'),
+    ('+17000000306', 'Oncology', 'HealthHub Specialist Centre - Oncology'),
+    ('+17000000307', 'ENT', 'HealthHub Specialist Centre - ENT'),
+    ('+17000000308', 'Ophthalmology', 'HealthHub Specialist Centre - Ophthalmology'),
     ('+17000000002', 'General Specialist', 'HealthHub Specialist Centre - Legacy'),
     ('+17000000401', 'Pharmacy', 'HealthPlus Pharmacy - Westlands'),
     ('+17000000402', 'Pharmacy', 'HealthPlus Pharmacy - Riverside'),

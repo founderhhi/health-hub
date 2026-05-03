@@ -10,6 +10,7 @@ create table if not exists users (
   display_name text,
   first_name text,
   last_name text,
+  account_status text not null default 'active' check (account_status in ('active','pending_review','disabled')),
   is_operating boolean not null default true,
   created_at timestamptz not null default now()
 );
@@ -87,6 +88,10 @@ create table if not exists prescriptions (
   code text unique not null,
   items jsonb not null default '[]'::jsonb,
   status text not null default 'active' check (status in ('active','claimed','fulfilled')),
+  patient_contacted boolean not null default false,
+  patient_contacted_by uuid references users(id) on delete set null,
+  patient_contacted_at timestamptz,
+  patient_contact_note text,
   created_at timestamptz not null default now()
 );
 
@@ -103,7 +108,9 @@ create table if not exists chat_messages (
   id uuid primary key default uuid_generate_v4(),
   consultation_id uuid not null references consultations(id) on delete cascade,
   user_id uuid not null references users(id) on delete cascade,
-  message text not null,
+  message text,
+  image_data text,
+  image_mime text,
   created_at timestamptz not null default now()
 );
 
@@ -145,6 +152,44 @@ create index if not exists idx_admin_activity_created_at
 
 create index if not exists idx_admin_activity_target_user_id
   on admin_activity (target_user_id);
+
+create table if not exists admin_workflow_tracking (
+  id uuid primary key default uuid_generate_v4(),
+  entity_type text not null check (entity_type in ('service_request','referral','prescription')),
+  entity_id uuid not null,
+  workflow_status text not null check (workflow_status in ('contacted','completed','accepted','rejected','home_delivery','in_service')),
+  notes text,
+  updated_by uuid references users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_admin_workflow_entity_created
+  on admin_workflow_tracking (entity_type, entity_id, created_at desc);
+
+create table if not exists account_access_requests (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null unique references users(id) on delete cascade,
+  requested_role text not null check (requested_role in ('gp','specialist','pharmacist','lab_tech','radiologist','pathologist')),
+  requested_specialty text,
+  organization_name text,
+  contacted boolean not null default false,
+  review_status text not null default 'new' check (review_status in ('new','under_review','review_completed','account_handed_over')),
+  admin_notes text,
+  contacted_by uuid references users(id) on delete set null,
+  contacted_at timestamptz,
+  reviewed_by uuid references users(id) on delete set null,
+  reviewed_at timestamptz,
+  approved_at timestamptz,
+  approved_by uuid references users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_account_access_requests_status_created
+  on account_access_requests (review_status, created_at desc);
+
+create index if not exists idx_account_access_requests_contacted
+  on account_access_requests (contacted, created_at desc);
 
 -- Migration 009: Patient billing tables (added via 009-patient-billing.sql)
 

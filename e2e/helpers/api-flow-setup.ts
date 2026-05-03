@@ -1,8 +1,13 @@
 import { APIRequestContext, expect } from '@playwright/test';
+import { E2EEnvironment } from '../config/env';
+import { loginProvider, signupPatient } from './api-auth';
+import { retry } from './retry';
 
 interface ApiWithAuth {
   token: string;
 }
+
+type ProviderRole = keyof E2EEnvironment['roles'];
 
 async function readJson<T>(response: Awaited<ReturnType<APIRequestContext['get']>>, label: string): Promise<T> {
   const bodyText = await response.text();
@@ -18,6 +23,51 @@ function authHeader(auth: ApiWithAuth) {
   return {
     Authorization: `Bearer ${auth.token}`
   };
+}
+
+export async function loginProviderWithRetry(
+  api: APIRequestContext,
+  env: E2EEnvironment,
+  role: ProviderRole
+) {
+  return retry(async () => {
+    try {
+      return await loginProvider(api, env, role);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (message.includes('429') || message.includes('Too many auth attempts')) {
+        return null;
+      }
+      throw error;
+    }
+  }, {
+    attempts: 12,
+    initialDelayMs: 500,
+    backoffMultiplier: 1.4,
+    maxDelayMs: 5000
+  });
+}
+
+export async function signupPatientWithRetry(
+  api: APIRequestContext,
+  env: E2EEnvironment
+) {
+  return retry(async () => {
+    try {
+      return await signupPatient(api, env);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (message.includes('429') || message.includes('Too many auth attempts')) {
+        return null;
+      }
+      throw error;
+    }
+  }, {
+    attempts: 12,
+    initialDelayMs: 500,
+    backoffMultiplier: 1.4,
+    maxDelayMs: 5000
+  });
 }
 
 export async function requestGpConsult(

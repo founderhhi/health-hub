@@ -1,0 +1,161 @@
+# Scenario 3 - Our Level 2 (Ideal / Basic) / Investor Level 1 (Ad Hoc / Bootstrapped)
+
+## Scenario Summary
+Reference case. The scenario keeps the previously approved checkpoint shape, but the underlying staffing, rate-card, and operating model now reflect a part-time multi-team organization with explicit doctor, admin, and support coverage.
+
+- Economic cost to Production: $329,136 / INR 27,318,288
+- Target timeline to Production: 24 months
+- Founder/company capital modeled before outside funding: $95,000 / INR 7,885,000
+- Investor capital modeled: $125,000 / INR 10,375,000
+- Main risk to watch: pilot-to-production hardening discipline
+
+## Timeline
+| Phase | Timing | Minor Checkpoints | Gate to Advance |
+| --- | --- | --- | --- |
+| Pre-Pilot | M0-M4 | Architecture freeze, APK backlog lock, doctor training draft, admin callback SOP, issue rehearsal cycles. | Core web flows stable, internal rehearsals pass, doctor and admin runbooks are versioned. |
+| Pilot 1 | M4-M6 | Warm-network onboarding, first paid consults, callback calibration, doctor playbooks, admin training refreshers. | Ethiopia pilot runs live for 1-2 months with measured throughput, callbacks, and escalation handling. |
+| Pilot 2 | M6-M14 | Kenya prep, partner reporting, roster planning, partial automation, refresher training and staffing calibration. | 5k-10k user-capable operations exist with stronger APK, cleaner reporting, and staffed callback coverage. |
+| Production Readiness | M14-M24 | Compliance closeout, release freeze, launch playbooks, certification refreshers, production support schedule. | Current prototype scope is production-safe across web and patient mobile with documented fallback operations. |
+
+## Feature and Output Checklist
+| Phase | Output Checklist |
+| --- | --- |
+| Pre-Pilot | Web core hardened; APK build underway; doctor/admin training materials drafted; support desk scripts and callback trees defined. |
+| Pilot 1 | Patient app covers core journeys; provider web is stable; doctor roster, admin callbacks, and manual fulfilment are visible in-system. |
+| Pilot 2 | Core patient features complete; partner dashboards cleaner; staffing ladder is active; reporting, payments, and support loops are tighter. |
+| Production Readiness | Current prototype scope is production-grade across web and patient mobile, with trained ops staff and manual fallback still available. |
+
+## Services and SLAs
+| Phase | Uptime Target | Response Commitment | Operating Model |
+| --- | --- | --- | --- |
+| Pre-Pilot | 96.0% | Same-day support | 3 core team + 7 part-time developers + 2 advisors; no employed clinical coverage yet, only training and rehearsals. |
+| Pilot 1 | 97.0% | 4 business hours for critical issues | Minimum employed coverage: 2 doctors, 2 admin ops, 2 technical support, alongside friendly clinics and partner clinicians. |
+| Pilot 2 | 98.2% | 2-hour P1 response | Minimum employed coverage: 4 doctors, 4 admin ops, 2 technical support, with stronger callback and partner reporting loops. |
+| Production | 99.2% | 1-hour P1 response | Minimum employed coverage: 6 doctors, 6 admin ops, 3 technical support for near-24/7 coverage and release support. |
+
+## Cost Breakdown
+| Category | Amount |
+| --- | --- |
+| Capital expenditure through Production | $173,255 / INR 14,380,165 |
+| Operating expenditure before Production launch | $155,881 / INR 12,938,123 |
+| Total economic spend to Production | $329,136 / INR 27,318,288 |
+
+| Workstream | Economic Cost | Notes |
+| --- | --- | --- |
+| Product and founder office | $124,800 / INR 10,358,400 | 3 core team members at part-time market value, plus fractional advisory support. |
+| Web platform hardening | $23,450 / INR 1,946,350 | Remaining web scope normalized to 720-770 hours; model uses 745 hours expected. |
+| Patient APK build | $7,200 / INR 597,600 | Fixed Android quote: 480 hours at $15/hr average across the mobile team. |
+| QA, DevOps, security | $11,250 / INR 933,750 | Includes release discipline, hardening, monitoring, and production checklists. |
+| Admin and care operations | $105,262 / INR 8,736,746 | Includes employed doctors, admin callback staff, and technical support ladder by phase. |
+| Partner onboarding and provider success | $11,025 / INR 915,075 | Includes doctor/admin training protocols, SOP writing, partner reporting, and staff refreshers. |
+| Legal, accounting, compliance | $6,555 / INR 544,065 | Friendly-network pricing counted at market-value equivalent for economic modeling. |
+| Infrastructure, phones, and tools | $26,085 / INR 2,165,055 | Includes hosting, devices, telecom/call costs, and operational tooling. |
+| Marketing, travel, rehearsals | $13,500 / INR 1,120,500 | Light but explicit spend for partner visits, rehearsals, and launch prep. |
+
+## Effort and Team
+| Function | Staffing Pattern | Notes |
+| --- | --- | --- |
+| Core team | 3 part-time members @ ~4 hours/day each | Single owner/founder + 2 founding members; one founding member acts as technical head / product-testing lead. |
+| Technical delivery | 7 part-time developers, modeled at ~320 productive technical hrs/mo | Includes the Android/backend group, plus explicit full-stack and DevOps web support. |
+| Post-investor technical stance | post-round team stays lean (~240-280 hrs/mo) | Only applies where outside capital exists. |
+| Advisory board | 2 fractional advisors | Used for finance, compliance, and strategic review rather than full-time execution. |
+| Employed care coverage | Pilot 1: 2 doctors / Pilot 2: 4 / Pre-Production: 6 | Partner clinics still matter, but minimum employed coverage is modeled explicitly. |
+| Employed admin ops | Pilot 1: 2 admins / Pilot 2: 4 / Pre-Production: 6 | Callbacks, exception handling, travel/tourism follow-ups, manual fulfilment visibility. |
+| Technical support | Pilot 1: 2 / Pilot 2: 2 / Pre-Production: 3 | Lower-tier support staff backing the delivery team and live operations. |
+
+## Revenue and Pricing
+| Revenue Source | Pilot 1 | Pilot 2 | Production |
+| --- | --- | --- | --- |
+| GP consults | Subsidised, Ethiopia-first, around $2-$3 per paid interaction | Full Ethiopia + Kenya pricing tests | Core revenue line |
+| Specialist consults | Minimal at first | Grows after referral throughput improves | Important but lower-volume margin contributor |
+| Pharmacy commission | Small, admin-assisted | Repeatable, still manual-heavy | Stronger if partner conversion improves |
+| Diagnostics commission | Small, admin-assisted | Better once order flow is consistent | Useful add-on and retention lever |
+| Travel/care coordination | Few cases, high touch | Higher-value but low-volume | Strategic differentiator rather than mass-market default |
+
+| Revenue Line | Ethiopia Benchmark | Kenya Benchmark | Notes |
+| --- | --- | --- | --- |
+| GP consult | $3.5 / ETB 470 | $5 / KES 650 | Starts subsidised in Pilot 1 and reaches benchmark pricing by Production. |
+| Specialist consult | $9 / ETB 1,250 | $12 / KES 1,560 | Pilot 2 onward. |
+| Pharmacy take-rate | 10% of order value | 10% of order value | Pilot 1 onward with manual fulfilment support. |
+| Diagnostics take-rate | 12% of order value | 12% of order value | Pilot 1 onward with admin/lab coordination. |
+| Travel/care coordination fee | $10-$15 | $10-$15 | Small volume, high-touch service. |
+| Subscription | Deferred | Deferred | Not modeled before meaningful scale. |
+
+## CAC and Key Business Metrics
+| Metric | Pilot 1 | Pilot 2 | Production |
+| --- | --- | --- | --- |
+| CAC | $14 | $23 | $29 |
+| Gross margin | 40% | 50% | 61% |
+| Monthly ARPU | $2 | $3 | $4 |
+| Monthly churn | 13% | 11% | 7% |
+| LTV/CAC target | 1.8x | 2.5x | 3.3x |
+
+## Cash Flow and Runway
+| Checkpoint | Ending Cash | Approx. Runway Remaining | Trigger Threshold |
+| --- | --- | --- | --- |
+| Pre-Pilot | $18,932 | 1.7 months | Trigger contingency if cash drops below 3 months of current burn. |
+| Pilot 1 | $29,634 | 2.3 months | Trigger contingency if cash drops below 3 months of current burn. |
+| Pilot 2 | $90,602 | 6.2 months | Trigger contingency if cash drops below 3 months of current burn. |
+| Production Readiness | $95,962 | 6.3 months | Trigger contingency if cash drops below 3 months of current burn. |
+
+| Month | Phase | Founder/Company Capital In | Investor In | Revenue In | Outflow | Net | Ending Cash |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M1 | Pre-Pilot | $15,833 | $0 | $0 | $11,700 | $4,133 | $4,133 |
+| M2 | Pre-Pilot | $15,833 | $0 | $0 | $11,700 | $4,133 | $8,266 |
+| M3 | Pre-Pilot | $15,833 | $0 | $0 | $11,700 | $4,133 | $12,399 |
+| M4 | Pre-Pilot | $15,833 | $0 | $0 | $9,300 | $6,533 | $18,932 |
+| M5 | Pilot 1 | $15,833 | $0 | $900 | $11,832 | $4,901 | $23,833 |
+| M6 | Pilot 1 | $15,833 | $0 | $1,800 | $11,832 | $5,801 | $29,634 |
+| M7 | Pilot 2 | $0 | $125,000 | $3,080 | $13,504 | $114,576 | $144,210 |
+| M8 | Pilot 2 | $0 | $0 | $3,771 | $13,504 | $-9,733 | $134,477 |
+| M9 | Pilot 2 | $0 | $0 | $4,463 | $13,504 | $-9,041 | $125,436 |
+| M10 | Pilot 2 | $0 | $0 | $5,154 | $13,504 | $-8,350 | $117,086 |
+| M11 | Pilot 2 | $0 | $0 | $5,846 | $13,504 | $-7,658 | $109,428 |
+| M12 | Pilot 2 | $0 | $0 | $6,537 | $13,504 | $-6,967 | $102,461 |
+| M13 | Pilot 2 | $0 | $0 | $7,229 | $13,504 | $-6,275 | $96,186 |
+| M14 | Pilot 2 | $0 | $0 | $7,920 | $13,504 | $-5,584 | $90,602 |
+| M15 | Production Readiness | $0 | $0 | $9,680 | $15,304 | $-5,624 | $84,978 |
+| M16 | Production Readiness | $0 | $0 | $11,049 | $15,304 | $-4,255 | $80,723 |
+| M17 | Production Readiness | $0 | $0 | $12,418 | $15,304 | $-2,886 | $77,837 |
+| M18 | Production Readiness | $0 | $0 | $13,787 | $15,304 | $-1,517 | $76,320 |
+| M19 | Production Readiness | $0 | $0 | $15,156 | $15,304 | $-148 | $76,172 |
+| M20 | Production Readiness | $0 | $0 | $16,524 | $15,304 | $1,220 | $77,392 |
+| M21 | Production Readiness | $0 | $0 | $17,893 | $15,304 | $2,589 | $79,981 |
+| M22 | Production Readiness | $0 | $0 | $19,262 | $15,304 | $3,958 | $83,939 |
+| M23 | Production Readiness | $0 | $0 | $20,631 | $15,304 | $5,327 | $89,266 |
+| M24 | Production Readiness | $0 | $0 | $22,000 | $15,304 | $6,696 | $95,962 |
+
+## Fundraising, Valuation, and Dilution
+| Item | Value |
+| --- | --- |
+| Founder/self-funded capital before investor | $95,000 / INR 7,885,000 |
+| Investor round size | $125,000 / INR 10,375,000 |
+| Recommended structure | SAFE or milestone-based bridge/pre-seed |
+| Modeled pre-money valuation | $1,125,000 |
+| Modeled post-money valuation | $1,250,000 |
+| Modeled investor dilution from the 20% pool | 10.0% |
+
+| Ownership Pool | Before Round | After Modeled Round | Notes |
+| --- | --- | --- | --- |
+| Owner / founder pool | 60% | 60% | Held by the single idea owner / founder. |
+| Founding + strategic pool | 20% | 20% | Shared pool for founding members and strategic partners. |
+| Investor pool | 20% reserved | 10.0% issued / 10.0% remaining | Modeled from the dedicated investor pool, not from the founder or founding-team pools. |
+
+## Risk Register and Contingencies
+| Risk | Likelihood | Impact | Mitigation / Trigger |
+| --- | --- | --- | --- |
+| Funding delay | Medium | High | Slow hiring, stretch manual ops, and prioritize doctor/admin coverage before marketing expansion. |
+| Regulatory delay | Medium | High | Continue partner-license model and count friendly counsel/accounting support at economic value. |
+| Manual ops overload | High | Medium | Add admin capacity before feature expansion; track callback backlog as an explicit release gate. |
+| Payment-rail mismatch | Medium | High | Use digital invoicing first; localize M-Pesa / Telebirr rails before scaling acquisition. |
+| Security and privacy gap | Medium | High | Keep release freeze, monitoring, and testing discipline tied to launch gates. |
+| Team fragmentation | Medium | Medium | Use the technical head / product-testing role to coordinate part-time contributors and shrink rework. |
+
+## 2-Year Extension Outline
+- Year 3: reduce manual callbacks, automate more partner and reporting loops, and deepen Kenya only after Ethiopia economics stabilize.
+- Year 4: reuse the operating playbook in the next country, carrying forward trained admin, doctor, and support processes.
+
+## Assumption Notes
+- Android is still modeled from the external quote: 480 total hours at $15/hr average across the mobile team.
+- Remaining web work is normalized to roughly 150%-160% of Android effort, with an expected case of 745 hours, while the rest of the technical time supports hardening, QA, training, and launch operations.
+- Salary benchmarks used for employed coverage: NHM Assam Medical Officer (MBBS) remuneration band (~INR 54,625-57,881 per month, official RoP approval), NCS customer/back-office roles (~INR 13,000-22,000), and NCS technical-support roles (~INR 18,000-28,000). Planning model uses INR 60,000 for doctors, INR 18,000 for admin ops, and INR 25,000 for technical support.

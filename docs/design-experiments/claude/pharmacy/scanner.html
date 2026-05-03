@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy Scanner -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F1F5F9; color: #1E293B; padding: 40px 24px; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; color: #0F172A; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; max-width: 680px; margin: 0 auto; line-height: 1.6; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+  .col-header { padding: 24px 28px; border-bottom: 1px solid #E2E8F0; }
+  .col-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .col-header .tag { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 4px; margin-bottom: 8px; }
+  .col-header p { font-size: 13px; color: #64748B; line-height: 1.5; }
+  .col-body { padding: 28px; }
+  .section { margin-bottom: 32px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #F1F5F9; }
+  /* Color swatches */
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .swatch-color { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .swatch-label { font-size: 11px; color: #475569; line-height: 1.3; }
+  .swatch-label code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px; color: #64748B; display: block; }
+  /* Typography demos */
+  .type-demo { margin-bottom: 14px; padding: 12px 16px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .type-demo .label { font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .type-demo .spec { font-size: 10px; color: #94A3B8; margin-top: 4px; font-family: 'SF Mono', monospace; }
+  /* Mockup areas */
+  .mockup { border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; }
+  .mockup-inner { padding: 24px; }
+  /* Scanner frame mockups */
+  .scanner-mockup { position: relative; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+  .corner { position: absolute; width: 24px; height: 24px; }
+  .corner--tl { top: 12px; left: 12px; border-top: 3px solid; border-left: 3px solid; border-top-left-radius: 6px; }
+  .corner--tr { top: 12px; right: 12px; border-top: 3px solid; border-right: 3px solid; border-top-right-radius: 6px; }
+  .corner--bl { bottom: 12px; left: 12px; border-bottom: 3px solid; border-left: 3px solid; border-bottom-left-radius: 6px; }
+  .corner--br { bottom: 12px; right: 12px; border-bottom: 3px solid; border-right: 3px solid; border-bottom-right-radius: 6px; }
+  .scan-line { position: absolute; left: 16px; right: 16px; height: 2px; top: 50%; }
+  .scanner-label { font-size: 13px; color: #64748B; text-align: center; }
+  /* Manual input mockup */
+  .manual-input-mock { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .manual-input-mock input { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #E2E8F0; font-family: inherit; font-size: 14px; outline: none; background: #FFF; }
+  .manual-input-mock .btn { padding: 10px 20px; border: none; color: #FFF; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  /* Recent scan items */
+  .scan-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #EDF2F7; }
+  .scan-item:last-child { border-bottom: none; }
+  .scan-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .scan-info { flex: 1; }
+  .scan-info .code { font-size: 13px; font-weight: 600; color: #1E293B; }
+  .scan-info .time { font-size: 11px; color: #94A3B8; }
+  .scan-badge { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+  /* Spacing demos */
+  .spacing-demo { display: flex; flex-direction: column; gap: 8px; }
+  .spacing-row { display: flex; align-items: center; gap: 10px; }
+  .spacing-box { height: 12px; background: #2ECC71; border-radius: 3px; opacity: 0.3; }
+  .spacing-label { font-size: 11px; color: #64748B; white-space: nowrap; font-family: 'SF Mono', monospace; }
+  /* Shadow demos */
+  .shadow-demo { display: flex; flex-wrap: wrap; gap: 16px; }
+  .shadow-card { width: 80px; height: 56px; border-radius: 10px; background: #FFF; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94A3B8; }
+  /* V1-specific */
+  .v1 .col-header { background: linear-gradient(180deg, #ECFDF3 0%, #FFF 100%); }
+  .v1 .tag { background: #F0FDF4; color: #166534; }
+  /* V2-specific */
+  .v2 .col-header { background: #FAFBFC; }
+  .v2 .tag { background: #F1F5F9; color: #475569; }
+  /* V3-specific */
+  .v3 .col-header { background: #FFF; border-top: 4px solid #2ECC71; }
+  .v3 .tag { background: #ECFDF3; color: #166534; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; max-width: 560px; } }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>Pharmacy Scanner</h1>
+  <p>Three design variations for the pharmacist's prescription scanning interface. V1 Premium Guided elevates surfaces with gradients and depth. V2 Calm Clinical reduces noise for efficiency. V3 MyDawa-Inspired borrows e-commerce intake patterns.</p>
+</div>
+<div class="grid">
+
+<!-- V1: Premium Guided -->
+<div class="column v1">
+  <div class="col-header">
+    <span class="tag">V1</span>
+    <h2>Premium Guided</h2>
+    <p>Confident, rich surfaces with gradient CTAs, Fraunces serif headings, deeper shadows, and a soft emerald top gradient wash.</p>
+  </div>
+  <div class="col-body">
+
+    <!-- Colors -->
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#FAFAF8"></div><div class="swatch-label">Scanner BG<code>#FAFAF8</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(180deg,#ECFDF3 0%,#F8FAFC 100%)"></div><div class="swatch-label">Page gradient<code>#ECFDF3 &rarr; #F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(135deg,#2ECC71,#27AE60)"></div><div class="swatch-label">Corner gradient<code>#2ECC71 &rarr; #27AE60</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2ECC71; box-shadow: 0 0 8px rgba(46,204,113,0.4)"></div><div class="swatch-label">Frame glow<code>rgba(46,204,113,0.12)</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7)"></div><div class="swatch-label">Icon wrapper<code>#F0FDF4 &rarr; #DCFCE7</code></div></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Page Title</div>
+        <div style="font-family:'Fraunces',serif; font-size:28px; font-weight:600; letter-spacing:-0.01em;">Scan Prescription</div>
+        <div class="spec">Fraunces 28px / 600 / -0.01em</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Section Header</div>
+        <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:500;">Recent Scans</div>
+        <div class="spec">Fraunces 18px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Instructions</div>
+        <div style="font-size:15px; line-height:1.6; color:#64748B;">Position the barcode within the frame to scan automatically</div>
+        <div class="spec">Inter 15px / 1.6 line-height</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Manual Input Title</div>
+        <div style="font-size:16px; font-weight:600;">Enter Code Manually</div>
+        <div class="spec">Inter 16px / 600</div>
+      </div>
+    </div>
+
+    <!-- Scanner Frame Mockup -->
+    <div class="section">
+      <div class="section-title">Scanner Frame</div>
+      <div class="mockup">
+        <div class="scanner-mockup" style="background:#FAFAF8; border: 2px solid #2ECC71; border-radius: 20px; box-shadow: 0 6px 16px rgba(15,23,42,0.10), 0 0 20px rgba(46,204,113,0.12);">
+          <div class="corner corner--tl" style="border-color: transparent; background: linear-gradient(135deg,#2ECC71,#27AE60); width:28px; height:28px; clip-path: polygon(0 0, 100% 0, 0 100%); border: none; border-radius: 0;"></div>
+          <div class="corner corner--tr" style="border-color: transparent; background: linear-gradient(135deg,#2ECC71,#27AE60); width:28px; height:28px; clip-path: polygon(0 0, 100% 0, 100% 100%); border: none; border-radius: 0;"></div>
+          <div class="corner corner--bl" style="border-color: transparent; background: linear-gradient(135deg,#2ECC71,#27AE60); width:28px; height:28px; clip-path: polygon(0 0, 0 100%, 100% 100%); border: none; border-radius: 0;"></div>
+          <div class="corner corner--br" style="border-color: transparent; background: linear-gradient(135deg,#2ECC71,#27AE60); width:28px; height:28px; clip-path: polygon(100% 0, 0 100%, 100% 100%); border: none; border-radius: 0;"></div>
+          <div class="scan-line" style="background: linear-gradient(90deg, transparent, #AEEA00, transparent); box-shadow: 0 0 12px rgba(174,234,0,0.6);"></div>
+          <div class="scanner-label">Position barcode here</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        border-radius: 20px &middot; solid 2px emerald &middot; shadow: 0 6px 16px rgba(15,23,42,0.10) + green glow
+      </div>
+    </div>
+
+    <!-- Manual Input Mockup -->
+    <div class="section">
+      <div class="section-title">Manual Input Section</div>
+      <div class="mockup" style="border-radius:12px; box-shadow: 0 4px 6px -1px rgba(15,23,42,0.08);">
+        <div class="mockup-inner" style="padding:20px;">
+          <div style="font-family:'Fraunces',serif; font-size:16px; font-weight:500; margin-bottom:12px;">Enter Code Manually</div>
+          <div class="manual-input-mock">
+            <input type="text" placeholder="RX-2024-001234" style="border-radius:8px;">
+            <div class="btn" style="background:linear-gradient(135deg,#2ECC71,#27AE60); border-radius:12px; transition: transform 0.15s;">Lookup</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        radius: 12px &middot; padding: 20px &middot; shadow-md &middot; gradient CTA with scale(1.02) hover
+      </div>
+    </div>
+
+    <!-- Recent Scans Mockup -->
+    <div class="section">
+      <div class="section-title">Recent Scans</div>
+      <div class="mockup" style="border-radius:12px; box-shadow: 0 4px 6px -1px rgba(15,23,42,0.08);">
+        <div class="scan-item" style="padding:18px 16px;">
+          <div class="scan-icon" style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border-radius:12px;">&#x2713;</div>
+          <div class="scan-info">
+            <div class="code">RX-2024-001234</div>
+            <div class="time">2 minutes ago</div>
+          </div>
+          <div class="scan-badge" style="background:#DCFCE7; color:#15803D;">Claimed</div>
+        </div>
+        <div class="scan-item" style="padding:18px 16px;">
+          <div class="scan-icon" style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border-radius:12px;">&#x2713;</div>
+          <div class="scan-info">
+            <div class="code">RX-2024-001228</div>
+            <div class="time">15 minutes ago</div>
+          </div>
+          <div class="scan-badge" style="background:#FEF3C7; color:#92400E;">Pending</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        18px padding &middot; gradient icon wrapper &middot; translateX(2px) hover slide
+      </div>
+    </div>
+
+    <!-- Shadows -->
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow: 0 6px 16px rgba(15,23,42,0.10);">Frame</div>
+        <div class="shadow-card" style="box-shadow: 0 4px 6px -1px rgba(15,23,42,0.08);">Cards</div>
+        <div class="shadow-card" style="box-shadow: 0 24px 64px rgba(0,0,0,0.32), 0 8px 24px rgba(0,0,0,0.16);">Dialog</div>
+        <div class="shadow-card" style="box-shadow: 0 10px 15px -3px rgba(15,23,42,0.08);">Toast</div>
+      </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:128px;"></div><div class="spacing-label">32px container top/bottom</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:96px;"></div><div class="spacing-label">24px frame wrapper</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:80px;"></div><div class="spacing-label">20px manual input pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:160px;"></div><div class="spacing-label">40px desktop col gap</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V2: Calm Clinical -->
+<div class="column v2">
+  <div class="col-header">
+    <span class="tag">V2</span>
+    <h2>Calm Clinical</h2>
+    <p>Quiet, functional workspace. Reduced shadows, softened borders, no gradients or transforms. Optimized for pharmacist efficiency.</p>
+  </div>
+  <div class="col-body">
+
+    <!-- Colors -->
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#F8FAFC"></div><div class="swatch-label">Page BG (flat)<code>#F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#BBF7D0"></div><div class="swatch-label">Frame border<code>#BBF7D0</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#86EFAC"></div><div class="swatch-label">Corner markers<code>#86EFAC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EDF2F7"></div><div class="swatch-label">Calm border<code>#EDF2F7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F7FFF7"></div><div class="swatch-label">Icon wrapper<code>#F7FFF7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FAFBFC"></div><div class="swatch-label">Hover BG<code>#FAFBFC</code></div></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Page Title</div>
+        <div style="font-size:24px; font-weight:600;">Scan Prescription</div>
+        <div class="spec">Inter 24px / 600 (no serif)</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Section Header</div>
+        <div style="font-size:16px; font-weight:500;">Recent Scans</div>
+        <div class="spec">Inter 16px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Instructions</div>
+        <div style="font-size:12px; line-height:1.6; color:#94A3B8;">Position the barcode within the frame to scan automatically</div>
+        <div class="spec">Inter 12px / 1.6 / text-muted</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Subtitle</div>
+        <div style="font-size:14px; color:#94A3B8;">Scan or enter a prescription code</div>
+        <div class="spec">Inter 14px / color-text-muted</div>
+      </div>
+    </div>
+
+    <!-- Scanner Frame Mockup -->
+    <div class="section">
+      <div class="section-title">Scanner Frame</div>
+      <div class="mockup">
+        <div class="scanner-mockup" style="background:#FFFFFF; border: 2px dashed #BBF7D0; border-radius: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
+          <div class="corner corner--tl" style="border-color:#86EFAC;"></div>
+          <div class="corner corner--tr" style="border-color:#86EFAC;"></div>
+          <div class="corner corner--bl" style="border-color:#86EFAC;"></div>
+          <div class="corner corner--br" style="border-color:#86EFAC;"></div>
+          <div class="scan-line" style="background: linear-gradient(90deg, transparent, #AEEA00, transparent); opacity: 0.5;"></div>
+          <div class="scanner-label" style="font-size:12px; color:#94A3B8;">Position barcode here</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        radius: 16px &middot; dashed #BBF7D0 &middot; shadow-sm &middot; softer corners #86EFAC
+      </div>
+    </div>
+
+    <!-- Manual Input Mockup -->
+    <div class="section">
+      <div class="section-title">Manual Input Section</div>
+      <div class="mockup" style="border-color:#EDF2F7; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
+        <div class="mockup-inner" style="padding:20px;">
+          <div style="font-size:16px; font-weight:500; margin-bottom:12px;">Enter Code Manually</div>
+          <div class="manual-input-mock">
+            <input type="text" placeholder="RX-2024-001234" style="border-color:#EDF2F7;">
+            <div class="btn" style="background:#2ECC71; border-radius:8px; padding:10px 24px;">Lookup</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        border: #EDF2F7 &middot; padding: 20px &middot; shadow-sm &middot; flat emerald button (wider padding)
+      </div>
+    </div>
+
+    <!-- Recent Scans Mockup -->
+    <div class="section">
+      <div class="section-title">Recent Scans</div>
+      <div class="mockup" style="border-color:#EDF2F7;">
+        <div class="scan-item" style="padding:18px 16px; border-bottom-color:#EDF2F7;">
+          <div class="scan-icon" style="background:#F7FFF7;">&#x2713;</div>
+          <div class="scan-info">
+            <div class="code" style="font-weight:500;">RX-2024-001234</div>
+            <div class="time">2 minutes ago</div>
+          </div>
+          <div class="scan-badge" style="background:rgba(34,197,94,0.10); color:#15803D;">Claimed</div>
+        </div>
+        <div class="scan-item" style="padding:18px 16px; border-bottom:none;">
+          <div class="scan-icon" style="background:#F7FFF7;">&#x2713;</div>
+          <div class="scan-info">
+            <div class="code" style="font-weight:500;">RX-2024-001228</div>
+            <div class="time">15 minutes ago</div>
+          </div>
+          <div class="scan-badge" style="background:rgba(245,158,11,0.10); color:#92400E;">Pending</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        18px padding &middot; #F7FFF7 icon &middot; hover: #FAFBFC BG only, no transforms
+      </div>
+    </div>
+
+    <!-- Shadows -->
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow: 0 1px 2px rgba(15,23,42,0.04);">Frame</div>
+        <div class="shadow-card" style="box-shadow: 0 1px 2px rgba(15,23,42,0.04);">Cards</div>
+        <div class="shadow-card" style="box-shadow: 0 16px 32px rgba(0,0,0,0.24);">Dialog</div>
+        <div class="shadow-card" style="box-shadow: 0 1px 2px rgba(15,23,42,0.04);">Toast</div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        All resting surfaces use shadow-sm only. No hover shadow escalation.
+      </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:112px;"></div><div class="spacing-label">28px container top</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:80px;"></div><div class="spacing-label">20px manual input pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:112px;"></div><div class="spacing-label">28px section gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:80px;"></div><div class="spacing-label">20px dialog sections</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V3: MyDawa-Inspired -->
+<div class="column v3">
+  <div class="col-header">
+    <span class="tag">V3</span>
+    <h2>MyDawa-Inspired</h2>
+    <p>E-commerce intake flow with step labels, left-border status coding, monospace codes, sharp badges, and a 4px emerald identity strip.</p>
+  </div>
+  <div class="col-body">
+
+    <!-- Colors -->
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#FFFFFF; border: 1px solid #E2E8F0;"></div><div class="swatch-label">Page BG (white)<code>#FFFFFF</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2ECC71; height:6px; border-radius:2px;"></div><div class="swatch-label">Identity strip<code>4px #2ECC71</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FAFBFC"></div><div class="swatch-label">Manual input BG<code>#FAFBFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:rgba(29,78,216,0.15); border-left: 3px solid #1D4ED8;"></div><div class="swatch-label">Blue inner ring<code>rgba(29,78,216,0.15)</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="border-left:4px solid #2ECC71; background:#F8FAFC;"></div><div class="swatch-label">Left border done<code>3px #2ECC71</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="border-left:4px solid #F59E0B; background:#FFF8E1;"></div><div class="swatch-label">Left border pending<code>3px #F59E0B</code></div></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Page Title</div>
+        <div style="font-size:22px; font-weight:700;">Scan Prescription</div>
+        <div class="spec">Inter 22px / 700 (compact e-commerce)</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Step Label</div>
+        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#94A3B8;">STEP 1: SCAN OR ENTER CODE</div>
+        <div class="spec">Inter 11px / 600 / uppercase / wide tracking</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Prescription Code</div>
+        <div style="font-family:'SF Mono','Fira Code',monospace; font-size:12px; font-weight:500;">RX-2024-001234</div>
+        <div class="spec">Monospace 12px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Status Badge</div>
+        <div><span style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; background:#DCFCE7; color:#15803D; padding:3px 8px; border-radius:4px;">PROCESSED</span> <span style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; background:#FEF3C7; color:#92400E; padding:3px 8px; border-radius:4px;">PENDING</span></div>
+        <div class="spec">10px / 600 / uppercase / radius-sm (4px)</div>
+      </div>
+    </div>
+
+    <!-- Scanner Frame Mockup -->
+    <div class="section">
+      <div class="section-title">Scanner Frame</div>
+      <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#94A3B8; text-align:center; margin-bottom:8px;">STEP 1: SCAN OR ENTER CODE</div>
+      <div class="mockup">
+        <div class="scanner-mockup" style="background:#FFF; border: 2px solid #2ECC71; border-radius: 16px; box-shadow: 0 2px 8px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(29,78,216,0.15);">
+          <div class="corner corner--tl" style="border-color:#2ECC71;"></div>
+          <div class="corner corner--tr" style="border-color:#2ECC71;"></div>
+          <div class="corner corner--bl" style="border-color:#2ECC71;"></div>
+          <div class="corner corner--br" style="border-color:#2ECC71;"></div>
+          <div class="scan-line" style="background: linear-gradient(90deg, transparent, #AEEA00, transparent);"></div>
+          <div class="scanner-label">Position barcode here</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        solid 2px emerald &middot; blue inner inset glow &middot; shadow: 0 2px 8px (lighter) &middot; max-width: 800px
+      </div>
+    </div>
+
+    <!-- Manual Input Mockup -->
+    <div class="section">
+      <div class="section-title">Manual Input Section</div>
+      <div class="mockup" style="background:#FAFBFC;">
+        <div class="mockup-inner">
+          <div style="font-size:15px; font-weight:600; margin-bottom:10px;">Enter Code Manually</div>
+          <div class="manual-input-mock" style="gap:6px;">
+            <input type="text" placeholder="RX-2024-001234">
+            <div class="btn" style="background:#2ECC71; border-radius:8px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);">Lookup</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        BG: #FAFBFC &middot; row gap: 6px (tighter) &middot; btn: inner shadow depth cue
+      </div>
+    </div>
+
+    <!-- Recent Scans Mockup (with left border) -->
+    <div class="section">
+      <div class="section-title">Recent Scans (Left-Border Coding)</div>
+      <div class="mockup" style="box-shadow:none; border-color:#E2E8F0;">
+        <div class="scan-item" style="padding:14px 16px; border-left:3px solid #2ECC71;">
+          <div style="width:8px; height:8px; border-radius:50%; background:#2ECC71; flex-shrink:0;"></div>
+          <div class="scan-info">
+            <div class="code" style="font-family:'SF Mono','Fira Code',monospace; font-size:12px;">RX-2024-001234</div>
+            <div class="time">2 minutes ago</div>
+          </div>
+          <div class="scan-badge" style="background:rgba(34,197,94,0.15); color:#15803D; border-radius:4px; font-size:10px; text-transform:uppercase; letter-spacing:0.04em; font-weight:600;">PROCESSED</div>
+        </div>
+        <div class="scan-item" style="padding:14px 16px; border-left:3px solid #F59E0B;">
+          <div style="width:8px; height:8px; border-radius:50%; background:#F59E0B; flex-shrink:0;"></div>
+          <div class="scan-info">
+            <div class="code" style="font-family:'SF Mono','Fira Code',monospace; font-size:12px;">RX-2024-001228</div>
+            <div class="time">15 minutes ago</div>
+          </div>
+          <div class="scan-badge" style="background:rgba(245,158,11,0.15); color:#92400E; border-radius:4px; font-size:10px; text-transform:uppercase; letter-spacing:0.04em; font-weight:600;">PENDING</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        14px padding &middot; 3px left border by status &middot; monospace codes &middot; step-indicator dots &middot; no shadow
+      </div>
+    </div>
+
+    <!-- Shadows -->
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow: 0 2px 8px rgba(15,23,42,0.06);">Frame</div>
+        <div class="shadow-card" style="box-shadow: 0 1px 2px rgba(15,23,42,0.04);">Cards</div>
+        <div class="shadow-card" style="box-shadow: 0 12px 24px rgba(0,0,0,0.2);">Dialog</div>
+        <div class="shadow-card" style="box-shadow: none; border:1px solid #E2E8F0;">Scans</div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        Flat e-commerce treatment. Recent scans: no shadow, border only.
+      </div>
+    </div>
+
+    <!-- Spacing -->
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">max-width: 800px</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">16px header bottom pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:24px;"></div><div class="spacing-label">6px input row gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:56px;"></div><div class="spacing-label">14px scan item padding</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</body>
+</html>

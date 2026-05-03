@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Hub | Patient Dashboard V10 (Mint Sanctuary)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300..600,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#006a51",
+                        "primary-container": "#108567",
+                        "tertiary": "#745825",
+                        "background": "#f1fcf6", /* Soft Mint White */
+                        "surface-low": "#ecf6f1",
+                        "surface": "#ffffff",
+                        "on-surface": "#141d1a",
+                        "on-surface-variant": "#3e4944"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    },
+                    boxShadow: {
+                        "card": "0px 20px 40px rgba(20, 29, 26, 0.04)"
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+        .btn-gradient {
+            background: linear-gradient(135deg, #006a51 0%, #108567 100%);
+        }
+        .clean-card {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .clean-card:hover {
+            box-shadow: 0px 20px 40px rgba(20, 29, 26, 0.04);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased relative min-h-screen pb-32">
+
+    <!-- Subtle asymmetrical structural lines for the 'Clinical Blueprint' feel -->
+    <div class="fixed left-6 top-0 bottom-0 w-[1px] bg-primary/5 pointer-events-none z-0"></div>
+    <div class="fixed right-6 top-0 bottom-0 w-[1px] bg-primary/5 pointer-events-none z-0"></div>
+
+    <div class="max-w-md mx-auto relative z-10 p-5 pt-8 pl-8 pr-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <p class="font-headline text-xs font-bold text-primary tracking-widest uppercase mb-1">Health Sanctuary</p>
+                <h1 class="font-headline text-[32px] font-black tracking-tight text-on-surface m-0 leading-none">Anuraag G.</h1>
+            </div>
+            <div class="w-12 h-12 rounded-[1rem] bg-surface flex items-center justify-center shadow-card text-on-surface-variant hover:text-primary transition-colors cursor-pointer relative border border-transparent hover:border-surface-low">
+                <span class="material-symbols-outlined text-[24px]">notifications</span>
+                <span class="absolute top-3 right-3 w-2.5 h-2.5 bg-tertiary rounded-full border-2 border-surface"></span>
+            </div>
+        </header>
+
+        <!-- Stats Overview -->
+        <section class="mb-10 w-full flex gap-4">
+            <div class="flex-1 clean-card p-5 flex flex-col justify-between cursor-pointer border border-transparent">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-primary bg-background p-2 rounded-xl text-[20px]">psychiatry</span>
+                    <span class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Consults</span>
+                </div>
+                <div>
+                    <h2 class="font-headline text-[34px] font-black text-on-surface leading-none">4</h2>
+                    <span class="text-xs font-semibold text-primary mt-1 block">Scheduled</span>
+                </div>
+            </div>
+            
+            <div class="flex-1 clean-card p-5 flex flex-col justify-between cursor-pointer border border-transparent">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-tertiary bg-[#f8f3ec] p-2 rounded-xl text-[20px]">history_edu</span>
+                    <span class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Reports</span>
+                </div>
+                <div>
+                    <h2 class="font-headline text-[34px] font-black text-on-surface leading-none">1</h2>
+                    <span class="text-xs font-semibold text-tertiary mt-1 block">New Result</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services 3x3 Grid -->
+        <section class="mb-10 w-full">
+            <h2 class="font-headline font-bold text-xs text-on-surface-variant uppercase tracking-widest mb-4">Core Ecosystem</h2>
+            <div class="grid grid-cols-3 gap-3">
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-primary group-hover:scale-110 transition-transform">monitor_heart</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">Vitals</span>
+                </button>
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-primary group-hover:scale-110 transition-transform">videocam</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">Video</span>
+                </button>
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-primary group-hover:scale-110 transition-transform">stethoscope</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">Doctor</span>
+                </button>
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-[#f8f3ec] transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-tertiary group-hover:scale-110 transition-transform">local_pharmacy</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-tertiary">Pharmacy</span>
+                </button>
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-primary group-hover:scale-110 transition-transform">science</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">Labs</span>
+                </button>
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-primary group-hover:scale-110 transition-transform">public</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">Global</span>
+                </button>
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-primary group-hover:scale-110 transition-transform">shield_with_heart</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">Shield</span>
+                </button>
+                <button class="bg-surface rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-primary group-hover:scale-110 transition-transform">self_improvement</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">Home</span>
+                </button>
+                <button class="bg-transparent rounded-2xl aspect-[1.1] flex flex-col items-center justify-center gap-2 border border-surface-low hover:bg-surface-low transition-colors group">
+                    <span class="material-symbols-outlined text-[26px] text-on-surface-variant group-hover:text-primary">apps</span>
+                    <span class="text-[11px] font-semibold text-on-surface-variant group-hover:text-primary">More</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Signature Component -->
+        <section class="mb-4">
+            <button class="w-full btn-gradient p-[2px] rounded-3xl overflow-hidden group shadow-card hover:-translate-y-1 transition-transform">
+                <div class="w-full h-full bg-surface-low rounded-[22px] p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-5">
+                        <div class="w-12 h-12 rounded-full bg-white text-primary flex items-center justify-center shadow-sm">
+                            <span class="material-symbols-outlined text-[24px]">folder_managed</span>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="font-headline font-bold text-lg leading-tight text-on-surface">Living Archive</h3>
+                            <p class="text-xs font-medium text-on-surface-variant mt-0.5">Secure history access</p>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">east</span>
+                </div>
+            </button>
+        </section>
+
+    </div>
+
+    <!-- Frosted Glass Navigation -->
+    <nav class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-white shadow-[0_-10px_40px_rgba(20,29,26,0.04)] pb-[env(safe-area-inset-bottom,24px)] pt-4 px-8 z-50 rounded-t-[2.5rem]">
+        <div class="flex justify-between items-center max-w-md mx-auto h-16">
+            <button class="flex items-center justify-center text-primary group transition-transform hover:scale-110">
+                <span class="material-symbols-outlined icon-fill text-[28px]">home</span>
+            </button>
+            <button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group hover:scale-110">
+                <span class="material-symbols-outlined text-[28px]">calendar_today</span>
+            </button>
+            <!-- Signature Floating CTA -->
+            <button class="relative w-[72px] h-[72px] btn-gradient flex items-center justify-center text-white hover:scale-105 transition-transform rounded-[1.25rem] shadow-card -translate-y-6 rotate-3 hover:rotate-0">
+                <span class="material-symbols-outlined text-[34px] font-bold">add</span>
+            </button>
+            <button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group hover:scale-110">
+                <span class="material-symbols-outlined text-[28px]">chat</span>
+            </button>
+            <button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors group hover:scale-110">
+                <span class="material-symbols-outlined text-[28px]">person</span>
+            </button>
+        </div>
+    </nav>
+
+</body
+</html>

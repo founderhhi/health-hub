@@ -5,6 +5,7 @@ import { createDailyRoom, deleteRoom } from '../integrations/daily';
 import { broadcastToRole, broadcastToUser } from '../realtime/ws';
 
 export const referralsRouter = Router();
+const MUTABLE_REFERRAL_STATUSES = new Set(['accepted', 'declined']);
 
 async function cleanupDailyRoom(roomUrl: string | null | undefined): Promise<void> {
   if (!roomUrl) {
@@ -42,10 +43,97 @@ const REFERRAL_SELECT = `
     left join consultations c on c.id = r.consultation_id
 `;
 
-referralsRouter.post('/', requireAuth, requireRole(['gp']), async (req, res) => { // [AGENT_ROLES] ISS-07: only GPs create referrals, removed legacy 'doctor' and 'specialist'
+function normalizeSpecialty(value: unknown): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim().toLowerCase();
+  return trimmed || null;
+}
+
+async function getSpecialistSpecialty(userId: string): Promise<string | null> {
+  const result = await db.query(
+    `select specialty
+     from provider_profiles
+     where user_id = $1
+     limit 1`,
+    [userId]
+  );
+  return normalizeSpecialty(result.rows[0]?.specialty);
+}
+
+function canSpecialistHandleBroadcastReferral(referralSpecialty: unknown, specialistSpecialty: string | null): boolean {
+  const normalizedReferralSpecialty = normalizeSpecialty(referralSpecialty);
+  if (!normalizedReferralSpecialty) {
+    return true;
+  }
+  if (!specialistSpecialty) {
+    // Backward-compatible fallback for deployments where specialist profiles are not yet populated.
+    return true;
+  }
+  return normalizedReferralSpecialty === specialistSpecialty;
+}
+
+async function listAvailableSpecialists(currentUserId: string) {
+  const result = await db.query(
+    `select u.id,
+            nullif(trim(u.display_name), '') as display_name,
+            nullif(trim(u.first_name), '') as first_name,
+            nullif(trim(u.last_name), '') as last_name,
+            nullif(trim(pp.specialty), '') as specialty,
+            nullif(trim(pp.facility_name), '') as facility_name,
+            nullif(trim(coalesce(pp.notes->>'bio', '')), '') as bio
+     from users u
+     left join provider_profiles pp on pp.user_id = u.id
+     where u.role = 'specialist'
+       and u.id <> $1
+     order by
+       case when u.is_operating then 0 else 1 end,
+       coalesce(
+         nullif(trim(u.display_name), ''),
+         concat_ws(' ', nullif(trim(u.first_name), ''), nullif(trim(u.last_name), '')),
+         u.phone
+       )`,
+    [currentUserId]
+  );
+
+  if (result.rows.length === 0) {
+    const fallback = await db.query(
+      `select u.id,
+              nullif(trim(u.display_name), '') as display_name,
+              nullif(trim(u.first_name), '') as first_name,
+              nullif(trim(u.last_name), '') as last_name,
+              nullif(trim(pp.specialty), '') as specialty,
+              nullif(trim(pp.facility_name), '') as facility_name,
+              nullif(trim(coalesce(pp.notes->>'bio', '')), '') as bio
+       from users u
+       left join provider_profiles pp on pp.user_id = u.id
+       where u.role = 'specialist'
+         and u.id <> $1
+     order by coalesce(
+       nullif(trim(u.display_name), ''),
+       concat_ws(' ', nullif(trim(u.first_name), ''), nullif(trim(u.last_name), '')),
+       u.phone
+     )`,
+      [currentUserId]
+    );
+    result.rows.splice(0, result.rows.length, ...fallback.rows);
+  }
+
+  return result.rows.map((row) => {
+    const fallbackName = [row.first_name, row.last_name].filter(Boolean).join(' ').trim();
+    return {
+      ...row,
+      display_name: row.display_name || fallbackName || 'Specialist',
+      specialty: row.specialty || 'General Specialist'
+    };
+  });
+}
+
+referralsRouter.post('/', requireAuth, requireRole(['gp', 'specialist']), async (req, res) => { // allow GPs and specialists to create referrals; specialists use this to refer patients to other specialists
   try {
     const user = (req as any).user;
-    const { patientId, toSpecialistId, urgency, reason, appointmentDate, appointmentTime, consultationMode, location, specialty } = req.body as {
+    const { patientId, toSpecialistId, urgency, reason, appointmentDate, appointmentTime, consultationMode, location, specialty, specialistName } = req.body as {
       patientId?: string;
       toSpecialistId?: string;
       urgency?: string;
@@ -55,40 +143,59 @@ referralsRouter.post('/', requireAuth, requireRole(['gp']), async (req, res) => 
       consultationMode?: string;
       location?: string;
       specialty?: string;
+      specialistName?: string;
     };
 
     if (!patientId) {
       return res.status(400).json({ error: 'patientId required' });
     }
 
-    // Auto-assign specialist based on specialty if not explicitly provided
-    let resolvedSpecialistId = toSpecialistId || null;
-    if (!resolvedSpecialistId && specialty) {
-      const specResult = await db.query(
-        `select pp.user_id from provider_profiles pp
-         join users u on u.id = pp.user_id
-         where u.role = 'specialist' and lower(pp.specialty) = lower($1)
+    const normalizedSpecialistId = typeof toSpecialistId === 'string' && toSpecialistId.trim()
+      ? toSpecialistId.trim()
+      : null;
+    const normalizedSpecialty = typeof specialty === 'string' && specialty.trim()
+      ? specialty.trim()
+      : null;
+
+    // Broadcast mode: keep to_specialist_id null when no explicit specialist is selected.
+    // The first specialist to accept the referral claims it.
+    let resolvedSpecialistId = normalizedSpecialistId;
+    let finalReason = reason || '';
+    if (specialistName?.trim()) {
+      finalReason = `Target Specialist: ${specialistName.trim()}\n\n${finalReason}`.trim();
+    }
+    if (resolvedSpecialistId) {
+      const specialistResult = await db.query(
+        `select id
+         from users
+         where id = $1 and role = 'specialist'
          limit 1`,
-        [specialty]
+        [resolvedSpecialistId]
       );
-      if (specResult.rows.length > 0) {
-        resolvedSpecialistId = specResult.rows[0].user_id;
-      } else {
-        // Fallback: assign to any specialist
-        const fallback = await db.query(
-          `select id from users where role = 'specialist' limit 1`
-        );
-        if (fallback.rows.length > 0) {
-          resolvedSpecialistId = fallback.rows[0].id;
-        }
+      if (specialistResult.rows.length === 0) {
+        return res.status(400).json({ error: 'toSpecialistId must reference an active specialist account' });
       }
     }
 
+    // Pull the patient's most recent triage (consult_requests.symptoms) so the
+    // specialist can see what the patient entered in the pre-consultation form
+    // even if the specialist opens the referral in a browser with no session.
+    const triageLookup = await db.query(
+      `select symptoms
+         from consult_requests
+         where patient_id = $1
+         order by created_at desc
+         limit 1`,
+      [patientId]
+    );
+    const triageContext = triageLookup.rows[0]?.symptoms ?? {};
+
     const insert = await db.query(
-      `insert into referrals (patient_id, from_provider_id, to_specialist_id, urgency, reason, appointment_date, appointment_time, consultation_mode, location, specialty)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *`,
-      [patientId, user.userId, resolvedSpecialistId, urgency || 'routine', reason || null,
-       appointmentDate || null, appointmentTime || null, consultationMode || 'online', location || null, specialty || null]
+      `insert into referrals (patient_id, from_provider_id, to_specialist_id, urgency, reason, appointment_date, appointment_time, consultation_mode, location, specialty, triage_context)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
+      [patientId, user.userId, resolvedSpecialistId, urgency || 'routine', finalReason || null,
+       appointmentDate || null, appointmentTime || null, consultationMode || 'online', location || null, normalizedSpecialty,
+       JSON.stringify(triageContext)]
     );
 
     const referral = insert.rows[0];
@@ -105,9 +212,24 @@ referralsRouter.post('/', requireAuth, requireRole(['gp']), async (req, res) => 
         patientId,
         'referral.created',
         notifMsg,
-        JSON.stringify({ referralId: referral.id, specialty, appointmentDate, appointmentTime, consultationMode })
+        JSON.stringify({ referralId: referral.id, specialty: normalizedSpecialty, appointmentDate, appointmentTime, consultationMode })
       ]
     );
+
+    if (resolvedSpecialistId) {
+      await db.query(
+        `insert into notifications (user_id, type, message, data)
+         values ($1, $2, $3, $4)`,
+        [
+          resolvedSpecialistId,
+          'referral.created',
+          'A new referral has been assigned to you.',
+          JSON.stringify({ referralId: referral.id, specialty: normalizedSpecialty || null })
+        ]
+      );
+      broadcastToUser(resolvedSpecialistId, 'referral.created', { referral });
+    }
+
     broadcastToRole('specialist', 'referral.created', { referral });
     broadcastToUser(patientId, 'referral.created', { referral });
 
@@ -122,12 +244,25 @@ referralsRouter.get('/specialist', requireAuth, requireRole(['specialist', 'admi
   try {
     const user = (req as any).user;
     const specialistId = req.query['specialistId'] as string | undefined;
-    const params: string[] = [];
+    const params: Array<string | null> = [];
     let whereClause = '';
 
     if (user.role === 'specialist') {
-      whereClause = 'where r.to_specialist_id = $1';
+      const specialistSpecialty = await getSpecialistSpecialty(user.userId);
+      whereClause = `where (
+        r.to_specialist_id = $1
+        or (
+          r.to_specialist_id is null
+          and r.status = 'new'
+          and (
+            $2::text is null
+            or coalesce(nullif(lower(trim(r.specialty)), ''), null) is null
+            or lower(trim(r.specialty)) = $2::text
+          )
+        )
+      )`;
       params.push(user.userId);
+      params.push(specialistSpecialty || null);
     } else if (specialistId) {
       whereClause = 'where r.to_specialist_id = $1';
       params.push(specialistId);
@@ -148,28 +283,303 @@ referralsRouter.get('/specialist', requireAuth, requireRole(['specialist', 'admi
   }
 });
 
+referralsRouter.get('/specialists/options', requireAuth, requireRole(['gp', 'doctor', 'specialist']), async (req, res) => {
+  try {
+    const user = (req as any).user as { userId: string };
+    const specialists = await listAvailableSpecialists(user.userId);
+    return res.json({ specialists });
+  } catch (error) {
+    console.error('List specialist options error', error);
+    return res.json({ specialists: [] });
+  }
+});
+
 referralsRouter.get('/:id', requireAuth, async (req, res) => {
   try {
     const user = (req as any).user;
     const { id } = req.params;
     const result = await db.query(
       `${REFERRAL_SELECT}
-       where r.id = $1
-         and (
-           $2 = 'admin' or
-           r.patient_id = $3 or
-           r.from_provider_id = $3 or
-           r.to_specialist_id = $3
-         )`,
-      [id, user.role, user.userId]
+       where r.id = $1`,
+      [id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Referral not found' });
     }
-    return res.json({ referral: result.rows[0] });
+
+    const referral = result.rows[0] as {
+      patient_id: string;
+      from_provider_id: string;
+      to_specialist_id: string | null;
+      status: string;
+      specialty: string | null;
+    };
+    const specialistSpecialty = user.role === 'specialist' ? await getSpecialistSpecialty(user.userId) : null;
+    const isAdmin = user.role === 'admin';
+    const isPatient = referral.patient_id === user.userId;
+    const isReferringProvider = referral.from_provider_id === user.userId;
+    const isAssignedSpecialist = referral.to_specialist_id === user.userId;
+    const isOpenBroadcastReferral =
+      user.role === 'specialist'
+      && !referral.to_specialist_id
+      && referral.status === 'new'
+      && canSpecialistHandleBroadcastReferral(referral.specialty, specialistSpecialty);
+
+    if (!isAdmin && !isPatient && !isReferringProvider && !isAssignedSpecialist && !isOpenBroadcastReferral) {
+      return res.status(403).json({ error: 'Referral not found' });
+    }
+
+    return res.json({ referral });
   } catch (error) {
     console.error('Get referral error', error);
     return res.status(500).json({ error: 'Unable to load referral' });
+  }
+});
+
+referralsRouter.post('/:id/reassign', requireAuth, requireRole(['specialist']), async (req, res) => {
+  const client = await db.connect();
+  let transactionStarted = false;
+
+  try {
+    const user = (req as any).user as { userId: string };
+    const { id } = req.params;
+    const { toSpecialistId } = req.body as { toSpecialistId?: string };
+    const normalizedSpecialistId = typeof toSpecialistId === 'string' ? toSpecialistId.trim() : '';
+
+    if (!normalizedSpecialistId) {
+      return res.status(400).json({ error: 'toSpecialistId is required' });
+    }
+    if (normalizedSpecialistId === user.userId) {
+      return res.status(400).json({ error: 'Select a different specialist to forward this referral' });
+    }
+
+    await client.query('begin');
+    transactionStarted = true;
+
+    const current = await client.query(
+      `select * from referrals where id = $1 for update`,
+      [id]
+    );
+    if (current.rows.length === 0) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(404).json({ error: 'Referral not found' });
+    }
+
+    const referral = current.rows[0] as {
+      id: string;
+      patient_id: string;
+      from_provider_id: string;
+      to_specialist_id: string | null;
+      consultation_id: string | null;
+      specialty: string | null;
+    };
+    const specialistSpecialty = await getSpecialistSpecialty(user.userId);
+
+    if (referral.to_specialist_id && referral.to_specialist_id !== user.userId) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (
+      !referral.to_specialist_id
+      && !canSpecialistHandleBroadcastReferral(referral.specialty, specialistSpecialty)
+    ) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(403).json({ error: 'Referral is not in your specialty group' });
+    }
+
+    const targetResult = await client.query(
+      `select u.id,
+              nullif(trim(u.display_name), '') as display_name,
+              nullif(trim(u.first_name), '') as first_name,
+              nullif(trim(u.last_name), '') as last_name,
+              nullif(trim(pp.specialty), '') as specialty,
+              nullif(trim(pp.facility_name), '') as facility_name
+       from users u
+       left join provider_profiles pp on pp.user_id = u.id
+       where u.id = $1
+         and u.role = 'specialist'
+       limit 1`,
+      [normalizedSpecialistId]
+    );
+
+    if (targetResult.rows.length === 0) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(400).json({ error: 'Selected specialist is unavailable' });
+    }
+
+    const targetSpecialistRow = targetResult.rows[0] as {
+      id: string;
+      display_name: string | null;
+      first_name: string | null;
+      last_name: string | null;
+      specialty: string | null;
+      facility_name: string | null;
+    };
+    const targetSpecialist = {
+      ...targetSpecialistRow,
+      display_name:
+        targetSpecialistRow.display_name
+        || [targetSpecialistRow.first_name, targetSpecialistRow.last_name].filter(Boolean).join(' ').trim()
+        || 'Specialist',
+      specialty: targetSpecialistRow.specialty || 'General Specialist'
+    };
+
+    let roomToCleanup: string | null = null;
+    let endedConsultation: Record<string, unknown> | null = null;
+
+    if (referral.consultation_id) {
+      const linkedConsultation = await client.query(
+        `select id, patient_id, gp_id, specialist_id, status, daily_room_url
+         from consultations
+         where id = $1
+         for update`,
+        [referral.consultation_id]
+      );
+
+      const consultation = linkedConsultation.rows[0] as
+        | {
+            id: string;
+            patient_id: string;
+            gp_id: string | null;
+            specialist_id: string | null;
+            status: string;
+            daily_room_url: string | null;
+          }
+        | undefined;
+
+      if (consultation && consultation.status !== 'completed' && consultation.status !== 'ended') {
+        const ended = await client.query(
+          `update consultations
+           set status = 'ended',
+               ended_at = now()
+           where id = $1
+           returning *`,
+          [consultation.id]
+        );
+        endedConsultation = ended.rows[0] || consultation;
+        roomToCleanup = consultation.daily_room_url || null;
+      }
+    }
+
+    const update = await client.query(
+      `update referrals
+       set to_specialist_id = $2,
+           consultation_id = null,
+           status = 'new',
+           specialty = coalesce($3, specialty),
+           requested_info_note = null,
+           requested_info_at = null,
+           requested_info_by = null
+       where id = $1
+       returning *`,
+      [id, normalizedSpecialistId, targetSpecialist.specialty || null]
+    );
+    const updatedReferral = update.rows[0];
+
+    await client.query(
+      `insert into notifications (user_id, type, message, data)
+       values ($1, $2, $3, $4)`,
+      [
+        normalizedSpecialistId,
+        'referral.created',
+        'A referral has been forwarded to you.',
+        JSON.stringify({ referralId: updatedReferral.id, specialty: updatedReferral.specialty || null })
+      ]
+    );
+
+    await client.query(
+      `insert into notifications (user_id, type, message, data)
+       values ($1, $2, $3, $4)`,
+      [
+        updatedReferral.patient_id,
+        'referral.status',
+        'Your referral has been forwarded to another specialist.',
+        JSON.stringify({
+          referralId: updatedReferral.id,
+          status: updatedReferral.status,
+          toSpecialistId: normalizedSpecialistId
+        })
+      ]
+    );
+
+    if (updatedReferral.from_provider_id) {
+      await client.query(
+        `insert into notifications (user_id, type, message, data)
+         values ($1, $2, $3, $4)`,
+        [
+          updatedReferral.from_provider_id,
+          'referral.status',
+          'A specialist forwarded the referral to another specialist.',
+          JSON.stringify({
+            referralId: updatedReferral.id,
+            status: updatedReferral.status,
+            toSpecialistId: normalizedSpecialistId
+          })
+        ]
+      );
+    }
+
+    await client.query('commit');
+    transactionStarted = false;
+
+    await cleanupDailyRoom(roomToCleanup);
+
+    const hydratedResult = await db.query(
+      `${REFERRAL_SELECT}
+       where r.id = $1
+       limit 1`,
+      [id]
+    );
+    const hydratedReferral = hydratedResult.rows[0] || updatedReferral;
+
+    broadcastToUser(user.userId, 'referral.status', {
+      referral: hydratedReferral,
+      targetSpecialist
+    });
+    broadcastToUser(normalizedSpecialistId, 'referral.status', {
+      referral: hydratedReferral,
+      targetSpecialist
+    });
+    broadcastToUser(updatedReferral.patient_id, 'referral.status', {
+      referral: hydratedReferral,
+      targetSpecialist
+    });
+    if (updatedReferral.from_provider_id) {
+      broadcastToUser(updatedReferral.from_provider_id, 'referral.status', {
+        referral: hydratedReferral,
+        targetSpecialist
+      });
+    }
+    if (endedConsultation) {
+      const participantIds = Array.from(
+        new Set([
+          endedConsultation['patient_id'],
+          endedConsultation['gp_id'],
+          endedConsultation['specialist_id']
+        ].filter(Boolean))
+      ) as string[];
+      for (const participantId of participantIds) {
+        broadcastToUser(participantId, 'consult.completed', { consultation: endedConsultation });
+      }
+    }
+
+    return res.json({ referral: hydratedReferral, targetSpecialist });
+  } catch (error) {
+    if (transactionStarted) {
+      try {
+        await client.query('rollback');
+      } catch (rollbackError) {
+        console.error('Referral reassign rollback failed', rollbackError);
+      }
+    }
+    console.error('Reassign referral error', error);
+    return res.status(500).json({ error: 'Unable to forward referral right now' });
+  } finally {
+    client.release();
   }
 });
 
@@ -180,7 +590,12 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
     const user = (req as any).user;
     const { id } = req.params;
     const { status } = req.body as { status?: string };
-    const resolvedStatus = status || 'accepted';
+    const resolvedStatus = typeof status === 'string' && status.trim()
+      ? status.trim().toLowerCase()
+      : 'accepted';
+    if (!MUTABLE_REFERRAL_STATUSES.has(resolvedStatus)) {
+      return res.status(400).json({ error: 'status must be accepted or declined' });
+    }
 
     await client.query('begin');
     transactionStarted = true;
@@ -202,7 +617,10 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
       to_specialist_id: string | null;
       consultation_id: string | null;
       status: string;
+      consultation_mode: 'online' | 'offline' | null;
+      specialty: string | null;
     };
+    const specialistSpecialty = await getSpecialistSpecialty(user.userId);
 
     // Allow only the assigned specialist to mutate referral status.
     // For unassigned referrals, the first acting specialist claims it.
@@ -211,12 +629,22 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
       transactionStarted = false;
       return res.status(403).json({ error: 'Forbidden' });
     }
+    if (
+      !referral.to_specialist_id
+      && !canSpecialistHandleBroadcastReferral(referral.specialty, specialistSpecialty)
+    ) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(403).json({ error: 'Referral is not in your specialty group' });
+    }
 
     let consultationId = referral.consultation_id;
     let dailyRoomUrl: string | null = null;
+    let roomToCleanup: string | null = null;
+    let endedConsultation: Record<string, unknown> | null = null;
 
     // Create and persist consultation link exactly once when accepting referral.
-    if (resolvedStatus === 'accepted') {
+    if (resolvedStatus === 'accepted' && referral.consultation_mode !== 'offline') {
       if (!consultationId) {
         const roomUrl = await createDailyRoom();
         const consult = await client.query(
@@ -241,10 +669,50 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
       }
     }
 
+    if (resolvedStatus === 'declined' && consultationId) {
+      const linkedConsultation = await client.query(
+        `select id, patient_id, gp_id, specialist_id, status, daily_room_url
+         from consultations
+         where id = $1
+         for update`,
+        [consultationId]
+      );
+
+      const consultation = linkedConsultation.rows[0] as
+        | {
+            id: string;
+            patient_id: string;
+            gp_id: string | null;
+            specialist_id: string | null;
+            status: string;
+            daily_room_url: string | null;
+          }
+        | undefined;
+
+      if (consultation && consultation.status !== 'completed' && consultation.status !== 'ended') {
+        const ended = await client.query(
+          `update consultations
+           set status = 'ended',
+               ended_at = now()
+           where id = $1
+           returning *`,
+          [consultation.id]
+        );
+        endedConsultation = ended.rows[0] || consultation;
+      }
+
+      roomToCleanup = consultation?.daily_room_url || null;
+      consultationId = null;
+      dailyRoomUrl = null;
+    }
+
     const update = await client.query(
       `update referrals
        set status = $1,
-           consultation_id = coalesce($2, consultation_id),
+           consultation_id = case
+             when $1 = 'declined' then null
+             else coalesce($2, consultation_id)
+           end,
            to_specialist_id = coalesce(to_specialist_id, $3)
        where id = $4
        returning *`,
@@ -275,6 +743,7 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
 
     await client.query('commit');
     transactionStarted = false;
+    await cleanupDailyRoom(roomToCleanup);
 
     const hydratedResult = await db.query(
       `${REFERRAL_SELECT}
@@ -290,6 +759,18 @@ referralsRouter.post('/:id/status', requireAuth, requireRole(['specialist']), as
     }
     if (updatedReferral['to_specialist_id']) {
       broadcastToUser(String(updatedReferral['to_specialist_id']), 'referral.status', { referral: hydratedReferral });
+    }
+    if (endedConsultation) {
+      const participantIds = Array.from(
+        new Set([
+          endedConsultation['patient_id'],
+          endedConsultation['gp_id'],
+          endedConsultation['specialist_id']
+        ].filter(Boolean))
+      ) as string[];
+      for (const participantId of participantIds) {
+        broadcastToUser(participantId, 'consult.completed', { consultation: endedConsultation });
+      }
     }
     return res.json({ referral: hydratedReferral });
   } catch (error) {
@@ -354,12 +835,22 @@ referralsRouter.post('/:id/schedule', requireAuth, requireRole(['specialist']), 
       appointment_time: string | null;
       consultation_mode: 'online' | 'offline' | null;
       location: string | null;
+      specialty: string | null;
     };
+    const specialistSpecialty = await getSpecialistSpecialty(user.userId);
 
     if (referral.to_specialist_id && referral.to_specialist_id !== user.userId) {
       await client.query('rollback');
       transactionStarted = false;
       return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (
+      !referral.to_specialist_id
+      && !canSpecialistHandleBroadcastReferral(referral.specialty, specialistSpecialty)
+    ) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(403).json({ error: 'Referral is not in your specialty group' });
     }
 
     const nextMode = (normalizedMode || referral.consultation_mode || 'online') as 'online' | 'offline';
@@ -555,12 +1046,22 @@ referralsRouter.post('/:id/request-info', requireAuth, requireRole(['specialist'
       patient_id: string;
       from_provider_id: string;
       to_specialist_id: string | null;
+      specialty: string | null;
     };
+    const specialistSpecialty = await getSpecialistSpecialty(user.userId);
 
     if (referral.to_specialist_id && referral.to_specialist_id !== user.userId) {
       await client.query('rollback');
       transactionStarted = false;
       return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (
+      !referral.to_specialist_id
+      && !canSpecialistHandleBroadcastReferral(referral.specialty, specialistSpecialty)
+    ) {
+      await client.query('rollback');
+      transactionStarted = false;
+      return res.status(403).json({ error: 'Referral is not in your specialty group' });
     }
 
     const update = await client.query(

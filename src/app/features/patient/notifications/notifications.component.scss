@@ -16,16 +16,30 @@
     margin: 0;
     font-size: 20px;
     flex: 1;
+    text-align: center;
   }
 }
 
 .back-btn {
-  background: var(--border-color);
+  width: 40px;
+  height: 40px;
+  background: transparent;
   border: none;
   color: var(--text-primary);
-  padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 999px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .mark-all-btn {
@@ -37,6 +51,11 @@
   cursor: pointer;
   font-size: 12px;
   white-space: nowrap;
+}
+
+.header-spacer {
+  width: 40px;
+  flex-shrink: 0;
 }
 
 .notifications-list {

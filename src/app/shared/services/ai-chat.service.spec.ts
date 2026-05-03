@@ -1,8 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, getTestBed } from '@angular/core/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { firstValueFrom, of } from 'rxjs';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientService } from '../../core/api/api-client.service';
 import { AiChatService, AiChatMessageResponse } from './ai-chat.service';
+
+const ANGULAR_TEST_ENV_KEY = '__health_hub_angular_test_env__';
+
+if (!(globalThis as Record<string, unknown>)[ANGULAR_TEST_ENV_KEY]) {
+  getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+  (globalThis as Record<string, unknown>)[ANGULAR_TEST_ENV_KEY] = true;
+}
 
 describe('AiChatService', () => {
   const apiClientMock = {
@@ -38,6 +46,12 @@ describe('AiChatService', () => {
       limitReached: false,
       showGpCta: false,
       showDiagnosticsCta: false,
+      triage: {
+        complaint: 'I have a sore throat',
+        triageAnswers: [],
+        triageSummary: '',
+        recommendedNextStep: '',
+      },
     };
     apiClientMock.post.mockReturnValue(of(response));
 
@@ -50,6 +64,7 @@ describe('AiChatService', () => {
     });
     expect(result).toEqual(response);
     expect(service.getMessageCount(sessionId)).toBe(2);
+    expect(service.getCurrentState().triage?.complaint).toBe('I have a sore throat');
   });
 
   it('should return zero for unknown sessions', () => {

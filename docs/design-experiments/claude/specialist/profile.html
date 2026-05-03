@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specialist Profile - Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #0B0F14; color: #E2E8F0; padding: 40px 24px; }
+  a.back { color: #2ECC71; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block; margin-bottom: 24px; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; color: #FFF; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .subtitle { color: #94A3B8; font-size: 15px; margin-bottom: 48px; line-height: 1.6; }
+  .columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 48px; }
+  @media (max-width: 1100px) { .columns { grid-template-columns: 1fr; } }
+  .col-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .col-title.v1 { color: #3B82F6; }
+  .col-title.v2 { color: #A855F7; }
+  .col-title.v3 { color: #F59E0B; }
+  .col-subtitle { font-size: 12px; color: #64748B; margin-bottom: 20px; }
+  .section { margin-bottom: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748B; margin-bottom: 12px; border-bottom: 1px solid #1E293B; padding-bottom: 6px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch-group { display: flex; flex-direction: column; align-items: center; }
+  .swatch { width: 48px; height: 48px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+  .swatch-label { font-size: 9px; color: #94A3B8; margin-top: 4px; text-align: center; width: 48px; word-break: break-all; }
+  .type-meta { font-size: 10px; color: #475569; margin-top: 2px; }
+  .mockup-light { background: #F8FAFC; color: #0B0F14; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .mockup-warm { background: #FAFAF8; color: #0B0F14; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .spacing-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .spacing-box { background: rgba(46,204,113,0.2); border: 1px dashed #2ECC71; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #2ECC71; }
+  .spacing-label { font-size: 10px; color: #64748B; min-width: 100px; }
+  .surface-demo { display: flex; gap: 12px; flex-wrap: wrap; }
+  .surface-card { width: 120px; height: 72px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #475569; text-align: center; padding: 4px; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back">&larr; Back to Index</a>
+<h1>Specialist Profile</h1>
+<p class="subtitle">Avatar, field cards, operational status, credential display, and sign-out action across three design variations.</p>
+
+<!-- COLOR SWATCHES -->
+<div class="columns">
+  <div class="col">
+    <div class="col-title v1">V1: Operational Clarity</div>
+    <div class="col-subtitle">Tighter, clinical form-field feel, status accent</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#F8FAFC;"></div><div class="swatch-label">#F8FAFC Page bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#E2E8F0;"></div><div class="swatch-label">#E2E8F0 Borders</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#64748B;"></div><div class="swatch-label">#64748B Labels</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#0B0F14;"></div><div class="swatch-label">#0B0F14 Values</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#2ECC71;"></div><div class="swatch-label">#2ECC71 Operating</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#E74C3C;"></div><div class="swatch-label">#E74C3C Not oper.</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FAFBFC;"></div><div class="swatch-label">#FAFBFC Even row</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="col-title v2">V2: Premium Guided</div>
+    <div class="col-subtitle">Polished identity card, Fraunces, elevated</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#FAFAF8;"></div><div class="swatch-label">#FAFAF8 Page bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#EDF2F7;"></div><div class="swatch-label">#EDF2F7 Card border</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:linear-gradient(135deg,#2ECC71,#15803D);"></div><div class="swatch-label">Avatar gradient</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#94A3B8;"></div><div class="swatch-label">#94A3B8 Labels</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:linear-gradient(180deg,rgba(46,204,113,0.05),transparent);"></div><div class="swatch-label">Header wash</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#DC2626;"></div><div class="swatch-label">#DC2626 Sign out</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="col-title v3">V3: Vezeeta-Inspired</div>
+    <div class="col-subtitle">Portal profile, stats row, settings list</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#F8FAFC;"></div><div class="swatch-label">#F8FAFC Page bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FFFFFF;border:1px solid #E2E8F0;"></div><div class="swatch-label">#FFF Header bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#F0FDF4;"></div><div class="swatch-label">#F0FDF4 Stats row</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#2ECC71;"></div><div class="swatch-label">#2ECC71 Avatar (flat)</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#F1F5F9;"></div><div class="swatch-label">#F1F5F9 Dividers</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#64748B;"></div><div class="swatch-label">#64748B Labels</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TYPOGRAPHY -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-size:22px;font-weight:700;color:#FFF;">Profile</div>
+      <div class="type-meta">Header: 22px / 700 (up from 20/600)</div>
+      <div class="type-sample" style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-top:12px;">FULL NAME</div>
+      <div class="type-meta">Field label: 12px / 600 / uppercase / 0.05em</div>
+      <div class="type-sample" style="font-size:16px;font-weight:500;color:#FFF;margin-top:4px;">Dr. Sarah Ahmed</div>
+      <div class="type-meta">Field value: 16px / 500</div>
+      <div class="type-sample" style="font-size:24px;font-weight:700;color:#FFF;margin-top:12px;width:60px;height:60px;background:#2ECC71;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #FFF;box-shadow:0 2px 8px rgba(15,23,42,0.1);">S</div>
+      <div class="type-meta">Avatar: 60px, 24px / 700 initial, white ring + shadow</div>
+      <div class="type-sample" style="font-size:14px;font-weight:500;color:#E74C3C;margin-top:12px;border:1px solid #E74C3C;border-radius:6px;display:inline-block;padding:8px 16px;">Sign Out</div>
+      <div class="type-meta">Sign out: 14px / 500, thin border, no bg fill</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:#FFF;">Profile</div>
+      <div class="type-meta">Header: Fraunces 22px / 600</div>
+      <div class="type-sample" style="font-size:13px;font-weight:500;color:#94A3B8;margin-top:12px;">Full Name</div>
+      <div class="type-meta">Field label: 13px / 500 / regular case (softer)</div>
+      <div class="type-sample" style="font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:#FFF;margin-top:4px;">Dr. Sarah Ahmed</div>
+      <div class="type-meta">Name value: Fraunces 18px / 600 (special treatment)</div>
+      <div class="type-sample" style="margin-top:12px;width:80px;height:80px;background:linear-gradient(135deg,#2ECC71,#15803D);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(46,204,113,0.25);font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:#FFF;">S</div>
+      <div class="type-meta">Avatar: 80px, Fraunces 26px / 700, gradient + emerald glow</div>
+      <div class="type-sample" style="font-size:15px;font-weight:500;color:#DC2626;margin-top:12px;border:1px solid #DC2626;border-radius:12px;display:inline-block;padding:10px 20px;">Sign Out</div>
+      <div class="type-meta">Sign out: 15px / 500, 12px radius, softer red #DC2626</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-size:20px;font-weight:700;color:#FFF;">Dr. Sarah Ahmed</div>
+      <div class="type-meta">Profile name: 20px / 700 (in header, prominent)</div>
+      <div class="type-sample" style="font-size:14px;font-weight:500;color:#94A3B8;margin-top:4px;">Cardiology</div>
+      <div class="type-meta">Specialization: 14px / 500</div>
+      <div class="type-sample" style="font-size:12px;color:#64748B;margin-top:4px;">REG-12345</div>
+      <div class="type-meta">Registration: 12px / 400 (tertiary)</div>
+      <div class="type-sample" style="margin-top:12px;display:flex;gap:24px;">
+        <div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#2ECC71;">18</div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#94A3B8;">REFERRALS</div></div>
+        <div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#2ECC71;">12</div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#94A3B8;">CONSULTS</div></div>
+        <div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#2ECC71;">42</div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#94A3B8;">PATIENTS</div></div>
+      </div>
+      <div class="type-meta">Stats: 24px/700 emerald values, 11px/600 uppercase labels</div>
+      <div class="type-sample" style="font-size:13px;font-weight:400;color:#64748B;margin-top:12px;">Email</div>
+      <div class="type-meta">Settings label: 13px / 400 (regular, not uppercase)</div>
+      <div class="type-sample" style="font-size:15px;font-weight:500;color:#FFF;margin-top:4px;">sarah@clinic.com</div>
+      <div class="type-meta">Settings value: 15px / 500 (right-aligned)</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: FULL PROFILE MOCKUP -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Profile Mockup</div>
+      <div style="background:#F8FAFC;border-radius:12px;padding:20px;max-width:320px;margin:0 auto;">
+        <!-- Header -->
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:22px;font-weight:700;color:#0B0F14;margin-bottom:16px;">Profile</div>
+          <div style="width:60px;height:60px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:700;font-size:24px;border:3px solid #FFF;box-shadow:0 2px 8px rgba(15,23,42,0.1);margin:0 auto 16px;">S</div>
+        </div>
+        <!-- Field cards -->
+        <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">Full Name</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;">Dr. Sarah Ahmed</div>
+        </div>
+        <div style="background:#FAFBFC;border:1px solid #E2E8F0;border-radius:6px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">Specialization</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;">Cardiology</div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:6px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">Email</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;">sarah@clinic.com</div>
+        </div>
+        <!-- Operational status with left border -->
+        <div style="background:#FAFBFC;border:1px solid #E2E8F0;border-left:3px solid #2ECC71;border-radius:6px;padding:14px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">Operational Status</div>
+          <div style="font-size:16px;font-weight:500;color:#2ECC71;">Accepting Referrals</div>
+        </div>
+        <!-- Sign out -->
+        <button style="width:100%;background:transparent;border:1px solid #E74C3C;color:#E74C3C;padding:10px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;">Sign Out</button>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Alternating card bg, 6px radius, uppercase labels, emerald left-border on status, thin sign-out button</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Profile Mockup</div>
+      <div style="background:#FAFAF8;border-radius:16px;padding:28px 20px;max-width:320px;margin:0 auto;">
+        <!-- Header with gradient wash -->
+        <div style="text-align:center;margin-bottom:28px;background:linear-gradient(180deg,rgba(46,204,113,0.05),transparent);padding:20px 0;border-radius:16px;">
+          <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:#0B0F14;margin-bottom:20px;">Profile</div>
+          <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2ECC71,#15803D);display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:700;font-size:26px;font-family:'Fraunces',serif;box-shadow:0 6px 16px rgba(46,204,113,0.25);margin:0 auto 28px;"></div>
+        </div>
+        <!-- Field cards -->
+        <div style="background:#FFFFFF;border:1px solid #EDF2F7;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(15,23,42,0.06);transition:all 200ms;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(15,23,42,0.1)';this.style.transform='translateY(-1px)'" onmouseleave="this.style.boxShadow='0 2px 8px rgba(15,23,42,0.06)';this.style.transform=''">
+          <div style="font-size:13px;font-weight:500;color:#94A3B8;margin-bottom:4px;">Full Name</div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:#0B0F14;">Dr. Sarah Ahmed</div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDF2F7;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(15,23,42,0.06);">
+          <div style="font-size:13px;font-weight:500;color:#94A3B8;margin-bottom:4px;">Specialization</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;">Cardiology</div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDF2F7;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(15,23,42,0.06);">
+          <div style="font-size:13px;font-weight:500;color:#94A3B8;margin-bottom:4px;">Operational Status</div>
+          <div style="font-size:16px;font-weight:500;color:#2ECC71;">You are accepting referrals</div>
+        </div>
+        <!-- Sign out -->
+        <button style="width:100%;background:transparent;border:1px solid #DC2626;color:#DC2626;padding:12px;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;transition:all 200ms;" onmouseenter="this.style.background='rgba(220,38,38,0.08)'" onmouseleave="this.style.background='transparent'">Sign Out</button>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">12px radius, shadow + hover lift, Fraunces name, gradient avatar, warm bg, descriptive status text</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Profile Mockup</div>
+      <div style="background:#F8FAFC;border-radius:12px;overflow:hidden;max-width:320px;margin:0 auto;">
+        <!-- Header section -->
+        <div style="background:#FFFFFF;padding:24px 16px;text-align:center;border-bottom:1px solid #E2E8F0;">
+          <div style="width:64px;height:64px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:700;font-size:22px;margin:0 auto 12px;">S</div>
+          <div style="font-size:20px;font-weight:700;color:#0B0F14;">Dr. Sarah Ahmed</div>
+          <div style="font-size:14px;font-weight:500;color:#475569;margin-top:4px;">Cardiology</div>
+          <div style="font-size:12px;color:#64748B;margin-top:4px;">REG-12345</div>
+        </div>
+        <!-- Stats row -->
+        <div style="background:#F0FDF4;padding:16px;display:flex;justify-content:center;gap:32px;border-bottom:1px solid #E2E8F0;">
+          <div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#2ECC71;">18</div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#475569;">Referrals</div></div>
+          <div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#2ECC71;">12</div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#475569;">Consults</div></div>
+          <div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#2ECC71;">42</div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:#475569;">Patients</div></div>
+        </div>
+        <!-- Settings list -->
+        <div style="padding:0 16px;">
+          <!-- Operational status - first -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #F1F5F9;">
+            <span style="font-size:13px;color:#64748B;">Accepting Referrals</span>
+            <div style="width:44px;height:24px;background:#2ECC71;border-radius:12px;position:relative;"><div style="width:20px;height:20px;background:#FFF;border-radius:50%;position:absolute;top:2px;right:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #F1F5F9;">
+            <span style="font-size:13px;color:#64748B;">Email</span>
+            <span style="font-size:15px;font-weight:500;color:#0B0F14;">sarah@clinic.com</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #F1F5F9;">
+            <span style="font-size:13px;color:#64748B;">Phone</span>
+            <span style="font-size:15px;font-weight:500;color:#0B0F14;">+20 123 456 789</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #F1F5F9;">
+            <span style="font-size:13px;color:#64748B;">License</span>
+            <span style="font-size:15px;font-weight:500;color:#0B0F14;">REG-12345</span>
+          </div>
+          <!-- Sign out as text row -->
+          <div style="padding:16px 0;text-align:center;border-top:1px solid #E2E8F0;">
+            <span style="font-size:14px;font-weight:500;color:#DC2626;cursor:pointer;">Sign Out</span>
+          </div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">No cards, divider-separated rows, profile header + stats row + settings list. Toggle first. Sign out as text link. Portal-native.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: FIELD CARD DETAIL -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Field Card Detail</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="mockup-light" style="border:1px solid #E2E8F0;border-radius:6px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">EMAIL</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;">sarah@clinic.com</div>
+        </div>
+        <div class="mockup-light" style="background:#FAFBFC;border:1px solid #E2E8F0;border-radius:6px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">PHONE</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;">+20 123 456 789</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">6px radius, 14px padding, alternating bg, uppercase labels, shadow-sm</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Field Card Detail</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="mockup-warm" style="border:1px solid #EDF2F7;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(15,23,42,0.06);transition:all 200ms;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(15,23,42,0.1)';this.style.transform='translateY(-1px)'" onmouseleave="this.style.boxShadow='0 2px 8px rgba(15,23,42,0.06)';this.style.transform=''">
+          <div style="font-size:13px;font-weight:500;color:#94A3B8;margin-bottom:4px;">Email</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;line-height:1.5;">sarah@clinic.com</div>
+        </div>
+        <div class="mockup-warm" style="border:1px solid #EDF2F7;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(15,23,42,0.06);">
+          <div style="font-size:13px;font-weight:500;color:#94A3B8;margin-bottom:4px;">Phone</div>
+          <div style="font-size:16px;font-weight:500;color:#0B0F14;line-height:1.5;">+20 123 456 789</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">12px radius, 20px padding, hover lift, softer labels, warm bg</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Settings Row Detail</div>
+      <div style="background:#FFF;border-radius:8px;padding:0 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #F1F5F9;">
+          <span style="font-size:13px;color:#64748B;">Email</span>
+          <span style="font-size:15px;font-weight:500;color:#0B0F14;">sarah@clinic.com</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #F1F5F9;">
+          <span style="font-size:13px;color:#64748B;">Phone</span>
+          <span style="font-size:15px;font-weight:500;color:#0B0F14;">+20 123 456 789</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;">
+          <span style="font-size:13px;color:#64748B;">License</span>
+          <span style="font-size:15px;font-weight:500;color:#0B0F14;">REG-12345</span>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">No card borders. Horizontal label-value rows. Thin dividers. No shadows.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: OPERATIONAL STATUS -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Operational Status</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="mockup-light" style="border:1px solid #E2E8F0;border-left:3px solid #2ECC71;border-radius:6px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">OPERATIONAL STATUS</div>
+          <div style="font-size:16px;font-weight:500;color:#2ECC71;">Accepting Referrals</div>
+        </div>
+        <div class="mockup-light" style="border:1px solid #E2E8F0;border-left:3px solid #E74C3C;border-radius:6px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;margin-bottom:4px;">OPERATIONAL STATUS</div>
+          <div style="font-size:16px;font-weight:500;color:#E74C3C;">Not Accepting Referrals</div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Colored left-border signals status at a glance: green = operating, red = not</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Operational Status</div>
+      <div class="mockup-warm" style="border:1px solid #EDF2F7;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(15,23,42,0.06);">
+        <div style="font-size:13px;font-weight:500;color:#94A3B8;margin-bottom:8px;">Operational Status</div>
+        <div style="font-size:16px;font-weight:500;color:#2ECC71;">You are accepting referrals</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:4px;">Patients and GPs can send you new referrals</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Descriptive text with contextual explanation. Premium card treatment.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Operational Status</div>
+      <div style="background:#FFF;padding:0 16px;border-radius:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;">
+          <div>
+            <div style="font-size:13px;color:#64748B;">Accepting Referrals</div>
+            <div style="font-size:12px;color:#94A3B8;margin-top:2px;">Toggle to pause incoming referrals</div>
+          </div>
+          <div style="width:44px;height:24px;background:#2ECC71;border-radius:12px;position:relative;cursor:pointer;"><div style="width:20px;height:20px;background:#FFF;border-radius:50%;position:absolute;top:2px;right:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">First settings row, toggle switch, descriptive text. Prominent placement at top of list.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SPACING -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing & Borders</div>
+      <div class="spacing-row"><div class="spacing-label">Card padding</div><div class="spacing-box" style="width:14px;height:14px;">14</div></div>
+      <div class="spacing-row"><div class="spacing-label">Card mb</div><div class="spacing-box" style="width:12px;height:12px;">12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Avatar</div><div class="spacing-box" style="width:60px;height:16px;">60px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Card radius</div><div class="spacing-box" style="width:6px;height:6px;">6</div></div>
+      <div class="spacing-row"><div class="spacing-label">Avatar mb</div><div class="spacing-box" style="width:16px;height:16px;">16</div></div>
+      <div class="spacing-row"><div class="spacing-label">Max-width</div><div class="spacing-box" style="width:48px;height:16px;">560</div></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing & Borders</div>
+      <div class="spacing-row"><div class="spacing-label">Card padding</div><div class="spacing-box" style="width:20px;height:20px;">20</div></div>
+      <div class="spacing-row"><div class="spacing-label">Card mb</div><div class="spacing-box" style="width:16px;height:16px;">16</div></div>
+      <div class="spacing-row"><div class="spacing-label">Avatar</div><div class="spacing-box" style="width:80px;height:16px;">80px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Card radius</div><div class="spacing-box" style="width:12px;height:12px;">12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Avatar mb</div><div class="spacing-box" style="width:28px;height:16px;">28</div></div>
+      <div class="spacing-row"><div class="spacing-label">Max-width</div><div class="spacing-box" style="width:48px;height:16px;">520</div></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing & Borders</div>
+      <div class="spacing-row"><div class="spacing-label">Header pad</div><div class="spacing-box" style="width:24px;height:16px;">24</div></div>
+      <div class="spacing-row"><div class="spacing-label">Row padding</div><div class="spacing-box" style="width:16px;height:16px;">16</div></div>
+      <div class="spacing-row"><div class="spacing-label">Avatar</div><div class="spacing-box" style="width:64px;height:16px;">64px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Stats gap</div><div class="spacing-box" style="width:32px;height:16px;">32</div></div>
+      <div class="spacing-row"><div class="spacing-label">All radius</div><div class="spacing-box" style="width:4px;height:16px;">0</div><div class="type-meta">(header, stats)</div></div>
+      <div class="spacing-row"><div class="spacing-label">Max-width</div><div class="spacing-box" style="width:48px;height:16px;">100%</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SURFACE -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFF;border:1px solid #E2E8F0;box-shadow:0 1px 2px rgba(15,23,42,0.04);border-radius:6px;">Card: light shadow</div>
+        <div class="surface-card" style="background:#FAFBFC;border:1px solid #E2E8F0;border-radius:6px;">Even: tinted</div>
+        <div class="surface-card" style="background:transparent;border:1px solid #E74C3C;border-radius:6px;color:#E74C3C;">Sign out: outline</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Minimal shadow, alternating tint, thin sign-out border.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFF;border:1px solid #EDF2F7;box-shadow:0 2px 8px rgba(15,23,42,0.06);border-radius:12px;">Card: shadow-md</div>
+        <div class="surface-card" style="background:#FFF;box-shadow:0 4px 16px rgba(15,23,42,0.1);border-radius:12px;transform:translateY(-1px);">Hover: lifted</div>
+        <div class="surface-card" style="background:linear-gradient(135deg,#2ECC71,#15803D);border-radius:50%;width:72px;height:72px;box-shadow:0 6px 16px rgba(46,204,113,0.25);color:#FFF;">Avatar glow</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Richer shadows, hover lift, avatar gradient with emerald glow.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFF;border-bottom:1px solid #E2E8F0;">Header: white</div>
+        <div class="surface-card" style="background:#F0FDF4;border-bottom:1px solid #E2E8F0;">Stats: green-50</div>
+        <div class="surface-card" style="background:transparent;border-bottom:1px solid #F1F5F9;">Row: divider only</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">No shadows. White header, green stats strip, divider rows. Fully flat portal.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

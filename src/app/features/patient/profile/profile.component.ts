@@ -1,6 +1,6 @@
 import {
   Component, OnInit, OnDestroy, AfterViewChecked,
-  inject, PLATFORM_ID, ViewChild, ElementRef
+  inject, PLATFORM_ID, ViewChild, ElementRef, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
@@ -66,6 +66,9 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
   cardHolderName = '';
   makeDefault = false;
 
+  // Track whether the first load has completed (for NavigationEnd guard)
+  private initialLoadComplete = false;
+
   // Stripe internals (browser-only)
   stripeLoading = false;
   stripeReady = false;
@@ -75,6 +78,8 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private platformId = inject(PLATFORM_ID);
   private routerSub?: Subscription;
+
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     public router: Router,
@@ -91,7 +96,7 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
       filter((e) => e.urlAfterRedirects.includes('/profile'))
     ).subscribe(() => {
-      if (this.loading) return;
+      if (!this.initialLoadComplete) return;
       this.loadDetails();
       if (this.activeTab === 'billing') {
         this.loadBilling();
@@ -141,6 +146,8 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
         };
         this.avatar = this.getInitials(this.details.name);
         this.loading = false;
+        this.initialLoadComplete = true;
+        this.cdr.detectChanges();
       },
       error: () => {
         const cached = this.patientApi.getCachedProfile();
@@ -152,6 +159,8 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
         this.avatar = this.getInitials(this.details.name);
         this.loading = false;
+        this.initialLoadComplete = true;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -204,8 +213,12 @@ export class ProfileComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.paymentMethods = res.paymentMethods || [];
         this.transactions = res.transactions || [];
         this.billingLoading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.billingLoading = false; }
+      error: () => {
+        this.billingLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

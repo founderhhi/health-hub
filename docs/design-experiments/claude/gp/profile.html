@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GP Profile — Design Variations Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #F8F9FA;
+    color: #1E293B;
+    padding: 40px 24px;
+    line-height: 1.5;
+  }
+
+  .doc-header {
+    max-width: 1440px;
+    margin: 0 auto 48px;
+  }
+
+  .doc-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 8px;
+  }
+
+  .doc-header p {
+    font-size: 15px;
+    color: #64748B;
+    max-width: 720px;
+  }
+
+  .breadcrumb {
+    font-size: 13px;
+    color: #94A3B8;
+    margin-bottom: 12px;
+  }
+  .breadcrumb a { color: #3B82F6; text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .variation {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .variation-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #E2E8F0;
+  }
+
+  .variation-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .tag-v1 { background: #DBEAFE; color: #1D4ED8; }
+  .tag-v2 { background: #D1FAE5; color: #065F46; }
+  .tag-v3 { background: #EDE9FE; color: #6D28D9; }
+
+  .variation-header .subtitle {
+    font-size: 13px;
+    color: #64748B;
+    margin-top: 6px;
+  }
+
+  .section {
+    padding: 20px 24px;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748B;
+    margin-bottom: 14px;
+  }
+
+  /* Color swatches */
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { display: flex; flex-direction: column; align-items: center; width: 72px; }
+  .swatch-block {
+    width: 48px; height: 48px; border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.08); margin-bottom: 4px;
+  }
+  .swatch-label {
+    font-size: 9px; font-weight: 600; color: #64748B;
+    text-align: center; word-break: break-all;
+  }
+
+  /* Typography samples */
+  .type-sample { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #F8FAFC; }
+  .type-sample:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .type-meta {
+    font-size: 10px; color: #94A3B8;
+    font-family: 'SF Mono', 'Fira Code', monospace; margin-top: 2px;
+  }
+
+  /* Spacing viz */
+  .spacing-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+  .spacing-bar { height: 16px; border-radius: 2px; min-width: 4px; }
+  .spacing-label {
+    font-size: 10px; color: #64748B;
+    font-family: 'SF Mono', 'Fira Code', monospace; white-space: nowrap;
+  }
+
+  /* Mockup area */
+  .mockup-area { border-radius: 8px; overflow: hidden; border: 1px solid #E2E8F0; }
+
+  /* Surface treatment */
+  .surface-demo { display: flex; flex-direction: column; gap: 10px; }
+  .surface-card { padding: 16px; background: #FFFFFF; }
+  .surface-meta {
+    font-size: 10px; color: #94A3B8;
+    font-family: 'SF Mono', 'Fira Code', monospace; margin-top: 6px;
+  }
+  .surface-card-label { font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px; }
+
+  /* ──── V1 Profile Mockup ──── */
+  .v1-profile { background: #f5f5f5; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; }
+  .v1-profile-container { max-width: 100%; width: 100%; }
+
+  .v1-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #2ECC71; color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+    margin: 0 auto 16px;
+    box-shadow: 0 0 0 3px rgba(46,204,113,0.2);
+  }
+
+  .v1-profile-name {
+    text-align: center; font-size: 20px; font-weight: 700;
+    letter-spacing: -0.01em; color: #0F172A; margin-bottom: 4px;
+  }
+  .v1-profile-role {
+    text-align: center; font-size: 13px; color: #64748B; margin-bottom: 20px;
+  }
+
+  .v1-field-card {
+    padding: 14px;
+    margin-bottom: 10px;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .v1-field-label {
+    font-size: 12px; font-weight: 600; color: #64748B;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;
+  }
+  .v1-field-value { font-size: 16px; font-weight: 600; color: #0F172A; }
+
+  .v1-status-card {
+    border-left: 3px solid #2ECC71;
+  }
+
+  .v1-signout {
+    margin-top: 16px; width: 100%; padding: 10px;
+    background: #FFFFFF; border: 1px solid #EF4444; border-radius: 8px;
+    color: #EF4444; font-size: 14px; font-weight: 600;
+    text-align: center; cursor: pointer;
+  }
+
+  .v1-status-pill {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    background: rgba(46,204,113,0.1); color: #2ECC71;
+    border: 1px solid rgba(46,204,113,0.3);
+  }
+
+  /* ──── V2 Profile Mockup ──── */
+  .v2-profile { background: #FAFBFD; padding: 32px 16px; display: flex; flex-direction: column; align-items: center; }
+
+  .v2-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 700;
+    margin: 0 auto 32px;
+  }
+
+  .v2-profile-name {
+    text-align: center; font-size: 22px; font-weight: 600;
+    color: #0F172A; margin-bottom: 4px;
+  }
+  .v2-profile-role {
+    text-align: center; font-size: 13px; color: #94A3B8; margin-bottom: 24px;
+  }
+
+  .v2-field-card {
+    padding: 20px;
+    margin-bottom: 16px;
+    background: #FFFFFF;
+    border: 1px solid #EDF2F7;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    width: 100%;
+    max-width: 100%;
+  }
+  .v2-field-card:hover { border-color: #D1D5DB; }
+  .v2-field-label {
+    font-size: 14px; font-weight: 400; color: #94A3B8; margin-bottom: 4px;
+  }
+  .v2-field-value { font-size: 17px; font-weight: 500; color: #0F172A; line-height: 1.6; }
+
+  .v2-status-card {
+    padding: 24px 20px;
+  }
+
+  .v2-signout {
+    margin-top: 16px; width: 100%; padding: 10px;
+    background: #FFFFFF; border: 2px solid #EF4444; border-radius: 10px;
+    color: #EF4444; font-size: 14px; font-weight: 600;
+    text-align: center; cursor: pointer;
+  }
+
+  .v2-status-pill {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 500;
+    background: rgba(46,204,113,0.08); color: #2ECC71;
+    border: 1px solid rgba(46,204,113,0.2);
+  }
+
+  /* ──── V3 Profile Mockup ──── */
+  .v3-profile { background: #F1F5F9; padding: 24px 16px; }
+
+  .v3-section-header {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #64748B; margin-bottom: 16px;
+  }
+
+  .v3-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #FFFFFF;
+    box-shadow: none;
+  }
+
+  .v3-card-header {
+    background: #F8FAFC;
+    padding: 16px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .v3-avatar-sm {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #2ECC71; color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+
+  .v3-header-name { font-size: 18px; font-weight: 700; color: #0F172A; }
+  .v3-header-role { font-size: 12px; color: #64748B; }
+
+  .v3-field-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .v3-field-row:last-child { border-bottom: none; }
+
+  .v3-field-label {
+    font-size: 13px; font-weight: 500; color: #64748B;
+  }
+  .v3-field-value {
+    font-size: 15px; font-weight: 600; color: #1E293B; text-align: right;
+  }
+
+  .v3-status-pill {
+    display: inline-block; padding: 2px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+    background: #2ECC71; color: #FFFFFF;
+  }
+
+  .v3-signout {
+    margin-top: 16px; width: 100%; padding: 10px;
+    background: #EF4444; border: none; border-radius: 6px;
+    color: #FFFFFF; font-size: 14px; font-weight: 600;
+    text-align: center; cursor: pointer;
+  }
+  .v3-signout:hover { background: #DC2626; }
+
+  .v3-settings-btn {
+    padding: 6px 12px; border: 1px solid #E2E8F0; border-radius: 6px;
+    background: #FFFFFF; font-size: 13px; font-weight: 600; color: #334155;
+    cursor: pointer; margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="breadcrumb"><a href="index.html">GP Design Experiments</a> / Profile</div>
+  <h1>GP Profile — 3 Variations</h1>
+  <p>Side-by-side comparison of V1 (Operational Clarity), V2 (Calm Clinical), and V3 (Helium Health-Inspired). All values extracted from the design variation markdown specs.</p>
+</div>
+
+<div class="columns">
+
+<!-- ════════════════════════ V1: Operational Clarity ════════════════════════ -->
+<div class="variation">
+  <div class="variation-header">
+    <span class="tag tag-v1">V1</span>
+    <h2>Operational Clarity</h2>
+    <p class="subtitle">Quick-reference card. Bold labels, compact density, operational status highlighted.</p>
+  </div>
+
+  <!-- Color Swatches -->
+  <div class="section">
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-block" style="background:#f5f5f5"></div><div class="swatch-label">Page bg #f5f5f5</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#D1D5DB"></div><div class="swatch-label">Card bdr #D1D5DB</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#64748B"></div><div class="swatch-label">Label #64748B</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#2ECC71"></div><div class="swatch-label">Avatar #2ECC71</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:rgba(46,204,113,0.2)"></div><div class="swatch-label">Ring 20%</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#CBD5E1"></div><div class="swatch-label">Settings #CBD5E1</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#EF4444"></div><div class="swatch-label">Offline #EF4444</div></div>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="section">
+    <div class="section-label">Typography</div>
+    <div class="type-sample">
+      <div style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.04em">FULL NAME</div>
+      <div class="type-meta">field-label: 12px / 600 / uppercase / 0.04em</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size:16px;font-weight:600;color:#0F172A">Dr. Amara Okafor</div>
+      <div class="type-meta">field-value: 16px / 600</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size:20px;font-weight:700;letter-spacing:-0.01em;color:#0F172A">Dr. Amara Okafor</div>
+      <div class="type-meta">profile h1: 20px / 700 / tracking -0.01em</div>
+    </div>
+  </div>
+
+  <!-- Spacing -->
+  <div class="section">
+    <div class="section-label">Spacing</div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:14px;background:#93C5FD"></div>
+      <span class="spacing-label">field-card padding: 14px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:10px;background:#93C5FD"></div>
+      <span class="spacing-label">field-card margin-bottom: 10px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:56px;background:#93C5FD"></div>
+      <span class="spacing-label">avatar size: 56px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:16px;background:#93C5FD"></div>
+      <span class="spacing-label">avatar margin-bottom: 16px</span>
+    </div>
+  </div>
+
+  <!-- Surface Treatment -->
+  <div class="section">
+    <div class="section-label">Surface Treatment</div>
+    <div class="surface-demo">
+      <div class="surface-card" style="border:1px solid #D1D5DB;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12)">
+        <div class="surface-card-label">Field Card</div>
+        <div class="surface-meta">border: #D1D5DB; shadow: 0 1px 3px 0.12; radius: 8px</div>
+      </div>
+      <div class="surface-card" style="border:1px solid #D1D5DB;border-left:3px solid #2ECC71;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.12)">
+        <div class="surface-card-label">Status Card (operating)</div>
+        <div class="surface-meta">+ border-left: 3px solid #2ECC71 (or #EF4444 offline)</div>
+      </div>
+      <div style="margin-top:4px">
+        <button style="padding:6px 12px;border:1px solid #CBD5E1;border-radius:6px;background:#FFF;font-size:12px;cursor:pointer">Settings</button>
+        <div class="surface-meta">settings-icon-button: border 1px solid #CBD5E1</div>
+      </div>
+      <div style="margin-top:4px">
+        <button style="padding:8px 16px;border:1px solid #EF4444;border-radius:8px;background:#FFF;color:#EF4444;font-size:13px;font-weight:600;cursor:pointer">Sign Out</button>
+        <div class="surface-meta">sign-out: border-width 1px (reduced from 2px)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Mockup -->
+  <div class="section">
+    <div class="section-label">Profile Mockup</div>
+    <div class="mockup-area">
+      <div class="v1-profile">
+        <div class="v1-profile-container">
+          <div class="v1-avatar">AO</div>
+          <div class="v1-profile-name">Dr. Amara Okafor</div>
+          <div class="v1-profile-role">General Practitioner</div>
+
+          <div class="v1-field-card">
+            <div class="v1-field-label">FULL NAME</div>
+            <div class="v1-field-value">Dr. Amara Okafor</div>
+          </div>
+          <div class="v1-field-card">
+            <div class="v1-field-label">EMAIL</div>
+            <div class="v1-field-value">a.okafor@healthhub.com</div>
+          </div>
+          <div class="v1-field-card">
+            <div class="v1-field-label">SPECIALIZATION</div>
+            <div class="v1-field-value">Family Medicine</div>
+          </div>
+          <div class="v1-field-card">
+            <div class="v1-field-label">LICENSE NUMBER</div>
+            <div class="v1-field-value">MED-2024-08471</div>
+          </div>
+          <div class="v1-field-card v1-status-card">
+            <div class="v1-field-label">OPERATIONAL STATUS</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+              <span class="v1-status-pill">Operating</span>
+            </div>
+          </div>
+
+          <div class="v1-signout">Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ V2: Calm Clinical ════════════════════════ -->
+<div class="variation">
+  <div class="variation-header">
+    <span class="tag tag-v2">V2</span>
+    <h2>Calm Clinical</h2>
+    <p class="subtitle">Breathing room, personal feel, unhurried. Softer borders, larger avatar.</p>
+  </div>
+
+  <!-- Color Swatches -->
+  <div class="section">
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-block" style="background:#FAFBFD"></div><div class="swatch-label">Page bg #FAFBFD</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#EDF2F7"></div><div class="swatch-label">Card bdr #EDF2F7</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#94A3B8"></div><div class="swatch-label">Label #94A3B8</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#D1D5DB"></div><div class="swatch-label">Hover bdr #D1D5DB</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:linear-gradient(135deg,#2ECC71,#27AE60)"></div><div class="swatch-label">Avatar grad</div></div>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="section">
+    <div class="section-label">Typography</div>
+    <div class="type-sample">
+      <div style="font-size:22px;font-weight:600;color:#0F172A">Dr. Amara Okafor</div>
+      <div class="type-meta">profile h1: 22px / 600 (up from 20px)</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size:14px;font-weight:400;color:#94A3B8">Full Name</div>
+      <div class="type-meta">field-label: 14px / 400 / #94A3B8</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size:17px;font-weight:500;color:#0F172A;line-height:1.6">Dr. Amara Okafor</div>
+      <div class="type-meta">field-value: 17px / 500 / line-height 1.6</div>
+    </div>
+  </div>
+
+  <!-- Spacing -->
+  <div class="section">
+    <div class="section-label">Spacing</div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:20px;background:#A7F3D0"></div>
+      <span class="spacing-label">field-card padding: 20px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:16px;background:#A7F3D0"></div>
+      <span class="spacing-label">field-card margin-bottom: 16px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:80px;background:#A7F3D0"></div>
+      <span class="spacing-label">avatar size: 80px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:32px;background:#A7F3D0"></div>
+      <span class="spacing-label">avatar margin-bottom: 32px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:32px;background:#A7F3D0"></div>
+      <span class="spacing-label">provider-profile padding-top: 32px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:24px;background:#A7F3D0"></div>
+      <span class="spacing-label">status card padding: 24px 20px</span>
+    </div>
+  </div>
+
+  <!-- Surface Treatment -->
+  <div class="section">
+    <div class="section-label">Surface Treatment</div>
+    <div class="surface-demo">
+      <div class="surface-card" style="border:1px solid #EDF2F7;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,0.04)">
+        <div class="surface-card-label">Field Card</div>
+        <div class="surface-meta">border: #EDF2F7; shadow: 0 1px 2px 0.04; radius: 10px; hover -> border #D1D5DB</div>
+      </div>
+      <div style="margin-top:8px;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2ECC71,#27AE60);display:flex;align-items:center;justify-content:center;color:#FFF;font-size:24px;font-weight:700">AO</div>
+      <div class="surface-meta">avatar: 80px, gradient #2ECC71 -> #27AE60, no ring shadow</div>
+      <div style="margin-top:8px">
+        <button style="padding:8px 16px;border:2px solid #EF4444;border-radius:10px;background:#FFF;color:#EF4444;font-size:13px;font-weight:600;cursor:pointer">Sign Out</button>
+        <div class="surface-meta">sign-out: radius 10px (increased from 8px)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Mockup -->
+  <div class="section">
+    <div class="section-label">Profile Mockup</div>
+    <div class="mockup-area">
+      <div class="v2-profile">
+        <div class="v2-avatar">AO</div>
+        <div class="v2-profile-name">Dr. Amara Okafor</div>
+        <div class="v2-profile-role">General Practitioner</div>
+
+        <div class="v2-field-card">
+          <div class="v2-field-label">Full Name</div>
+          <div class="v2-field-value">Dr. Amara Okafor</div>
+        </div>
+        <div class="v2-field-card">
+          <div class="v2-field-label">Email</div>
+          <div class="v2-field-value">a.okafor@healthhub.com</div>
+        </div>
+        <div class="v2-field-card">
+          <div class="v2-field-label">Specialization</div>
+          <div class="v2-field-value">Family Medicine</div>
+        </div>
+        <div class="v2-field-card">
+          <div class="v2-field-label">License Number</div>
+          <div class="v2-field-value">MED-2024-08471</div>
+        </div>
+        <div class="v2-field-card v2-status-card">
+          <div class="v2-field-label">Operational Status</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+            <span class="v2-status-pill">Operating</span>
+          </div>
+        </div>
+
+        <div class="v2-signout">Sign Out</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ V3: Helium Health-Inspired ════════════════════════ -->
+<div class="variation">
+  <div class="variation-header">
+    <span class="tag tag-v3">V3</span>
+    <h2>Helium Health-Inspired</h2>
+    <p class="subtitle">Structured data view. Single card with row dividers, inline label-value pairs, SaaS settings panel.</p>
+  </div>
+
+  <!-- Color Swatches -->
+  <div class="section">
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-block" style="background:#F1F5F9"></div><div class="swatch-label">Page bg #F1F5F9</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#FFFFFF"></div><div class="swatch-label">Card bg #FFFFFF</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#E2E8F0"></div><div class="swatch-label">Card bdr #E2E8F0</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#F1F5F9"></div><div class="swatch-label">Divider #F1F5F9</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#F8FAFC"></div><div class="swatch-label">Header bg #F8FAFC</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#1E293B"></div><div class="swatch-label">Text #1E293B</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#64748B"></div><div class="swatch-label">Label #64748B</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#2ECC71"></div><div class="swatch-label">Online #2ECC71</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#EF4444"></div><div class="swatch-label">Signout #EF4444</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#DC2626"></div><div class="swatch-label">Hover #DC2626</div></div>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="section">
+    <div class="section-label">Typography</div>
+    <div class="type-sample">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B">PROFILE</div>
+      <div class="type-meta">section label: 11px / 700 / uppercase / 0.08em</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size:18px;font-weight:700;color:#0F172A">Dr. Amara Okafor</div>
+      <div class="type-meta">profile name: 18px / 700</div>
+    </div>
+    <div class="type-sample">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:500;color:#64748B">Full Name</span>
+        <span style="font-size:15px;font-weight:600;color:#1E293B">Dr. Amara Okafor</span>
+      </div>
+      <div class="type-meta">field: label 13px/500 left, value 15px/600 right</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size:13px;font-weight:600;color:#334155">Back</div>
+      <div class="type-meta">back button: 13px / 600</div>
+    </div>
+  </div>
+
+  <!-- Spacing -->
+  <div class="section">
+    <div class="section-label">Spacing</div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:14px;background:#DDD6FE"></div>
+      <span class="spacing-label">field-row padding: 14px 16px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:16px;background:#DDD6FE"></div>
+      <span class="spacing-label">card-header padding: 16px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:24px;background:#DDD6FE"></div>
+      <span class="spacing-label">page padding: 24px</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:40px;background:#DDD6FE"></div>
+      <span class="spacing-label">avatar size: 40px (inline)</span>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-bar" style="width:0px;background:#DDD6FE;border:1px dashed #94A3B8"></div>
+      <span class="spacing-label">card padding: 0 (rows self-pad)</span>
+    </div>
+  </div>
+
+  <!-- Surface Treatment -->
+  <div class="section">
+    <div class="section-label">Surface Treatment</div>
+    <div class="surface-demo">
+      <div style="border:1px solid #E2E8F0;border-radius:8px;overflow:hidden">
+        <div style="background:#F8FAFC;padding:12px 16px;border-bottom:1px solid #E2E8F0;font-size:12px;font-weight:600;color:#334155">Header row (avatar + name)</div>
+        <div style="padding:12px 16px;border-bottom:1px solid #F1F5F9;font-size:12px;color:#64748B">Field row with #F1F5F9 divider</div>
+        <div style="padding:12px 16px;font-size:12px;color:#64748B">Last field row (no bottom border)</div>
+      </div>
+      <div class="surface-meta">Single card: border #E2E8F0, radius 8px, NO shadows, overflow hidden</div>
+
+      <div style="margin-top:4px">
+        <button style="padding:8px 16px;border:none;border-radius:6px;background:#EF4444;color:#FFF;font-size:13px;font-weight:600;cursor:pointer">Sign Out</button>
+        <div class="surface-meta">sign-out: solid red #EF4444, no border, radius 6px, white text</div>
+      </div>
+
+      <div style="display:inline-block;margin-top:4px">
+        <span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;background:#2ECC71;color:#FFF">Operating</span>
+        <div class="surface-meta">status pill: solid #2ECC71, white text, 4px radius</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Mockup -->
+  <div class="section">
+    <div class="section-label">Profile Mockup</div>
+    <div class="mockup-area">
+      <div class="v3-profile">
+        <div class="v3-section-header">PROFILE</div>
+
+        <div class="v3-card">
+          <div class="v3-card-header">
+            <div class="v3-avatar-sm">AO</div>
+            <div>
+              <div class="v3-header-name">Dr. Amara Okafor</div>
+              <div class="v3-header-role">General Practitioner</div>
+            </div>
+          </div>
+
+          <div class="v3-field-row">
+            <span class="v3-field-label">Full Name</span>
+            <span class="v3-field-value">Dr. Amara Okafor</span>
+          </div>
+          <div class="v3-field-row">
+            <span class="v3-field-label">Email</span>
+            <span class="v3-field-value">a.okafor@healthhub.com</span>
+          </div>
+          <div class="v3-field-row">
+            <span class="v3-field-label">Specialization</span>
+            <span class="v3-field-value">Family Medicine</span>
+          </div>
+          <div class="v3-field-row">
+            <span class="v3-field-label">License Number</span>
+            <span class="v3-field-value">MED-2024-08471</span>
+          </div>
+          <div class="v3-field-row">
+            <span class="v3-field-label">Operational Status</span>
+            <span class="v3-status-pill">Operating</span>
+          </div>
+        </div>
+
+        <button class="v3-signout">Sign Out</button>
+        <button class="v3-settings-btn">Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /columns -->
+
+</body>
+</html>

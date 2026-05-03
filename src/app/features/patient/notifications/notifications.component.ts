@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
@@ -23,6 +23,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   private readonly MAX_LOADING_MS = 8000;
 
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private notificationsApi: NotificationsApiService,
@@ -63,10 +64,13 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     if (notification.read) return;
     notification.read = true;
     this.notificationsApi.markRead(notification.id).subscribe({
-      next: () => {},
+      next: () => {
+        this.cdr.detectChanges();
+      },
       error: () => {
         notification.read = false;
         this.errorMessage = 'Unable to mark notification as read. Please try again.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -75,10 +79,13 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     const previousStates = this.notifications.map(n => n.read);
     this.notifications.forEach(n => n.read = true);
     this.notificationsApi.markAllRead().subscribe({
-      next: () => {},
+      next: () => {
+        this.cdr.detectChanges();
+      },
       error: () => {
         this.notifications.forEach((n, i) => n.read = previousStates[i]);
         this.errorMessage = 'Unable to mark all as read. Please try again.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -98,6 +105,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.loadTimeoutRef = setTimeout(() => {
       this.loading = false;
       this.errorMessage = 'Notifications are taking longer than expected. Please retry.';
+      this.cdr.detectChanges();
     }, this.MAX_LOADING_MS);
 
     this.notificationsApi.list().subscribe({
@@ -108,6 +116,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         }
         this.notifications = Array.isArray(response?.notifications) ? response.notifications : [];
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         if (this.loadTimeoutRef) {
@@ -117,6 +126,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         this.notifications = [];
         this.errorMessage = 'Unable to load notifications right now. Please retry.';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

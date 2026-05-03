@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostics Order Details -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F0F2F5; color: #0B0F14; padding: 40px 24px; }
+  h1.page-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .page-subtitle { text-align: center; color: #64748B; font-size: 15px; margin-bottom: 48px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .column h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .column .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-bottom: 20px; }
+  .v1 .tag { background: #DCFCE7; color: #166534; }
+  .v2 .tag { background: #EFF6FF; color: #1E40AF; }
+  .v3 .tag { background: #FEF3C7; color: #92400E; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; margin: 28px 0 12px; }
+  .section-label:first-of-type { margin-top: 0; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { width: 48px; height: 48px; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .swatch-label { font-size: 9px; color: #64748B; text-align: center; margin-top: 4px; word-break: break-all; }
+  .swatch-wrap { display: flex; flex-direction: column; align-items: center; width: 56px; }
+  .type-sample { margin-bottom: 12px; }
+  .type-sample .label { font-size: 10px; color: #94A3B8; margin-bottom: 2px; }
+
+  /* Pipeline shared */
+  .pipeline { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; margin-bottom: 16px; position: relative; }
+  .pipeline-step { display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 1; }
+  .pipeline-icon { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; }
+  .pipeline-label { font-size: 10px; font-weight: 600; color: #64748B; text-align: center; }
+  .pipeline-connector { flex: 1; height: 2px; background: #E2E8F0; margin: 0 -4px; align-self: center; margin-bottom: 20px; }
+
+  /* Checklist */
+  .checklist { margin-bottom: 16px; }
+  .checklist-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 8px; transition: all 0.15s; cursor: pointer; }
+  .checklist-item:hover { background: #F8FAFC; }
+  .checkbox { width: 20px; height: 20px; border: 2px solid #CBD5E1; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .checkbox.checked { background: #2ECC71; border-color: #2ECC71; color: #fff; font-size: 12px; }
+  .test-name { font-size: 14px; font-weight: 500; }
+  .test-range { font-size: 10px; color: #94A3B8; margin-top: 2px; }
+
+  /* Range bar */
+  .range-bar { height: 6px; background: #E2E8F0; border-radius: 9999px; position: relative; margin-top: 8px; overflow: visible; }
+  .range-normal { position: absolute; height: 100%; border-radius: 9999px; }
+  .range-dot { position: absolute; border-radius: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+  /* Patient card */
+  .patient-card { padding: 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; }
+  .patient-avatar { width: 40px; height: 40px; border-radius: 50%; background: #2ECC71; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .patient-info .name { font-weight: 600; font-size: 15px; }
+  .patient-info .detail { font-size: 12px; color: #64748B; margin-top: 2px; }
+
+  /* Info boxes */
+  .info-box { padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.5; margin-bottom: 12px; border: 1px solid; }
+  .info-clinical { background: #EFF6FF; border-color: #BFDBFE; color: #1E40AF; }
+  .info-instructions { background: #FFFBEB; border-color: #FEF3C7; color: #92400E; }
+
+  /* Action button */
+  .btn-accept { display: block; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; color: #fff; }
+
+  /* ===== V1 ===== */
+  .v1 .section-title-mock { border-left: 3px solid #2ECC71; padding-left: 8px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; color: #0B0F14; }
+  .v1 .pipeline-icon { width: 36px; height: 36px; border-width: 3px; }
+  .v1 .pipeline-icon.complete { background: #166534; border-color: #166534; }
+  .v1 .pipeline-icon.active { background: #1D4ED8; border-color: #1D4ED8; animation: pulse-step 2s ease-in-out infinite; }
+  .v1 .pipeline-icon.pending-step { background: #fff; border: 3px solid #CBD5E1; color: #94A3B8; }
+  .v1 .pipeline-connector.complete { background: #166534; height: 3px; }
+  .v1 .pipeline-label { font-size: 11px; font-weight: 700; }
+  .v1 .checklist-item { border-left: 2px solid transparent; }
+  .v1 .checklist-item:hover { background: #ECFDF3; border-left-color: #2ECC71; }
+  .v1 .checklist-item .test-name { font-weight: 600; }
+  .v1 .range-bar { height: 8px; }
+  .v1 .range-dot { width: 12px; height: 12px; }
+  .v1 .patient-card { border-left: 2px solid #2ECC71; }
+  .v1 .btn-accept { background: #2ECC71; }
+  .v1 .btn-accept:hover { box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
+  .v1 .btn-accept:active { background: #166534; }
+
+  @keyframes pulse-step {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* ===== V2 ===== */
+  .v2 .section-title-mock { font-size: 14px; font-weight: 500; color: #475569; margin-bottom: 12px; }
+  .v2 .pipeline { margin-bottom: 32px; }
+  .v2 .pipeline-icon { width: 32px; height: 32px; }
+  .v2 .pipeline-icon.complete { background: #34D399; border: 1.5px solid #34D399; }
+  .v2 .pipeline-icon.active { background: #93C5FD; border: 1.5px solid #93C5FD; color: #1E40AF; }
+  .v2 .pipeline-icon.pending-step { background: #fff; border: 1.5px solid #E2E8F0; color: #94A3B8; }
+  .v2 .pipeline-connector.complete { background: #86EFAC; }
+  .v2 .pipeline-label { font-size: 10px; font-weight: 500; }
+  .v2 .checklist-item { padding: 20px; border-color: #EDF2F7; border-radius: 12px; }
+  .v2 .checklist-item:hover { background: #FAFBFC; border-color: #EDF2F7; }
+  .v2 .patient-card { background: #FAFBFC; border-color: #EDF2F7; border-radius: 12px; }
+  .v2 .info-clinical { background: #F0F9FF; border-color: #BFDBFE; color: #2563EB; }
+  .v2 .info-instructions { background: #FFFDF5; border-color: #FEF3C7; color: #B45309; }
+  .v2 .range-normal { background: rgba(52,211,153,0.2); }
+  .v2 .range-dot { background: #34D399; }
+  .v2 .btn-accept { background: #2ECC71; margin-top: 48px; }
+  .v2 .btn-accept:hover { box-shadow: 0 2px 8px rgba(46,204,113,0.2); }
+  .v2 .card-wrap { border: 1px solid #EDF2F7; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,0.02); }
+
+  /* ===== V3 ===== */
+  .v3 .column-inner { background: #F1F5F9; border-radius: 12px; padding: 16px; margin: -16px; }
+  .v3 .section-title-mock { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  .v3 .pipeline-wrap { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(15,23,42,0.06); margin-bottom: 16px; }
+  .v3 .pipeline-icon { width: 36px; height: 36px; }
+  .v3 .pipeline-icon.complete { background: #2ECC71; border: 2px solid #2ECC71; }
+  .v3 .pipeline-icon.active { background: #8B5CF6; border: 2px solid #8B5CF6; }
+  .v3 .pipeline-icon.pending-step { background: #E2E8F0; border: 2px solid #E2E8F0; color: #94A3B8; }
+  .v3 .pipeline-connector { height: 3px; border-radius: 2px; }
+  .v3 .pipeline-connector.complete { background: #2ECC71; }
+  .v3 .pipeline-label { font-size: 12px; font-weight: 600; }
+  .v3 .tat-counter { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: #64748B; text-align: center; padding: 8px; }
+  .v3 .patient-card { border-top: 2px solid #2ECC71; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(15,23,42,0.06); }
+  .v3 .range-bar { height: 8px; }
+  .v3 .range-dot { width: 12px; height: 12px; }
+  .v3 .range-dot.out-of-range { box-shadow: 0 0 0 3px rgba(220,38,38,0.2); }
+  .v3 .card-elevated { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(15,23,42,0.06); padding: 16px; margin-bottom: 16px; }
+  .v3 .btn-accept { background: #2ECC71; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; }
+  .v3 .btn-accept:hover { box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
+
+  @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Diagnostics Order Details</h1>
+<p class="page-subtitle">Three design variations compared side by side</p>
+
+<div class="grid">
+
+  <!-- ==================== V1: Operational Clarity ==================== -->
+  <div class="column v1">
+    <h2>V1: Operational Clarity</h2>
+    <span class="tag">Operational</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#166534"></div><div class="swatch-label">#166534<br>Complete</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#1D4ED8"></div><div class="swatch-label">#1D4ED8<br>Active Step</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>Emerald</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#ECFDF3"></div><div class="swatch-label">#ECFDF3<br>Hover BG</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Order ID -- 24px / 700</div><div style="font-size:24px;font-weight:700">ORD-2024-00847</div></div>
+    <div class="type-sample"><div class="label">Section Title -- 16px / 600 / uppercase / 0.04em</div><div style="font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;border-left:3px solid #2ECC71;padding-left:8px">Test Results</div></div>
+    <div class="type-sample"><div class="label">Pipeline Label -- 11px / 700</div><div style="font-size:11px;font-weight:700">Received</div></div>
+    <div class="type-sample"><div class="label">Test Name -- 14px / 600</div><div style="font-size:14px;font-weight:600">Complete Blood Count</div></div>
+    <div class="type-sample"><div class="label">Range Label -- 10px / 600</div><div style="font-size:10px;font-weight:600;color:#64748B">Normal: 4.5-11.0 K/uL</div></div>
+
+    <div class="section-label">Status Pipeline (36px icons, 3px connectors)</div>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-icon complete">&#10003;</div>
+        <div class="pipeline-label">Received</div>
+      </div>
+      <div class="pipeline-connector complete"></div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon complete">&#10003;</div>
+        <div class="pipeline-label">Collected</div>
+      </div>
+      <div class="pipeline-connector complete"></div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon active">3</div>
+        <div class="pipeline-label">In Lab</div>
+      </div>
+      <div class="pipeline-connector"></div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon pending-step">4</div>
+        <div class="pipeline-label">Ready</div>
+      </div>
+    </div>
+
+    <div class="section-label">Patient Card (emerald left border)</div>
+    <div class="patient-card">
+      <div class="patient-avatar">AK</div>
+      <div class="patient-info">
+        <div class="name">Abebe Kebede</div>
+        <div class="detail">DOB: ****-**-12 &middot; Male</div>
+      </div>
+    </div>
+
+    <div class="section-label">Verification Checklist (left accent on hover)</div>
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checkbox checked">&#10003;</div>
+        <div><div class="test-name">CBC - Complete Blood Count</div><div class="test-range">WBC 4.5-11.0 K/uL</div>
+          <div class="range-bar" style="width:160px"><div class="range-normal" style="background:rgba(46,204,113,0.2);left:20%;width:50%"></div><div class="range-dot" style="background:#2ECC71;left:45%"></div></div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checkbox">&#8203;</div>
+        <div><div class="test-name">Lipid Panel</div><div class="test-range">Total Cholesterol &lt;200 mg/dL</div>
+          <div class="range-bar" style="width:160px"><div class="range-normal" style="background:rgba(46,204,113,0.2);left:10%;width:40%"></div><div class="range-dot" style="background:#DC2626;left:70%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Info Boxes</div>
+    <div class="info-box info-clinical">Clinical Indication: Routine annual wellness check, lipid monitoring</div>
+    <div class="info-box info-instructions">&#9888; Special Instructions: Fasting sample required. Patient must fast 12 hours.</div>
+
+    <button class="btn-accept">Accept Order</button>
+
+    <div class="section-label" style="margin-top:24px">Key Specs</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">36px step icons with 3px borders. Pulsing active step (2s cycle). 3px emerald left-bar on section titles. Range bar track: 8px, dot: 12px. Patient card: 2px emerald left border. Accept button active state: #166534.</p>
+  </div>
+
+  <!-- ==================== V2: Calm Clinical ==================== -->
+  <div class="column v2">
+    <h2>V2: Calm Clinical</h2>
+    <span class="tag">Calm</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#34D399"></div><div class="swatch-label">#34D399<br>Complete</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#93C5FD"></div><div class="swatch-label">#93C5FD<br>Active</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#86EFAC"></div><div class="swatch-label">#86EFAC<br>Connector</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#F0F9FF"></div><div class="swatch-label">#F0F9FF<br>Clinical</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#FFFDF5"></div><div class="swatch-label">#FFFDF5<br>Instructions</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#FAFBFC"></div><div class="swatch-label">#FAFBFC<br>Patient BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EDF2F7"></div><div class="swatch-label">#EDF2F7<br>Borders</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Order ID -- 24px / 500 (lighter)</div><div style="font-size:24px;font-weight:500">ORD-2024-00847</div></div>
+    <div class="type-sample"><div class="label">Section Title -- 16px / 500 / sentence case</div><div style="font-size:16px;font-weight:500;color:#475569">Test results</div></div>
+    <div class="type-sample"><div class="label">Pipeline Label -- 10px / 500</div><div style="font-size:10px;font-weight:500">Received</div></div>
+    <div class="type-sample"><div class="label">Test Name -- 14px / 500</div><div style="font-size:14px;font-weight:500">Complete Blood Count</div></div>
+    <div class="type-sample"><div class="label">Instructions -- 14px / 400 / lh 1.7</div><div style="font-size:14px;font-weight:400;line-height:1.7;color:#64748B">Fasting sample required. Patient must fast 12 hours before collection.</div></div>
+
+    <div class="section-label">Status Pipeline (32px, softer fills, no animation)</div>
+    <div class="pipeline" style="margin-bottom:32px">
+      <div class="pipeline-step">
+        <div class="pipeline-icon complete">&#10003;</div>
+        <div class="pipeline-label">Received</div>
+      </div>
+      <div class="pipeline-connector complete"></div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon complete">&#10003;</div>
+        <div class="pipeline-label">Collected</div>
+      </div>
+      <div class="pipeline-connector complete"></div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon active">3</div>
+        <div class="pipeline-label">In Lab</div>
+      </div>
+      <div class="pipeline-connector"></div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon pending-step">4</div>
+        <div class="pipeline-label">Ready</div>
+      </div>
+    </div>
+
+    <div class="section-label">Patient Card (no left accent, #FAFBFC bg)</div>
+    <div class="patient-card">
+      <div class="patient-avatar">AK</div>
+      <div class="patient-info">
+        <div class="name">Abebe Kebede</div>
+        <div class="detail">DOB: ****-**-12 &middot; Male</div>
+      </div>
+    </div>
+
+    <div class="section-label">Verification Checklist (20px padding, subtle hover)</div>
+    <div class="checklist">
+      <div class="checklist-item">
+        <div class="checkbox checked" style="background:#34D399;border-color:#34D399">&#10003;</div>
+        <div><div class="test-name">CBC - Complete Blood Count</div><div class="test-range">WBC 4.5-11.0 K/uL</div>
+          <div class="range-bar" style="width:160px"><div class="range-normal" style="background:rgba(52,211,153,0.2);left:20%;width:50%"></div><div class="range-dot" style="background:#34D399;width:10px;height:10px;left:45%"></div></div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="checkbox">&#8203;</div>
+        <div><div class="test-name">Lipid Panel</div><div class="test-range">Total Cholesterol &lt;200 mg/dL</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Info Boxes (lighter tints)</div>
+    <div class="info-box info-clinical">Clinical Indication: Routine annual wellness check, lipid monitoring</div>
+    <div class="info-box info-instructions">Special Instructions: Fasting sample required. Patient must fast 12 hours.</div>
+
+    <button class="btn-accept" style="margin-top:48px">Accept Order</button>
+
+    <div class="section-label" style="margin-top:24px">Key Specs</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">32px step icons, 1.5px borders. No animation. 12px card radius. Borders: #EDF2F7. Shadows: 0 1px 2px rgba(15,23,42,0.02). 32px section margins. 48px before actions. Container: 32px padding on desktop. Matte paper feel.</p>
+  </div>
+
+  <!-- ==================== V3: Tenadoc-Inspired ==================== -->
+  <div class="column v3">
+    <h2>V3: Tenadoc-Inspired</h2>
+    <span class="tag">Competitor</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#F1F5F9"></div><div class="swatch-label">#F1F5F9<br>Page BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>Received</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#3B82F6"></div><div class="swatch-label">#3B82F6<br>Collected</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#8B5CF6"></div><div class="swatch-label">#8B5CF6<br>In Lab</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#E2E8F0"></div><div class="swatch-label">#E2E8F0<br>Inactive</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Order ID -- mono / 24px / 700</div><div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;letter-spacing:-0.02em">ORD-2024-00847</div></div>
+    <div class="type-sample"><div class="label">Section Title -- 14px / 700 / uppercase / 0.05em</div><div style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em">Test Results</div></div>
+    <div class="type-sample"><div class="label">Pipeline Label -- 12px / 600</div><div style="font-size:12px;font-weight:600">Received</div></div>
+    <div class="type-sample"><div class="label">TAT Counter -- mono / 14px / 600</div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#64748B">Turnaround: 3h 45m</div></div>
+    <div class="type-sample"><div class="label">Sample Type -- 12px / 600 + dot</div><div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#DC2626;display:inline-block"></span>Blood (Venous)</div></div>
+
+    <div class="section-label">Pipeline Card (own white card with shadow)</div>
+    <div class="pipeline-wrap">
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="pipeline-icon complete">&#10003;</div>
+          <div class="pipeline-label">Received</div>
+        </div>
+        <div class="pipeline-connector complete"></div>
+        <div class="pipeline-step">
+          <div class="pipeline-icon" style="width:36px;height:36px;background:#3B82F6;border:2px solid #3B82F6;color:#fff;border-radius:50;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border-radius:50%">&#10003;</div>
+          <div class="pipeline-label">Collected</div>
+        </div>
+        <div class="pipeline-connector" style="background:#3B82F6;height:3px;border-radius:2px"></div>
+        <div class="pipeline-step">
+          <div class="pipeline-icon active" style="background:#8B5CF6;border-color:#8B5CF6">3</div>
+          <div class="pipeline-label">In Lab</div>
+        </div>
+        <div class="pipeline-connector"></div>
+        <div class="pipeline-step">
+          <div class="pipeline-icon pending-step">4</div>
+          <div class="pipeline-label">Ready</div>
+        </div>
+      </div>
+      <div class="tat-counter">Turnaround: 3h 45m</div>
+    </div>
+
+    <div class="section-label">Patient Card (2px emerald top border)</div>
+    <div class="patient-card" style="border-top:2px solid #2ECC71;border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,0.06)">
+      <div class="patient-avatar">AK</div>
+      <div class="patient-info">
+        <div class="name">Abebe Kebede</div>
+        <div class="detail">DOB: ****-**-12 &middot; Male</div>
+      </div>
+    </div>
+
+    <div class="section-label">Checklist (12px radius cards, shadow)</div>
+    <div class="checklist">
+      <div class="checklist-item" style="border-radius:8px;box-shadow:0 2px 8px rgba(15,23,42,0.06)">
+        <div class="checkbox checked">&#10003;</div>
+        <div><div class="test-name" style="font-weight:600">CBC - Complete Blood Count</div><div class="test-range" style="font-weight:600">WBC 4.5-11.0 K/uL</div>
+          <div class="range-bar" style="width:160px;height:8px"><div class="range-normal" style="background:rgba(46,204,113,0.2);left:20%;width:50%"></div><div class="range-dot" style="background:#2ECC71;width:12px;height:12px;left:45%"></div></div>
+        </div>
+      </div>
+      <div class="checklist-item" style="border-radius:8px;box-shadow:0 2px 8px rgba(15,23,42,0.06)">
+        <div class="checkbox">&#8203;</div>
+        <div><div class="test-name" style="font-weight:600">Lipid Panel</div><div class="test-range" style="font-weight:600">Total Cholesterol &lt;200 mg/dL</div>
+          <div class="range-bar" style="width:160px;height:8px"><div class="range-normal" style="background:rgba(46,204,113,0.2);left:10%;width:40%"></div><div class="range-dot out-of-range" style="background:#DC2626;width:12px;height:12px;left:70%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-accept" style="border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1)">Accept Order</button>
+
+    <div class="section-label" style="margin-top:24px">Key Specs</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">Page bg: #F1F5F9. 4-color pipeline (emerald, blue, violet, gray). Pipeline in own white card. 36px icons, 3px rounded connectors. Monospace order ID + TAT counter. 8px range bar, 12px value dot. Out-of-range: red dot + 3px glow ring. 12px card radius throughout. Inspired by Tenadoc + Practo + LIS dashboards.</p>
+  </div>
+
+</div>
+</body>
+</html>

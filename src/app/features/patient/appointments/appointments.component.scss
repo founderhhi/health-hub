@@ -92,7 +92,7 @@
   transition: all v.$transition-fast;
 
   &.active {
-    background: #2ECC71;
+    background: var(--accent-primary);
     color: var(--bg-primary);
     font-weight: v.$font-weight-semibold;
   }
@@ -129,7 +129,7 @@
 .doctor-avatar {
   width: 48px;
   height: 48px;
-  background: #2ECC71;
+  background: var(--accent-primary);
   border-radius: v.$radius-full;
   display: flex;
   align-items: center;
@@ -166,8 +166,8 @@
   font-weight: v.$font-weight-semibold;
 
   &.status-confirmed {
-    background: rgba(46, 204, 113, 0.2);
-    color: #2ECC71;
+    background: color-mix(in srgb, var(--accent-primary) 20%, transparent);
+    color: var(--accent-primary);
   }
 
   &.status-live {
@@ -230,8 +230,8 @@
 /* Mode Badges */
 .mode-badge {
   &.mode-online {
-    background: rgba(46, 204, 113, 0.15);
-    color: #2ECC71 !important;
+    background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+    color: var(--accent-primary) !important;
   }
 
   &.mode-inperson {
@@ -284,7 +284,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color);
-  border-top-color: #2ECC71;
+  border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -419,11 +419,11 @@
 }
 
 .btn-primary {
-  background: #2ECC71;
+  background: var(--accent-primary);
   color: var(--bg-primary);
 
   &:hover {
-    background: #27AE60;
+    background: var(--accent-hover);
   }
 }
 

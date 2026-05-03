@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostics Design Variations -- Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F8FAFC; color: #0B0F14; min-height: 100vh; }
+
+  .header { background: #fff; border-bottom: 1px solid #E2E8F0; padding: 48px 24px 40px; text-align: center; }
+  .header h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; margin-bottom: 8px; }
+  .header p { color: #64748B; font-size: 16px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+  .header .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 12px; border-radius: 9999px; background: #ECFDF3; color: #166534; margin-bottom: 16px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1000px; margin: 48px auto; padding: 0 24px; }
+
+  .card { background: #fff; border-radius: 16px; border: 1px solid #E2E8F0; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; display: block; }
+  .card:hover { box-shadow: 0 8px 24px rgba(15,23,42,0.08); border-color: #CBD5E1; transform: translateY(-2px); }
+
+  .card-visual { height: 160px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 24px; }
+
+  .card-body { padding: 24px; border-top: 1px solid #E2E8F0; }
+  .card-body h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .card-body p { font-size: 14px; color: #64748B; line-height: 1.6; margin-bottom: 12px; }
+  .card-body .topics { display: flex; flex-wrap: wrap; gap: 6px; }
+  .card-body .topic { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: #F1F5F9; color: #475569; }
+
+  /* Mini-previews in card visuals */
+  .mini-card { width: 80px; border-radius: 6px; border: 1px solid #E2E8F0; overflow: hidden; }
+  .mini-card .top-bar { height: 3px; }
+  .mini-card .body { padding: 6px; background: #fff; }
+  .mini-card .line { height: 3px; background: #E2E8F0; border-radius: 2px; margin-bottom: 3px; }
+  .mini-card .line.short { width: 60%; }
+  .mini-card .chip { display: inline-block; width: 28px; height: 8px; border-radius: 4px; margin-right: 3px; }
+
+  .mini-pipeline { display: flex; align-items: center; gap: 4px; }
+  .mini-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .mini-connector { width: 16px; height: 2px; border-radius: 1px; }
+
+  .mini-dropzone { width: 80px; height: 60px; border: 2px dashed #CBD5E1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #94A3B8; }
+
+  .mini-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 14px; }
+  .mini-field { width: 80px; }
+  .mini-field .fl { height: 3px; background: #CBD5E1; border-radius: 2px; margin-bottom: 3px; width: 40%; }
+  .mini-field .fv { height: 4px; background: #E2E8F0; border-radius: 2px; margin-bottom: 6px; }
+
+  .variation-labels { display: flex; gap: 6px; margin-top: 8px; justify-content: center; }
+  .variation-labels span { font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 3px; }
+
+  footer { text-align: center; padding: 32px 24px; color: #94A3B8; font-size: 13px; border-top: 1px solid #E2E8F0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">Health Hub Diagnostics</div>
+  <h1>Design Variations</h1>
+  <p>Three design directions compared across four key pages: Operational Clarity, Calm Clinical, and Tenadoc-Inspired. Click any card to view the full side-by-side comparison.</p>
+</div>
+
+<div class="cards">
+
+  <!-- Orders -->
+  <a class="card" href="orders.html">
+    <div class="card-visual" style="background:#FAFBFD">
+      <div class="mini-card">
+        <div class="top-bar" style="background:#F59E0B"></div>
+        <div class="body">
+          <div class="line"></div>
+          <div class="line short"></div>
+          <div style="margin-top:4px"><span class="chip" style="background:#F1F5F9"></span><span class="chip" style="background:#F1F5F9"></span></div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <div class="top-bar" style="background:#2ECC71"></div>
+        <div class="body">
+          <div class="line"></div>
+          <div class="line short"></div>
+          <div style="margin-top:4px"><span class="chip" style="background:#ECFDF3"></span><span class="chip" style="background:#ECFDF3"></span></div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <div class="top-bar" style="background:#1D4ED8"></div>
+        <div class="body">
+          <div class="line"></div>
+          <div class="line short"></div>
+          <div style="margin-top:4px"><span class="chip" style="background:#F4FBF6;border-radius:9999px"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h2>Orders</h2>
+      <p>Order list with status-coded cards, filter panels, test item chips, and progress bars across three visual treatments.</p>
+      <div class="topics">
+        <span class="topic">Status borders</span>
+        <span class="topic">Test capsules</span>
+        <span class="topic">Monospace IDs</span>
+        <span class="topic">Filter toolbar</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- Order Details -->
+  <a class="card" href="order-details.html">
+    <div class="card-visual" style="background:#F1F5F9">
+      <div class="mini-pipeline">
+        <div class="mini-dot" style="background:#166534"></div>
+        <div class="mini-connector" style="background:#166534"></div>
+        <div class="mini-dot" style="background:#3B82F6"></div>
+        <div class="mini-connector" style="background:#3B82F6"></div>
+        <div class="mini-dot" style="background:#8B5CF6"></div>
+        <div class="mini-connector" style="background:#E2E8F0"></div>
+        <div class="mini-dot" style="background:#E2E8F0"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h2>Order Details</h2>
+      <p>Status pipeline with step progression, patient cards, verification checklists, result range bars, and action buttons.</p>
+      <div class="topics">
+        <span class="topic">Pipeline steps</span>
+        <span class="topic">TAT counter</span>
+        <span class="topic">Range bars</span>
+        <span class="topic">Pulse animation</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- Result Upload -->
+  <a class="card" href="result-upload.html">
+    <div class="card-visual" style="background:#FAFBFD">
+      <div class="mini-dropzone">&#128206;</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="width:8px;height:8px;border-radius:2px;background:#DBEAFE"></div>
+          <div style="width:48px;height:3px;background:#E2E8F0;border-radius:2px"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="width:8px;height:8px;border-radius:2px;background:#FEF3C7"></div>
+          <div style="width:40px;height:3px;background:#E2E8F0;border-radius:2px"></div>
+        </div>
+        <div style="height:6px;background:#E2E8F0;border-radius:3px;width:56px;margin-top:4px;overflow:hidden"><div style="height:100%;width:67%;background:#2ECC71;border-radius:3px"></div></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h2>Result Upload</h2>
+      <p>File upload dropzone, type-coded file previews, verification checklists, progress bars, and submission workflow.</p>
+      <div class="topics">
+        <span class="topic">Dropzone</span>
+        <span class="topic">File type coding</span>
+        <span class="topic">Step indicator</span>
+        <span class="topic">Circular checks</span>
+      </div>
+    </div>
+  </a>
+
+  <!-- Profile -->
+  <a class="card" href="profile.html">
+    <div class="card-visual" style="background:#F1F5F9">
+      <div style="text-align:center">
+        <div class="mini-avatar" style="background:#2ECC71;margin:0 auto 8px">HD</div>
+        <div class="mini-field">
+          <div class="fl"></div>
+          <div class="fv"></div>
+          <div class="fl"></div>
+          <div class="fv"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-left:8px">
+        <div style="background:#2ECC71;color:#fff;font-size:8px;font-weight:700;padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:#fff;display:inline-block"></span>OPERATING</div>
+        <div style="background:#ECFDF3;color:#166534;font-size:8px;font-weight:600;padding:2px 6px;border-radius:9999px;font-family:monospace">REG-0847</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h2>Profile</h2>
+      <p>Facility identity card with avatar treatments, operational status banners, credential badges, and field card layouts.</p>
+      <div class="topics">
+        <span class="topic">Avatar ring</span>
+        <span class="topic">Op status banner</span>
+        <span class="topic">Credential badge</span>
+        <span class="topic">Divider rows</span>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<div style="max-width:1000px;margin:0 auto 48px;padding:0 24px">
+  <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:24px 32px">
+    <h3 style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:12px">Variation Summary</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#DCFCE7;border:1px solid #2ECC71"></span>
+          <span style="font-weight:700;font-size:14px">V1: Operational Clarity</span>
+        </div>
+        <p style="font-size:13px;color:#64748B;line-height:1.6">Sharper borders, bolder type weights, 3px emerald left-bar accents, pulsing active states, uppercase section titles. Lab dispatch board feel.</p>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#EFF6FF;border:1px solid #93C5FD"></span>
+          <span style="font-weight:700;font-size:14px">V2: Calm Clinical</span>
+        </div>
+        <p style="font-size:13px;color:#64748B;line-height:1.6">Softer fills (#34D399 greens, #93C5FD blues), medium weights, more whitespace, #EDF2F7 borders, paper-like surfaces. Quiet clinical document feel.</p>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#FEF3C7;border:1px solid #F59E0B"></span>
+          <span style="font-weight:700;font-size:14px">V3: Tenadoc-Inspired</span>
+        </div>
+        <p style="font-size:13px;color:#64748B;line-height:1.6">Monospace order IDs, 4-color pipelines, #F1F5F9 page bg, cards with shadow, credential badges, operational banners. LIS specimen dashboard feel.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Health Hub Design Experiments &middot; Diagnostics Module &middot; 4 pages &times; 3 variations</footer>
+
+</body>
+</html>

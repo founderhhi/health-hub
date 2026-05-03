@@ -1,6 +1,6 @@
 <section class="hhi-provider-page active-consultation">
   @if (loading) {
-    <div class="loading-state" style="display: flex; align-items: center; justify-content: center; min-height: 200px; color: #cbd5e1;">
+    <div class="loading-state">
       Loading consultation...
     </div>
   } @else {
@@ -58,6 +58,9 @@
           </div>
         </div>
 
+        <!-- Pre-Consultation Summary: patient symptoms, duration, severity, notes -->
+        <app-patient-summary-panel [zoomUrl]="roomUrl" [triageContext]="referral?.triage_context"></app-patient-summary-panel>
+
         @if (referral?.requested_info_note) {
           <div class="panel-card">
             <h3 class="card-title">
@@ -72,6 +75,9 @@
 
         <div class="panel-card">
           <button class="btn btn--secondary btn--sm" type="button" (click)="goBack()">Back to Referral</button>
+          @if (canOpenConsultationShell) {
+            <button class="btn btn--secondary btn--sm" type="button" (click)="onRefer()">Refer to Another Specialist</button>
+          }
         </div>
       </aside>
 
@@ -83,8 +89,9 @@
             [mode]="consultMode"
             role="specialist"
             [patientName]="patientName"
-            (requestLabs)="requestLabs()"
-            (prescribe)="prescribe()"
+            (requestLabs)="openLabModal()"
+            (prescribe)="openPrescriptionModal()"
+            (refer)="onRefer()"
             (endConsultation)="onEndConsultation($event)"
             (leave)="goBack()"
           ></app-consult-shell>
@@ -116,7 +123,212 @@
       </main>
     </div>
 
-    <p class="inline-notice" *ngIf="statusMessage">{{ statusMessage }}</p>
-    <p class="inline-notice inline-notice--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    @if (statusMessage) {
+      <p class="inline-notice">{{ statusMessage }}</p>
+    }
+    @if (errorMessage) {
+      <p class="inline-notice inline-notice--error">{{ errorMessage }}</p>
+    }
   }
 </section>
+
+<!-- Lab Order Modal -->
+@if (showLabModal) {
+<div class="modal-overlay" (click)="closeLabModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--stacked">
+      <div class="modal-header__copy">
+        <span class="modal-eyebrow">Diagnostics Plan</span>
+        <h2 class="modal-title">Order Lab Tests</h2>
+        <p class="modal-subtitle">Create a focused investigation plan for {{ patientName }} while the consultation stays active.</p>
+      </div>
+      <button class="modal-close" type="button" (click)="closeLabModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body modal-body--spacious">
+      <div class="modal-summary-card">
+        <div class="summary-chip-list">
+          <span class="summary-chip">Patient: {{ patientName }}</span>
+          <span class="summary-chip">Specialty: {{ referral?.specialty || 'General specialist review' }}</span>
+          <span class="summary-chip">Visit: {{ referral?.consultation_mode === 'offline' ? 'In-person' : 'Online' }}</span>
+        </div>
+      </div>
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Recommended tests</h3>
+          <p class="modal-section__subtitle">Choose one or more items to send in the order.</p>
+        </div>
+        <div class="test-chip-list">
+        @for (test of labTestOptions; track test) {
+          <label class="test-chip" [class.test-chip--selected]="isTestSelected(test)">
+            <input type="checkbox" [checked]="isTestSelected(test)" (change)="toggleTest(test)" class="test-chip__input" />
+            {{ test }}
+          </label>
+        }
+        </div>
+      </section>
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Additional request</h3>
+          <p class="modal-section__subtitle">Add a custom study if the workup needs something outside the standard list.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Custom test</label>
+          <input type="text" class="form-input" placeholder="e.g. Thyroid Panel" [(ngModel)]="customTest" />
+        </div>
+      </section>
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Select Diagnostic Centre</h3>
+          <p class="modal-section__subtitle">Choose a centre to route this order (optional).</p>
+        </div>
+        @if (loadingCentres) {
+          <p class="modal-section__subtitle">Loading centres...</p>
+        } @else if (diagnosticCentres.length === 0) {
+          <p class="modal-section__subtitle">No diagnostic centres available.</p>
+        } @else {
+          <div class="test-chip-list">
+            @for (centre of diagnosticCentres; track centre.id) {
+              <label class="test-chip" [class.test-chip--selected]="selectedCentre === centre.id">
+                <input type="radio" name="diagnosticCentre" [value]="centre.id" [checked]="selectedCentre === centre.id" (change)="selectedCentre = centre.id" class="test-chip__input" />
+                {{ centre.name }} <span class="centre-distance">{{ centre.display_distance }}</span>
+              </label>
+            }
+            <label class="test-chip" [class.test-chip--selected]="selectedCentre === ''">
+              <input type="radio" name="diagnosticCentre" value="" [checked]="selectedCentre === ''" (change)="selectedCentre = ''" class="test-chip__input" />
+              No preference
+            </label>
+          </div>
+        }
+      </section>
+      <section class="modal-section">
+        <div class="modal-section__header">
+          <h3 class="modal-section__title">Clinical reasoning <span class="required-star">*</span></h3>
+          <p class="modal-section__subtitle">Required — explain why these tests are clinically indicated.</p>
+        </div>
+        <div class="form-group">
+          <textarea class="form-input form-textarea" rows="3" placeholder="e.g. Patient presents with chest pain..." [(ngModel)]="labNote"></textarea>
+        </div>
+      </section>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" type="button" (click)="closeLabModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" (click)="submitLabOrder()"
+        [disabled]="submittingLabs || (selectedTests.length === 0 && !customTest.trim()) || !labNote.trim()">
+        {{ submittingLabs ? 'Submitting...' : 'Order Tests' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Prescription Modal -->
+@if (showPrescriptionModal) {
+<div class="modal-overlay" (click)="closePrescriptionModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--stacked">
+      <div class="modal-header__copy">
+        <span class="modal-eyebrow">Medication Plan</span>
+        <h2 class="modal-title">Prescribe Treatment</h2>
+        <p class="modal-subtitle">Capture a clean, patient-ready medication plan without breaking the consultation workflow.</p>
+      </div>
+      <button class="modal-close" type="button" (click)="closePrescriptionModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body modal-body--spacious">
+      @for (item of prescriptionItems; track $index; let i = $index) {
+        <div class="prescription-item-card">
+          <div class="prescription-item-header">
+            <span class="item-number">Medication #{{ i + 1 }}</span>
+            @if (prescriptionItems.length > 1) {
+              <button class="remove-item-btn" type="button" (click)="removePrescriptionItem(i)">Remove</button>
+            }
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Medication Name</label>
+              <input type="text" class="form-input" placeholder="e.g. Amoxicillin" [(ngModel)]="item.name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dosage</label>
+              <input type="text" class="form-input" placeholder="e.g. 500mg" [(ngModel)]="item.dosage" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Frequency</label>
+              <input type="text" class="form-input" placeholder="e.g. 2x/day" [(ngModel)]="item.frequency" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration</label>
+              <input type="text" class="form-input" placeholder="e.g. 7 days" [(ngModel)]="item.duration" />
+            </div>
+          </div>
+        </div>
+      }
+      <button class="add-item-btn add-item-btn--block" type="button" (click)="addPrescriptionItem()">+ Add Another Medication</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" type="button" (click)="closePrescriptionModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" (click)="submitPrescription()"
+        [disabled]="submittingPrescription || prescriptionItems[0]?.name?.trim() === ''">
+        {{ submittingPrescription ? 'Submitting...' : 'Submit Prescription' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Refer Another Specialist Modal -->
+@if (showReferralModal) {
+<div class="modal-overlay" (click)="closeReferralModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header--stacked">
+      <div class="modal-header__copy">
+        <span class="modal-eyebrow">Referral Routing</span>
+        <h2 class="modal-title">Refer to Another Specialist</h2>
+        <p class="modal-subtitle">Choose the specialist who should continue this case.</p>
+      </div>
+      <button class="modal-close" type="button" (click)="closeReferralModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body modal-body--spacious">
+      @if (loadingSpecialists) {
+        <div class="modal-empty-state"><h3>Loading specialists...</h3></div>
+      } @else if (availableSpecialists.length === 0) {
+        <div class="modal-empty-state"><h3>No specialists available</h3></div>
+      } @else {
+        <section class="modal-section">
+          <div class="form-group">
+            <label class="form-label" for="consultReassignSpecialistSelect">Available specialists</label>
+            <select id="consultReassignSpecialistSelect" class="form-input" [(ngModel)]="selectedSpecialistId">
+              @for (specialist of availableSpecialists; track specialist.id) {
+                <option [value]="specialist.id">
+                  {{ specialist.display_name }} - {{ specialist.specialty || 'General Specialist' }}
+                </option>
+              }
+            </select>
+          </div>
+        </section>
+      }
+    </div>
+    @if (referralSubmitError) {
+      <p class="referral-submit-error" role="alert">{{ referralSubmitError }}</p>
+    }
+    <div class="modal-footer">
+      <button class="btn btn-ghost" type="button" (click)="closeReferralModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" (click)="submitReferral()"
+        [disabled]="loadingSpecialists || !selectedSpecialistId || reassigningReferral">
+        {{ reassigningReferral ? 'Saving...' : 'Save Referral' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Users Management - Design Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0F1117;
+    color: #E2E8F0;
+    padding: 40px 24px;
+    line-height: 1.5;
+  }
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    font-size: 16px;
+    color: #94A3B8;
+  }
+  .variations-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .variation {
+    background: #1A1D27;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #2A2D3A;
+  }
+  .variation-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #2A2D3A;
+  }
+  .variation-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+  .variation-header .subtitle {
+    font-size: 13px;
+    color: #64748B;
+    font-style: italic;
+  }
+  .variation-body {
+    padding: 24px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 12px;
+    margin-top: 28px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #2A2D3A;
+  }
+  .section-label:first-child { margin-top: 0; }
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #12141C;
+    border-radius: 6px;
+    border: 1px solid #2A2D3A;
+  }
+  .swatch-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .swatch-label {
+    font-size: 11px;
+    color: #94A3B8;
+  }
+  .swatch-hex {
+    font-size: 10px;
+    color: #64748B;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .type-sample {
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    background: #12141C;
+    border-radius: 6px;
+    border: 1px solid #2A2D3A;
+  }
+  .type-meta {
+    font-size: 10px;
+    color: #64748B;
+    margin-bottom: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .mockup {
+    background: #FFFFFF;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .spacing-demo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .spacing-bar {
+    height: 8px;
+    background: #2ECC71;
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+  .spacing-label {
+    font-size: 11px;
+    color: #94A3B8;
+    white-space: nowrap;
+  }
+  .surface-demo {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .surface-card {
+    width: 100px;
+    height: 70px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 500;
+    color: #374151;
+    text-align: center;
+    padding: 8px;
+  }
+  .nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .nav-links a {
+    color: #2ECC71;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 16px;
+    border: 1px solid #2ECC71;
+    border-radius: 8px;
+    transition: all 150ms;
+  }
+  .nav-links a:hover {
+    background: #2ECC71;
+    color: #0B0F14;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Admin Users Management - Design Variations</h1>
+  <p>Side-by-side comparison of three design directions for the user management interface</p>
+</div>
+
+<nav class="nav-links">
+  <a href="index.html">Index</a>
+  <a href="dashboard.html">Dashboard Page</a>
+</nav>
+
+<div class="variations-grid">
+
+  <!-- ============ V1: Operational Clarity ============ -->
+  <div class="variation">
+    <div class="variation-header">
+      <h2>V1: Operational Clarity</h2>
+      <div class="subtitle">The user table is a work surface. Status unmistakable, actions immediate.</div>
+    </div>
+    <div class="variation-body">
+
+      <!-- COLORS -->
+      <div class="section-label">Color Palette</div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.3); border:2px solid #2ECC71;"></div>
+          <div><div class="swatch-label">Search Focus Ring</div><div class="swatch-hex">0 0 0 2px rgba(46,204,113,0.3)</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F8FAFC"></div>
+          <div><div class="swatch-label">Inline Select BG</div><div class="swatch-hex">#F8FAFC</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.22)"></div>
+          <div><div class="swatch-label">Active Badge (Bolder)</div><div class="swatch-hex">rgba(46,204,113,0.22)</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(239,68,68,0.22)"></div>
+          <div><div class="swatch-label">Disabled Badge (Bolder)</div><div class="swatch-hex">rgba(239,68,68,0.22)</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(239,68,68,0.08)"></div>
+          <div><div class="swatch-label">Disable Btn BG</div><div class="swatch-hex">rgba(239,68,68,0.08)</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.08)"></div>
+          <div><div class="swatch-label">Enable Btn BG</div><div class="swatch-hex">rgba(46,204,113,0.08)</div></div>
+        </div>
+      </div>
+
+      <!-- TYPOGRAPHY -->
+      <div class="section-label">Typography</div>
+      <div class="type-sample">
+        <div class="type-meta">User Count: Inter 14px / 600 weight</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:600; color:#E2E8F0;">47 users found</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Name Cell: Inter 14px / 500, primary color</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:500; color:#FFFFFF;">Dr. Sarah Chen</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Phone Cell: Inter 14px / 400, tabular-nums, 0.02em</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:400; color:#94A3B8; font-variant-numeric:tabular-nums; letter-spacing:0.02em;">+234 801 234 5678</div>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="section-label">Search Bar (280px min, Emerald Focus Ring)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:10px; align-items:center;">
+        <div style="flex:1; min-width:280px;">
+          <input type="text" placeholder="Search by name or phone..." style="font-family:Inter; font-size:14px; padding:10px 14px; border:2px solid #2ECC71; border-radius:8px; width:100%; outline:none; box-shadow:0 0 0 2px rgba(46,204,113,0.3); height:44px;">
+        </div>
+        <select style="font-family:Inter; font-size:14px; padding:10px 14px; border:2px solid #2ECC71; border-radius:8px; height:44px; color:#374151; background:#FFFFFF;">
+          <option>GP</option>
+        </select>
+        <button style="font-family:Inter; font-size:14px; font-weight:600; padding:8px 16px; background:#2ECC71; color:#0B0F14; border:none; border-radius:8px; height:44px; cursor:pointer;">+ Create User</button>
+      </div>
+
+      <!-- ROLE SELECT INLINE -->
+      <div class="section-label">Inline Role Select (Minimal Chrome)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:16px; align-items:center;">
+        <select style="font-family:Inter; font-size:12px; padding:4px 8px; border:1px solid #E2E8F0; border-radius:4px; background:#F8FAFC; color:#374151;">
+          <option>GP</option>
+          <option>Specialist</option>
+          <option>Pharmacist</option>
+        </select>
+        <span style="font-size:11px; color:#6B7280;">4px radius, 12px font, #F8FAFC bg</span>
+      </div>
+
+      <!-- DATA TABLE WITH DISABLED ROW -->
+      <div class="section-label">User Table (Disabled Rows at 0.7 Opacity)</div>
+      <div class="mockup" style="padding:0;">
+        <div style="padding:12px 16px; border-bottom:1px solid #E2E8F0;">
+          <span style="font-family:Inter; font-size:14px; font-weight:600; color:#111827;">47 users found</span>
+        </div>
+        <div style="border:1px solid #E2E8F0; border-radius:8px; overflow:hidden; margin:0 16px 16px;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#F1F5F9;">
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0;">Name</th>
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0;">Phone</th>
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0;">Role</th>
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0;">Status</th>
+                <th style="text-align:left; padding:10px 12px; font-size:12px; font-weight:600; text-transform:uppercase; color:#6B7280; border-bottom:2px solid #E2E8F0;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:10px 12px; color:#111827; font-weight:500;">Dr. Sarah Chen</td>
+                <td style="padding:10px 12px; color:#374151; font-variant-numeric:tabular-nums; letter-spacing:0.02em;">+234 801 2345</td>
+                <td style="padding:10px 12px;">
+                  <select style="font-size:12px; padding:4px 8px; border:1px solid #E2E8F0; border-radius:4px; background:#F8FAFC; color:#374151;">
+                    <option>Specialist</option>
+                  </select>
+                </td>
+                <td style="padding:10px 12px;">
+                  <span style="background:rgba(46,204,113,0.22); color:#15803D; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Active</span>
+                </td>
+                <td style="padding:10px 12px;">
+                  <button style="font-size:12px; padding:4px 12px; border-radius:4px; font-weight:500; background:rgba(239,68,68,0.08); color:#E74C3C; border:none; cursor:pointer;">Disable</button>
+                </td>
+              </tr>
+              <tr style="background:#FAFBFC;">
+                <td style="padding:10px 12px; color:#111827; font-weight:500;">James Okafor</td>
+                <td style="padding:10px 12px; color:#374151; font-variant-numeric:tabular-nums; letter-spacing:0.02em;">+234 802 3456</td>
+                <td style="padding:10px 12px;">
+                  <select style="font-size:12px; padding:4px 8px; border:1px solid #E2E8F0; border-radius:4px; background:#F8FAFC; color:#374151;">
+                    <option>Pharmacist</option>
+                  </select>
+                </td>
+                <td style="padding:10px 12px;">
+                  <span style="background:rgba(46,204,113,0.22); color:#15803D; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Active</span>
+                </td>
+                <td style="padding:10px 12px;">
+                  <button style="font-size:12px; padding:4px 12px; border-radius:4px; font-weight:500; background:rgba(239,68,68,0.08); color:#E74C3C; border:none; cursor:pointer;">Disable</button>
+                </td>
+              </tr>
+              <tr style="opacity:0.7;">
+                <td style="padding:10px 12px; color:#111827; font-weight:500;">Maria Gonzalez</td>
+                <td style="padding:10px 12px; color:#374151; font-variant-numeric:tabular-nums; letter-spacing:0.02em;">+1 555 789 0123</td>
+                <td style="padding:10px 12px;">
+                  <select style="font-size:12px; padding:4px 8px; border:1px solid #E2E8F0; border-radius:4px; background:#F8FAFC; color:#374151;">
+                    <option>Admin</option>
+                  </select>
+                </td>
+                <td style="padding:10px 12px;">
+                  <span style="background:rgba(239,68,68,0.22); color:#991B1B; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Disabled</span>
+                </td>
+                <td style="padding:10px 12px;">
+                  <button style="font-size:12px; padding:4px 12px; border-radius:4px; font-weight:500; background:rgba(46,204,113,0.08); color:#2ECC71; border:none; cursor:pointer;">Enable</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CREATE USER PANEL -->
+      <div class="section-label">Create User Panel (3px Top Accent)</div>
+      <div class="mockup" style="padding:16px;">
+        <div style="border:1px solid #E2E8F0; border-radius:10px; border-top:3px solid #2ECC71; padding:14px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+            <input placeholder="Username" style="font-family:Inter; font-size:14px; padding:10px 12px; border:1px solid #E2E8F0; border-radius:8px; outline:none;">
+            <input placeholder="Phone Number" style="font-family:Inter; font-size:14px; padding:10px 12px; border:1px solid #E2E8F0; border-radius:8px; outline:none;">
+            <input placeholder="Password" type="password" style="font-family:Inter; font-size:14px; padding:10px 12px; border:1px solid #E2E8F0; border-radius:8px; outline:none;">
+            <select style="font-family:Inter; font-size:14px; padding:10px 12px; border:1px solid #E2E8F0; border-radius:8px; color:#374151; background:#FFFFFF;">
+              <option>Select Role</option>
+            </select>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button style="font-family:Inter; font-size:14px; padding:8px 16px; background:transparent; border:1px solid #E74C3C; color:#E74C3C; border-radius:8px; cursor:pointer;">Cancel</button>
+            <button style="font-family:Inter; font-size:14px; font-weight:600; padding:8px 16px; background:#2ECC71; color:#0B0F14; border:none; border-radius:8px; cursor:pointer;">Create Account</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS BADGES -->
+      <div class="section-label">Status Badges (6px Radius, 600 Weight)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <span style="background:rgba(46,204,113,0.22); color:#15803D; padding:4px 12px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Active</span>
+        <span style="background:rgba(239,68,68,0.22); color:#991B1B; padding:4px 12px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.02em;">Disabled</span>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="section-label">Action Buttons (Color-Coded)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:12px; align-items:center;">
+        <button style="font-family:Inter; font-size:12px; padding:4px 12px; border-radius:4px; font-weight:500; background:rgba(239,68,68,0.08); color:#E74C3C; border:none; cursor:pointer;">Disable</button>
+        <button style="font-family:Inter; font-size:12px; padding:4px 12px; border-radius:4px; font-weight:500; background:rgba(46,204,113,0.08); color:#2ECC71; border:none; cursor:pointer;">Enable</button>
+        <span style="font-size:11px; color:#6B7280;">Color-coded by action type</span>
+      </div>
+
+      <!-- SPACING -->
+      <div class="section-label">Spacing</div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:112px;"></div><div class="spacing-label">Search min-width: 280px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Create grid gap: 12px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:64px;"></div><div class="spacing-label">Create actions margin-top: 16px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Controls border-bottom + pb: 12px</div></div>
+
+      <!-- SURFACES -->
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; border-top:3px solid #2ECC71;">Create Panel<br>10px radius<br>Top accent</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px;">Table Wrap<br>8px radius<br>1px framed</div>
+        <div class="surface-card" style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:4px; font-size:9px;">Inline Select<br>4px radius<br>#F8FAFC bg</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ V2: Premium Guided ============ -->
+  <div class="variation">
+    <div class="variation-header">
+      <h2>V2: Premium Guided</h2>
+      <div class="subtitle">User management as a trust-critical, premium SaaS experience.</div>
+    </div>
+    <div class="variation-body">
+
+      <!-- COLORS -->
+      <div class="section-label">Color Palette</div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:linear-gradient(135deg,#2ECC71,#27AE60)"></div>
+          <div><div class="swatch-label">Create Btn Gradient</div><div class="swatch-hex">#2ECC71 -> #27AE60</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.15); border:2px solid #2ECC71;"></div>
+          <div><div class="swatch-label">Search Focus Glow</div><div class="swatch-hex">0 0 0 3px rgba(46,204,113,0.15)</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.03)"></div>
+          <div><div class="swatch-label">Row Hover Wash</div><div class="swatch-hex">rgba(46,204,113,0.03)</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#111827"></div>
+          <div><div class="swatch-label">Name Cell Color</div><div class="swatch-hex">#111827</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:rgba(46,204,113,0.15); box-shadow:inset 0 0 0 2px rgba(46,204,113,0.3);"></div>
+          <div><div class="swatch-label">Active Badge + Inner Glow</div><div class="swatch-hex">inset ring rgba(46,204,113,0.2)</div></div>
+        </div>
+      </div>
+
+      <!-- TYPOGRAPHY -->
+      <div class="section-label">Typography</div>
+      <div class="type-sample">
+        <div class="type-meta">User Count: Inter 14px / 500, tabular-nums</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:500; color:#E2E8F0; font-variant-numeric:tabular-nums;">47 users found</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Name Cell: Inter 14px / 500, #111827</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:500; color:#111827; background:#F8FAFC; display:inline-block; padding:2px 8px; border-radius:4px;">Dr. Sarah Chen</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Pagination: Inter 14px / 500</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:500; color:#94A3B8;">Page 1 of 3</div>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="section-label">Search Bar (10px Radius, Emerald Glow on Focus)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:14px; align-items:center;">
+        <input type="text" placeholder="Search by name or phone..." style="font-family:Inter; font-size:14px; padding:10px 14px; border:1px solid #2ECC71; border-radius:10px; flex:1; outline:none; box-shadow:0 0 0 3px rgba(46,204,113,0.15); height:44px; transition:all 200ms;">
+        <select style="font-family:Inter; font-size:14px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; height:44px; color:#374151; background:#FFFFFF;">
+          <option>All Roles</option>
+        </select>
+        <button style="font-family:Inter; font-size:14px; font-weight:600; padding:8px 20px; background:linear-gradient(135deg,#2ECC71,#27AE60); color:#FFFFFF; border:none; border-radius:10px; height:44px; cursor:pointer;">+ Create User</button>
+      </div>
+
+      <!-- DATA TABLE -->
+      <div class="section-label">User Table (12px Radius Wrap, Shadow, Emerald Hover)</div>
+      <div class="mockup" style="padding:0; background:#FAFAF9;">
+        <div style="border:1px solid #E2E8F0; border-radius:12px; overflow:hidden; margin:16px; box-shadow:0 1px 3px rgba(15,23,42,0.04); background:#FFFFFF;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#F8FAF9;">
+                <th style="text-align:left; padding:14px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Name</th>
+                <th style="text-align:left; padding:14px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Phone</th>
+                <th style="text-align:left; padding:14px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Role</th>
+                <th style="text-align:left; padding:14px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Status</th>
+                <th style="text-align:left; padding:14px; font-size:11px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E2E8F0; letter-spacing:0.08em;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:14px; color:#111827; font-weight:500;">Dr. Sarah Chen</td>
+                <td style="padding:14px; color:#374151;">+234 801 2345</td>
+                <td style="padding:14px;">
+                  <select style="font-size:13px; padding:4px 8px; border:1px solid #E2E8F0; border-radius:6px; color:#374151; background:#FFFFFF; transition:border-color 200ms;">
+                    <option>Specialist</option>
+                  </select>
+                </td>
+                <td style="padding:14px;">
+                  <span style="background:rgba(46,204,113,0.15); color:#15803D; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:inset 0 0 0 1px rgba(46,204,113,0.2), 0 1px 2px rgba(0,0,0,0.04);">Active</span>
+                </td>
+                <td style="padding:14px;">
+                  <button style="font-size:12px; padding:6px 14px; border-radius:6px; font-weight:500; background:rgba(239,68,68,0.08); color:#E74C3C; border:none; cursor:pointer; transition:all 150ms;">Disable</button>
+                </td>
+              </tr>
+              <tr style="background:rgba(46,204,113,0.03);">
+                <td style="padding:14px; color:#111827; font-weight:500;">James Okafor</td>
+                <td style="padding:14px; color:#374151;">+234 802 3456</td>
+                <td style="padding:14px;">
+                  <select style="font-size:13px; padding:4px 8px; border:1px solid #E2E8F0; border-radius:6px; color:#374151; background:#FFFFFF;">
+                    <option>Pharmacist</option>
+                  </select>
+                </td>
+                <td style="padding:14px;">
+                  <span style="background:rgba(46,204,113,0.15); color:#15803D; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:inset 0 0 0 1px rgba(46,204,113,0.2), 0 1px 2px rgba(0,0,0,0.04);">Active</span>
+                </td>
+                <td style="padding:14px;">
+                  <button style="font-size:12px; padding:6px 14px; border-radius:6px; font-weight:500; background:rgba(239,68,68,0.08); color:#E74C3C; border:none; cursor:pointer;">Disable</button>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px; color:#111827; font-weight:500;">Maria Gonzalez</td>
+                <td style="padding:14px; color:#374151;">+1 555 789 0123</td>
+                <td style="padding:14px;">
+                  <select style="font-size:13px; padding:4px 8px; border:1px solid #E2E8F0; border-radius:6px; color:#374151; background:#FFFFFF;">
+                    <option>Admin</option>
+                  </select>
+                </td>
+                <td style="padding:14px;">
+                  <span style="background:rgba(239,68,68,0.15); color:#991B1B; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.04);">Disabled</span>
+                </td>
+                <td style="padding:14px;">
+                  <button style="font-size:12px; padding:6px 14px; border-radius:6px; font-weight:500; background:rgba(46,204,113,0.08); color:#2ECC71; border:none; cursor:pointer;">Enable</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CREATE USER PANEL -->
+      <div class="section-label">Create User Panel (16px Radius, Shadow-md, 24px Padding)</div>
+      <div class="mockup" style="padding:16px; background:#FAFAF9;">
+        <div style="border:1px solid #E2E8F0; border-radius:16px; border-top:3px solid #2ECC71; padding:24px; box-shadow:0 4px 12px rgba(15,23,42,0.08); background:#FFFFFF;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">
+            <input placeholder="Username" style="font-family:Inter; font-size:14px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; outline:none; opacity:1;">
+            <input placeholder="Phone Number" style="font-family:Inter; font-size:14px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; outline:none;">
+            <input placeholder="Password" type="password" style="font-family:Inter; font-size:14px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; outline:none;">
+            <select style="font-family:Inter; font-size:14px; padding:10px 14px; border:1px solid #E2E8F0; border-radius:10px; color:#374151; background:#FFFFFF;">
+              <option>Select Role</option>
+            </select>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:12px;">
+            <button style="font-family:Inter; font-size:14px; padding:10px 20px; background:#F3F4F6; color:#374151; border:none; border-radius:10px; cursor:pointer;">Cancel</button>
+            <button style="font-family:Inter; font-size:14px; font-weight:600; padding:10px 20px; background:linear-gradient(135deg,#2ECC71,#27AE60); color:#FFFFFF; border:none; border-radius:10px; cursor:pointer; box-shadow:0 2px 8px rgba(46,204,113,0.25);">Create Account</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS BADGES -->
+      <div class="section-label">Status Badges (12px Pill + Shadow + Inner Glow)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <span style="background:rgba(46,204,113,0.15); color:#15803D; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:inset 0 0 0 1px rgba(46,204,113,0.2), 0 1px 2px rgba(0,0,0,0.04);">Active</span>
+        <span style="background:rgba(239,68,68,0.15); color:#991B1B; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,0.04);">Disabled</span>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="section-label">Pagination (10px Radius, 14px/500 Info)</div>
+      <div class="mockup" style="padding:16px; display:flex; align-items:center; justify-content:center; gap:12px;">
+        <button style="font-family:Inter; font-size:13px; padding:8px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#FFFFFF; color:#374151; cursor:pointer; transition:all 200ms;">Prev</button>
+        <span style="font-family:Inter; font-size:14px; font-weight:500; color:#374151;">Page 1 of 3</span>
+        <button style="font-family:Inter; font-size:13px; padding:8px 14px; border:1px solid #E2E8F0; border-radius:10px; background:#FFFFFF; color:#374151; cursor:pointer;">Next</button>
+      </div>
+
+      <!-- SPACING -->
+      <div class="section-label">Spacing</div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:96px;"></div><div class="spacing-label">Create panel padding: 24px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:56px;"></div><div class="spacing-label">Create grid gap: 14px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:80px;"></div><div class="spacing-label">Create actions margin-top: 20px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:56px;"></div><div class="spacing-label">Controls gap: 14px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:56px;"></div><div class="spacing-label">Table cell: 14px all sides</div></div>
+
+      <!-- SURFACES -->
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px; border-top:3px solid #2ECC71; box-shadow:0 4px 12px rgba(15,23,42,0.08);">Create Panel<br>16px radius<br>Shadow-md</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; box-shadow:0 1px 3px rgba(15,23,42,0.04);">Table Wrap<br>12px radius<br>Light shadow</div>
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:6px;">Inline Select<br>6px radius<br>Focus glow</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ V3: Helium Health ============ -->
+  <div class="variation">
+    <div class="variation-header">
+      <h2>V3: Helium Health-Inspired</h2>
+      <div class="subtitle">Maximum data, minimum decoration. Fast to scan, fast to act.</div>
+    </div>
+    <div class="variation-body">
+
+      <!-- COLORS -->
+      <div class="section-label">Color Palette</div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#D1D5DB"></div>
+          <div><div class="swatch-label">Input Border</div><div class="swatch-hex">#D1D5DB</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#E5E7EB"></div>
+          <div><div class="swatch-label">Panel Border</div><div class="swatch-hex">#E5E7EB</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#DC2626"></div>
+          <div><div class="swatch-label">Disable Text Link</div><div class="swatch-hex">#DC2626</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#16A34A"></div>
+          <div><div class="swatch-label">Enable Text Link</div><div class="swatch-hex">#16A34A</div></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#22C55E"></div>
+          <div><div class="swatch-label">Active Dot</div><div class="swatch-hex">#22C55E</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#EF4444"></div>
+          <div><div class="swatch-label">Disabled Dot</div><div class="swatch-hex">#EF4444</div></div>
+        </div>
+      </div>
+
+      <!-- TYPOGRAPHY -->
+      <div class="section-label">Typography</div>
+      <div class="type-sample">
+        <div class="type-meta">User Count: Inter 13px / 400, #6B7280 (understated)</div>
+        <div style="font-family:Inter; font-size:13px; font-weight:400; color:#6B7280;">Showing 1-25 of 47 users</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Name Cell: Inter 14px / 500, #111827</div>
+        <div style="font-family:Inter; font-size:14px; font-weight:500; color:#111827; background:#F8FAFC; display:inline-block; padding:2px 8px; border-radius:4px;">Dr. Sarah Chen</div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Action Links: Inter 13px / 500 (text-link style)</div>
+        <div style="display:flex; gap:16px;">
+          <span style="font-family:Inter; font-size:13px; font-weight:500; color:#DC2626; cursor:pointer;">Disable</span>
+          <span style="font-family:Inter; font-size:13px; font-weight:500; color:#16A34A; cursor:pointer;">Enable</span>
+        </div>
+      </div>
+      <div class="type-sample">
+        <div class="type-meta">Role Display: Inter 13px / 400, #6B7280</div>
+        <div style="font-family:Inter; font-size:13px; font-weight:400; color:#6B7280;">Specialist</div>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="section-label">Search Bar (40px Height, 6px Radius, Lean)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:10px; align-items:center;">
+        <input type="text" placeholder="Search users..." style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; flex:1; outline:none; height:40px;">
+        <select style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; height:40px; color:#374151; background:#FFFFFF;">
+          <option>All Roles</option>
+        </select>
+        <button style="font-family:Inter; font-size:13px; padding:0 16px; height:40px; background:#2ECC71; color:#FFFFFF; border:none; border-radius:6px; font-weight:500; cursor:pointer;">+ Create User</button>
+      </div>
+
+      <!-- DATA TABLE -->
+      <div class="section-label">User Table (No Borders, Text-Link Actions, Dot Status)</div>
+      <div class="mockup" style="padding:0 16px 16px;">
+        <div style="padding:8px 0; margin-bottom:8px;">
+          <span style="font-family:Inter; font-size:13px; font-weight:400; color:#6B7280;">Showing 1-25 of 47 users</span>
+        </div>
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:10px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em; background:transparent;">Name</th>
+              <th style="text-align:left; padding:10px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em;">Phone</th>
+              <th style="text-align:left; padding:10px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em;">Role</th>
+              <th style="text-align:left; padding:10px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em;">Status</th>
+              <th style="text-align:left; padding:10px 16px; font-size:12px; font-weight:500; text-transform:uppercase; color:#6B7280; border-bottom:1px solid #E5E7EB; letter-spacing:0.06em;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:10px 16px; color:#111827; font-weight:500; border-bottom:1px solid #F3F4F6;">Dr. Sarah Chen</td>
+              <td style="padding:10px 16px; color:#374151; font-weight:400; font-variant-numeric:tabular-nums; border-bottom:1px solid #F3F4F6;">+234 801 2345</td>
+              <td style="padding:10px 16px; font-size:13px; font-weight:400; color:#6B7280; border-bottom:1px solid #F3F4F6;">Specialist</td>
+              <td style="padding:10px 16px; border-bottom:1px solid #F3F4F6;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#15803D;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Active
+                </span>
+              </td>
+              <td style="padding:10px 16px; border-bottom:1px solid #F3F4F6;">
+                <span style="font-size:13px; font-weight:500; color:#DC2626; cursor:pointer;">Disable</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px; color:#111827; font-weight:500; border-bottom:1px solid #F3F4F6;">James Okafor</td>
+              <td style="padding:10px 16px; color:#374151; font-weight:400; font-variant-numeric:tabular-nums; border-bottom:1px solid #F3F4F6;">+234 802 3456</td>
+              <td style="padding:10px 16px; font-size:13px; font-weight:400; color:#6B7280; border-bottom:1px solid #F3F4F6;">Pharmacist</td>
+              <td style="padding:10px 16px; border-bottom:1px solid #F3F4F6;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#15803D;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Active
+                </span>
+              </td>
+              <td style="padding:10px 16px; border-bottom:1px solid #F3F4F6;">
+                <span style="font-size:13px; font-weight:500; color:#DC2626; cursor:pointer;">Disable</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px; color:#111827; font-weight:500;">Maria Gonzalez</td>
+              <td style="padding:10px 16px; color:#374151; font-weight:400; font-variant-numeric:tabular-nums;">+1 555 789 0123</td>
+              <td style="padding:10px 16px; font-size:13px; font-weight:400; color:#6B7280;">Admin</td>
+              <td style="padding:10px 16px;">
+                <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#991B1B;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#EF4444; display:inline-block;"></span>Disabled
+                </span>
+              </td>
+              <td style="padding:10px 16px;">
+                <span style="font-size:13px; font-weight:500; color:#16A34A; cursor:pointer;">Enable</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- INLINE SELECT -->
+      <div class="section-label">Inline Role Select (Nearly Invisible)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:16px; align-items:center;">
+        <span style="font-size:13px; color:#6B7280; font-weight:400; padding:2px 6px; border:1px solid transparent; border-radius:4px;">Specialist</span>
+        <span style="font-size:11px; color:#999;">Default (transparent border)</span>
+      </div>
+      <div class="mockup" style="padding:16px; display:flex; gap:16px; align-items:center;">
+        <select style="font-size:13px; color:#6B7280; padding:2px 6px; border:1px solid #D1D5DB; border-radius:4px; background:#FFFFFF;">
+          <option>Specialist</option>
+        </select>
+        <span style="font-size:11px; color:#999;">On hover (shows border)</span>
+      </div>
+
+      <!-- CREATE USER PANEL -->
+      <div class="section-label">Create User Panel (Lean, No Shadow, No Accent)</div>
+      <div class="mockup" style="padding:16px;">
+        <div style="border:1px solid #E5E7EB; border-radius:6px; padding:16px; background:#FFFFFF;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+            <input placeholder="Username" style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; outline:none; height:40px;">
+            <input placeholder="Phone Number" style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; outline:none; height:40px;">
+            <input placeholder="Password" type="password" style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; outline:none; height:40px;">
+            <select style="font-family:Inter; font-size:14px; padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px; color:#374151; background:#FFFFFF; height:40px;">
+              <option>Select Role</option>
+            </select>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button style="font-family:Inter; font-size:13px; padding:0 16px; height:36px; background:#F3F4F6; color:#374151; border:none; border-radius:6px; cursor:pointer;">Cancel</button>
+            <button style="font-family:Inter; font-size:13px; font-weight:500; padding:0 16px; height:36px; background:#2ECC71; color:#FFFFFF; border:none; border-radius:6px; cursor:pointer;">Create Account</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS INDICATORS -->
+      <div class="section-label">Status Indicators (Dot + Text, No Background)</div>
+      <div class="mockup" style="padding:16px; display:flex; gap:20px; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#15803D;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Active
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#991B1B;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#EF4444; display:inline-block;"></span>Disabled
+        </span>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="section-label">Pagination (Showing X-Y of Z, 6px Radius Arrows)</div>
+      <div class="mockup" style="padding:16px; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-family:Inter; font-size:13px; font-weight:400; color:#6B7280;">Showing 1-25 of 47</span>
+        <div style="display:flex; gap:8px;">
+          <button style="width:32px; height:32px; border:1px solid #D1D5DB; border-radius:6px; background:#FFFFFF; color:#374151; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px;">&lt;</button>
+          <button style="width:32px; height:32px; border:1px solid #D1D5DB; border-radius:6px; background:#FFFFFF; color:#374151; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px;">&gt;</button>
+        </div>
+      </div>
+
+      <!-- SPACING -->
+      <div class="section-label">Spacing</div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:64px;"></div><div class="spacing-label">Search height: 40px (lean)</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:80px;"></div><div class="spacing-label">Table cell: 10px vert / 16px horiz</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Create panel padding: 16px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:32px;"></div><div class="spacing-label">Controls margin-bottom: 8px</div></div>
+      <div class="spacing-demo"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Create grid gap: 12px</div></div>
+
+      <!-- SURFACES -->
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:6px; box-shadow:none;">Create Panel<br>6px radius<br>No shadow</div>
+        <div class="surface-card" style="background:#FFFFFF; border:none; border-radius:0;">Table Wrap<br>No border<br>No radius</div>
+        <div class="surface-card" style="background:transparent; border:1px solid transparent; border-radius:4px; color:#6B7280; font-size:9px;">Inline Select<br>Transparent<br>Show on hover</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

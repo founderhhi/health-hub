@@ -49,7 +49,7 @@
 
 .video-room__stage {
   border: 1px solid #d0d7de;
-  border-radius: 0.75rem;
+  border-radius: 0.9rem;
   overflow: hidden;
   background: #000;
 }
@@ -63,10 +63,24 @@
 
 .video-room__empty {
   border: 1px dashed #d0d7de;
-  border-radius: 0.75rem;
-  padding: 2rem 1rem;
+  border-radius: 0.9rem;
+  padding: 1.5rem 1rem;
   text-align: center;
   color: #6b7280;
+  background: #f8fafc;
+}
+
+.video-room__empty-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.video-room__empty-copy {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
 }
 
 @media (max-width: 640px) {

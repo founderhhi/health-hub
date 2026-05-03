@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prescription Details -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F1F5F9; color: #1E293B; padding: 40px 24px; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; color: #0F172A; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; max-width: 680px; margin: 0 auto; line-height: 1.6; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+  .col-header { padding: 24px 28px; border-bottom: 1px solid #E2E8F0; }
+  .col-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .col-header .tag { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 4px; margin-bottom: 8px; }
+  .col-header p { font-size: 13px; color: #64748B; line-height: 1.5; }
+  .col-body { padding: 28px; }
+  .section { margin-bottom: 32px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #F1F5F9; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .swatch-color { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .swatch-label { font-size: 11px; color: #475569; line-height: 1.3; }
+  .swatch-label code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px; color: #64748B; display: block; }
+  .type-demo { margin-bottom: 14px; padding: 12px 16px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .type-demo .label { font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .type-demo .spec { font-size: 10px; color: #94A3B8; margin-top: 4px; font-family: 'SF Mono', monospace; }
+  .mockup { border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; }
+  .mockup-inner { padding: 20px; }
+  /* Progress bar */
+  .progress-wrap { margin-bottom: 8px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-bottom: 6px; }
+  .progress-track { height: 8px; border-radius: 99px; background: #E2E8F0; overflow: hidden; position: relative; }
+  .progress-fill { height: 100%; border-radius: 99px; width: 66%; position: relative; overflow: hidden; }
+  /* Medication card */
+  .med-card { padding: 16px; border: 1px solid #E2E8F0; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; }
+  .med-card:last-child { margin-bottom: 0; }
+  .med-checkbox { width: 22px; height: 22px; border: 2px solid #D1D5DB; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .med-checkbox.checked { background: #2ECC71; border-color: #2ECC71; color: #FFF; font-size: 12px; }
+  .med-info { flex: 1; }
+  .med-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .med-detail { font-size: 12px; color: #64748B; }
+  .med-qty { font-size: 11px; color: #94A3B8; background: #F1F5F9; padding: 2px 8px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+  /* Prescriber card */
+  .prescriber { display: flex; gap: 14px; align-items: center; padding: 16px; border: 1px solid #E2E8F0; border-radius: 8px; }
+  .prescriber-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .prescriber-info { flex: 1; }
+  .prescriber-name { font-weight: 600; font-size: 14px; }
+  .prescriber-role { font-size: 12px; color: #64748B; }
+  /* Sticky footer mock */
+  .footer-mock { display: flex; gap: 12px; align-items: center; padding: 16px; border-top: 1px solid #E2E8F0; background: #FFF; border-radius: 0 0 12px 12px; }
+  .footer-mock .btn-primary { flex: 1; padding: 12px; border: none; color: #FFF; font-family: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; text-align: center; cursor: pointer; }
+  .footer-mock .btn-secondary { flex: 0 0 auto; padding: 12px 18px; border: 1px solid #E2E8F0; background: #FFF; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 8px; color: #475569; cursor: pointer; }
+  /* Privacy badges */
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .badge-item { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 99px; }
+  /* Shadow demos */
+  .shadow-demo { display: flex; flex-wrap: wrap; gap: 16px; }
+  .shadow-card { width: 80px; height: 56px; border-radius: 10px; background: #FFF; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94A3B8; }
+  /* Shimmer animation */
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  .shimmer-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.3) 50%, transparent 75%); background-size: 200% 100%; animation: shimmer 2s ease-in-out infinite; }
+  /* Column themes */
+  .v1 .col-header { background: linear-gradient(180deg, #ECFDF3 0%, #FFF 100%); }
+  .v1 .tag { background: #F0FDF4; color: #166534; }
+  .v2 .col-header { background: #FAFBFC; }
+  .v2 .tag { background: #F1F5F9; color: #475569; }
+  .v3 .col-header { background: #FFF; border-top: 4px solid #2ECC71; }
+  .v3 .tag { background: #ECFDF3; color: #166534; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; max-width: 560px; } }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>Prescription Details</h1>
+  <p>Three design variations for the pharmacist's prescription verification and dispensing view. Progress bars, medication cards, prescriber credentials, and sticky footer CTAs.</p>
+</div>
+<div class="grid">
+
+<!-- V1: Premium Guided -->
+<div class="column v1">
+  <div class="col-header">
+    <span class="tag">V1</span>
+    <h2>Premium Guided</h2>
+    <p>Gradient progress bar with shimmer, Fraunces headings, deeper shadows, micro-lift hovers, and gradient CTA buttons.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(180deg,#ECFDF3,#F8FAFC)"></div><div class="swatch-label">Page gradient<code>#ECFDF3 &rarr; #F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(90deg,#2ECC71,#AEEA00)"></div><div class="swatch-label">Progress fill<code>#2ECC71 &rarr; #AEEA00</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(135deg,#2ECC71,#27AE60)"></div><div class="swatch-label">Avatar gradient<code>#2ECC71 &rarr; #27AE60</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#DCFCE7"></div><div class="swatch-label">Privacy badge<code>#DCFCE7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#27AE60"></div><div class="swatch-label">Hover border<code>#27AE60</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Prescription ID</div>
+        <div style="font-family:'Fraunces',serif; font-size:28px; font-weight:600;">RX-2024-001234</div>
+        <div class="spec">Fraunces 28px / 600</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Section Title</div>
+        <div style="font-family:'Fraunces',serif; font-size:17px; font-weight:500;">Medications</div>
+        <div class="spec">Fraunces 17px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Prescriber Name</div>
+        <div style="font-size:14px; font-weight:700;">Dr. Sarah Kimani</div>
+        <div class="spec">Inter 14px / 700 (authoritative)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Progress Bar (Shimmer)</div>
+      <div class="mockup" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08);">
+        <div class="mockup-inner" style="padding:20px;">
+          <div class="progress-label"><span>Dispensing Progress</span><span style="font-weight:600;">2 of 3</span></div>
+          <div class="progress-track">
+            <div class="progress-fill" style="background:linear-gradient(90deg,#2ECC71,#AEEA00); position:relative;">
+              <div class="shimmer-overlay"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">radius: 12px &middot; shadow-md &middot; gradient fill with moving shimmer highlight</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Medication Cards</div>
+      <div class="med-card" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); transition: all 0.15s;">
+        <div class="med-checkbox checked">&#10003;</div>
+        <div class="med-info">
+          <div class="med-name">Amoxicillin 500mg</div>
+          <div class="med-detail">3x daily for 7 days</div>
+          <div class="med-qty">Qty: 21 capsules</div>
+        </div>
+      </div>
+      <div class="med-card" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08);">
+        <div class="med-checkbox"></div>
+        <div class="med-info">
+          <div class="med-name">Ibuprofen 400mg</div>
+          <div class="med-detail">As needed, max 3x daily</div>
+          <div class="med-qty">Qty: 30 tablets</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">radius: 12px &middot; shadow-md &middot; hover: translateY(-1px) + shadow-lg &middot; checked: inner glow</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Prescriber Card</div>
+      <div class="prescriber" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); padding:20px;">
+        <div class="prescriber-avatar" style="background:linear-gradient(135deg,#2ECC71,#27AE60);">SK</div>
+        <div class="prescriber-info">
+          <div class="prescriber-name" style="font-weight:700;">Dr. Sarah Kimani</div>
+          <div class="prescriber-role">General Practitioner</div>
+        </div>
+      </div>
+      <div class="badges">
+        <div class="badge-item" style="background:#DCFCE7; color:#15803D;">Verified Prescriber</div>
+        <div class="badge-item" style="background:#F0F4F8; color:#475569;">Encrypted</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sticky Footer</div>
+      <div class="mockup" style="border-radius:12px; box-shadow: 0 -8px 24px rgba(15,23,42,0.10);">
+        <div class="footer-mock" style="padding:20px 32px;">
+          <div class="btn-secondary" style="border-color:#E2E8F0;">Mark All</div>
+          <div class="btn-primary" style="background:linear-gradient(135deg,#2ECC71,#27AE60);">Complete Dispensing</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">shadow: 0 -8px 24px rgba(15,23,42,0.10) &middot; gradient CTA &middot; scale(1.01) hover</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:0 4px 6px -1px rgba(15,23,42,0.08);">Med card</div>
+        <div class="shadow-card" style="box-shadow:0 10px 15px -3px rgba(15,23,42,0.08);">Hover</div>
+        <div class="shadow-card" style="box-shadow:0 -8px 24px rgba(15,23,42,0.10);">Footer</div>
+        <div class="shadow-card" style="box-shadow:0 4px 6px -1px rgba(15,23,42,0.08), inset 0 0 0 1px rgba(46,204,113,0.2);">Checked</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V2: Calm Clinical -->
+<div class="column v2">
+  <div class="col-header">
+    <span class="tag">V2</span>
+    <h2>Calm Clinical</h2>
+    <p>Flat surfaces, single-color progress bar, no transforms, softened borders throughout. Optimized for focused dispensing.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#F8FAFC"></div><div class="swatch-label">Page BG (flat)<code>#F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2ECC71"></div><div class="swatch-label">Progress fill<code>$color-emerald (flat)</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F1F5F9"></div><div class="swatch-label">Progress track<code>#F1F5F9</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EDF2F7"></div><div class="swatch-label">Calm border<code>#EDF2F7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F7F9FB"></div><div class="swatch-label">Prescriber BG<code>#F7F9FB</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#BBF7D0"></div><div class="swatch-label">Hover border<code>#BBF7D0</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Prescription ID</div>
+        <div style="font-size:24px; font-weight:600;">RX-2024-001234</div>
+        <div class="spec">Inter 24px / 600 (no serif)</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Section Title</div>
+        <div style="font-size:16px; font-weight:500;">Medications</div>
+        <div class="spec">Inter 16px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Patient ID</div>
+        <div style="font-size:14px; color:#94A3B8; line-height:1.6;">Patient: John Doe &middot; ID-0042</div>
+        <div class="spec">Inter 14px / text-muted / line-height 1.6</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Progress Bar (Flat)</div>
+      <div class="mockup" style="border-color:#EDF2F7;">
+        <div class="mockup-inner">
+          <div class="progress-label"><span>Dispensing Progress</span><span style="font-weight:500;">2 of 3</span></div>
+          <div class="progress-track" style="background:#F1F5F9;">
+            <div class="progress-fill" style="background:#2ECC71;"></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">track: #F1F5F9 &middot; single-color emerald fill &middot; no shimmer &middot; shadow-sm</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Medication Cards</div>
+      <div class="med-card" style="border-color:#EDF2F7; box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+        <div class="med-checkbox checked">&#10003;</div>
+        <div class="med-info">
+          <div class="med-name" style="font-weight:500;">Amoxicillin 500mg</div>
+          <div class="med-detail">3x daily for 7 days</div>
+          <div class="med-qty">Qty: 21 capsules</div>
+        </div>
+      </div>
+      <div class="med-card" style="border-color:#EDF2F7; box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+        <div class="med-checkbox" style="border-color:#D1D5DB;"></div>
+        <div class="med-info">
+          <div class="med-name" style="font-weight:500;">Ibuprofen 400mg</div>
+          <div class="med-detail">As needed, max 3x daily</div>
+          <div class="med-qty">Qty: 30 tablets</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">border: #EDF2F7 &middot; shadow-sm always &middot; hover: #FAFBFC BG only &middot; checkbox: #D1D5DB</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Prescriber Card</div>
+      <div class="prescriber" style="background:#F7F9FB; border-color:#EDF2F7; box-shadow:none;">
+        <div class="prescriber-avatar" style="background:#2ECC71;">SK</div>
+        <div class="prescriber-info">
+          <div class="prescriber-name">Dr. Sarah Kimani</div>
+          <div class="prescriber-role">General Practitioner</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">BG: #F7F9FB &middot; no shadow &middot; border: #EDF2F7</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sticky Footer</div>
+      <div class="mockup" style="box-shadow: 0 -2px 8px rgba(15,23,42,0.04);">
+        <div class="footer-mock" style="gap:20px;">
+          <div class="btn-secondary" style="border-color:#EDF2F7;">Mark All</div>
+          <div class="btn-primary" style="background:#2ECC71;">Complete Dispensing</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">shadow: 0 -2px 8px rgba(15,23,42,0.04) &middot; flat emerald CTA &middot; no transforms</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04);">Med card</div>
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04); background:#FAFBFC;">Hover</div>
+        <div class="shadow-card" style="box-shadow:0 -2px 8px rgba(15,23,42,0.04);">Footer</div>
+        <div class="shadow-card" style="box-shadow:none; background:#F7F9FB; border:1px solid #EDF2F7;">Prescriber</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V3: MyDawa-Inspired -->
+<div class="column v3">
+  <div class="col-header">
+    <span class="tag">V3</span>
+    <h2>MyDawa-Inspired</h2>
+    <p>Order fulfillment style with monospace Rx ID, left-border medication items, step indicators, uppercase section headers, and flat surfaces.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#FFF; border:1px solid #E2E8F0;"></div><div class="swatch-label">Page BG (white)<code>#FFFFFF</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2ECC71; height:6px; border-radius:2px;"></div><div class="swatch-label">Top strip<code>4px #2ECC71</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0F4F8"></div><div class="swatch-label">Prescriber BG<code>#F0F4F8</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="border-left:4px solid #2ECC71; background:#F8FAFC;"></div><div class="swatch-label">Med left border<code>3px #2ECC71</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E2E8F0"></div><div class="swatch-label">Progress track<code>#E2E8F0</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Order Label</div>
+        <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#94A3B8; margin-bottom:4px;">PRESCRIPTION ORDER</div>
+        <div style="font-family:'SF Mono','Fira Code',monospace; font-size:20px; font-weight:700;">RX-2024-001234</div>
+        <div class="spec">label: 10px/600/uppercase | ID: mono 20px/700</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Section Title</div>
+        <div style="font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">MEDICATIONS</div>
+        <div class="spec">Inter 13px / 600 / uppercase / wide tracking</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Medication Name</div>
+        <div style="font-size:15px; font-weight:600;">Amoxicillin 500mg</div>
+        <div class="spec">Inter 15px / 600</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Privacy Badge</div>
+        <div><span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; background:#DCFCE7; color:#15803D; padding:3px 8px; border-radius:4px;">VERIFIED</span> <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; background:#F0F4F8; color:#475569; padding:3px 8px; border-radius:4px;">ENCRYPTED</span></div>
+        <div class="spec">11px / 600 / uppercase / radius-sm (4px)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Progress Bar + Step Indicator</div>
+      <div class="mockup" style="box-shadow:none;">
+        <div class="mockup-inner">
+          <!-- Step indicators -->
+          <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">
+            <div style="display:flex; align-items:center; gap:6px; color:#2ECC71;"><div style="width:8px; height:8px; border-radius:50%; background:#2ECC71;"></div>Claimed</div>
+            <div style="display:flex; align-items:center; gap:6px; color:#2ECC71;"><div style="width:8px; height:8px; border-radius:50%; background:#2ECC71;"></div>Dispensing</div>
+            <div style="display:flex; align-items:center; gap:6px; color:#94A3B8;"><div style="width:8px; height:8px; border-radius:50%; background:#D1D5DB;"></div>Complete</div>
+          </div>
+          <div class="progress-track" style="background:#E2E8F0;">
+            <div class="progress-fill" style="background:#2ECC71;"></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">no shadow &middot; flat with 1px border &middot; step dots above &middot; solid emerald fill</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Medication Cards (Left Border)</div>
+      <div class="med-card" style="border-radius:8px; border-left:3px solid #2ECC71; padding:14px; box-shadow:0 1px 2px rgba(15,23,42,0.04); margin-bottom:12px;">
+        <div class="med-checkbox checked">&#10003;</div>
+        <div class="med-info">
+          <div class="med-name" style="font-size:15px; font-weight:600;">Amoxicillin 500mg</div>
+          <div class="med-detail" style="font-size:12px;">3x daily for 7 days</div>
+          <div class="med-qty">Qty: 21</div>
+        </div>
+      </div>
+      <div class="med-card" style="border-radius:8px; border-left:3px solid #2ECC71; padding:14px; box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+        <div class="med-checkbox"></div>
+        <div class="med-info">
+          <div class="med-name" style="font-size:15px; font-weight:600;">Ibuprofen 400mg</div>
+          <div class="med-detail" style="font-size:12px;">As needed, max 3x daily</div>
+          <div class="med-qty">Qty: 30</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">3px emerald left border &middot; 14px padding &middot; 12px gap &middot; hover: border-left 4px &middot; max-width: 600px</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Prescriber Card</div>
+      <div class="prescriber" style="background:#F0F4F8; border-color:#DDE3EA; box-shadow:none;">
+        <div class="prescriber-avatar" style="background:#2ECC71;">SK</div>
+        <div class="prescriber-info">
+          <div class="prescriber-name">Dr. Sarah Kimani</div>
+          <div class="prescriber-role">General Practitioner</div>
+        </div>
+      </div>
+      <div class="badges" style="gap:6px;">
+        <div class="badge-item" style="background:#DCFCE7; color:#15803D; border-radius:4px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em;">VERIFIED</div>
+        <div class="badge-item" style="background:#F0F4F8; color:#475569; border-radius:4px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em;">ENCRYPTED</div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">BG: #F0F4F8 &middot; no shadow &middot; badges: 4px radius, uppercase</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sticky Footer</div>
+      <div class="mockup" style="box-shadow: 0 -1px 4px rgba(15,23,42,0.06);">
+        <div class="footer-mock">
+          <div class="btn-secondary" style="border-color:rgba(46,204,113,0.3); color:#166534;">Mark All</div>
+          <div class="btn-primary" style="background:#2ECC71; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);">Complete Dispensing</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">shadow: 0 -1px 4px &middot; secondary: emerald-tinted border &middot; primary: inner shadow cue</div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</body>
+</html>

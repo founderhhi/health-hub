@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostics Result Upload -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F0F2F5; color: #0B0F14; padding: 40px 24px; }
+  h1.page-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .page-subtitle { text-align: center; color: #64748B; font-size: 15px; margin-bottom: 48px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .column h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .column .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-bottom: 20px; }
+  .v1 .tag { background: #DCFCE7; color: #166534; }
+  .v2 .tag { background: #EFF6FF; color: #1E40AF; }
+  .v3 .tag { background: #FEF3C7; color: #92400E; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; margin: 28px 0 12px; }
+  .section-label:first-of-type { margin-top: 0; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { width: 48px; height: 48px; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .swatch-label { font-size: 9px; color: #64748B; text-align: center; margin-top: 4px; word-break: break-all; }
+  .swatch-wrap { display: flex; flex-direction: column; align-items: center; width: 56px; }
+  .type-sample { margin-bottom: 12px; }
+  .type-sample .label { font-size: 10px; color: #94A3B8; margin-bottom: 2px; }
+
+  /* Dropzone */
+  .dropzone { border: 2px dashed #CBD5E1; border-radius: 12px; padding: 48px 24px; text-align: center; transition: all 0.2s; cursor: pointer; margin-bottom: 16px; }
+  .dropzone-icon { font-size: 36px; margin-bottom: 8px; }
+  .dropzone-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .dropzone-text { font-size: 12px; color: #94A3B8; }
+
+  /* File preview */
+  .file-preview { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 10px; transition: all 0.2s; }
+  .file-preview:hover { border-color: #CBD5E1; }
+  .file-thumb { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .file-thumb.pdf { background: #DBEAFE; color: #1E40AF; }
+  .file-thumb.img { background: #FEF3C7; color: #92400E; }
+  .file-info { flex: 1; }
+  .file-name { font-size: 14px; font-weight: 500; }
+  .file-size { font-size: 11px; color: #94A3B8; }
+  .file-remove { font-size: 18px; color: #94A3B8; cursor: pointer; }
+
+  /* Progress bar */
+  .progress-wrap { margin-bottom: 16px; }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .progress-bar { height: 8px; background: #E2E8F0; border-radius: 9999px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 9999px; background: #2ECC71; }
+  .progress-pct { font-size: 12px; font-weight: 600; color: #2ECC71; }
+
+  /* Verification */
+  .verification-list { margin-bottom: 16px; }
+  .verification-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; transition: all 0.15s; cursor: pointer; }
+  .verification-item:hover { background: #F8FAFC; }
+  .v-check { width: 22px; height: 22px; border: 2px solid #CBD5E1; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; transition: all 0.15s; }
+  .v-check.checked { background: #2ECC71; border-color: #2ECC71; color: #fff; }
+  .v-text { font-size: 14px; }
+
+  /* Form elements */
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; font-weight: 500; color: #64748B; margin-bottom: 4px; display: block; }
+  .form-input { width: 100%; padding: 10px 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s; }
+  .form-input:focus { border-color: #2ECC71; }
+
+  /* Buttons */
+  .btn-submit { display: block; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; color: #fff; background: #2ECC71; transition: all 0.2s; }
+  .btn-submit:hover { background: #27ae60; }
+  .btn-draft { display: block; width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; color: #64748B; background: #fff; margin-top: 8px; }
+
+  /* Status banner */
+  .status-banner { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  /* ===== V1 Specifics ===== */
+  .v1 .section-title-mock { border-left: 3px solid #2ECC71; padding-left: 8px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+  .v1 .dropzone { border-radius: 8px; padding: 40px 24px; }
+  .v1 .dropzone:hover { background: #DCFCE7; border-color: #166534; }
+  .v1 .dropzone-title { font-weight: 700; }
+  .v1 .form-label { font-weight: 600; color: #0B0F14; }
+  .v1 .file-preview { border-left: 2px solid #3B82F6; }
+  .v1 .file-preview.img-file { border-left-color: #EC4899; }
+  .v1 .file-preview:hover { border-color: #2ECC71; border-left-color: #2ECC71; }
+  .v1 .progress-bar { height: 10px; }
+  .v1 .progress-pct { font-weight: 700; font-size: 14px; }
+  .v1 .verification-item { background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 12px; }
+  .v1 .verification-item:hover { background: #ECFDF3; }
+  .v1 .v-text { font-weight: 600; }
+  .v1 .status-banner { border-left: 3px solid #3B82F6; background: #EFF6FF; color: #1E40AF; }
+  .v1 .status-banner.error { border-left-color: #DC2626; background: #FEF2F2; color: #991B1B; }
+  .v1 .btn-submit:active { background: #166534; }
+  .v1 .btn-submit:hover { box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
+
+  /* ===== V2 Specifics ===== */
+  .v2 .section-title-mock { font-size: 14px; font-weight: 500; color: #475569; margin-bottom: 12px; }
+  .v2 .dropzone { border-color: #CBD5E1; border-radius: 16px; padding: 56px 24px; }
+  .v2 .dropzone:hover { background: #F0FDF4; border-color: #86EFAC; }
+  .v2 .dropzone-title { font-weight: 500; }
+  .v2 .dropzone-text { color: #94A3B8; }
+  .v2 .form-label { font-weight: 400; color: #94A3B8; }
+  .v2 .form-group { margin-bottom: 20px; }
+  .v2 .file-preview { border-color: #EDF2F7; border-radius: 12px; background: #FAFBFC; gap: 20px; }
+  .v2 .file-preview:hover { background: #fff; border-color: #EDF2F7; }
+  .v2 .verification-item { border: none; padding: 8px; }
+  .v2 .verification-item:hover { background: #FAFBFC; }
+  .v2 .v-check.checked { background: #34D399; border-color: #34D399; }
+  .v2 .v-text { font-weight: 400; }
+  .v2 .progress-bar { background: #EDF2F7; }
+  .v2 .progress-fill { background: #34D399; }
+  .v2 .progress-pct { color: #34D399; font-weight: 500; }
+  .v2 .btn-submit { margin-top: 48px; }
+  .v2 .btn-draft { border-color: #E2E8F0; }
+  .v2 .status-banner { background: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE; box-shadow: none; }
+
+  /* ===== V3 Specifics ===== */
+  .v3 .section-title-mock { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  .v3 .form-label { font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 0.03em; }
+  .v3 .dropzone { border-color: #94A3B8; border-radius: 12px; }
+  .v3 .dropzone:hover { border-color: #2ECC71; background: #ECFDF3; }
+  .v3 .dropzone-title { font-size: 18px; font-weight: 600; }
+  .v3 .file-preview { border-radius: 8px; gap: 12px; }
+  .v3 .file-preview:hover { box-shadow: 0 4px 12px rgba(15,23,42,0.08); }
+  .v3 .file-preview.pdf-file { border-left: 3px solid #3B82F6; }
+  .v3 .file-preview.img-file { border-left: 3px solid #F59E0B; }
+  .v3 .file-name { font-weight: 600; }
+  .v3 .v-check { border-radius: 50%; }
+  .v3 .v-check.checked { border-radius: 50%; background: #2ECC71; border-color: #2ECC71; }
+  .v3 .verification-item { border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 16px; }
+  .v3 .v-text { font-weight: 500; }
+  .v3 .btn-submit { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); min-height: 48px; }
+  .v3 .btn-submit:hover { box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
+  .v3 .order-ref { background: #fff; border-top: 2px solid #2ECC71; padding: 14px 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(15,23,42,0.06); margin-bottom: 16px; }
+  .v3 .step-indicator { display: flex; align-items: center; justify-content: center; gap: 0; background: #fff; border-radius: 12px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(15,23,42,0.06); margin-bottom: 24px; }
+  .v3 .step { display: flex; align-items: center; gap: 6px; }
+  .v3 .step-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .v3 .step-num.done { background: #2ECC71; color: #fff; }
+  .v3 .step-num.active { background: #fff; border: 2px solid #3B82F6; color: #3B82F6; }
+  .v3 .step-num.pending { background: #E2E8F0; color: #94A3B8; }
+  .v3 .step-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; }
+  .v3 .step-connector { width: 24px; height: 2px; background: #E2E8F0; margin: 0 4px; }
+  .v3 .step-connector.done { background: #2ECC71; }
+
+  @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Diagnostics Result Upload</h1>
+<p class="page-subtitle">Three design variations compared side by side</p>
+
+<div class="grid">
+
+  <!-- ==================== V1: Operational Clarity ==================== -->
+  <div class="column v1">
+    <h2>V1: Operational Clarity</h2>
+    <span class="tag">Operational</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#166534"></div><div class="swatch-label">#166534<br>Active Drop</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#DCFCE7"></div><div class="swatch-label">#DCFCE7<br>Drop BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#3B82F6"></div><div class="swatch-label">#3B82F6<br>PDF Border</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EC4899"></div><div class="swatch-label">#EC4899<br>Image Border</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>Check Fill</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Section Title -- 700 / uppercase / 0.04em</div><div style="font-weight:700;text-transform:uppercase;letter-spacing:0.04em;border-left:3px solid #2ECC71;padding-left:8px;font-size:14px">File Upload</div></div>
+    <div class="type-sample"><div class="label">Form Label -- 12px / 600 / primary color</div><div style="font-size:12px;font-weight:600;color:#0B0F14">Test Category <span style="color:#DC2626">*</span></div></div>
+    <div class="type-sample"><div class="label">Dropzone Title -- 16px / 700</div><div style="font-size:16px;font-weight:700">Drop files here or browse</div></div>
+    <div class="type-sample"><div class="label">Verification Text -- 14px / 600</div><div style="font-size:14px;font-weight:600">I confirm results have been reviewed</div></div>
+    <div class="type-sample"><div class="label">Progress Pct -- 14px / 700 / emerald</div><div style="font-size:14px;font-weight:700;color:#2ECC71">67%</div></div>
+
+    <div class="section-label">Dropzone (8px radius, tighter 40px pad)</div>
+    <div class="dropzone" style="border-radius:8px;padding:40px 24px">
+      <div class="dropzone-icon">&#128206;</div>
+      <div class="dropzone-title">Drop files here or browse</div>
+      <div class="dropzone-text">PDF, JPG, PNG up to 10MB</div>
+    </div>
+
+    <div class="section-label">File Previews (colored left border)</div>
+    <div class="file-preview" style="border-left:2px solid #3B82F6">
+      <div class="file-thumb pdf">PDF</div>
+      <div class="file-info"><div class="file-name" style="font-weight:600">CBC_Results_Kebede.pdf</div><div class="file-size">2.4 MB</div></div>
+      <div class="file-remove">&times;</div>
+    </div>
+    <div class="file-preview img-file" style="border-left:2px solid #EC4899">
+      <div class="file-thumb img">IMG</div>
+      <div class="file-info"><div class="file-name" style="font-weight:600">microscopy_slide.jpg</div><div class="file-size">1.1 MB</div></div>
+      <div class="file-remove">&times;</div>
+    </div>
+
+    <div class="section-label">Upload Progress (10px bar, bold %)</div>
+    <div class="progress-wrap">
+      <div class="progress-header"><span style="font-size:12px;color:#64748B">Uploading...</span><span class="progress-pct">67%</span></div>
+      <div class="progress-bar" style="height:10px"><div class="progress-fill" style="width:67%"></div></div>
+    </div>
+
+    <div class="section-label">Verification Checklist (card-like items)</div>
+    <div class="verification-list">
+      <div class="verification-item"><div class="v-check checked" style="transform:scale(1.1)">&#10003;</div><div class="v-text">Results have been reviewed by qualified personnel</div></div>
+      <div class="verification-item"><div class="v-check checked" style="transform:scale(1.1)">&#10003;</div><div class="v-text">Patient identity verified against order</div></div>
+      <div class="verification-item"><div class="v-check">&#8203;</div><div class="v-text">Equipment calibration within valid period</div></div>
+    </div>
+
+    <div class="section-label">Status Banner (3px left accent)</div>
+    <div class="status-banner">&#9432; Order accepted and ready for result entry</div>
+    <div class="status-banner error">&#9888; Upload failed: file exceeds size limit</div>
+
+    <button class="btn-submit">Submit Results</button>
+    <button class="btn-draft" style="border-color:#64748B">Save Draft</button>
+  </div>
+
+  <!-- ==================== V2: Calm Clinical ==================== -->
+  <div class="column v2">
+    <h2>V2: Calm Clinical</h2>
+    <span class="tag">Calm</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#CBD5E1"></div><div class="swatch-label">#CBD5E1<br>Drop Border</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#F0FDF4"></div><div class="swatch-label">#F0FDF4<br>Drop Hover</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#86EFAC"></div><div class="swatch-label">#86EFAC<br>Hover Bdr</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#34D399"></div><div class="swatch-label">#34D399<br>Check Fill</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EDF2F7"></div><div class="swatch-label">#EDF2F7<br>Borders</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#FAFBFC"></div><div class="swatch-label">#FAFBFC<br>File BG</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Page Title -- 24px / 500</div><div style="font-size:24px;font-weight:500">Result Upload</div></div>
+    <div class="type-sample"><div class="label">Section Title -- 16px / 500 / sentence</div><div style="font-size:16px;font-weight:500;color:#475569">File upload</div></div>
+    <div class="type-sample"><div class="label">Form Label -- 12px / 400 / muted</div><div style="font-size:12px;font-weight:400;color:#94A3B8">Test category</div></div>
+    <div class="type-sample"><div class="label">Dropzone Title -- 16px / 500</div><div style="font-size:16px;font-weight:500">Drop files here or browse</div></div>
+    <div class="type-sample"><div class="label">File Name -- 14px / 500</div><div style="font-size:14px;font-weight:500">CBC_Results_Kebede.pdf</div></div>
+    <div class="type-sample"><div class="label">Verification -- 14px / 400</div><div style="font-size:14px;font-weight:400">I confirm results have been reviewed</div></div>
+
+    <div class="section-label">Dropzone (16px radius, 56px pad, soft)</div>
+    <div class="dropzone" style="border-color:#CBD5E1;border-radius:16px;padding:56px 24px">
+      <div class="dropzone-icon" style="opacity:0.6">&#128206;</div>
+      <div class="dropzone-title" style="font-weight:500">Drop files here or browse</div>
+      <div class="dropzone-text" style="color:#94A3B8">PDF, JPG, PNG up to 10MB</div>
+    </div>
+
+    <div class="section-label">File Previews (no left accent, #FAFBFC bg)</div>
+    <div class="file-preview" style="border-color:#EDF2F7;border-radius:12px;background:#FAFBFC;gap:20px">
+      <div class="file-thumb pdf">PDF</div>
+      <div class="file-info"><div class="file-name">CBC_Results_Kebede.pdf</div><div class="file-size">2.4 MB</div></div>
+      <div class="file-remove">&times;</div>
+    </div>
+    <div class="file-preview" style="border-color:#EDF2F7;border-radius:12px;background:#FAFBFC;gap:20px">
+      <div class="file-thumb img">IMG</div>
+      <div class="file-info"><div class="file-name">microscopy_slide.jpg</div><div class="file-size">1.1 MB</div></div>
+      <div class="file-remove">&times;</div>
+    </div>
+
+    <div class="section-label">Upload Progress (softer green #34D399)</div>
+    <div class="progress-wrap">
+      <div class="progress-header"><span style="font-size:12px;color:#94A3B8">Uploading...</span><span class="progress-pct" style="color:#34D399;font-weight:500">67%</span></div>
+      <div class="progress-bar" style="background:#EDF2F7"><div class="progress-fill" style="width:67%;background:#34D399"></div></div>
+    </div>
+
+    <div class="section-label">Verification (borderless, soft hover)</div>
+    <div class="verification-list">
+      <div class="verification-item" style="border:none;padding:8px"><div class="v-check checked" style="background:#34D399;border-color:#34D399">&#10003;</div><div class="v-text" style="font-weight:400">Results have been reviewed by qualified personnel</div></div>
+      <div class="verification-item" style="border:none;padding:8px"><div class="v-check checked" style="background:#34D399;border-color:#34D399">&#10003;</div><div class="v-text" style="font-weight:400">Patient identity verified against order</div></div>
+      <div class="verification-item" style="border:none;padding:8px"><div class="v-check">&#8203;</div><div class="v-text" style="font-weight:400">Equipment calibration within valid period</div></div>
+    </div>
+
+    <div class="section-label">Status Banner (no shadow, soft border)</div>
+    <div class="status-banner" style="background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE">&#9432; Order accepted and ready for result entry</div>
+
+    <button class="btn-submit" style="margin-top:48px">Submit Results</button>
+    <button class="btn-draft" style="border-color:#E2E8F0">Save Draft</button>
+  </div>
+
+  <!-- ==================== V3: Tenadoc-Inspired ==================== -->
+  <div class="column v3">
+    <h2>V3: Tenadoc-Inspired</h2>
+    <span class="tag">Competitor</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#F1F5F9"></div><div class="swatch-label">#F1F5F9<br>Page BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#94A3B8"></div><div class="swatch-label">#94A3B8<br>Drop Border</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#DBEAFE"></div><div class="swatch-label">#DBEAFE<br>PDF Type</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#FEF3C7"></div><div class="swatch-label">#FEF3C7<br>Image Type</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>Submit</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Page Title -- 24px / 700</div><div style="font-size:24px;font-weight:700">Result Upload</div></div>
+    <div class="type-sample"><div class="label">Section Title -- 14px / 700 / uppercase / 0.05em</div><div style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em">File Upload</div></div>
+    <div class="type-sample"><div class="label">Step Label -- mono / 11px / 600</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600">01 FILES</div></div>
+    <div class="type-sample"><div class="label">Form Label -- 12px / 700 / uppercase / LIS</div><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em">TEST CATEGORY</div></div>
+    <div class="type-sample"><div class="label">Dropzone Title -- 18px / 600</div><div style="font-size:18px;font-weight:600">Drop files here or browse</div></div>
+    <div class="type-sample"><div class="label">File Name -- 14px / 600 (mono ext)</div><div style="font-size:14px;font-weight:600">CBC_Results_Kebede<span style="font-family:'JetBrains Mono',monospace;color:#64748B">.pdf</span></div></div>
+
+    <div class="section-label">Step Indicator (4-step progression)</div>
+    <div class="step-indicator">
+      <div class="step"><div class="step-num done">&#10003;</div><div class="step-label">Files</div></div>
+      <div class="step-connector done"></div>
+      <div class="step"><div class="step-num active">2</div><div class="step-label">Details</div></div>
+      <div class="step-connector"></div>
+      <div class="step"><div class="step-num pending">3</div><div class="step-label">Verify</div></div>
+      <div class="step-connector"></div>
+      <div class="step"><div class="step-num pending">4</div><div class="step-label">Submit</div></div>
+    </div>
+
+    <div class="section-label">Order Reference (emerald top border)</div>
+    <div class="order-ref">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#94A3B8;margin-bottom:4px">Order Reference</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700">ORD-2024-00847</div>
+      <div style="font-size:12px;color:#64748B;margin-top:2px">Abebe Kebede &middot; CBC, Lipid Panel</div>
+    </div>
+
+    <div class="section-label">Dropzone (12px radius, #94A3B8 border)</div>
+    <div class="dropzone" style="border-color:#94A3B8;border-radius:12px">
+      <div class="dropzone-icon">&#128206;</div>
+      <div class="dropzone-title" style="font-size:18px;font-weight:600">Drop files here or browse</div>
+      <div class="dropzone-text">PDF, JPG, PNG, DICOM up to 10MB</div>
+    </div>
+
+    <div class="section-label">File Previews (type-coded left bar)</div>
+    <div class="file-preview pdf-file" style="border-left:3px solid #3B82F6;border-radius:8px">
+      <div class="file-thumb pdf">PDF</div>
+      <div class="file-info"><div class="file-name" style="font-weight:600">CBC_Results<span style="font-family:'JetBrains Mono',monospace;color:#64748B">.pdf</span></div><div class="file-size">2.4 MB &middot; &#10003; Uploaded</div></div>
+      <div class="file-remove">&times;</div>
+    </div>
+    <div class="file-preview img-file" style="border-left:3px solid #F59E0B;border-radius:8px">
+      <div class="file-thumb img">IMG</div>
+      <div class="file-info"><div class="file-name" style="font-weight:600">microscopy_slide<span style="font-family:'JetBrains Mono',monospace;color:#64748B">.jpg</span></div><div class="file-size">1.1 MB &middot; Uploading...</div></div>
+      <div class="file-remove">&times;</div>
+    </div>
+
+    <div class="section-label">Verification (circular checks, bordered items)</div>
+    <div class="verification-list">
+      <div class="verification-item" style="border:1px solid #E2E8F0;border-radius:8px;padding:12px 16px"><div class="v-check checked" style="border-radius:50%">&#10003;</div><div class="v-text" style="font-weight:500">Results reviewed by qualified personnel</div></div>
+      <div class="verification-item" style="border:1px solid #E2E8F0;border-radius:8px;padding:12px 16px"><div class="v-check" style="border-radius:50%">&#8203;</div><div class="v-text" style="font-weight:500">Patient identity verified</div></div>
+      <div class="verification-item" style="border:1px solid #E2E8F0;border-radius:8px;padding:12px 16px"><div class="v-check" style="border-radius:50%">&#8203;</div><div class="v-text" style="font-weight:500">Equipment calibration valid</div></div>
+    </div>
+
+    <div class="section-label">Progress (file count label)</div>
+    <div class="progress-wrap">
+      <div class="progress-header"><span style="font-size:12px;color:#64748B;font-weight:500">1 of 2 files uploaded</span><span class="progress-pct">50%</span></div>
+      <div class="progress-bar" style="border-radius:9999px"><div class="progress-fill" style="width:50%;border-radius:9999px"></div></div>
+    </div>
+
+    <button class="btn-submit" style="border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);min-height:48px">Submit Results</button>
+    <div style="text-align:center;font-size:12px;color:#94A3B8;margin-top:8px">Complete checklist to submit</div>
+  </div>
+
+</div>
+</body>
+</html>

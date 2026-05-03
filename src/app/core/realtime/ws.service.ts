@@ -21,6 +21,9 @@ export class WsService {
   // WS-04: Singleton guard
   private connecting = false;
   private readonly connectionStateSubject = new BehaviorSubject<WsConnectionState>('disconnected');
+  // Persistent AudioContext — browsers suspend a new context until first user gesture.
+  private audioCtx: AudioContext | null = null;
+  private audioUnlockListenerAdded = false;
 
   readonly MAX_RECONNECT_ATTEMPTS = 10;
   readonly BASE_DELAY = 1000;
@@ -65,6 +68,7 @@ export class WsService {
       return;
     }
 
+    this.initAudio();
     const wsUrl = this.buildWsUrl();
     this.socket = new WebSocket(wsUrl);
 
@@ -80,6 +84,9 @@ export class WsService {
       try {
         const payload = JSON.parse(event.data) as WsEvent;
         if (payload.event) {
+          if (['consult.accepted', 'queue.updated', 'referral.created', 'referral.status'].includes(payload.event)) {
+            this.playNotificationSound();
+          }
           this.zone.run(() => this.eventsSubject.next(payload));
         }
       } catch {
@@ -157,5 +164,58 @@ export class WsService {
       wsUrl.searchParams.set('token', token);
     }
     return wsUrl.toString();
+  }
+
+  private initAudio(): void {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+
+    if (!this.audioCtx) {
+      try {
+        this.audioCtx = new AudioCtx();
+      } catch {
+        return;
+      }
+    }
+
+    // Browsers suspend the context until a user gesture. Resume on first interaction.
+    if (!this.audioUnlockListenerAdded) {
+      this.audioUnlockListenerAdded = true;
+      const resume = () => {
+        if (this.audioCtx?.state === 'suspended') {
+          this.audioCtx.resume().catch(() => {});
+        }
+        document.removeEventListener('click', resume, true);
+        document.removeEventListener('keydown', resume, true);
+      };
+      document.addEventListener('click', resume, true);
+      document.addEventListener('keydown', resume, true);
+    }
+  }
+
+  private playNotificationSound(): void {
+    if (!this.audioCtx || this.audioCtx.state !== 'running') {
+      return;
+    }
+    try {
+      const ctx = this.audioCtx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.5);
+    } catch {
+      // Ignore if audio system is unavailable
+    }
   }
 }

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Records — Patient Design Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #F8F9FA; color: #0B0F14; padding: 40px 24px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #64748B; text-decoration: none; margin-bottom: 32px; }
+  .back:hover { color: #2ECC71; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; line-height: 1.6; }
+  .variations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 1100px) { .variations { grid-template-columns: 1fr; max-width: 480px; } }
+  .variation { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(15,23,42,0.06); overflow: hidden; }
+  .var-header { padding: 24px 28px 20px; border-bottom: 1px solid #F1F5F9; }
+  .var-header h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .var-header p { font-size: 13px; color: #64748B; line-height: 1.55; }
+  .var-body { padding: 28px; display: flex; flex-direction: column; gap: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 12px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch-color { width: 48px; height: 48px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); }
+  .swatch-label { font-size: 9px; font-weight: 600; color: #64748B; text-align: center; max-width: 56px; line-height: 1.3; }
+  .swatch-hex { font-size: 9px; color: #94A3B8; font-family: monospace; }
+  .type-sample { margin-bottom: 12px; }
+  .type-meta { font-size: 10px; color: #94A3B8; margin-top: 2px; }
+  .mockup-badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .spacing-demo { display: flex; flex-direction: column; gap: 6px; }
+  .spacing-row { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+  .spacing-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #FFF; }
+  .spacing-label { font-size: 11px; color: #64748B; min-width: 100px; }
+  .surface-card { border-radius: 14px; padding: 20px; min-height: 70px; display: flex; flex-direction: column; gap: 6px; }
+  .surface-label { font-size: 11px; font-weight: 600; color: #64748B; }
+  .surface-detail { font-size: 10px; color: #94A3B8; font-family: monospace; line-height: 1.5; }
+
+  /* Record card mockup */
+  .record-mock { border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .record-header-row { display: flex; align-items: center; gap: 14px; }
+  .record-icon-mock { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .record-info-mock { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .record-title-mock { font-size: 15px; font-weight: 600; }
+  .record-date-mock { font-size: 12px; color: #64748B; }
+  .med-list-mock { padding-top: 10px; border-top: 1px solid #E8ECF0; display: flex; flex-direction: column; gap: 6px; }
+  .med-item-mock { display: flex; justify-content: space-between; font-size: 13px; }
+  .med-name-mock { font-weight: 500; }
+  .med-dose-mock { color: #64748B; font-size: 12px; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">&#8592; Back to index</a>
+<div class="page-header">
+  <h1>Medical Records</h1>
+  <p>Record cards, medication lists, lab results, and status indicators across three design directions.</p>
+</div>
+
+<div class="variations">
+  <!-- ==================== V1: CALM CLINICAL ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V1: Calm Clinical</h2>
+      <p>Softer borders, gentler status colors, more generous padding. Approachable medical records.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.07);"></div><div class="swatch-label">Rx Icon BG</div><div class="swatch-hex">7% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(59,130,246,0.07);"></div><div class="swatch-label">Lab Icon BG</div><div class="swatch-hex">7% blue</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.15);"></div><div class="swatch-label">Status Active</div><div class="swatch-hex">15% opacity</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(245,158,11,0.08);"></div><div class="swatch-label">Warning BG</div><div class="swatch-hex">8% amber</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(16,185,129,0.07);"></div><div class="swatch-label">Lab Complete</div><div class="swatch-hex">7% teal</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 18px; font-weight: 500;">Medical Records</div><div class="type-meta">Page Title: Inter 500</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; font-weight: 600; line-height: 1.4;">Prescription #RX-2024-001</div><div class="type-meta">Record Title: Inter 600, line-height 1.4</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 13px; font-weight: 400; color: #0B0F14;">Amoxicillin</div><div class="type-meta">Med Name: Inter 400 (reduced from 500)</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 12px; color: #64748B; line-height: 1.6;">Mar 15, 2026 &middot; Dr. Sarah Chen</div><div class="type-meta">Record Date/Doctor: line-height 1.6</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Record Card</div>
+        <div class="record-mock" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 14px; padding: 20px;">
+          <div class="record-header-row">
+            <div class="record-icon-mock" style="background: rgba(46,204,113,0.07); border-radius: 14px;">&#x1F48A;</div>
+            <div class="record-info-mock">
+              <div class="record-title-mock" style="line-height: 1.4;">Prescription #RX-001</div>
+              <div class="record-date-mock" style="line-height: 1.6;">Mar 15, 2026</div>
+            </div>
+            <span class="mockup-badge" style="background: rgba(46,204,113,0.15); color: #166534;">Active</span>
+          </div>
+          <div class="med-list-mock" style="margin-top: 12px; padding-top: 12px; border-top-color: rgba(200,210,220,0.7);">
+            <div class="med-item-mock" style="padding: 6px 0;">
+              <span class="med-name-mock" style="font-weight: 400;">Amoxicillin 500mg</span>
+              <span class="med-dose-mock">3x daily</span>
+            </div>
+            <div class="med-item-mock" style="padding: 6px 0;">
+              <span class="med-name-mock" style="font-weight: 400;">Ibuprofen 200mg</span>
+              <span class="med-dose-mock">As needed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Lab Status Message</div>
+        <div style="background: rgba(16,185,129,0.07); padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #166534;">
+          <span style="font-size: 18px;">&#x2713;</span> Results ready for review
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Card padding</span><div class="spacing-bar" style="width: 80px; background: #DBEAFE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">List gap</span><div class="spacing-bar" style="width: 80px; background: #DBEAFE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Med list margin</span><div class="spacing-bar" style="width: 48px; background: #DBEAFE;">12px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Tab margin</span><div class="spacing-bar" style="width: 144px; background: #DBEAFE;">36px</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div class="surface-card" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 14px;">
+          <div class="surface-label">Record Card</div>
+          <div class="surface-detail">border-radius: 14px<br>border: 70% opacity<br>icon radius: 14px<br>No hover transforms</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V2: PREMIUM GUIDED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V2: Premium Guided</h2>
+      <p>Fraunces headings, richer icon tints, resting shadows. Premium health document viewer.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.14);"></div><div class="swatch-label">Rx Icon BG</div><div class="swatch-hex">14% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(59,130,246,0.14);"></div><div class="swatch-label">Lab Icon BG</div><div class="swatch-hex">14% blue</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: linear-gradient(135deg, #2ECC71, #27AE60);"></div><div class="swatch-label">Active Tab</div><div class="swatch-hex">gradient</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.2); box-shadow: 0 0 40px rgba(46,204,113,0.15);"></div><div class="swatch-label">QR Glow</div><div class="swatch-hex">emerald glow</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 600;">Medical Records</div><div class="type-meta">Page Title: Fraunces 600, 22px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 17px; font-weight: 600;">Prescription #RX-001</div><div class="type-meta">Record Title: Inter 600, 17px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; font-weight: 500;">Amoxicillin 500mg</div><div class="type-meta">Med Name: Inter 500, 15px</div></div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 500;">Prescription QR Code</div><div class="type-meta">QR Modal Title: Fraunces</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Record Card</div>
+        <div class="record-mock" style="background: #FFF; border: 1px solid #E8ECF0; border-radius: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.05); padding: 16px; padding-left: 20px;">
+          <div class="record-header-row" style="gap: 18px;">
+            <div class="record-icon-mock" style="background: rgba(46,204,113,0.14); border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04);">&#x1F48A;</div>
+            <div class="record-info-mock">
+              <div class="record-title-mock" style="font-size: 17px;">Prescription #RX-001</div>
+              <div class="record-date-mock">Mar 15, 2026</div>
+            </div>
+            <span class="mockup-badge" style="background: rgba(46,204,113,0.20); color: #166534; font-weight: 700;">Active</span>
+          </div>
+          <div class="med-list-mock">
+            <div class="med-item-mock">
+              <span class="med-name-mock" style="font-size: 15px;">Amoxicillin 500mg</span>
+              <span class="med-dose-mock">3x daily</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Lab Status (Left Border Accent)</div>
+        <div style="background: rgba(16,185,129,0.10); padding: 12px 16px; padding-left: 14px; border-left: 3px solid #10B981; border-radius: 8px; font-size: 13px; color: #166534;">
+          Results ready for review
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">QR Modal Treatment</div>
+        <div style="background: #FFF; border-radius: 20px; padding: 24px; box-shadow: 0 0 0 1px rgba(46,204,113,0.2), 0 0 40px rgba(46,204,113,0.15); text-align: center;">
+          <div style="font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 600; margin-bottom: 12px;">Prescription QR</div>
+          <div style="width: 80px; height: 80px; background: #F1F5F9; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 32px;">&#x25A3;</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="surface-card" style="background: #FFF; border: 1px solid #E8ECF0; border-radius: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.05);">
+            <div class="surface-label">Card (rest)</div>
+            <div class="surface-detail">box-shadow: 0 2px 8px 5%<br>icon inner border: 4%</div>
+          </div>
+          <div class="surface-card" style="background: #FFF; border: 1px solid #E8ECF0; border-radius: 14px; box-shadow: 0 4px 12px rgba(15,23,42,0.08); transform: translateY(-1px);">
+            <div class="surface-label">Card (hover)</div>
+            <div class="surface-detail">translateY(-1px)<br>box-shadow: 0 4px 12px 8%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V3: HALODOC-INSPIRED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V3: Halodoc-Inspired</h2>
+      <p>Flat white cards, circular icons, compact entries, underline tabs. Clean health document feed.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: #F5F7FA;"></div><div class="swatch-label">Page BG</div><div class="swatch-hex">#F5F7FA</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.10);"></div><div class="swatch-label">Rx Icon</div><div class="swatch-hex">10% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(59,130,246,0.10);"></div><div class="swatch-label">Lab Icon</div><div class="swatch-hex">10% blue</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #ECFDF3; border: 1px solid #BBF7D0;"></div><div class="swatch-label">Active</div><div class="swatch-hex">#ECFDF3</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #F1F5F9; border: 1px solid #E2E8F0;"></div><div class="swatch-label">Ordered</div><div class="swatch-hex">#F1F5F9</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 20px; font-weight: 600;">Medical Records</div><div class="type-meta">Page Title: Inter 600, 20px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; font-weight: 600;">Prescription #RX-001</div><div class="type-meta">Record Title: Inter 600, 15px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 13px; font-weight: 500;">Amoxicillin 500mg</div><div class="type-meta">Med Name: Inter 500, 13px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 12px; color: #64748B;">Mar 15, 2026</div><div class="type-meta">Record Date: Inter 400, 12px</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Tab Bar (Underline Style)</div>
+        <div style="display: flex; border-bottom: 1px solid #E2E8F0;">
+          <div style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #0B0F14; border-bottom: 2px solid #2ECC71;">Prescriptions</div>
+          <div style="padding: 10px 16px; font-size: 13px; color: #64748B; border-bottom: 2px solid transparent;">Lab Results</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Record Card</div>
+        <div style="background: #F5F7FA; padding: 12px; border-radius: 14px;">
+          <div class="record-mock" style="background: #FFFFFF; border: none; border-radius: 14px; box-shadow: none; padding: 14px;">
+            <div class="record-header-row">
+              <div class="record-icon-mock" style="background: rgba(46,204,113,0.10); border-radius: 50%; width: 40px; height: 40px;">&#x1F48A;</div>
+              <div class="record-info-mock">
+                <div class="record-title-mock" style="font-size: 15px;">Prescription #RX-001</div>
+                <div class="record-date-mock" style="font-size: 12px;">Mar 15, 2026</div>
+              </div>
+              <span class="mockup-badge" style="background: #ECFDF3; color: #166534; border: 1px solid #BBF7D0; border-radius: 999px;">Active</span>
+            </div>
+            <div class="med-list-mock" style="border-top-color: #F1F5F9;">
+              <div class="med-item-mock">
+                <span class="med-name-mock" style="font-size: 13px;">Amoxicillin 500mg</span>
+                <span class="med-dose-mock">3x daily</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Status Pills</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span class="mockup-badge" style="background: #ECFDF3; color: #166534; border: 1px solid #BBF7D0; border-radius: 999px;">Active</span>
+          <span class="mockup-badge" style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; border-radius: 999px;">Claimed</span>
+          <span class="mockup-badge" style="background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; border-radius: 999px;">Fulfilled</span>
+          <span class="mockup-badge" style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; border-radius: 999px;">Ordered</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Card padding</span><div class="spacing-bar" style="width: 56px; background: #BBF7D0;">14px</div></div>
+          <div class="spacing-row"><span class="spacing-label">List gap</span><div class="spacing-bar" style="width: 40px; background: #BBF7D0;">10px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Icon size</span><div class="spacing-bar" style="width: 40px; background: #BBF7D0;">40px</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px; background: #F5F7FA; padding: 16px; border-radius: 14px;">
+          <div class="surface-card" style="background: #FFFFFF; border: none; border-radius: 14px; box-shadow: none;">
+            <div class="surface-label">Card (rest) — Flat</div>
+            <div class="surface-detail">border: none; box-shadow: none<br>icon border-radius: 50%</div>
+          </div>
+          <div class="surface-card" style="background: #F8FAF9; border: none; border-radius: 14px; box-shadow: none;">
+            <div class="surface-label">Card (hover)</div>
+            <div class="surface-detail">background: #F8FAF9</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">QR Modal (Simplified)</div>
+        <div style="background: #FFF; border-radius: 20px; padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); text-align: center;">
+          <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Prescription QR</div>
+          <div style="width: 80px; height: 80px; background: #F1F5F9; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 12px rgba(0,0,0,0.08); font-size: 32px;">&#x25A3;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

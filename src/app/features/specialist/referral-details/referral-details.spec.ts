@@ -34,7 +34,10 @@ describe('ReferralDetailsComponent', () => {
         location: 'Majolly Clinic Room 12'
       }
     }),
-    requestMoreInfo: () => of({ referral })
+    requestMoreInfo: () => of({ referral }),
+    listAvailableSpecialists: () => of({ specialists: [] }),
+    reassignReferral: () => of({ referral }),
+    cacheSpecialistReferral: () => undefined
   };
 
   const labsApiMock = {

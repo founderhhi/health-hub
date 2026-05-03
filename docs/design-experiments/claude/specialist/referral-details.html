@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specialist Referral Details - Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #0B0F14; color: #E2E8F0; padding: 40px 24px; }
+  a.back { color: #2ECC71; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block; margin-bottom: 24px; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; color: #FFF; letter-spacing: -0.03em; margin-bottom: 8px; }
+  .subtitle { color: #94A3B8; font-size: 15px; margin-bottom: 48px; line-height: 1.6; }
+  .columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 48px; }
+  @media (max-width: 1100px) { .columns { grid-template-columns: 1fr; } }
+  .col-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .col-title.v1 { color: #3B82F6; }
+  .col-title.v2 { color: #A855F7; }
+  .col-title.v3 { color: #F59E0B; }
+  .col-subtitle { font-size: 12px; color: #64748B; margin-bottom: 20px; }
+  .section { margin-bottom: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748B; margin-bottom: 12px; border-bottom: 1px solid #1E293B; padding-bottom: 6px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch-group { display: flex; flex-direction: column; align-items: center; }
+  .swatch { width: 48px; height: 48px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+  .swatch-label { font-size: 9px; color: #94A3B8; margin-top: 4px; text-align: center; width: 48px; word-break: break-all; }
+  .type-sample { margin-bottom: 12px; }
+  .type-meta { font-size: 10px; color: #475569; margin-top: 2px; }
+  .mockup-light { background: #F8FAFC; color: #0B0F14; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .mockup-warm { background: #FAFAF8; color: #0B0F14; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .spacing-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .spacing-box { background: rgba(46,204,113,0.2); border: 1px dashed #2ECC71; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #2ECC71; }
+  .spacing-label { font-size: 10px; color: #64748B; min-width: 100px; }
+  .surface-demo { display: flex; gap: 12px; flex-wrap: wrap; }
+  .surface-card { width: 120px; height: 72px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #475569; text-align: center; padding: 4px; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back">&larr; Back to Index</a>
+<h1>Referral Details</h1>
+<p class="subtitle">Stepper, patient info grid, clinical summary, urgency badges, action panel, and physician card across three variations.</p>
+
+<!-- COLOR SWATCHES -->
+<div class="columns">
+  <div class="col">
+    <div class="col-title v1">V1: Operational Clarity</div>
+    <div class="col-subtitle">Sharper stepper, denser info, prominent actions</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#2ECC71;"></div><div class="swatch-label">#2ECC71 Stepper</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#EFF6FF;"></div><div class="swatch-label">#EFF6FF Clinical bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FAFBFC;"></div><div class="swatch-label">#FAFBFC Action bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#475569;"></div><div class="swatch-label">#475569 Labels</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#DCFCE7;"></div><div class="swatch-label">#DCFCE7 Routine</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FEF3C7;"></div><div class="swatch-label">#FEF3C7 Urgent</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FEE2E2;"></div><div class="swatch-label">#FEE2E2 Emergency</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="col-title v2">V2: Premium Guided</div>
+    <div class="col-subtitle">Polished, breathing, Fraunces headings</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#FAFAF8;"></div><div class="swatch-label">#FAFAF8 Page bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:linear-gradient(135deg,#2ECC71,#15803D);"></div><div class="swatch-label">Avatar gradient</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#F0F9FF;"></div><div class="swatch-label">#F0F9FF Clinical bg</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#3B82F6;"></div><div class="swatch-label">#3B82F6 Clinical border</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FEFDFB;"></div><div class="swatch-label">#FEFDFB Card hover</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="col-title v3">V3: Vezeeta-Inspired</div>
+    <div class="col-subtitle">Form-like, divider-separated, status bar</div>
+    <div class="section">
+      <div class="section-label">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch-group"><div class="swatch" style="background:#F0FDF4;"></div><div class="swatch-label">#F0FDF4 Accepted bar</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FEF3C7;"></div><div class="swatch-label">#FEF3C7 New bar</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#FEF2F2;"></div><div class="swatch-label">#FEF2F2 Declined bar</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#64748B;"></div><div class="swatch-label">#64748B Labels</div></div>
+        <div class="swatch-group"><div class="swatch" style="background:#E2E8F0;"></div><div class="swatch-label">#E2E8F0 Dividers</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TYPOGRAPHY -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-size:24px;font-weight:700;letter-spacing:-0.02em;color:#FFF;">Referral Details</div>
+      <div class="type-meta">Page title: 24px / 700 / -0.02em</div>
+      <div class="type-sample" style="font-size:22px;font-weight:700;color:#FFF;margin-top:12px;">Sarah Ahmed</div>
+      <div class="type-meta">Patient name: 22px / 700</div>
+      <div class="type-sample" style="font-size:15px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#94A3B8;margin-top:12px;">PATIENT INFORMATION</div>
+      <div class="type-meta">Section title: 15px / 700 / 0.03em / uppercase</div>
+      <div class="type-sample" style="font-size:12px;font-weight:600;color:#475569;margin-top:12px;">Date of Birth</div>
+      <div class="type-meta">Info label: 12px / 600 (darker #475569)</div>
+      <div class="type-sample" style="font-size:14px;font-weight:600;color:#FFF;margin-top:8px;">1990-05-15</div>
+      <div class="type-meta">Info value: 14px / 600</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;letter-spacing:-0.02em;color:#FFF;">Referral Details</div>
+      <div class="type-meta">Page title: Fraunces 24px / 700 / -0.02em</div>
+      <div class="type-sample" style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:#FFF;margin-top:12px;">Sarah Ahmed</div>
+      <div class="type-meta">Patient name: Fraunces 22px / 600</div>
+      <div class="type-sample" style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:#94A3B8;margin-top:12px;">Patient Information</div>
+      <div class="type-meta">Section title: Fraunces 16px / 600 / mixed case</div>
+      <div class="type-sample" style="font-size:15px;color:#FFF;line-height:1.7;margin-top:12px;">Clinical summary with generous line-height for comfortable reading...</div>
+      <div class="type-meta">Clinical text: 15px / line-height 1.7</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Typography</div>
+      <div class="type-sample" style="font-size:20px;font-weight:600;color:#FFF;">Referral Details</div>
+      <div class="type-meta">Page title: 20px / 600 (compact)</div>
+      <div class="type-sample" style="font-size:18px;font-weight:700;color:#FFF;margin-top:12px;">Sarah Ahmed</div>
+      <div class="type-meta">Patient name: 18px / 700 (functional)</div>
+      <div class="type-sample" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;margin-top:12px;">PATIENT INFORMATION</div>
+      <div class="type-meta">Section label: 11px / 700 / 0.06em / uppercase</div>
+      <div class="type-sample" style="font-size:11px;letter-spacing:0.06em;color:#64748B;margin-top:8px;">Date of Birth</div>
+      <div class="type-meta">Field label: 11px / uppercase</div>
+      <div class="type-sample" style="font-size:14px;font-weight:500;color:#FFF;margin-top:4px;">1990-05-15</div>
+      <div class="type-meta">Field value: 14px / 500</div>
+      <div class="type-sample" style="font-size:10px;font-weight:600;color:#64748B;margin-top:8px;">Received <span style="font-size:10px;font-weight:400;">Mar 15, 2026</span></div>
+      <div class="type-meta">Stepper: 10px label + 10px date</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: STEPPER -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Referral Stepper</div>
+      <div class="mockup-light" style="padding:16px 0;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-size:14px;font-weight:700;">&#10003;</div>
+            <span style="font-size:11px;font-weight:600;color:#0B0F14;">Received</span>
+          </div>
+          <div style="width:60px;height:3px;background:#2ECC71;margin:0 4px;margin-bottom:18px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-size:14px;font-weight:700;">&#10003;</div>
+            <span style="font-size:11px;font-weight:600;color:#0B0F14;">Reviewed</span>
+          </div>
+          <div style="width:60px;height:3px;background:#E2E8F0;margin:0 4px;margin-bottom:18px;"><div style="width:50%;height:100%;background:#2ECC71;"></div></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#FFF;border:2px solid #2ECC71;box-shadow:0 0 0 4px rgba(46,204,113,0.3);"></div>
+            <span style="font-size:11px;font-weight:600;color:#2ECC71;">Accepted</span>
+          </div>
+          <div style="width:60px;height:3px;background:#E2E8F0;margin:0 4px;margin-bottom:18px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#FFF;border:2px solid #E2E8F0;"></div>
+            <span style="font-size:11px;font-weight:500;color:#94A3B8;">Consulting</span>
+          </div>
+        </div>
+      </div>
+      <div class="type-meta">28px dots, 3px line, checkmarks on complete, ring on active (opacity 0.3)</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Referral Stepper</div>
+      <div class="mockup-warm" style="padding:28px 0;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#2ECC71;box-shadow:0 2px 8px rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;color:#FFF;font-size:14px;font-weight:700;transition:all 300ms;">&#10003;</div>
+            <span style="font-size:12px;font-weight:600;letter-spacing:0.02em;color:#0B0F14;">Received</span>
+          </div>
+          <div style="width:60px;height:2px;background:#2ECC71;margin:0 4px;margin-bottom:20px;transition:width 0.5s ease-in-out;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#2ECC71;box-shadow:0 2px 8px rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;color:#FFF;font-size:14px;font-weight:700;">&#10003;</div>
+            <span style="font-size:12px;font-weight:600;letter-spacing:0.02em;color:#0B0F14;">Reviewed</span>
+          </div>
+          <div style="width:60px;height:2px;background:#E2E8F0;margin:0 4px;margin-bottom:20px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#FFF;border:2px solid #2ECC71;box-shadow:0 0 0 6px rgba(34,197,94,0.15);"></div>
+            <span style="font-size:12px;font-weight:600;letter-spacing:0.02em;color:#2ECC71;">Accepted</span>
+          </div>
+          <div style="width:60px;height:2px;background:#E2E8F0;margin:0 4px;margin-bottom:20px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#FFF;border:2px solid #E2E8F0;"></div>
+            <span style="font-size:12px;font-weight:600;letter-spacing:0.02em;color:#94A3B8;">Consulting</span>
+          </div>
+        </div>
+      </div>
+      <div class="type-meta">28px dots, glow on complete, wider 6px active ring (opacity 0.15), smoother transition, 28px padding</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Referral Stepper (Timeline)</div>
+      <div class="mockup-light" style="padding:20px 0;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-size:10px;">&#10003;</div>
+            <span style="font-size:10px;font-weight:600;color:#0B0F14;">Received</span>
+            <span style="font-size:10px;font-weight:400;color:#94A3B8;">Mar 15</span>
+          </div>
+          <div style="width:50px;height:3px;background:#2ECC71;margin:0 4px;margin-bottom:28px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-size:10px;">&#10003;</div>
+            <span style="font-size:10px;font-weight:600;color:#0B0F14;">Reviewed</span>
+            <span style="font-size:10px;font-weight:400;color:#94A3B8;">Mar 16</span>
+          </div>
+          <div style="width:50px;height:3px;background:#E2E8F0;margin:0 4px;margin-bottom:28px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#FFF;border:2px solid #2ECC71;"></div>
+            <span style="font-size:10px;font-weight:600;color:#2ECC71;">Accepted</span>
+            <span style="font-size:10px;font-weight:400;color:#94A3B8;">&mdash;</span>
+          </div>
+          <div style="width:50px;height:3px;background:#E2E8F0;margin:0 4px;margin-bottom:28px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#FFF;border:2px solid #E2E8F0;"></div>
+            <span style="font-size:10px;font-weight:600;color:#94A3B8;">Consulting</span>
+            <span style="font-size:10px;font-weight:400;color:#94A3B8;">&mdash;</span>
+          </div>
+        </div>
+      </div>
+      <div class="type-meta">20px dots (smaller, timeline-like), 3px line, date labels under each step, compact</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: URGENCY BADGES -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Urgency Badges</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.06em;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:4px;">ROUTINE</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.06em;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:4px;">URGENT</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.06em;background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;">EMERGENCY</span>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Sharp 4px radius, intensified colors</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Urgency Badges</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:600;background:#DCFCE7;color:#166534;padding:4px 12px;border-radius:9999px;">Routine</span>
+        <span style="font-size:11px;font-weight:600;background:#FEF3C7;color:#92400E;padding:4px 12px;border-radius:9999px;">Urgent</span>
+        <span style="font-size:11px;font-weight:600;background:#FEE2E2;color:#991B1B;padding:4px 12px;border-radius:9999px;">Emergency</span>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Pill shape, 4px 12px padding (more generous)</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Urgency Badges + Status Bar</div>
+      <div style="margin-bottom:8px;">
+        <div style="background:#FEF3C7;color:#92400E;padding:8px 16px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-radius:4px;">NEW REFERRAL <span style="font-size:10px;font-weight:600;background:#FEF3C7;color:#92400E;padding:2px 8px;border:1px solid #92400E;border-radius:4px;">URGENT</span></div>
+      </div>
+      <div style="background:#F0FDF4;color:#166534;padding:8px 16px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-radius:4px;margin-bottom:8px;">ACCEPTED <span style="font-size:10px;font-weight:600;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:4px;">ROUTINE</span></div>
+      <div class="type-meta">Full-width status header bars. Colored by state. Urgency badge alongside.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: PATIENT INFO CARD -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Patient Info Card</div>
+      <div class="mockup-light" style="border:1px solid #E2E8F0;border-left:4px solid #2ECC71;border-radius:6px;padding:14px;box-shadow:none;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:700;font-size:18px;">S</div>
+          <div>
+            <div style="font-size:22px;font-weight:700;color:#0B0F14;">Sarah Ahmed</div>
+            <div style="font-size:13px;color:#64748B;">Female, 35 years</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><div style="font-size:12px;font-weight:600;color:#475569;">Date of Birth</div><div style="font-size:14px;font-weight:600;color:#0B0F14;">1990-05-15</div></div>
+          <div><div style="font-size:12px;font-weight:600;color:#475569;">Blood Type</div><div style="font-size:14px;font-weight:600;color:#0B0F14;">A+</div></div>
+        </div>
+      </div>
+      <div class="type-meta">6px radius, no shadow, emerald left-border, 14px padding, 12px grid gap</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Patient Info Card</div>
+      <div class="mockup-warm" style="border-radius:16px;padding:20px;box-shadow:0 4px 12px rgba(15,23,42,0.06);transition:all 200ms;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(15,23,42,0.1)';this.style.transform='translateY(-1px)'" onmouseleave="this.style.boxShadow='0 4px 12px rgba(15,23,42,0.06)';this.style.transform=''">
+        <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#2ECC71,#15803D);box-shadow:0 4px 12px rgba(46,204,113,0.2);display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:700;font-size:18px;">S</div>
+          <div>
+            <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:#0B0F14;">Sarah Ahmed</div>
+            <div style="font-size:13px;color:#64748B;">Female, 35 years</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div><div style="font-size:13px;color:#94A3B8;">Date of Birth</div><div style="font-size:14px;font-weight:500;color:#0B0F14;">1990-05-15</div></div>
+          <div><div style="font-size:13px;color:#94A3B8;">Blood Type</div><div style="font-size:14px;font-weight:500;color:#0B0F14;">A+</div></div>
+        </div>
+      </div>
+      <div class="type-meta">16px radius, deeper shadow, avatar gradient + glow, Fraunces name, 20px padding/gap, hover lift</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Patient Info (Form Layout)</div>
+      <div class="mockup-light" style="border-radius:0;padding:0;box-shadow:none;background:transparent;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid #E2E8F0;">
+          <div style="width:56px;height:56px;border-radius:50%;background:#2ECC71;display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:700;font-size:20px;">S</div>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:#0B0F14;">Sarah Ahmed</div>
+            <div style="font-size:13px;color:#64748B;">Female, 35 years</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;padding:16px 0;border-bottom:1px solid #F1F5F9;">
+          <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;">Date of Birth</div><div style="font-size:14px;font-weight:500;color:#0B0F14;">1990-05-15</div></div>
+          <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;">Blood Type</div><div style="font-size:14px;font-weight:500;color:#0B0F14;">A+</div></div>
+        </div>
+      </div>
+      <div class="type-meta">No cards, divider-separated sections, 2-col grid, 11px uppercase labels, 56px avatar (smaller), form-like</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: CLINICAL SUMMARY -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Clinical Summary</div>
+      <div class="mockup-light" style="background:#EFF6FF;border-left:5px solid #3B82F6;border-radius:0 8px 8px 0;padding:14px;">
+        <div style="font-size:15px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#475569;margin-bottom:8px;">CLINICAL SUMMARY</div>
+        <div style="font-size:14px;color:#0B0F14;line-height:1.7;">Patient presents with persistent chest discomfort radiating to the left arm. ECG shows ST-segment elevation. Recommend urgent cardiology evaluation.</div>
+      </div>
+      <div class="type-meta">Deeper blue bg #EFF6FF, 5px left border, line-height 1.7</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Clinical Summary</div>
+      <div class="mockup-warm" style="background:#F0F9FF;border-left:4px solid #3B82F6;border-radius:0 12px 12px 0;padding:20px;">
+        <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:#475569;margin-bottom:8px;">Clinical Summary</div>
+        <div style="font-size:15px;color:#0B0F14;line-height:1.7;">Patient presents with persistent chest discomfort radiating to the left arm. ECG shows ST-segment elevation. Recommend urgent cardiology evaluation.</div>
+      </div>
+      <div class="type-meta">Softer bg #F0F9FF, brighter blue border #3B82F6, 12px right radius, Fraunces header, 15px/1.7 text</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Clinical Summary</div>
+      <div class="mockup-light" style="background:#FFFFFF;border-left:3px solid #2ECC71;border-radius:6px;padding:16px;box-shadow:none;border-right:1px solid #E2E8F0;border-top:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;margin-bottom:8px;">CLINICAL SUMMARY</div>
+        <div style="font-size:14px;color:#0B0F14;line-height:1.6;">Patient presents with persistent chest discomfort radiating to the left arm. ECG shows ST-segment elevation.</div>
+      </div>
+      <div class="type-meta">White bg (not blue), 3px emerald left-border, 6px radius, 11px uppercase header</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENT: ACTION PANEL -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Action Panel</div>
+      <div style="background:#FAFBFC;border-top:2px solid #E2E8F0;padding:16px;border-radius:6px;display:flex;flex-direction:column;gap:12px;">
+        <button style="background:#2ECC71;color:#FFF;border:none;padding:12px;border-radius:6px;font-size:14px;font-weight:700;min-height:48px;cursor:pointer;width:100%;">Accept Referral</button>
+        <div style="display:flex;gap:12px;">
+          <button style="background:transparent;border:1px solid #E2E8F0;color:#0B0F14;padding:10px;border-radius:6px;font-size:13px;font-weight:600;flex:1;cursor:pointer;">Request Info</button>
+          <button style="background:transparent;border:1px solid #DC2626;color:#DC2626;padding:10px;border-radius:6px;font-size:13px;font-weight:600;flex:1;cursor:pointer;">Decline</button>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">#FAFBFC bg, 2px top border, 6px radius buttons, 48px primary, bold CTA</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Action Panel</div>
+      <div style="padding:28px 0 0;display:flex;flex-direction:column;gap:20px;">
+        <button style="background:#2ECC71;color:#FFF;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;min-height:48px;cursor:pointer;width:100%;box-shadow:0 2px 8px rgba(46,204,113,0.2);transition:all 200ms;" onmouseenter="this.style.transform='scale(1.01)'" onmouseleave="this.style.transform=''">Accept Referral</button>
+        <div style="display:flex;gap:20px;">
+          <button style="background:transparent;border:1px solid #E2E8F0;color:#0B0F14;padding:12px;border-radius:12px;font-size:14px;font-weight:600;flex:1;cursor:pointer;">Request Info</button>
+          <button style="background:transparent;border:1px solid #DC2626;color:#DC2626;padding:12px;border-radius:12px;font-size:14px;font-weight:600;flex:1;cursor:pointer;">Decline</button>
+        </div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">12px radius, emerald glow on primary, hover scale 1.01, 20px gaps, 28px top padding</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Action Toolbar (Horizontal)</div>
+      <div style="border-top:1px solid #E2E8F0;padding:16px 0;display:flex;gap:12px;flex-wrap:wrap;">
+        <button style="background:#2ECC71;color:#FFF;border:none;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;min-height:44px;cursor:pointer;">Accept</button>
+        <button style="background:transparent;border:1px solid #E2E8F0;color:#0B0F14;padding:10px 16px;border-radius:6px;font-size:14px;font-weight:600;min-height:44px;cursor:pointer;">Order Tests</button>
+        <button style="background:transparent;border:1px solid #E2E8F0;color:#0B0F14;padding:10px 16px;border-radius:6px;font-size:14px;font-weight:600;min-height:44px;cursor:pointer;">Prescribe</button>
+        <button style="background:transparent;border:1px solid #DC2626;color:#DC2626;padding:10px 16px;border-radius:6px;font-size:14px;font-weight:600;min-height:44px;cursor:pointer;">Decline</button>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Horizontal toolbar, 6px radius, 44px height, 12px gap, emerald primary, red outline for decline</div>
+    </div>
+  </div>
+</div>
+
+<!-- SPACING -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing & Borders</div>
+      <div class="spacing-row"><div class="spacing-label">Info padding</div><div class="spacing-box" style="width:14px;height:14px;">14</div></div>
+      <div class="spacing-row"><div class="spacing-label">Grid gap</div><div class="spacing-box" style="width:12px;height:12px;">12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Section mb</div><div class="spacing-box" style="width:20px;height:16px;">20</div></div>
+      <div class="spacing-row"><div class="spacing-label">Card radius</div><div class="spacing-box" style="width:6px;height:6px;">6</div></div>
+      <div class="spacing-row"><div class="spacing-label">Stepper dots</div><div class="spacing-box" style="width:28px;height:16px;">28px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Clinical left</div><div class="spacing-box" style="width:5px;height:24px;">5</div></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing & Borders</div>
+      <div class="spacing-row"><div class="spacing-label">Info padding</div><div class="spacing-box" style="width:20px;height:20px;">20</div></div>
+      <div class="spacing-row"><div class="spacing-label">Grid gap</div><div class="spacing-box" style="width:20px;height:20px;">20</div></div>
+      <div class="spacing-row"><div class="spacing-label">Section mb</div><div class="spacing-box" style="width:28px;height:16px;">28</div></div>
+      <div class="spacing-row"><div class="spacing-label">Card radius</div><div class="spacing-box" style="width:12px;height:12px;">12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Hero radius</div><div class="spacing-box" style="width:16px;height:16px;">16</div></div>
+      <div class="spacing-row"><div class="spacing-label">Stepper pad</div><div class="spacing-box" style="width:28px;height:16px;">28</div></div>
+      <div class="spacing-row"><div class="spacing-label">Physician</div><div class="spacing-box" style="width:52px;height:16px;">52px</div></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Spacing & Borders</div>
+      <div class="spacing-row"><div class="spacing-label">Section pad</div><div class="spacing-box" style="width:16px;height:16px;">16</div><div class="type-meta">top/bottom</div></div>
+      <div class="spacing-row"><div class="spacing-label">Grid gap</div><div class="spacing-box" style="width:16px;height:12px;">16x12</div></div>
+      <div class="spacing-row"><div class="spacing-label">Stepper dots</div><div class="spacing-box" style="width:20px;height:16px;">20px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Action h</div><div class="spacing-box" style="width:44px;height:16px;">44px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Avatar</div><div class="spacing-box" style="width:56px;height:16px;">56px</div></div>
+      <div class="spacing-row"><div class="spacing-label">Clinical left</div><div class="spacing-box" style="width:3px;height:24px;">3</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SURFACE -->
+<div class="columns">
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFF;border:1px solid #E2E8F0;border-left:4px solid #2ECC71;border-radius:6px;">Info: emerald accent</div>
+        <div class="surface-card" style="background:#FAFBFC;border-top:2px solid #E2E8F0;border-radius:6px;">Action: gray bg</div>
+        <div class="surface-card" style="background:#EFF6FF;border-left:5px solid #3B82F6;border-radius:0 6px 6px 0;">Clinical: blue</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">No shadows. Border emphasis. Colored accents for functional grouping.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:#FFF;box-shadow:0 4px 12px rgba(15,23,42,0.06);border-radius:16px;">Hero: deep shadow</div>
+        <div class="surface-card" style="background:#FFF;box-shadow:0 2px 8px rgba(15,23,42,0.05);border-radius:12px;">Info: light shadow</div>
+        <div class="surface-card" style="background:#F0F9FF;border-left:4px solid #3B82F6;border-radius:0 12px 12px 0;">Clinical: soft blue</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">Layered shadows. Hover lifts. Warm page bg. Premium depth.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="section">
+      <div class="section-label">Surface Treatment</div>
+      <div class="surface-demo">
+        <div class="surface-card" style="background:transparent;border-bottom:1px solid #E2E8F0;">Section: dividers</div>
+        <div class="surface-card" style="background:#FEF3C7;border-radius:0;">Status: full-width</div>
+        <div class="surface-card" style="background:#FFF;border-left:3px solid #2ECC71;border-radius:6px;border:1px solid #E2E8F0;border-left:3px solid #2ECC71;">Clinical: emerald</div>
+      </div>
+      <div class="type-meta" style="margin-top:8px;">No shadows anywhere. Divider-separated. Full-width status bars. Flat portal aesthetic.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

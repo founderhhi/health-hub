@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy Profile -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F1F5F9; color: #1E293B; padding: 40px 24px; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 600; color: #0F172A; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; max-width: 680px; margin: 0 auto; line-height: 1.6; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.06); }
+  .col-header { padding: 24px 28px; border-bottom: 1px solid #E2E8F0; }
+  .col-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .col-header .tag { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 4px; margin-bottom: 8px; }
+  .col-header p { font-size: 13px; color: #64748B; line-height: 1.5; }
+  .col-body { padding: 28px; }
+  .section { margin-bottom: 32px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #F1F5F9; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .swatch-color { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.06); flex-shrink: 0; }
+  .swatch-label { font-size: 11px; color: #475569; line-height: 1.3; }
+  .swatch-label code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px; color: #64748B; display: block; }
+  .type-demo { margin-bottom: 14px; padding: 12px 16px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; }
+  .type-demo .label { font-size: 10px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .type-demo .spec { font-size: 10px; color: #94A3B8; margin-top: 4px; font-family: 'SF Mono', monospace; }
+  .mockup { border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; }
+  .mockup-inner { padding: 20px; }
+  /* Avatar */
+  .avatar-mock { width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: 700; font-size: 24px; margin: 0 auto 16px; }
+  /* Field card */
+  .field-mock { padding: 16px; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 12px; }
+  .field-mock:last-child { margin-bottom: 0; }
+  .field-label-mock { font-size: 12px; color: #64748B; margin-bottom: 4px; }
+  .field-value-mock { font-size: 16px; font-weight: 500; }
+  /* Sign out button */
+  .signout-mock { display: block; width: 100%; padding: 12px; text-align: center; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+  /* Shadow demos */
+  .shadow-demo { display: flex; flex-wrap: wrap; gap: 16px; }
+  .shadow-card { width: 80px; height: 56px; border-radius: 10px; background: #FFF; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94A3B8; }
+  .spacing-demo { display: flex; flex-direction: column; gap: 8px; }
+  .spacing-row { display: flex; align-items: center; gap: 10px; }
+  .spacing-box { height: 12px; background: #2ECC71; border-radius: 3px; opacity: 0.3; }
+  .spacing-label { font-size: 11px; color: #64748B; white-space: nowrap; font-family: 'SF Mono', monospace; }
+  .v1 .col-header { background: linear-gradient(180deg, #ECFDF3 0%, #FFF 100%); }
+  .v1 .tag { background: #F0FDF4; color: #166534; }
+  .v2 .col-header { background: #FAFBFC; }
+  .v2 .tag { background: #F1F5F9; color: #475569; }
+  .v3 .col-header { background: #FFF; border-top: 4px solid #2ECC71; }
+  .v3 .tag { background: #ECFDF3; color: #166534; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; max-width: 560px; } }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>Pharmacy Profile</h1>
+  <p>Three design variations for the pharmacy profile page. Avatar treatment, field card surfaces, sign-out button styling, and operational status indicators.</p>
+</div>
+<div class="grid">
+
+<!-- V1: Premium Guided -->
+<div class="column v1">
+  <div class="col-header">
+    <span class="tag">V1</span>
+    <h2>Premium Guided</h2>
+    <p>Distinguished credential card with gradient avatar ring, Fraunces heading, deeper field card shadows, and hover micro-lifts.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(180deg,#ECFDF3,#F8FAFC)"></div><div class="swatch-label">Page gradient<code>#ECFDF3 &rarr; #F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:linear-gradient(135deg,#2ECC71,#27AE60); border-radius:50%;"></div><div class="swatch-label">Avatar gradient<code>#2ECC71 &rarr; #27AE60</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E2E8F0"></div><div class="swatch-label">Field border<code>#E2E8F0</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#64748B"></div><div class="swatch-label">Field label<code>#64748B</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:rgba(231,76,60,0.06)"></div><div class="swatch-label">Sign-out BG<code>rgba(danger,0.06)</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Profile Header</div>
+        <div style="font-family:'Fraunces',serif; font-size:22px; font-weight:500;">Profile</div>
+        <div class="spec">Fraunces 22px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Field Label</div>
+        <div style="font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:0.04em; color:#64748B;">PHARMACY NAME</div>
+        <div class="spec">Inter 12px / 500 / uppercase / 0.04em</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Field Value</div>
+        <div style="font-size:16px; font-weight:500;">HealthHub Pharmacy</div>
+        <div class="spec">Inter 16px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Sign-out Button</div>
+        <div style="font-size:14px; font-weight:600; color:#E74C3C;">Sign Out</div>
+        <div class="spec">Inter 14px / 600</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Profile Card Mockup</div>
+      <div class="mockup" style="background:linear-gradient(180deg,#ECFDF3 0%,#FFF 60px);">
+        <div class="mockup-inner" style="padding:32px 24px; text-align:center;">
+          <div style="font-size:13px; color:#2ECC71; font-weight:500; margin-bottom:16px; cursor:pointer;">&larr; Back</div>
+          <div style="font-family:'Fraunces',serif; font-size:22px; font-weight:500; margin-bottom:24px;">Profile</div>
+          <!-- Avatar with ring -->
+          <div class="avatar-mock" style="background:linear-gradient(135deg,#2ECC71,#27AE60); box-shadow: 0 0 0 3px rgba(46,204,113,0.2), 0 4px 12px rgba(0,0,0,0.1); margin-bottom:28px;">HP</div>
+          <!-- Field cards -->
+          <div style="text-align:left;">
+            <div class="field-mock" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); padding:20px; margin-bottom:16px; border-color:#E2E8F0;">
+              <div class="field-label-mock" style="font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:0.04em; color:#64748B;">PHARMACY NAME</div>
+              <div class="field-value-mock">HealthHub Pharmacy</div>
+            </div>
+            <div class="field-mock" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); padding:20px; margin-bottom:16px; border-color:#E2E8F0;">
+              <div class="field-label-mock" style="font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:0.04em; color:#64748B;">LICENSE NUMBER</div>
+              <div class="field-value-mock">PPB-2024-00142</div>
+            </div>
+            <div class="field-mock" style="border-radius:12px; box-shadow:0 4px 6px -1px rgba(15,23,42,0.08); padding:20px; margin-bottom:16px; border-color:#E2E8F0;">
+              <div class="field-label-mock" style="font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:0.04em; color:#64748B;">OPERATING STATUS</div>
+              <div class="field-value-mock" style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:50%; background:#2ECC71; display:inline-block;"></span> Operating</div>
+            </div>
+          </div>
+          <div class="signout-mock" style="background:rgba(231,76,60,0.06); color:#E74C3C; border:2px solid #E74C3C; border-radius:12px; margin-top:32px;">Sign Out</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        Avatar: gradient + 3px ring glow &middot; fields: 12px radius, shadow-md, 20px pad &middot; hover: translateY(-1px)
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:0 4px 6px -1px rgba(15,23,42,0.08);">Field</div>
+        <div class="shadow-card" style="box-shadow:0 10px 15px -3px rgba(15,23,42,0.08); transform:translateY(-1px);">Hover</div>
+        <div class="shadow-card" style="box-shadow:0 0 0 3px rgba(46,204,113,0.2), 0 4px 12px rgba(0,0,0,0.1); border-radius:50%; width:48px; height:48px;">Avatar</div>
+        <div class="shadow-card" style="box-shadow:0 2px 8px rgba(231,76,60,0.2); border:1px solid #E74C3C;">Sign out</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:128px;"></div><div class="spacing-label">32px 24px page pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:80px;"></div><div class="spacing-label">20px field pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">16px field gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:112px;"></div><div class="spacing-label">28px avatar margin-bottom</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:128px;"></div><div class="spacing-label">32px sign-out margin-top</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V2: Calm Clinical -->
+<div class="column v2">
+  <div class="col-header">
+    <span class="tag">V2</span>
+    <h2>Calm Clinical</h2>
+    <p>Simple settings card with flat avatar, softened borders, lighter labels, no hover effects, and minimal sign-out button.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#F8FAFC"></div><div class="swatch-label">Page BG (flat)<code>#F8FAFC</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2ECC71; border-radius:50%;"></div><div class="swatch-label">Avatar (flat)<code>$color-emerald</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EDF2F7"></div><div class="swatch-label">Field border<code>#EDF2F7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#94A3B8"></div><div class="swatch-label">Field label<code>#94A3B8</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:rgba(231,76,60,0.06)"></div><div class="swatch-label">Sign-out BG<code>rgba(danger,0.06)</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Profile Header</div>
+        <div style="font-size:22px; font-weight:500; color:#64748B;">Profile</div>
+        <div class="spec">Inter 22px / 500 / text-secondary</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Field Label</div>
+        <div style="font-size:14px; font-weight:400; color:#94A3B8;">Pharmacy Name</div>
+        <div class="spec">Inter 14px / 400 / text-light (no uppercase)</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Field Value</div>
+        <div style="font-size:16px; font-weight:400; line-height:1.6;">HealthHub Pharmacy</div>
+        <div class="spec">Inter 16px / 400 / line-height 1.6</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Profile Card Mockup</div>
+      <div class="mockup" style="background:#F8FAFC;">
+        <div class="mockup-inner" style="padding:24px; text-align:center;">
+          <div style="font-size:13px; color:#2ECC71; font-weight:400; margin-bottom:16px; cursor:pointer;">&larr; Back</div>
+          <div style="font-size:22px; font-weight:500; color:#64748B; margin-bottom:20px;">Profile</div>
+          <!-- Avatar flat -->
+          <div class="avatar-mock" style="background:#2ECC71; margin-bottom:20px;">HP</div>
+          <!-- Field cards -->
+          <div style="text-align:left;">
+            <div class="field-mock" style="border-color:#EDF2F7; box-shadow:0 1px 2px rgba(15,23,42,0.04); margin-bottom:14px;">
+              <div class="field-label-mock" style="color:#94A3B8;">Pharmacy Name</div>
+              <div class="field-value-mock" style="font-weight:400; line-height:1.6;">HealthHub Pharmacy</div>
+            </div>
+            <div class="field-mock" style="border-color:#EDF2F7; box-shadow:0 1px 2px rgba(15,23,42,0.04); margin-bottom:14px;">
+              <div class="field-label-mock" style="color:#94A3B8;">License Number</div>
+              <div class="field-value-mock" style="font-weight:400; line-height:1.6;">PPB-2024-00142</div>
+            </div>
+            <div class="field-mock" style="border-color:#EDF2F7; box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+              <div class="field-label-mock" style="color:#94A3B8;">Operating Status</div>
+              <div class="field-value-mock" style="font-weight:400; display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:50%; background:#2ECC71; display:inline-block;"></span> Operating</div>
+            </div>
+          </div>
+          <div class="signout-mock" style="background:rgba(231,76,60,0.06); color:#E74C3C; border:1px solid #E74C3C; font-weight:500; margin-top:24px;">Sign Out</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        Avatar: flat emerald, no ring &middot; fields: #EDF2F7 border, shadow-sm, no hover &middot; sign-out: 1px border
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04); border:1px solid #EDF2F7;">Field</div>
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04); border:1px solid #EDF2F7;">Hover=same</div>
+        <div class="shadow-card" style="background:#2ECC71; border-radius:50%; width:48px; height:48px; color:#FFF; font-size:14px;">Avatar</div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">Static shadow-sm on all fields. No transforms. No hover effects.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:96px;"></div><div class="spacing-label">24px page pad (all sides)</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">16px field pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:56px;"></div><div class="spacing-label">14px field gap</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:80px;"></div><div class="spacing-label">20px avatar margin-bottom</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:96px;"></div><div class="spacing-label">24px sign-out margin-top</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- V3: MyDawa-Inspired -->
+<div class="column v3">
+  <div class="col-header">
+    <span class="tag">V3</span>
+    <h2>MyDawa-Inspired</h2>
+    <p>Compact storefront card with unified field container, divider-separated rows, "Licensed" badge, monospace registration, and colored status row.</p>
+  </div>
+  <div class="col-body">
+
+    <div class="section">
+      <div class="section-title">Color Palette</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#FFF; border:1px solid #E2E8F0;"></div><div class="swatch-label">Page BG<code>#FFFFFF</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2ECC71; height:6px; border-radius:2px;"></div><div class="swatch-label">Top strip<code>4px #2ECC71</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EDF2F7"></div><div class="swatch-label">Row divider<code>#EDF2F7</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0FDF4"></div><div class="swatch-label">Status: operating<code>#F0FDF4</code></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FEF2F2"></div><div class="swatch-label">Status: closed<code>#FEF2F2</code></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Typography</div>
+      <div class="type-demo">
+        <div class="label">Profile Header</div>
+        <div style="font-size:20px; font-weight:700;">Profile</div>
+        <div class="spec">Inter 20px / 700</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Field Label</div>
+        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#64748B;">PHARMACY NAME</div>
+        <div class="spec">Inter 11px / 600 / uppercase / 0.06em</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Field Value</div>
+        <div style="font-size:15px; font-weight:500;">HealthHub Pharmacy</div>
+        <div class="spec">Inter 15px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Registration (Mono)</div>
+        <div style="font-family:'SF Mono','Fira Code',monospace; font-size:15px; font-weight:500;">PPB-2024-00142</div>
+        <div class="spec">Monospace 15px / 500</div>
+      </div>
+      <div class="type-demo">
+        <div class="label">Licensed Badge</div>
+        <div><span style="font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; background:#2ECC71; color:#FFF; padding:2px 8px; border-radius:4px;">LICENSED</span></div>
+        <div class="spec">9px / 600 / uppercase / emerald BG / radius-sm</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Profile Card Mockup</div>
+      <div class="mockup" style="background:#FFF; border-top:4px solid #2ECC71;">
+        <div class="mockup-inner" style="padding:16px; text-align:center;">
+          <div style="font-size:13px; color:#64748B; font-weight:400; margin-bottom:12px; cursor:pointer; text-align:left;">&larr; Back</div>
+          <div style="font-size:20px; font-weight:700; margin-bottom:16px;">Profile</div>
+          <!-- Compact avatar with badge -->
+          <div style="position:relative; display:inline-block; margin-bottom:16px;">
+            <div class="avatar-mock" style="background:#2ECC71; width:56px; height:56px; font-size:20px; margin-bottom:0;">HP</div>
+            <div style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; background:#2ECC71; color:#FFF; padding:2px 8px; border-radius:4px; white-space:nowrap;">LICENSED</div>
+          </div>
+          <!-- Unified card container -->
+          <div style="text-align:left; border:1px solid #E2E8F0; border-radius:8px; overflow:hidden; margin-top:8px; box-shadow:0 1px 2px rgba(15,23,42,0.04);">
+            <div style="padding:14px 16px; border-bottom:1px solid #EDF2F7;">
+              <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#64748B; margin-bottom:4px;">PHARMACY NAME</div>
+              <div style="font-size:15px; font-weight:500;">HealthHub Pharmacy</div>
+            </div>
+            <div style="padding:14px 16px; border-bottom:1px solid #EDF2F7;">
+              <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#64748B; margin-bottom:4px;">LOCATION</div>
+              <div style="font-size:15px; font-weight:500;">Nairobi, Kenya</div>
+            </div>
+            <div style="padding:14px 16px; border-bottom:1px solid #EDF2F7;">
+              <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#64748B; margin-bottom:4px;">REGISTRATION</div>
+              <div style="font-family:'SF Mono','Fira Code',monospace; font-size:15px; font-weight:500;">PPB-2024-00142</div>
+            </div>
+            <div style="padding:14px 16px; background:#F0FDF4;">
+              <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#64748B; margin-bottom:4px;">STATUS</div>
+              <div style="font-size:15px; font-weight:500; display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:50%; background:#2ECC71; display:inline-block;"></span> Operating</div>
+            </div>
+          </div>
+          <div class="signout-mock" style="background:transparent; color:#E74C3C; border:1px solid #E74C3C; font-weight:500; border-radius:8px; margin-top:24px;">Sign Out</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">
+        Avatar: 56px, Licensed badge &middot; unified card with dividers &middot; status row: #F0FDF4 BG &middot; sign-out: transparent, 1px border
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Surface & Shadows</div>
+      <div class="shadow-demo">
+        <div class="shadow-card" style="box-shadow:0 1px 2px rgba(15,23,42,0.04); border:1px solid #E2E8F0;">Unified</div>
+        <div class="shadow-card" style="box-shadow:none; border-bottom:1px solid #EDF2F7; border-radius:0;">Row</div>
+        <div class="shadow-card" style="box-shadow:none; background:transparent; border:1px solid #E74C3C;">Sign out</div>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#94A3B8;">Flat. Single container with shadow-sm. No hover effects. max-width: 480px.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Spacing</div>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">16px page pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:48px;"></div><div class="spacing-label">max-width: 480px</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:56px;"></div><div class="spacing-label">14px 16px row pad</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:64px;"></div><div class="spacing-label">16px avatar margin-bottom</div></div>
+        <div class="spacing-row"><div class="spacing-box" style="width:44px;"></div><div class="spacing-label">56px avatar size</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</body>
+</html>

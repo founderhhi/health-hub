@@ -1,0 +1,96 @@
+<section class="healwell-region-page">
+  <header class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
+    </button>
+    <div class="page-header__content">
+      <div class="page-title-row">
+        <div class="page-region-icon" aria-hidden="true">
+          @if (regionConfig.icon === 'africa') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11.6 2.5 9.5 4.4 9.2 7 7.5 8.8l.8 2.3-.5 2.2 1 2.3 1.6 1.2.5 2.7 1 1.9 1.4-1.8 1.3-1.2 1.4-.8.6-2.2 1.7-1.6-.4-2.2-1.4-1.5-.2-2.3-1.6-1.5-1-2-1.7-1.4Z" />
+          </svg>
+          } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11.3 2.8 9.6 4.8 10.4 7.2 9 9.2l1.3 1.8-.7 2.2 1.5 2.1 2.5 1.2 1.1 2.1-1.2 2.2" />
+            <path d="m12.6 15.8 2-.9 1.2-2.2-.7-2.1 1.1-2.4-1.7-1.8.4-2" />
+          </svg>
+          }
+        </div>
+        <div>
+          <p class="page-kicker">{{ regionConfig.kicker }}</p>
+          <h1 class="page-title">{{ regionConfig.title }}</h1>
+          <p class="page-subtitle">{{ pageSubtitle }}</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  @switch (view) {
+    @case ('cities') {
+    <div class="button-grid">
+      @for (city of regionConfig.cities; track city.name) {
+      <button type="button" class="selection-button" (click)="selectCity(city)">
+        <span class="selection-label">{{ city.name }}</span>
+      </button>
+      }
+    </div>
+    }
+
+    @case ('hospitals') {
+    <div class="button-grid">
+      @for (hospital of selectedCity?.hospitals; track hospital.name) {
+      <button type="button" class="selection-button selection-button--hospital" (click)="selectHospital(hospital)">
+        <span class="selection-label">{{ hospital.name }}</span>
+      </button>
+      }
+    </div>
+    }
+
+    @case ('callback') {
+    <div class="callback-banner">
+      <div class="callback-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+      </div>
+      <h2 class="callback-title">We'll help with the next step</h2>
+      <p class="callback-text">
+        A care support representative will reach out by phone when available so you can talk through the hospital and next-step options calmly.
+      </p>
+      <p class="callback-details">
+        {{ selectedHospital?.name }} &mdash; {{ selectedCity?.name }}
+      </p>
+      @if (callbackLoading) {
+      <div class="callback-confirmation callback-confirmation--pending">
+        <span>Submitting your request...</span>
+      </div>
+      } @else if (callbackSent) {
+      <div class="callback-confirmation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12" /></svg>
+        <span>Request submitted</span>
+      </div>
+      } @else if (callbackError) {
+      <div class="callback-confirmation callback-confirmation--error">
+        <span>{{ callbackError }}</span>
+      </div>
+      <button class="callback-retry-btn" type="button" (click)="retryCallback()">Try Again</button>
+      }
+    </div>
+    }
+  }
+
+  @if (view !== 'callback') {
+  <section class="region-info-panel">
+    <p class="region-info-panel__title">{{ regionConfig.kicker }}</p>
+    <p class="region-info-panel__text">{{ regionConfig.intro }}</p>
+    <div class="region-info-panel__highlights">
+      @for (highlight of regionConfig.highlights; track highlight) {
+      <span class="region-info-panel__highlight">{{ highlight }}</span>
+      }
+    </div>
+  </section>
+  }
+
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
+</section>

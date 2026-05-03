@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codex Visualisation - Health Hub Current State and Redesign Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg:
+        radial-gradient(circle at top left, rgba(46, 204, 113, 0.14), transparent 30%),
+        radial-gradient(circle at top right, rgba(29, 78, 216, 0.1), transparent 26%),
+        linear-gradient(180deg, #f7fbf8 0%, #f4f7fb 55%, #eef4f5 100%);
+      --panel-bg: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --panel-line: rgba(15, 23, 42, 0.08);
+      --page-text: #112218;
+      --page-muted: #61756d;
+      --accent: #2ecc71;
+      --accent-deep: #1f8a56;
+      --accent-soft: #ebfaf2;
+      --accent-blue: #1d4ed8;
+      --accent-gold: #c48d3d;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --shadow-lg: 0 28px 90px rgba(15, 23, 42, 0.12);
+      --shadow-md: 0 18px 48px rgba(15, 23, 42, 0.08);
+      --container: 1520px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #f6f9f8;
+      color: var(--page-text);
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    body {
+      background-image: var(--page-bg);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .page-shell {
+      width: min(calc(100% - 32px), var(--container));
+      margin: 0 auto;
+      padding: 24px 0 72px;
+    }
+
+    .hero {
+      position: sticky;
+      top: 12px;
+      z-index: 5;
+      margin-bottom: 28px;
+      border: 1px solid var(--panel-line);
+      border-radius: 34px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(246, 251, 248, 0.88)),
+        var(--panel-bg);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, rgba(46, 204, 113, 0.12), transparent 46%),
+        radial-gradient(circle at 84% 16%, rgba(174, 234, 0, 0.16), transparent 22%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      display: grid;
+      gap: 20px;
+      padding: 28px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(46, 204, 113, 0.2);
+      background: rgba(236, 253, 243, 0.94);
+      color: #166534;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hero-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.95fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 13ch;
+      font-family: "Fraunces", serif;
+      font-size: clamp(2.65rem, 4vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 74ch;
+      color: var(--page-muted);
+      font-size: 16px;
+      line-height: 1.68;
+    }
+
+    .hero-aside {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .hero-aside strong {
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #0b6a41;
+    }
+
+    .hero-aside p {
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .jump-links,
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .jump-link,
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.74);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #21392e;
+    }
+
+    .jump-link:hover,
+    .legend-chip:hover {
+      background: rgba(255, 255, 255, 0.92);
+      transform: translateY(-1px);
+    }
+
+    .legend-chip::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--tone, var(--accent));
+    }
+
+    .legend-chip[data-tone="current"] {
+      --tone: #2ecc71;
+    }
+
+    .legend-chip[data-tone="research"] {
+      --tone: #1d4ed8;
+    }
+
+    .legend-chip[data-tone="dashboard"] {
+      --tone: #c48d3d;
+    }
+
+    .legend-chip[data-tone="generated"] {
+      --tone: #73c4b0;
+    }
+
+    .stack {
+      display: grid;
+      gap: 28px;
+    }
+
+    .section-card {
+      padding: 26px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--panel-line);
+      background: var(--panel-bg);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(14px);
+    }
+
+    .section-header {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .section-kicker {
+      width: fit-content;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(46, 204, 113, 0.1);
+      color: #0f6c43;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: clamp(2rem, 2.6vw, 3rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+
+    .section-header p {
+      margin: 0;
+      max-width: 78ch;
+      color: var(--page-muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .meta-grid,
+    .screen-grid,
+    .research-grid,
+    .focus-grid,
+    .artifact-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .meta-card,
+    .research-card,
+    .artifact-card,
+    .deep-dive-card,
+    .variation-card {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .meta-card {
+      padding: 18px;
+    }
+
+    .meta-card strong,
+    .research-card strong,
+    .artifact-card strong,
+    .deep-dive-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #0b6a41;
+    }
+
+    .meta-card span,
+    .research-card p,
+    .artifact-card p,
+    .deep-dive-card p {
+      color: var(--page-text);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .screen-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .screen-card {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .screen-card-header {
+      display: grid;
+      gap: 8px;
+    }
+
+    .screen-card-header h3,
+    .variation-card h3,
+    .group-header h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .screen-card-header p,
+    .variation-card p,
+    .group-header p {
+      margin: 0;
+      color: var(--page-muted);
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    .screen-frame,
+    .variation-frame {
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4)),
+        #f3f7f6;
+    }
+
+    .screen-frame img,
+    .variation-frame img {
+      width: 100%;
+      height: auto;
+    }
+
+    .note-list,
+    .bullet-list,
+    .source-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .note-list li,
+    .bullet-list li,
+    .source-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: #26433b;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .note-list li::before,
+    .bullet-list li::before,
+    .source-list li::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      margin-top: 6px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: rgba(46, 204, 113, 0.8);
+    }
+
+    .screen-meta,
+    .variation-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(248, 252, 249, 0.9);
+      color: #234237;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pill--current {
+      background: rgba(46, 204, 113, 0.12);
+      color: #166534;
+    }
+
+    .pill--research {
+      background: rgba(29, 78, 216, 0.1);
+      color: #1e3a8a;
+    }
+
+    .pill--premium {
+      background: rgba(196, 141, 61, 0.14);
+      color: #7b4d10;
+    }
+
+    .pill--operational {
+      background: rgba(46, 204, 113, 0.14);
+      color: #12633d;
+    }
+
+    .pill--calm {
+      background: rgba(115, 196, 176, 0.14);
+      color: #0f6a5b;
+    }
+
+    .pill--competitor {
+      background: rgba(29, 78, 216, 0.12);
+      color: #1e3a8a;
+    }
+
+    .research-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .research-card,
+    .artifact-card,
+    .deep-dive-card {
+      padding: 18px;
+    }
+
+    .research-card a,
+    .artifact-card a,
+    .source-list a {
+      color: var(--accent-blue);
+    }
+
+    .deep-dive-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      gap: 18px;
+    }
+
+    .dashboard-shot {
+      display: grid;
+      gap: 14px;
+    }
+
+    .dashboard-summary {
+      display: grid;
+      gap: 16px;
+    }
+
+    .priority-list {
+      display: grid;
+      gap: 12px;
+      counter-reset: priorities;
+    }
+
+    .priority-item {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 12px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(248, 252, 249, 0.92);
+    }
+
+    .priority-item::before {
+      counter-increment: priorities;
+      content: counter(priorities);
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      font-weight: 800;
+    }
+
+    .priority-item strong {
+      margin-bottom: 4px;
+    }
+
+    .variation-groups {
+      display: grid;
+      gap: 18px;
+    }
+
+    .group-block {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .group-header {
+      display: grid;
+      gap: 8px;
+    }
+
+    .focus-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .variation-card {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      padding: 16px;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+
+    .variation-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.11);
+    }
+
+    .artifact-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding: 18px 22px;
+      border-radius: 22px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--page-muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 1240px) {
+      .hero-head,
+      .deep-dive-layout,
+      .screen-grid,
+      .research-grid,
+      .focus-grid,
+      .artifact-grid,
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .hero {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="eyebrow">Codex Visualisation</div>
+        <div class="hero-head">
+          <div class="hero-copy">
+            <h1>Health Hub current state and redesign report.</h1>
+            <p>
+              This single file now brings together the current Angular app captures, the patient-dashboard critique,
+              research notes for landing and auth patterns, and the generated redesign outputs. The current screenshots
+              were captured from the local app on March 26, 2026 through <code>http://127.0.0.1:4300</code> so this
+              board reflects how the product renders in the codebase right now.
+            </p>
+          </div>
+          <aside class="hero-aside">
+            <strong>Main takeaway</strong>
+            <p>
+              The patient home already communicates breadth, but not enough guidance. The strongest next pass is to
+              keep the structure intact while making the care plan, status strip, and next action feel primary in the
+              first screen.
+            </p>
+          </aside>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>Current Pages Captured</strong>
+            <span>Landing, login, signup, and the protected patient dashboard with an auth-safe local capture.</span>
+          </div>
+          <div class="meta-card">
+            <strong>Research Inputs</strong>
+            <span>Health Hub live landing, Practo consult positioning, and One Medical's calmer primary-care storytelling.</span>
+          </div>
+          <div class="meta-card">
+            <strong>Generated Outputs Included</strong>
+            <span>Six full redesign renders for landing and dashboard, all first-wave tenant boards, and links back to the concept HTML files and scripts.</span>
+          </div>
+        </div>
+        <div class="jump-links">
+          <a class="jump-link" href="#actual-redesigns">Actual Redesigns</a>
+          <a class="jump-link" href="#current-state">Current Screens</a>
+          <a class="jump-link" href="#research">Research</a>
+          <a class="jump-link" href="#dashboard-deep-dive">Dashboard Deep Dive</a>
+          <a class="jump-link" href="#generated">Generated Variations</a>
+          <a class="jump-link" href="#artifacts">Artifacts</a>
+        </div>
+        <div class="legend">
+          <span class="legend-chip" data-tone="current">Current-state evidence</span>
+          <span class="legend-chip" data-tone="research">External references</span>
+          <span class="legend-chip" data-tone="dashboard">Patient-home priority</span>
+          <span class="legend-chip" data-tone="generated">Generated redesign outputs</span>
+        </div>
+      </div>
+    </section>
+
+    <main class="stack">
+      <section class="section-card" id="actual-redesigns">
+        <div class="section-header">
+          <div class="section-kicker">Actual Redesigns</div>
+          <h2>Rendered concepts for the landing page and patient dashboard.</h2>
+          <p>
+            These are not critique boards. They are actual rendered redesign examples based on the current Health Hub
+            architecture, pushed in different comparative directions so you can judge what feels closest to where the
+            product should go next.
+          </p>
+        </div>
+
+        <div class="variation-groups">
+          <section class="group-block">
+            <div class="group-header">
+              <div class="screen-meta">
+                <span class="pill pill--premium">Landing redesigns</span>
+                <span class="pill pill--research">Current + competitor grounded</span>
+              </div>
+              <h3>Three stronger ways to present the current landing architecture</h3>
+              <p>Each concept keeps the same major modules already present in <code>landing-page.html</code>: nav, hero, how-it-works, ecosystem cards, and final CTA.</p>
+            </div>
+            <div class="focus-grid">
+              <article class="variation-card">
+                <div class="variation-meta">
+                  <span class="pill pill--competitor">Practo-informed</span>
+                </div>
+                <h3>Landing 1 · Conversion consult</h3>
+                <p>This version makes the homepage behave more like a decisive care-entry surface: clear consult promise, proof, lanes, and outcome-led feature cards.</p>
+                <div class="variation-frame">
+                  <img src="./concepts/landing-practo.png" alt="Landing redesign concept based on a consult-conversion pattern" loading="lazy" />
+                </div>
+                <ul class="note-list">
+                  <li>Best if the landing page should drive users straight into consultation instead of introducing the ecosystem first.</li>
+                  <li>Main implementation targets: <code>landing-page.html</code>, <code>landing-page.scss</code>, and the current proof / button hierarchy.</li>
+                </ul>
+              </article>
+
+              <article class="variation-card">
+                <div class="variation-meta">
+                  <span class="pill pill--research">Mode-marketplace</span>
+                </div>
+                <h3>Landing 2 · Care mode marketplace</h3>
+                <p>This direction explains Health Hub through the job the patient wants done first: consultation, specialist, diagnostics, or pharmacy.</p>
+                <div class="variation-frame">
+                  <img src="./concepts/landing-marketplace.png" alt="Landing redesign concept based on a care-lane marketplace pattern" loading="lazy" />
+                </div>
+                <ul class="note-list">
+                  <li>Best if the homepage should feel more action-led and more useful to intent-heavy users arriving with a clear need.</li>
+                  <li>Main implementation targets: hero content framing, CTA copy, lane emphasis, and feature-card categorization.</li>
+                </ul>
+              </article>
+
+              <article class="variation-card">
+                <div class="variation-meta">
+                  <span class="pill pill--premium">One Medical-informed</span>
+                </div>
+                <h3>Landing 3 · Guided premium</h3>
+                <p>This is the calmest and most premium interpretation, using editorial hierarchy and softer cream surfaces while keeping the current structure intact.</p>
+                <div class="variation-frame">
+                  <img src="./concepts/landing-premium.png" alt="Landing redesign concept with a premium guided-care tone" loading="lazy" />
+                </div>
+                <ul class="note-list">
+                  <li>Best if the homepage should feel more trustworthy and refined than transactional while still presenting the full ecosystem.</li>
+                  <li>Main implementation targets: typography, surface depth, CTA contrast, and how the steps/features are curated visually.</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+
+          <section class="group-block">
+            <div class="group-header">
+              <div class="screen-meta">
+                <span class="pill pill--premium">Dashboard redesigns</span>
+                <span class="pill pill--current">Current patient structure retained</span>
+              </div>
+              <h3>Three clearer ways to evolve the current patient home</h3>
+              <p>Each concept respects the existing dashboard order: header, status, summary, services, records, care hero, and bottom navigation.</p>
+            </div>
+            <div class="focus-grid">
+              <article class="variation-card">
+                <div class="variation-meta">
+                  <span class="pill pill--calm">Guided care plan</span>
+                </div>
+                <h3>Dashboard 1 · Guided care plan</h3>
+                <p>The strongest concept if we want the home screen to feel like a care journey first and a service catalog second.</p>
+                <div class="variation-frame">
+                  <img src="./concepts/dashboard-guided.png" alt="Dashboard redesign concept emphasizing the care plan" loading="lazy" />
+                </div>
+                <ul class="note-list">
+                  <li>Main implementation targets: summary-card density, service-card height, records-card styling, and care-hero prominence in <code>dashboard.component.scss</code>.</li>
+                </ul>
+              </article>
+
+              <article class="variation-card">
+                <div class="variation-meta">
+                  <span class="pill pill--competitor">Utility super-app</span>
+                </div>
+                <h3>Dashboard 2 · Utility super-app</h3>
+                <p>The best option if the patient home should feel faster, denser, and more glanceable without changing what the page can do.</p>
+                <div class="variation-frame">
+                  <img src="./concepts/dashboard-utility.png" alt="Dashboard redesign concept with a compact utility style" loading="lazy" />
+                </div>
+                <ul class="note-list">
+                  <li>Main implementation targets: whitespace compression, flatter surfaces, stronger status strip behavior, and more compact quick actions.</li>
+                </ul>
+              </article>
+
+              <article class="variation-card">
+                <div class="variation-meta">
+                  <span class="pill pill--premium">Concierge premium</span>
+                </div>
+                <h3>Dashboard 3 · Concierge premium</h3>
+                <p>The most refined version of the current dashboard, meant to feel like a guided health companion rather than a lightweight portal.</p>
+                <div class="variation-frame">
+                  <img src="./concepts/dashboard-premium.png" alt="Dashboard redesign concept with a premium concierge tone" loading="lazy" />
+                </div>
+                <ul class="note-list">
+                  <li>Main implementation targets: warmer tokens, richer heading scale, quieter inactive modules, and more premium care-hero treatment.</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="section-card" id="current-state">
+        <div class="section-header">
+          <div class="section-kicker">Current State</div>
+          <h2>The app as it renders now.</h2>
+          <p>
+            These screenshots are the grounding layer for the redesign work. They make the current hierarchy,
+            whitespace, and component rhythm easier to understand than static notes alone.
+          </p>
+        </div>
+        <div class="screen-grid">
+          <article class="screen-card">
+            <div class="screen-card-header">
+              <div class="screen-meta">
+                <span class="pill pill--current">Local capture</span>
+                <span class="pill">Landing</span>
+              </div>
+              <h3>Landing page</h3>
+              <p>The product reads as warm and trustworthy, but the long scroll makes “what do I do first?” softer than it should be.</p>
+            </div>
+            <div class="screen-frame">
+              <img src="./current/landing-current.png" alt="Current landing page screenshot" loading="eager" />
+            </div>
+            <ul class="note-list">
+              <li>The tree mark, green accent, and centered hero already establish a recognizable care-first brand.</li>
+              <li>The ecosystem section is comprehensive, but action intent and proof are mixed into one long visual rhythm.</li>
+              <li>Buttons, cards, and headings rely on the same weight range, so hierarchy depends more on color than on structure.</li>
+            </ul>
+          </article>
+
+          <article class="screen-card">
+            <div class="screen-card-header">
+              <div class="screen-meta">
+                <span class="pill pill--current">Local capture</span>
+                <span class="pill">Auth</span>
+              </div>
+              <h3>Login page</h3>
+              <p>The form itself is clean and focused, but the empty brand panel makes the desktop shell feel unfinished.</p>
+            </div>
+            <div class="screen-frame">
+              <img src="./current/login-current.png" alt="Current login page screenshot" loading="lazy" />
+            </div>
+            <ul class="note-list">
+              <li>Phone-number-first entry suits a healthcare context and keeps the form compact.</li>
+              <li>The role context exists in copy, yet it is visually quieter than it should be for a dual-audience platform.</li>
+              <li>The left half holds atmosphere but very little meaning, so the page feels visually split rather than intentionally balanced.</li>
+            </ul>
+          </article>
+
+          <article class="screen-card">
+            <div class="screen-card-header">
+              <div class="screen-meta">
+                <span class="pill pill--current">Local capture</span>
+                <span class="pill">Signup</span>
+              </div>
+              <h3>Signup page</h3>
+              <p>The role selector is immediately useful, but the emoji-driven role cards shift the tone away from the calmer product surfaces.</p>
+            </div>
+            <div class="screen-frame">
+              <img src="./current/signup-current.png" alt="Current signup page screenshot" loading="lazy" />
+            </div>
+            <ul class="note-list">
+              <li>The first decision is visible early, which is good for a multi-tenant platform.</li>
+              <li>The role cards feel less precise than the rest of the brand and would benefit from more explicit hierarchy and explanation.</li>
+              <li>The structure is strong enough already that visual refinement alone could make this page feel much more intentional.</li>
+            </ul>
+          </article>
+
+          <article class="screen-card">
+            <div class="screen-card-header">
+              <div class="screen-meta">
+                <span class="pill pill--current">Local capture</span>
+                <span class="pill">Patient home</span>
+              </div>
+              <h3>Patient dashboard</h3>
+              <p>The dashboard is understandable, but the first viewport communicates catalog breadth more strongly than guided care.</p>
+            </div>
+            <div class="screen-frame">
+              <img src="./current/patient-dashboard-current.png" alt="Current patient dashboard screenshot" loading="lazy" />
+            </div>
+            <ul class="note-list">
+              <li>The 3-by-3 services grid is immediately scannable and makes the app’s scope clear fast.</li>
+              <li>Summary counts, records access, the floating WhatsApp CTA, and the care plan all compete for attention.</li>
+              <li>The care hero is strong once reached, but it arrives lower than the most helpful guidance moment.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-card" id="research">
+        <div class="section-header">
+          <div class="section-kicker">Research</div>
+          <h2>What stronger healthcare entry flows tend to do.</h2>
+          <p>
+            I looked at current official patterns that matter most for Health Hub’s landing story. The useful
+            through-line is that the strongest healthcare surfaces reduce ambiguity fast: they foreground intent,
+            trust, and the next step before they foreground platform breadth.
+          </p>
+        </div>
+        <div class="research-grid">
+          <article class="research-card">
+            <div class="screen-meta">
+              <span class="pill pill--research">Live product review</span>
+            </div>
+            <strong>Health Hub live landing</strong>
+            <p>
+              The deployed landing already leans into a light-first, emerald-led identity with dual entry actions.
+              That means the next design step should not reinvent the brand; it should sharpen proof, scanning rhythm,
+              and the first action.
+            </p>
+            <div class="screen-frame">
+              <img src="./research/healthhub-live-landing.png" alt="Live Health Hub landing page capture" loading="lazy" />
+            </div>
+            <ul class="source-list">
+              <li><a href="https://www.healthhubinternational.com/landing" target="_blank" rel="noreferrer">Health Hub landing</a></li>
+              <li><a href="../DESIGN.md">DESIGN.md</a></li>
+            </ul>
+          </article>
+
+          <article class="research-card">
+            <div class="screen-meta">
+              <span class="pill pill--research">Competitive landing</span>
+            </div>
+            <strong>Practo consult</strong>
+            <p>
+              Practo’s official consult entry point foregrounds online consultation, fast response, verified doctors,
+              privacy, and prescription continuity. That is a useful model for making Health Hub’s hero more
+              outcome-led and less generic.
+            </p>
+            <ul class="source-list">
+              <li><a href="https://www.practo.com/consult" target="_blank" rel="noreferrer">Practo Consult</a></li>
+            </ul>
+          </article>
+
+          <article class="research-card">
+            <div class="screen-meta">
+              <span class="pill pill--research">Marketplace pattern</span>
+            </div>
+            <strong>One Medical primary care</strong>
+            <p>
+              One Medical’s primary-care page shows how much calmer the exact same healthcare promise can feel when the
+              typography, spacing, and CTA cadence are more editorial and less promotional. That is the clearest cue
+              for a premium Health Hub direction.
+            </p>
+            <div class="screen-frame">
+              <img src="./research/one-medical-primary-care.png" alt="One Medical primary care page capture" loading="lazy" />
+            </div>
+            <ul class="source-list">
+              <li><a href="https://www.onemedical.com/services/primary-care/" target="_blank" rel="noreferrer">One Medical primary care</a></li>
+            </ul>
+          </article>
+
+          <article class="research-card">
+            <div class="screen-meta">
+              <span class="pill pill--research">Dashboard note</span>
+            </div>
+            <strong>How the dashboard references were handled</strong>
+            <p>
+              Authenticated patient dashboards for most competitor products are not publicly browsable, so the
+              dashboard concepts here are informed translations of public product language and current app structure,
+              not copied private screens. That makes the comparison more honest and more useful for implementation.
+            </p>
+            <ul class="source-list">
+              <li><a href="./dashboard-redesigns.html">Dashboard concept source file</a></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-card" id="dashboard-deep-dive">
+        <div class="section-header">
+          <div class="section-kicker">Patient Dashboard Deep Dive</div>
+          <h2>The dashboard problem is hierarchy, not architecture.</h2>
+          <p>
+            The Angular structure is already workable: greeting, status, summary, services, records, care hero, and
+            downstream actions. The deeper issue is that the top of the page does not make the care plan feel as
+            important as the service catalog. That means the best redesign move is a visual one, not a functional rewrite.
+          </p>
+        </div>
+        <div class="deep-dive-layout">
+          <div class="dashboard-shot">
+            <div class="screen-frame">
+              <img src="./current/patient-dashboard-current.png" alt="Patient dashboard current-state screenshot for analysis" loading="lazy" />
+            </div>
+            <div class="deep-dive-card">
+              <strong>What is already working</strong>
+              <ul class="bullet-list">
+                <li>The dashboard feels approachable and light rather than intimidating.</li>
+                <li>The service taxonomy is clear, especially for first-time users.</li>
+                <li>The care hero copy is directionally right and aligns with the product promise of guided care.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="dashboard-summary">
+            <div class="deep-dive-card">
+              <strong>Anti-pattern verdict</strong>
+              <p>
+                This does not feel like generic AI slop, but it is under-articulated. The page uses gentle surfaces and
+                branded greens well, yet too many modules share the same softness, so the eye does not know what matters first.
+              </p>
+            </div>
+
+            <div class="deep-dive-card">
+              <strong>Biggest friction points</strong>
+              <ul class="bullet-list">
+                <li>The summary cards are too quiet, especially when values are zero, so the status layer feels disposable.</li>
+                <li>The service tiles are large and airy, which pushes the most helpful guided-care surface lower.</li>
+                <li>The records card and care hero do not visually belong to the same care journey even though they should.</li>
+                <li>The floating WhatsApp action and bottom nav pull some attention away from the main next-step story.</li>
+              </ul>
+            </div>
+
+            <div class="deep-dive-card">
+              <strong>Priority visual moves while keeping the same structure</strong>
+              <div class="priority-list">
+                <div class="priority-item">
+                  <div>
+                    <strong>Compress the service field without removing anything.</strong>
+                    <p>Reduce tile height slightly, enlarge icon-title pairing, and let the care hero peek sooner into common laptop viewports.</p>
+                  </div>
+                </div>
+                <div class="priority-item">
+                  <div>
+                    <strong>Make the summary row read as status, not decoration.</strong>
+                    <p>Use denser numerals, clearer labels, and stronger category tinting so the patient immediately understands their current state.</p>
+                  </div>
+                </div>
+                <div class="priority-item">
+                  <div>
+                    <strong>Bridge records and care plan with one surface grammar.</strong>
+                    <p>Shared borders, tonal backgrounds, and consistent micro-headings can make those modules feel sequential instead of isolated.</p>
+                  </div>
+                </div>
+                <div class="priority-item">
+                  <div>
+                    <strong>Reserve the strongest contrast for guided action.</strong>
+                    <p>The CTA, care-plan signals, and section introductions should carry the boldest contrast, not every tile equally.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="deep-dive-card">
+              <strong>Best candidates from the generated patient set</strong>
+              <ul class="bullet-list">
+                <li><strong>Patient 1:</strong> the safest refinement if we want a cleaner, calmer current dashboard.</li>
+                <li><strong>Patient 2:</strong> the best fit if we want the home screen to feel more guided and premium without changing structure.</li>
+                <li><strong>Patient 3:</strong> the best fit if we optimize first for speed and service discovery over warmth.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card" id="generated">
+        <div class="section-header">
+          <div class="section-kicker">Generated Outputs</div>
+          <h2>All generated visual directions, now inside the same Codex file.</h2>
+          <p>
+            These are the actual variation images generated for the redesign experiment. The patient set is surfaced
+            first because it is the highest-value page family right now, followed by the supporting tenant outputs.
+          </p>
+        </div>
+
+        <div class="variation-groups">
+          <section class="group-block">
+            <div class="group-header">
+              <div class="screen-meta">
+                <span class="pill pill--premium">Patient focus</span>
+              </div>
+              <h3>Patient dashboard focus set</h3>
+              <p>These three are the most relevant for deciding how the patient home should evolve visually without changing its Angular architecture.</p>
+            </div>
+            <div class="focus-grid">
+              <article class="variation-card" data-card="patient-1">
+                <div class="variation-meta">
+                  <span class="pill pill--calm">Calm clinical</span>
+                </div>
+                <h3>Patient 1</h3>
+                <p>Quieter surfaces, softer hero treatment, and more breathing room around the current dashboard modules.</p>
+                <div class="variation-frame">
+                  <img src="./screens/patient-1.png" alt="Patient variation 1" loading="lazy" />
+                </div>
+              </article>
+
+              <article class="variation-card" data-card="patient-2">
+                <div class="variation-meta">
+                  <span class="pill pill--premium">Premium guided</span>
+                </div>
+                <h3>Patient 2</h3>
+                <p>Warmer surfaces and stronger editorial hierarchy aimed at making the care path feel more premium and guided.</p>
+                <div class="variation-frame">
+                  <img src="./screens/patient-2.png" alt="Patient variation 2" loading="lazy" />
+                </div>
+              </article>
+
+              <article class="variation-card" data-card="patient-3">
+                <div class="variation-meta">
+                  <span class="pill pill--competitor">Utility consumer</span>
+                </div>
+                <h3>Patient 3</h3>
+                <p>Flatter, denser, more app-like utility language for a faster consumer-health reading pattern.</p>
+                <div class="variation-frame">
+                  <img src="./screens/patient-3.png" alt="Patient variation 3" loading="lazy" />
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="group-block">
+            <div class="group-header">
+              <h3>GP dashboard</h3>
+              <p>Provider-home variants focused on queue clarity, urgency legibility, and calmer operational rhythm.</p>
+            </div>
+            <div class="focus-grid">
+              <article class="variation-card" data-card="gp-1">
+                <div class="variation-meta">
+                  <span class="pill pill--operational">Operational clarity</span>
+                </div>
+                <h3>GP 1</h3>
+                <p>Sharper risk signaling and denser rows for throughput-heavy work.</p>
+                <div class="variation-frame">
+                  <img src="./screens/gp-1.png" alt="GP variation 1" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="gp-2">
+                <div class="variation-meta">
+                  <span class="pill pill--calm">Calm clinical</span>
+                </div>
+                <h3>GP 2</h3>
+                <p>More measured operational tone with lower-pressure visual rhythm.</p>
+                <div class="variation-frame">
+                  <img src="./screens/gp-2.png" alt="GP variation 2" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="gp-3">
+                <div class="variation-meta">
+                  <span class="pill pill--competitor">Helium-inspired</span>
+                </div>
+                <h3>GP 3</h3>
+                <p>Hospital-operations framing with flatter cards and more procedural work-item emphasis.</p>
+                <div class="variation-frame">
+                  <img src="./screens/gp-3.png" alt="GP variation 3" loading="lazy" />
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="group-block">
+            <div class="group-header">
+              <h3>Specialist dashboard</h3>
+              <p>Specialist-home variants tuned for richer case focus, calmer density, and stronger appointment framing.</p>
+            </div>
+            <div class="focus-grid">
+              <article class="variation-card" data-card="specialist-1">
+                <div class="variation-meta">
+                  <span class="pill pill--premium">Premium guided</span>
+                </div>
+                <h3>Specialist 1</h3>
+                <p>Deeper case framing with richer surfaces and stronger typographic contrast.</p>
+                <div class="variation-frame">
+                  <img src="./screens/specialist-1.png" alt="Specialist variation 1" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="specialist-2">
+                <div class="variation-meta">
+                  <span class="pill pill--calm">Calm clinical</span>
+                </div>
+                <h3>Specialist 2</h3>
+                <p>Lower-stress tone with gentler depth and quieter charting surfaces.</p>
+                <div class="variation-frame">
+                  <img src="./screens/specialist-2.png" alt="Specialist variation 2" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="specialist-3">
+                <div class="variation-meta">
+                  <span class="pill pill--competitor">Competitor inspired</span>
+                </div>
+                <h3>Specialist 3</h3>
+                <p>More platform-like specialist command center treatment.</p>
+                <div class="variation-frame">
+                  <img src="./screens/specialist-3.png" alt="Specialist variation 3" loading="lazy" />
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="group-block">
+            <div class="group-header">
+              <h3>Pharmacy scanner</h3>
+              <p>Pharmacy-home variants focused on handheld scanning speed, prescription confidence, and operational calm.</p>
+            </div>
+            <div class="focus-grid">
+              <article class="variation-card" data-card="pharmacy-1">
+                <div class="variation-meta">
+                  <span class="pill pill--operational">Operational clarity</span>
+                </div>
+                <h3>Pharmacy 1</h3>
+                <p>Fast-scanning operational language for busy counter use.</p>
+                <div class="variation-frame">
+                  <img src="./screens/pharmacy-1.png" alt="Pharmacy variation 1" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="pharmacy-2">
+                <div class="variation-meta">
+                  <span class="pill pill--calm">Calm clinical</span>
+                </div>
+                <h3>Pharmacy 2</h3>
+                <p>Softer medication workflow with less visual pressure and clearer batching.</p>
+                <div class="variation-frame">
+                  <img src="./screens/pharmacy-2.png" alt="Pharmacy variation 2" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="pharmacy-3">
+                <div class="variation-meta">
+                  <span class="pill pill--competitor">Competitor inspired</span>
+                </div>
+                <h3>Pharmacy 3</h3>
+                <p>Retail-pharmacy inspired surface language with stronger edge definition.</p>
+                <div class="variation-frame">
+                  <img src="./screens/pharmacy-3.png" alt="Pharmacy variation 3" loading="lazy" />
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="group-block">
+            <div class="group-header">
+              <h3>Diagnostics orders</h3>
+              <p>Diagnostics-home variants centered on order status, lab clarity, and more legible action grouping.</p>
+            </div>
+            <div class="focus-grid">
+              <article class="variation-card" data-card="diagnostics-1">
+                <div class="variation-meta">
+                  <span class="pill pill--operational">Operational clarity</span>
+                </div>
+                <h3>Diagnostics 1</h3>
+                <p>More decisive order state language and sharper task grouping.</p>
+                <div class="variation-frame">
+                  <img src="./screens/diagnostics-1.png" alt="Diagnostics variation 1" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="diagnostics-2">
+                <div class="variation-meta">
+                  <span class="pill pill--calm">Calm clinical</span>
+                </div>
+                <h3>Diagnostics 2</h3>
+                <p>Lower-contrast, cleaner lab workflow styling with better whitespace rhythm.</p>
+                <div class="variation-frame">
+                  <img src="./screens/diagnostics-2.png" alt="Diagnostics variation 2" loading="lazy" />
+                </div>
+              </article>
+              <article class="variation-card" data-card="diagnostics-3">
+                <div class="variation-meta">
+                  <span class="pill pill--competitor">Competitor inspired</span>
+                </div>
+                <h3>Diagnostics 3</h3>
+                <p>More SaaS-like diagnostics orchestration with stronger utility emphasis.</p>
+                <div class="variation-frame">
+                  <img src="./screens/diagnostics-3.png" alt="Diagnostics variation 3" loading="lazy" />
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="section-card" id="artifacts">
+        <div class="section-header">
+          <div class="section-kicker">Artifacts</div>
+          <h2>Files linked from the same Codex report.</h2>
+          <p>
+            This is the navigation layer back to the underlying experiment docs, live-aware design baseline, and the
+            scripts used to capture and render the visuals in this folder.
+          </p>
+        </div>
+        <div class="artifact-grid">
+          <article class="artifact-card">
+            <strong>Core experiment docs</strong>
+            <ul class="source-list">
+              <li><a href="../DESIGN.md">DESIGN.md</a></li>
+              <li><a href="../docs/redesign-variation-experiment-one.md">redesign-variation-experiment-one.md</a></li>
+              <li><a href="../docs/design-experiments/">design-experiments folder</a></li>
+            </ul>
+          </article>
+
+          <article class="artifact-card">
+            <strong>Codex scripts</strong>
+            <ul class="source-list">
+              <li><a href="./capture-current-views.mjs">capture-current-views.mjs</a></li>
+              <li><a href="./render-visualisation-screenshots.mjs">render-visualisation-screenshots.mjs</a></li>
+              <li><a href="./render-redesign-concepts.mjs">render-redesign-concepts.mjs</a></li>
+            </ul>
+          </article>
+
+          <article class="artifact-card">
+            <strong>Generated image folders</strong>
+            <ul class="source-list">
+              <li><a href="./current/">current screenshots</a></li>
+              <li><a href="./screens/">variation screenshots</a></li>
+              <li><a href="./concepts/">full redesign renders</a></li>
+              <li><a href="./visualisation-overview.png">full report overview export</a></li>
+            </ul>
+          </article>
+
+          <article class="artifact-card">
+            <strong>Redesign source files</strong>
+            <ul class="source-list">
+              <li><a href="./landing-redesigns.html">landing-redesigns.html</a></li>
+              <li><a href="./dashboard-redesigns.html">dashboard-redesigns.html</a></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <section class="footer">
+      The current-state images came from the local Angular app on March 26, 2026. The rendered redesigns were created
+      specifically for the current landing and patient-dashboard architecture and are now included above as actual
+      concept outputs, not just commentary. If you want, the next pass can turn one chosen landing direction and one
+      chosen dashboard direction into true Angular preview routes.
+    </section>
+  </div>
+</body>
+</html>

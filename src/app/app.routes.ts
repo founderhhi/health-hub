@@ -24,13 +24,19 @@ export const routes: Routes = [
     path: 'gp',
     loadComponent: () => import('./features/dashboard/components/practitioner/practitioner').then(m => m.Practitioner),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['gp'] } // [AGENT_ROLES] ISS-07: canonical role is 'gp', removed legacy 'doctor'
+    data: { roles: ['gp'] }
   },
   {
     path: 'gp/profile',
     loadComponent: () => import('./features/dashboard/components/gp-profile/gp-profile').then(m => m.GpProfileComponent),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['gp'] } // [AGENT_ROLES] ISS-07: canonical role is 'gp', removed legacy 'doctor'
+    data: { roles: ['gp'] }
+  },
+  {
+    path: 'gp/consultation/:id',
+    loadComponent: () => import('./features/dashboard/components/gp-consultation/gp-consultation').then(m => m.GpConsultationComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['gp'] }
   },
   {
     path: 'patient-services',
@@ -42,19 +48,19 @@ export const routes: Routes = [
     loadChildren: () => import('./features/heal-well/heal-well.route').then(m => m.HEAL_WELL_ROUTES),
     canActivate: [authGuard]
   },
-  
+
   // 3. Provider Portal Routes - Authentication + Role-based access
   {
     path: 'provider/specialist',
     loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['specialist'] } // [AGENT_ROLES] ISS-07: specialist routes for 'specialist' only, removed legacy 'doctor'
+    data: { roles: ['specialist'] }
   },
   {
     path: 'specialist',
     loadChildren: () => import('./features/specialist/specialist.routes').then(m => m.SPECIALIST_ROUTES),
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['specialist'] } // [AGENT_ROLES] ISS-07: specialist routes for 'specialist' only, removed legacy 'doctor'
+    data: { roles: ['specialist'] }
   },
   {
     path: 'provider/pharmacy',
@@ -89,7 +95,7 @@ export const routes: Routes = [
     data: { roles: ['patient'] }
   },
 
-  // 5. Admin Portal Route (FE-10)
+  // 5. Admin Portal Route
   {
     path: 'admin',
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
@@ -97,9 +103,33 @@ export const routes: Routes = [
     data: { roles: ['admin'] }
   },
 
-  // 5. Default path - Redirect to landing page (FIXED)
+  // 6. Pre-Consultation Layer — patient fills symptoms before video session starts
+  {
+    path: 'pre-consultation',
+    children: [
+      {
+        path: 'form',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/pre-consultation/pre-consultation-form/pre-consultation-form.component')
+            .then(m => m.PreConsultationFormComponent)
+      },
+
+      {
+        path: 'doctor-panel',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['specialist', 'gp'] },
+        loadComponent: () =>
+          import('./features/pre-consultation/patient-summary-panel/patient-summary-panel.component')
+            .then(m => m.PatientSummaryPanelComponent)
+      },
+      { path: '', redirectTo: 'form', pathMatch: 'full' }
+    ]
+  },
+
+  // 7. Default path
   { path: '', redirectTo: 'landing', pathMatch: 'full' },
-  
-  // 6. Wildcard route - Redirect unknown paths to landing
+
+  // 8. Wildcard route
   { path: '**', redirectTo: 'landing' }
 ];

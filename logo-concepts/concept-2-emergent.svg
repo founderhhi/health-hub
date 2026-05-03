@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%">
+  <!-- Icon: Overlapping translucent shapes (Emergent Depth) -->
+  <g transform="translate(20, 25)">
+    <!-- Left Pill (Emerald) -->
+    <rect x="0" y="10" width="30" height="30" rx="15" fill="#10b981" opacity="0.85" />
+    <!-- Right Pill (Deep Green) -->
+    <rect x="20" y="10" width="30" height="30" rx="15" fill="#064e3b" opacity="0.9" />
+    <!-- Top Dot (Rust Orange Accent) -->
+    <circle cx="25" cy="15" r="12" fill="#ea580c" opacity="0.9" style="mix-blend-mode: multiply;" />
+  </g>
+  
+  <!-- Text -->
+  <text x="90" y="45" font-family="'Roboto', sans-serif" font-weight="800" font-size="32" fill="#064e3b">HHI</text>
+  <text x="92" y="65" font-family="'Roboto', sans-serif" font-weight="400" font-size="12" letter-spacing="2" fill="#064e3b">HEALTH HUB INTL</text>
+</svg>

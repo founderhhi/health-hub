@@ -28,6 +28,8 @@ interface LabOrder {
   result_notes: string | null;
   created_at: string;
   specialist_name: string | null;
+  order_source: string | null;
+  notes: string | null;
 }
 
 @Component({

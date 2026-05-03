@@ -26,12 +26,21 @@ function isAbortError(error: unknown): boolean {
 
 export async function createDailyRoom(): Promise<string> {
   const apiKey = process.env['DAILY_API_KEY'];
-  const fallbackRoom = resolveFallbackRoom(process.env['DAILY_FALLBACK_ROOM'] || 'https://healthhub.daily.co/demo');
 
   if (!apiKey) {
-    console.warn('DAILY_API_KEY not set. Returning fallback Daily room URL.');
-    return fallbackRoom;
+    const customFallback = process.env['DAILY_FALLBACK_ROOM'];
+    if (customFallback) {
+      console.warn('DAILY_API_KEY not set. Using DAILY_FALLBACK_ROOM.');
+      return customFallback;
+    }
+    // Jitsi Meet rooms are publicly available for any room name — no API key needed.
+    const suffix = Math.random().toString(36).slice(2, 10);
+    const jitsiUrl = `https://meet.jit.si/HealthHub-${suffix}`;
+    console.warn(`DAILY_API_KEY not set. Using Jitsi Meet fallback: ${jitsiUrl}`);
+    return jitsiUrl;
   }
+
+  const fallbackRoom = resolveFallbackRoom(process.env['DAILY_FALLBACK_ROOM'] || 'https://healthhub.daily.co/demo');
 
   try {
     const response = await fetchWithTimeout('https://api.daily.co/v1/rooms', {

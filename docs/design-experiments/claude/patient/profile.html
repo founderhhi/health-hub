@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile / Billing — Patient Design Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #F8F9FA; color: #0B0F14; padding: 40px 24px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #64748B; text-decoration: none; margin-bottom: 32px; }
+  .back:hover { color: #2ECC71; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header h1 { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: #64748B; line-height: 1.6; }
+  .variations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 1100px) { .variations { grid-template-columns: 1fr; max-width: 480px; } }
+  .variation { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(15,23,42,0.06); overflow: hidden; }
+  .var-header { padding: 24px 28px 20px; border-bottom: 1px solid #F1F5F9; }
+  .var-header h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .var-header p { font-size: 13px; color: #64748B; line-height: 1.55; }
+  .var-body { padding: 28px; display: flex; flex-direction: column; gap: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94A3B8; margin-bottom: 12px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .swatch-color { width: 48px; height: 48px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); }
+  .swatch-label { font-size: 9px; font-weight: 600; color: #64748B; text-align: center; max-width: 56px; line-height: 1.3; }
+  .swatch-hex { font-size: 9px; color: #94A3B8; font-family: monospace; }
+  .type-sample { margin-bottom: 12px; }
+  .type-meta { font-size: 10px; color: #94A3B8; margin-top: 2px; }
+  .mockup-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 12px; color: #FFFFFF; font-size: 13px; font-weight: 600; border: none; cursor: default; }
+  .spacing-demo { display: flex; flex-direction: column; gap: 6px; }
+  .spacing-row { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+  .spacing-bar { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #FFF; }
+  .spacing-label { font-size: 11px; color: #64748B; min-width: 110px; }
+  .surface-card { border-radius: 14px; padding: 20px; min-height: 70px; display: flex; flex-direction: column; gap: 6px; }
+  .surface-label { font-size: 11px; font-weight: 600; color: #64748B; }
+  .surface-detail { font-size: 10px; color: #94A3B8; font-family: monospace; line-height: 1.5; }
+
+  /* Form mockup */
+  .form-section-mock { border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .form-title-mock { font-size: 15px; font-weight: 600; }
+  .form-group-mock { display: flex; flex-direction: column; gap: 6px; }
+  .form-label-mock { font-size: 12px; font-weight: 500; color: #64748B; }
+  .form-input-mock { padding: 10px 14px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 14px; background: #FFF; color: #0B0F14; }
+  .avatar-mock { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #FFF; }
+  .payment-card-mock { border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .quick-link-mock { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; border-bottom: 1px solid #F1F5F9; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">&#8592; Back to index</a>
+<div class="page-header">
+  <h1>Profile / Billing</h1>
+  <p>Form sections, payment cards, tab navigation, and settings layout across three design directions.</p>
+</div>
+
+<div class="variations">
+  <!-- ==================== V1: CALM CLINICAL ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V1: Calm Clinical</h2>
+      <p>Lighter form borders, more generous spacing, gentler tab bar. A safe, unhurried settings area.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: color-mix(in srgb, #2ECC71 80%, white 20%);"></div><div class="swatch-label">Avatar BG</div><div class="swatch-hex">80% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.3);"></div><div class="swatch-label">Focus Ring</div><div class="swatch-hex">30% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.10);"></div><div class="swatch-label">Default Badge</div><div class="swatch-hex">10% accent</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.03);"></div><div class="swatch-label">Link Hover</div><div class="swatch-hex">3% accent</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 20px; font-weight: 600;">Sarah Johnson</div><div class="type-meta">User Name: Inter 600 (reduced from 700)</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; font-weight: 600; line-height: 1.5;">Personal Information</div><div class="type-meta">Section Title: Inter 600, line-height 1.5</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 12px; font-weight: 500; color: #64748B; line-height: 1.6;">Email Address</div><div class="type-meta">Form Label: Inter 500, line-height 1.6</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Avatar + Name</div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div class="avatar-mock" style="background: color-mix(in srgb, #2ECC71 80%, white 20%); color: #166534;">SJ</div>
+          <div><div style="font-size: 20px; font-weight: 600;">Sarah Johnson</div><div style="font-size: 13px; color: #64748B;">sarah@example.com</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Form Section</div>
+        <div class="form-section-mock" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); padding: 28px; gap: 20px;">
+          <div class="form-title-mock" style="line-height: 1.5;">Personal Information</div>
+          <div class="form-group-mock" style="gap: 8px;">
+            <div class="form-label-mock" style="line-height: 1.6;">Full Name</div>
+            <div class="form-input-mock" style="border-radius: 10px;">Sarah Johnson</div>
+          </div>
+          <div class="form-group-mock" style="gap: 8px;">
+            <div class="form-label-mock" style="line-height: 1.6;">Email</div>
+            <div class="form-input-mock" style="border-radius: 10px; box-shadow: 0 0 0 2px rgba(46,204,113,0.3); border-color: #2ECC71;">sarah@example.com</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Payment Card</div>
+        <div class="payment-card-mock" style="background: #FFF; border: 1px solid rgba(200,210,220,0.7); border-radius: 14px;">
+          <div style="width: 32px; height: 20px; background: #1E40AF; border-radius: 3px;"></div>
+          <div style="flex: 1;"><span style="font-weight: 500;">**** 4242</span></div>
+          <span style="background: rgba(46,204,113,0.10); color: #166534; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500;">Default</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Form section pad</span><div class="spacing-bar" style="width: 112px; background: #DBEAFE;">28px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Form gap</span><div class="spacing-bar" style="width: 112px; background: #DBEAFE;">28px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Field gap</span><div class="spacing-bar" style="width: 80px; background: #DBEAFE;">20px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Label gap</span><div class="spacing-bar" style="width: 32px; background: #DBEAFE;">8px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Tab margin</span><div class="spacing-bar" style="width: 144px; background: #DBEAFE;">36px</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Save Button</div>
+        <div class="mockup-btn" style="background: #2ECC71;">Save Changes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V2: PREMIUM GUIDED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V2: Premium Guided</h2>
+      <p>Fraunces serif headings, subtle shadows, gradient save button. Premium account portal.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: rgba(46,204,113,0.20);"></div><div class="swatch-label">Avatar Ring</div><div class="swatch-hex">20% emerald</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: linear-gradient(135deg, #2ECC71, #27AE60);"></div><div class="swatch-label">Save Gradient</div><div class="swatch-hex">#2ECC71-#27AE60</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: color-mix(in srgb, #FFFFFF 97%, #2ECC71 3%);"></div><div class="swatch-label">Section Tint</div><div class="swatch-hex">3% accent mix</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #2ECC71;"></div><div class="swatch-label">Default Border</div><div class="swatch-hex">#2ECC71</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 700;">Sarah Johnson</div><div class="type-meta">User Name: Fraunces 700, 22px</div></div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 600;">Personal Information</div><div class="type-meta">Section Title: Fraunces 600, 16px</div></div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 600;">Billing</div><div class="type-meta">Billing Title: Fraunces</div></div>
+        <div class="type-sample"><div style="font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 600;">Add Payment Method</div><div class="type-meta">Modal Header: Fraunces</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Avatar + Name</div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div class="avatar-mock" style="background: #2ECC71; box-shadow: 0 0 0 3px rgba(46,204,113,0.20);">SJ</div>
+          <div><div style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 700;">Sarah Johnson</div><div style="font-size: 13px; color: #64748B;">sarah@example.com</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Form Section</div>
+        <div class="form-section-mock" style="background: color-mix(in srgb, #FFF 97%, #2ECC71 3%); border: 1px solid #E8ECF0; box-shadow: 0 2px 8px rgba(15,23,42,0.04);">
+          <div class="form-title-mock" style="font-family: 'Fraunces', Georgia, serif; font-size: 16px;">Personal Information</div>
+          <div class="form-group-mock">
+            <div class="form-label-mock">Full Name</div>
+            <div class="form-input-mock">Sarah Johnson</div>
+          </div>
+          <div class="form-group-mock">
+            <div class="form-label-mock">Email</div>
+            <div class="form-input-mock">sarah@example.com</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Payment Card (Default)</div>
+        <div class="payment-card-mock" style="background: #FFF; border: 2px solid #2ECC71; border-radius: 12px; box-shadow: 0 1px 4px rgba(15,23,42,0.04);">
+          <div style="width: 32px; height: 20px; background: #1E40AF; border-radius: 3px;"></div>
+          <div style="flex: 1;"><span style="font-weight: 500;">**** 4242</span></div>
+          <span style="background: rgba(46,204,113,0.15); color: #166534; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">Default</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Save Button</div>
+        <div class="mockup-btn" style="background: linear-gradient(135deg, #2ECC71, #27AE60); box-shadow: 0 4px 12px rgba(46,204,113,0.20);">Save Changes</div>
+      </div>
+
+      <div>
+        <div class="section-label">Surface Treatment</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="surface-card" style="background: color-mix(in srgb, #FFF 97%, #2ECC71 3%); border: 1px solid #E8ECF0; border-radius: 16px; box-shadow: 0 2px 8px rgba(15,23,42,0.04);">
+            <div class="surface-label">Form Section</div>
+            <div class="surface-detail">3% accent tint bg<br>box-shadow: 0 2px 8px 4%</div>
+          </div>
+          <div class="surface-card" style="background: #FFF; border: 1px solid #E8ECF0; border-radius: 14px; box-shadow: 0 2px 8px rgba(15,23,42,0.04);">
+            <div class="surface-label">Quick Links / Billing</div>
+            <div class="surface-detail">box-shadow: 0 2px 8px 4%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== V3: HALODOC-INSPIRED ==================== -->
+  <div class="variation">
+    <div class="var-header">
+      <h2>V3: Halodoc-Inspired</h2>
+      <p>Flat white sections on gray, compact form fields, underline tabs, clean billing layout.</p>
+    </div>
+    <div class="var-body">
+
+      <div>
+        <div class="section-label">Color Palette</div>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background: #F5F7FA;"></div><div class="swatch-label">Page BG</div><div class="swatch-hex">#F5F7FA</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #FFFFFF; border: 1px solid #E2E8F0;"></div><div class="swatch-label">Section BG</div><div class="swatch-hex">#FFFFFF</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #F8FAFC;"></div><div class="swatch-label">Payment Card</div><div class="swatch-hex">#F8FAFC</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #F0FDF4;"></div><div class="swatch-label">Default Card</div><div class="swatch-hex">#F0FDF4</div></div>
+          <div class="swatch"><div class="swatch-color" style="background: #2ECC71;"></div><div class="swatch-label">Save Button</div><div class="swatch-hex">#2ECC71</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Typography</div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 20px; font-weight: 600;">Sarah Johnson</div><div class="type-meta">User Name: Inter 600, 20px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 15px; font-weight: 500;">Personal Information</div><div class="type-meta">Section Title: Inter 500, 15px</div></div>
+        <div class="type-sample"><div style="font-family: Inter; font-size: 12px; color: #64748B;">Email Address</div><div class="type-meta">Form Label: Inter 400, 12px</div></div>
+      </div>
+
+      <div>
+        <div class="section-label">Tab Bar (Underline Style)</div>
+        <div style="display: flex; border-bottom: 1px solid #E2E8F0;">
+          <div style="padding: 10px 16px; font-size: 13px; font-weight: 600; color: #0B0F14; border-bottom: 2px solid #2ECC71;">General</div>
+          <div style="padding: 10px 16px; font-size: 13px; color: #64748B; border-bottom: 2px solid transparent;">Billing</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Form Section</div>
+        <div style="background: #F5F7FA; padding: 12px; border-radius: 14px;">
+          <div class="form-section-mock" style="background: #FFFFFF; border: none; box-shadow: none; border-radius: 14px; padding: 16px;">
+            <div class="form-title-mock" style="font-size: 15px; font-weight: 500;">Personal Information</div>
+            <div class="form-group-mock">
+              <div class="form-label-mock" style="font-size: 12px;">Full Name</div>
+              <div class="form-input-mock" style="padding: 8px 12px; border-radius: 8px; font-size: 13px;">Sarah Johnson</div>
+            </div>
+            <div class="form-group-mock">
+              <div class="form-label-mock" style="font-size: 12px;">Email</div>
+              <div class="form-input-mock" style="padding: 8px 12px; border-radius: 8px; font-size: 13px;">sarah@example.com</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Payment Cards</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; background: #F5F7FA; padding: 12px; border-radius: 14px;">
+          <div class="payment-card-mock" style="background: #F0FDF4; border: none; border-radius: 10px; box-shadow: none;">
+            <div style="width: 32px; height: 20px; background: #1E40AF; border-radius: 3px;"></div>
+            <div style="flex: 1;"><span style="font-weight: 500;">**** 4242</span></div>
+            <span style="background: transparent; color: #2ECC71; border: 1px solid #BBF7D0; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">Default</span>
+          </div>
+          <div class="payment-card-mock" style="background: #F8FAFC; border: none; border-radius: 10px; box-shadow: none;">
+            <div style="width: 32px; height: 20px; background: #EF4444; border-radius: 3px;"></div>
+            <div style="flex: 1;"><span style="font-weight: 500;">**** 8888</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Quick Links</div>
+        <div style="background: #F5F7FA; padding: 12px; border-radius: 14px;">
+          <div style="background: #FFF; border-radius: 14px; overflow: hidden;">
+            <div class="quick-link-mock" style="border-bottom-color: #F1F5F9;">Change Password <span style="color: #94A3B8;">&#x276F;</span></div>
+            <div class="quick-link-mock" style="border-bottom-color: #F1F5F9;">Notification Settings <span style="color: #94A3B8;">&#x276F;</span></div>
+            <div class="quick-link-mock" style="border-bottom: none;">Sign Out <span style="color: #94A3B8;">&#x276F;</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Save Button</div>
+        <div class="mockup-btn" style="background: #2ECC71; box-shadow: none;">Save Changes</div>
+      </div>
+
+      <div>
+        <div class="section-label">Spacing</div>
+        <div class="spacing-demo">
+          <div class="spacing-row"><span class="spacing-label">Section padding</span><div class="spacing-bar" style="width: 64px; background: #BBF7D0;">16px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Input padding</span><div class="spacing-bar" style="width: 48px; background: #BBF7D0;">8px 12px</div></div>
+          <div class="spacing-row"><span class="spacing-label">Input radius</span><div class="spacing-bar" style="width: 32px; background: #BBF7D0;">8px</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

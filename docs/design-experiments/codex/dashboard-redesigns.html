@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Hub Dashboard Redesign Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg:
+        radial-gradient(circle at top left, rgba(46, 204, 113, 0.16), transparent 24%),
+        linear-gradient(180deg, #f6faf8 0%, #eef4f7 100%);
+      --text: #142219;
+      --muted: #64756d;
+      --line: rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #f4f8f7;
+      color: var(--text);
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    body {
+      background-image: var(--bg);
+    }
+
+    .page {
+      width: min(calc(100% - 48px), 1540px);
+      margin: 0 auto;
+      padding: 32px 0 60px;
+      display: grid;
+      gap: 28px;
+    }
+
+    .concept-artboard {
+      display: grid;
+      gap: 18px;
+      padding: 22px;
+      border-radius: 30px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(18px);
+    }
+
+    .concept-meta {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 18px;
+    }
+
+    .concept-copy,
+    .concept-notes {
+      display: grid;
+      gap: 10px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.84);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge--source {
+      color: #1e3a8a;
+      background: rgba(29, 78, 216, 0.1);
+    }
+
+    .badge--direction {
+      color: #166534;
+      background: rgba(46, 204, 113, 0.12);
+    }
+
+    .concept-copy h1 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: 42px;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+
+    .concept-copy p,
+    .concept-notes p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .concept-notes {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    .concept-notes strong {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #0f6c43;
+    }
+
+    .dashboard-scene {
+      display: grid;
+      place-items: center;
+      min-height: 1180px;
+      padding: 28px;
+      border-radius: 28px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background:
+        radial-gradient(circle at 82% 16%, var(--glow, rgba(46, 204, 113, 0.16)), transparent 26%),
+        linear-gradient(180deg, var(--scene-top, #f6fbf8), var(--scene-bottom, #eef4f7));
+    }
+
+    .phone-frame {
+      width: 460px;
+      padding: 14px;
+      border-radius: 42px;
+      background: #101921;
+      box-shadow:
+        0 34px 80px rgba(15, 23, 42, 0.22),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.08);
+    }
+
+    .phone-screen {
+      overflow: hidden;
+      border-radius: 30px;
+      min-height: 1040px;
+      padding: 20px 18px 24px;
+      background:
+        radial-gradient(circle at 86% 8%, rgba(255, 255, 255, 0.4), transparent 18%),
+        linear-gradient(180deg, var(--surface-top, #fbfefc), var(--surface-bottom, #f1f7f5));
+      display: grid;
+      gap: 14px;
+      position: relative;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .app-header h2,
+    .care-hero h3,
+    .records-card strong,
+    .recent-card strong {
+      margin: 0;
+      letter-spacing: -0.03em;
+    }
+
+    .app-header h2 {
+      font-size: 34px;
+      line-height: 0.92;
+    }
+
+    .app-header p,
+    .status-banner,
+    .summary-card span,
+    .service-card p,
+    .records-card p,
+    .care-hero p,
+    .recent-card p,
+    .nav-item {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .status-banner,
+    .records-card,
+    .care-hero,
+    .recent-card,
+    .summary-card,
+    .service-card {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+    }
+
+    .status-banner {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--accent, #2ecc71) 10%, white);
+      color: color-mix(in srgb, var(--accent-strong, #1d8f55) 72%, #20382d);
+      font-weight: 600;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .summary-card {
+      padding: 14px 12px;
+      border-radius: 18px;
+      display: grid;
+      gap: 8px;
+      min-height: 112px;
+      align-content: start;
+    }
+
+    .summary-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--accent, #2ecc71) 18%, white);
+    }
+
+    .summary-card strong {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .section-header strong {
+      font-size: 17px;
+    }
+
+    .section-tag {
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent, #2ecc71) 12%, white);
+      color: var(--accent-strong, #1d8f55);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .service-card {
+      min-height: 118px;
+      padding: 14px 10px;
+      border-radius: 20px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .service-card::before {
+      content: "";
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--service-tone, var(--accent, #2ecc71)) 18%, white);
+    }
+
+    .service-card strong {
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .service-card[data-tone="blue"] {
+      --service-tone: #7aa7ff;
+    }
+
+    .service-card[data-tone="gold"] {
+      --service-tone: #d8b572;
+    }
+
+    .service-card[data-tone="mint"] {
+      --service-tone: #73c4b0;
+    }
+
+    .records-card,
+    .recent-card {
+      padding: 16px;
+      border-radius: 20px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .records-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .arrow {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .care-hero {
+      padding: 18px;
+      border-radius: 24px;
+      display: grid;
+      gap: 12px;
+      background:
+        radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--accent, #2ecc71) 18%, white), transparent 20%),
+        linear-gradient(135deg, color-mix(in srgb, var(--accent, #2ecc71) 16%, white), color-mix(in srgb, var(--accent-alt, #1d4ed8) 9%, white));
+    }
+
+    .care-hero h3 {
+      font-size: 28px;
+      line-height: 0.96;
+    }
+
+    .signal-row,
+    .recent-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .signal,
+    .recent-pill {
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .hero-action {
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent, #2ecc71), var(--accent-strong, #1d8f55));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      width: fit-content;
+      box-shadow: 0 12px 22px color-mix(in srgb, var(--accent, #2ecc71) 24%, transparent);
+    }
+
+    .bottom-nav {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 12px;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .nav-item::before {
+      content: "";
+      width: 24px;
+      height: 24px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.08);
+    }
+
+    .nav-item--active {
+      color: var(--accent-strong, #1d8f55);
+    }
+
+    .nav-item--active::before {
+      background: color-mix(in srgb, var(--accent, #2ecc71) 20%, white);
+    }
+
+    .theme-guided {
+      --accent: #2ecc71;
+      --accent-strong: #1d8f55;
+      --accent-alt: #1d4ed8;
+      --scene-top: #f5fbf8;
+      --scene-bottom: #edf4f7;
+      --surface-top: #fbfefc;
+      --surface-bottom: #eef5f3;
+      --glow: rgba(46, 204, 113, 0.16);
+    }
+
+    .theme-utility {
+      --accent: #0f9f74;
+      --accent-strong: #0d7b5b;
+      --accent-alt: #2563eb;
+      --scene-top: #f4fbf9;
+      --scene-bottom: #e8f1f8;
+      --surface-top: #fcfefd;
+      --surface-bottom: #eef4f8;
+      --glow: rgba(37, 99, 235, 0.14);
+    }
+
+    .theme-premium {
+      --accent: #239e67;
+      --accent-strong: #14724a;
+      --accent-alt: #c48d3d;
+      --scene-top: #fbf8f2;
+      --scene-bottom: #efe7da;
+      --surface-top: #fffdf9;
+      --surface-bottom: #f3ece1;
+      --glow: rgba(196, 141, 61, 0.18);
+    }
+
+    .theme-premium .phone-frame {
+      background: #1c1712;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="concept-artboard theme-guided" data-artboard="dashboard-guided">
+      <div class="concept-meta">
+        <div class="concept-copy">
+          <div class="badge-row">
+            <span class="badge badge--source">Source: current Health Hub care hero</span>
+            <span class="badge badge--source">Public signal: premium guided care</span>
+            <span class="badge badge--direction">Dashboard direction 1</span>
+          </div>
+          <h1>Guided care-plan dashboard.</h1>
+          <p>
+            This direction keeps the current patient dashboard structure intact, but makes the care plan feel like the
+            page's organizing idea. The first screen becomes about state and next step instead of only service breadth.
+          </p>
+        </div>
+        <aside class="concept-notes">
+          <strong>Implementation focus</strong>
+          <p>Keep the current template order, but compress tile height, strengthen summary-card hierarchy, and align records plus care hero through shared surfaces in <code>dashboard.component.scss</code>.</p>
+        </aside>
+      </div>
+      <div class="dashboard-scene">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <header class="app-header">
+              <div>
+                <p>Good Morning,</p>
+                <h2>Ananya</h2>
+              </div>
+              <div class="header-actions">
+                <div class="action-dot"></div>
+                <div class="action-dot"></div>
+              </div>
+            </header>
+
+            <div class="status-banner">Your care plan has 1 next action ready: continue consultation and review records.</div>
+
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>1</strong>
+                <span>Active consult</span>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>2</strong>
+                <span>Prescriptions ready</span>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>4</strong>
+                <span>Lab records</span>
+              </div>
+            </div>
+
+            <div class="section-header">
+              <strong>Services</strong>
+              <span class="section-tag">Same architecture</span>
+            </div>
+            <div class="services-grid">
+              <div class="service-card"><strong>Talk to a Health Expert</strong><p>Fastest start</p></div>
+              <div class="service-card" data-tone="blue"><strong>HealWell at Home</strong><p>Recovery support</p></div>
+              <div class="service-card" data-tone="gold"><strong>Specialist</strong><p>Escalate care</p></div>
+              <div class="service-card"><strong>Pharmacy</strong><p>Medicines</p></div>
+              <div class="service-card" data-tone="blue"><strong>Diagnostics</strong><p>Book tests</p></div>
+              <div class="service-card" data-tone="gold"><strong>Travel and Care</strong><p>Future lane</p></div>
+              <div class="service-card"><strong>HealthHub in Africa</strong><p>Regional access</p></div>
+              <div class="service-card" data-tone="blue"><strong>HealthHub in India</strong><p>Local network</p></div>
+              <div class="service-card" data-tone="gold"><strong>Insurance</strong><p>Support</p></div>
+            </div>
+
+            <div class="records-card">
+              <div class="records-row">
+                <div>
+                  <strong>Health Records</strong>
+                  <p>Prescriptions, lab results, and follow-up notes in one place.</p>
+                </div>
+                <div class="arrow"></div>
+              </div>
+            </div>
+
+            <div class="care-hero">
+              <span class="section-tag">Today's care plan</span>
+              <h3>Continue with your Health Expert and keep every next step connected.</h3>
+              <p>The records card and the care hero now feel like the same journey, not separate modules.</p>
+              <div class="signal-row">
+                <span class="signal">Video, audio, or chat</span>
+                <span class="signal">Referral-ready</span>
+                <span class="signal">Records linked</span>
+              </div>
+              <span class="hero-action">Continue consultation</span>
+            </div>
+
+            <div class="recent-card">
+              <strong>Recent activity</strong>
+              <p>Prescription updated 2h ago and diagnostics follow-up recommended.</p>
+              <div class="recent-pills">
+                <span class="recent-pill">Prescription active</span>
+                <span class="recent-pill">Lab reminder</span>
+              </div>
+            </div>
+
+            <nav class="bottom-nav">
+              <div class="nav-item">Appointments</div>
+              <div class="nav-item nav-item--active">Home</div>
+              <div class="nav-item">Records</div>
+              <div class="nav-item">Profile</div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="concept-artboard theme-utility" data-artboard="dashboard-utility">
+      <div class="concept-meta">
+        <div class="concept-copy">
+          <div class="badge-row">
+            <span class="badge badge--source">Source: consumer-health utility pattern</span>
+            <span class="badge badge--source">Inferred from public consult products</span>
+            <span class="badge badge--direction">Dashboard direction 2</span>
+          </div>
+          <h1>Utility super-app dashboard.</h1>
+          <p>
+            This version keeps the same modules but makes the experience faster and denser. It is the best option if
+            the patient home should feel more like a compact healthcare utility hub with stronger glanceability.
+          </p>
+        </div>
+        <aside class="concept-notes">
+          <strong>Implementation focus</strong>
+          <p>Reduce whitespace, flatten more cards, tighten the services grid, and make the top summary behave like a status strip. This is the strongest match if speed and discoverability matter most.</p>
+        </aside>
+      </div>
+      <div class="dashboard-scene">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <header class="app-header">
+              <div>
+                <p>Welcome back,</p>
+                <h2>Ananya</h2>
+              </div>
+              <div class="header-actions">
+                <div class="action-dot"></div>
+                <div class="action-dot"></div>
+              </div>
+            </header>
+
+            <div class="status-banner">2 things need attention today: diagnostics booking and a prescription refill.</div>
+
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>3</strong>
+                <span>Consults this month</span>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>1</strong>
+                <span>Pending refill</span>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>2</strong>
+                <span>Results to review</span>
+              </div>
+            </div>
+
+            <div class="section-header">
+              <strong>Services</strong>
+              <span class="section-tag">Fast access</span>
+            </div>
+            <div class="services-grid">
+              <div class="service-card"><strong>Health Expert</strong><p>Consult now</p></div>
+              <div class="service-card" data-tone="blue"><strong>HealWell</strong><p>At home</p></div>
+              <div class="service-card" data-tone="gold"><strong>Specialist</strong><p>Find care</p></div>
+              <div class="service-card"><strong>Pharmacy</strong><p>Scan QR</p></div>
+              <div class="service-card" data-tone="blue"><strong>Diagnostics</strong><p>Book lab</p></div>
+              <div class="service-card" data-tone="gold"><strong>Travel</strong><p>Plan care</p></div>
+              <div class="service-card"><strong>Africa</strong><p>Network</p></div>
+              <div class="service-card" data-tone="blue"><strong>India</strong><p>Network</p></div>
+              <div class="service-card" data-tone="gold"><strong>Insurance</strong><p>Claims</p></div>
+            </div>
+
+            <div class="records-card">
+              <div class="records-row">
+                <div>
+                  <strong>Health Records</strong>
+                  <p>Your last lab report and prescription changes are ready.</p>
+                </div>
+                <div class="arrow"></div>
+              </div>
+            </div>
+
+            <div class="care-hero">
+              <span class="section-tag">Top priority</span>
+              <h3>Continue today's consult, then complete the diagnostics step.</h3>
+              <p>The care hero is still in the same place structurally, but reads faster and more decisively.</p>
+              <div class="signal-row">
+                <span class="signal">2-minute resume</span>
+                <span class="signal">Prescription visible</span>
+                <span class="signal">Lab booking next</span>
+              </div>
+              <span class="hero-action">Resume now</span>
+            </div>
+
+            <div class="recent-card">
+              <strong>Quick actions</strong>
+              <p>Refill reminders, diagnostics scheduling, and prescription downloads sit closer together.</p>
+              <div class="recent-pills">
+                <span class="recent-pill">Refill medicine</span>
+                <span class="recent-pill">Download Rx</span>
+                <span class="recent-pill">Book tests</span>
+              </div>
+            </div>
+
+            <nav class="bottom-nav">
+              <div class="nav-item">Appointments</div>
+              <div class="nav-item nav-item--active">Home</div>
+              <div class="nav-item">Records</div>
+              <div class="nav-item">Profile</div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="concept-artboard theme-premium" data-artboard="dashboard-premium">
+      <div class="concept-meta">
+        <div class="concept-copy">
+          <div class="badge-row">
+            <span class="badge badge--source">Source: premium care tone</span>
+            <span class="badge badge--source">Health Hub brand evolution</span>
+            <span class="badge badge--direction">Dashboard direction 3</span>
+          </div>
+          <h1>Concierge premium dashboard.</h1>
+          <p>
+            This is the most editorial and refined interpretation of the current dashboard. It still respects the same
+            order of modules, but it introduces warmer surfaces and stronger typography so the home feels more like a
+            guided health companion than a lightweight portal.
+          </p>
+        </div>
+        <aside class="concept-notes">
+          <strong>Implementation focus</strong>
+          <p>Push the existing emerald system into cream-toned surfaces, add richer headline hierarchy, and make the dashboard feel quietly premium rather than broadly utilitarian.</p>
+        </aside>
+      </div>
+      <div class="dashboard-scene">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <header class="app-header">
+              <div>
+                <p>Good evening,</p>
+                <h2>Ananya</h2>
+              </div>
+              <div class="header-actions">
+                <div class="action-dot"></div>
+                <div class="action-dot"></div>
+              </div>
+            </header>
+
+            <div class="status-banner">Your ongoing care is organized. One follow-up and one prescription remain active.</div>
+
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>1</strong>
+                <span>Open care lane</span>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>2</strong>
+                <span>Documents updated</span>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon"></div>
+                <strong>1</strong>
+                <span>Follow-up due</span>
+              </div>
+            </div>
+
+            <div class="section-header">
+              <strong>Services</strong>
+              <span class="section-tag">Premium rhythm</span>
+            </div>
+            <div class="services-grid">
+              <div class="service-card"><strong>Health Expert</strong><p>Primary care</p></div>
+              <div class="service-card" data-tone="blue"><strong>HealWell</strong><p>Recovery</p></div>
+              <div class="service-card" data-tone="gold"><strong>Specialist</strong><p>Escalation</p></div>
+              <div class="service-card"><strong>Pharmacy</strong><p>Medicines</p></div>
+              <div class="service-card" data-tone="blue"><strong>Diagnostics</strong><p>Results</p></div>
+              <div class="service-card" data-tone="gold"><strong>Travel</strong><p>Packages</p></div>
+              <div class="service-card"><strong>Africa</strong><p>Care network</p></div>
+              <div class="service-card" data-tone="blue"><strong>India</strong><p>Care network</p></div>
+              <div class="service-card" data-tone="gold"><strong>Insurance</strong><p>Coverage</p></div>
+            </div>
+
+            <div class="records-card">
+              <div class="records-row">
+                <div>
+                  <strong>Your record is ready</strong>
+                  <p>Latest results, prescription notes, and referral context stay together.</p>
+                </div>
+                <div class="arrow"></div>
+              </div>
+            </div>
+
+            <div class="care-hero">
+              <span class="section-tag">Today's care plan</span>
+              <h3>Complete your follow-up with a calmer, more premium sense of guidance.</h3>
+              <p>The hero reads more like a guided plan and less like a generic CTA block.</p>
+              <div class="signal-row">
+                <span class="signal">Same-day support</span>
+                <span class="signal">Records linked</span>
+                <span class="signal">Referral continuity</span>
+              </div>
+              <span class="hero-action">Continue care</span>
+            </div>
+
+            <div class="recent-card">
+              <strong>Recent updates</strong>
+              <p>Your cardiology note was added to records and your next pharmacy pickup is scheduled.</p>
+              <div class="recent-pills">
+                <span class="recent-pill">Cardiology note</span>
+                <span class="recent-pill">Pharmacy pickup</span>
+              </div>
+            </div>
+
+            <nav class="bottom-nav">
+              <div class="nav-item">Appointments</div>
+              <div class="nav-item nav-item--active">Home</div>
+              <div class="nav-item">Records</div>
+              <div class="nav-item">Profile</div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

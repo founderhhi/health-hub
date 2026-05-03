@@ -1,0 +1,66 @@
+<section class="pharmacy-page">
+  <header class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
+    </button>
+    <div>
+      <h1 class="page-title">Nearby Pharmacies</h1>
+      <p class="page-subtitle">Showing pharmacies near Nairobi</p>
+    </div>
+  </header>
+
+  @if (showLiveNotice) {
+  <aside class="feature-notice" role="status" aria-live="polite">
+    <p class="feature-notice__text">{{ liveNotice }}</p>
+    <button type="button" class="feature-notice__dismiss" (click)="dismissLiveNotice()">Dismiss</button>
+  </aside>
+  }
+
+  <section class="map-placeholder" aria-label="Pharmacy map preview">
+    <div class="map-placeholder__header">
+      <div>
+        <h2 class="map-placeholder__title">Map Preview</h2>
+        <p class="map-placeholder__subtitle">Nearby pharmacy locations around Nairobi</p>
+      </div>
+      <span class="map-placeholder__pill">Placeholder</span>
+    </div>
+    <div class="map-placeholder__canvas">
+      <span class="map-placeholder__marker map-placeholder__marker--one"></span>
+      <span class="map-placeholder__marker map-placeholder__marker--two"></span>
+      <span class="map-placeholder__marker map-placeholder__marker--three"></span>
+      <span class="map-placeholder__route"></span>
+    </div>
+  </section>
+
+  <div class="pharmacy-list">
+    @for (pharmacy of pharmacies; track pharmacy.name) {
+    <div class="pharmacy-card">
+      <div class="pharmacy-info">
+        <div class="pharmacy-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+            <line x1="12" y1="11" x2="12" y2="16" />
+            <line x1="9" y1="14" x2="15" y2="14" />
+          </svg>
+        </div>
+        <div class="pharmacy-details">
+          <h3 class="pharmacy-name">{{ pharmacy.name }}</h3>
+          <p class="pharmacy-address">{{ pharmacy.address }}</p>
+          <div class="pharmacy-meta">
+            <span class="pharmacy-hours">{{ pharmacy.hours }}</span>
+            <span class="pharmacy-distance">{{ pharmacy.distance }}</span>
+          </div>
+        </div>
+      </div>
+      <button class="directions-btn" (click)="getDirections(pharmacy)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="3 11 22 2 13 21 11 13 3 11" />
+        </svg>
+        Directions
+      </button>
+    </div>
+    }
+  </div>
+
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
+</section>

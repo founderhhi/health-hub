@@ -186,38 +186,30 @@ app.use(express.json());
 
 const EXEMPT_PATHS = ['/api/healthz', '/api/health', '/api/ready']; // [AGENT_INFRA] ISS-05: exempt health endpoints from rate limiting
 
-// INF-03: Global rate limiter (100 req / 15 min per IP)
+// INF-03: Global rate limiter — raised to 600/5min per IP.
+// GP dashboard polls every 30s (2 calls each = ~4/min); patient flows
+// add another ~10/min. 600/5min gives ~100 req/50s of headroom.
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 5 * 60 * 1000,
+  max: 600,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' },
-  skip: (req) => isTestEnv || EXEMPT_PATHS.includes(req.path), // [AGENT_INFRA] ISS-05: skip rate limiting for health endpoints
+  skip: (req) => isTestEnv || EXEMPT_PATHS.includes(req.path),
 });
 
-// AUTH-04: Strict login limiter (5 req / 1 min per IP)
-const authLoginLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many auth attempts. Please try again later.' },
-  skip: () => isTestEnv,
-});
-
-// INF-03: Strict limiter for non-login auth routes (10 req / 15 min per IP)
+// Signup limiter — login is rate-limited at the route level in src/server/api/auth.ts
+// to avoid double-stacked limits. See middleware/auth.ts#loginRateLimit.
 const authSignupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many auth attempts. Please try again later.' },
+  message: { error: 'Too many signup attempts. Please try again later.' },
   skip: () => isTestEnv,
 });
 
 app.use('/api', globalLimiter);
-app.use('/api/auth/login', authLoginLimiter);
 app.use('/api/auth/signup', authSignupLimiter);
 
 // INF-06: Deep readiness response for infra observability.

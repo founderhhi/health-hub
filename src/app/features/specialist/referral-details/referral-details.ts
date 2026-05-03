@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LabsApiService } from '../../../core/api/labs.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
-import { ReferralsApiService } from '../../../core/api/referrals.service';
+import { ReferralsApiService, SpecialistDirectoryEntry } from '../../../core/api/referrals.service';
 
 @Component({
   selector: 'app-referral-details',
@@ -23,11 +23,28 @@ export class ReferralDetailsComponent implements OnInit {
   showRequestInfoForm = false;
   requestInfoText = '';
   savingSchedule = false;
-  orderingTests = false;
-  prescribing = false;
   accepting = false;
   declining = false;
   submittingInfo = false;
+
+  // Lab order dialog
+  showLabModal = false;
+  labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
+  selectedTests: string[] = [];
+  customTest = '';
+  labNote = '';
+  submittingLabs = false;
+
+  // Prescription dialog
+  showPrescriptionModal = false;
+  prescriptionItems: { name: string; dosage: string; frequency: string; duration: string }[] = [{ name: '', dosage: '', frequency: '', duration: '' }];
+  submittingPrescription = false;
+  showReassignModal = false;
+  availableSpecialists: SpecialistDirectoryEntry[] = [];
+  selectedSpecialistId = '';
+  loadingSpecialists = false;
+  reassigningReferral = false;
+  reassignError = '';
   scheduleForm = {
     appointmentDate: '',
     appointmentTime: '',
@@ -117,11 +134,19 @@ export class ReferralDetailsComponent implements OnInit {
     return (this.referral?.status === 'accepted' || this.referral?.status === 'confirmed') && this.referral?.status !== 'declined';
   }
 
+  get canReassignReferral(): boolean {
+    return Boolean(this.referral?.id) && this.referral?.status !== 'declined';
+  }
+
   get canEditSchedule(): boolean {
     const consultationStatus = String(this.referral?.consultation_status || '').toLowerCase();
     return this.referral?.status !== 'declined'
       && consultationStatus !== 'completed'
       && consultationStatus !== 'ended';
+  }
+
+  get selectedSpecialist(): SpecialistDirectoryEntry | null {
+    return this.availableSpecialists.find((specialist) => specialist.id === this.selectedSpecialistId) || null;
   }
 
   get referringProviderDiscipline(): string {
@@ -174,26 +199,63 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   orderTests(): void {
-    if (!this.referral?.patient_id || this.orderingTests || !this.canManageClinicalActions) {
+    if (!this.canManageClinicalActions) {
       return;
     }
-    this.orderingTests = true;
+    this.selectedTests = [];
+    this.customTest = '';
+    this.labNote = '';
+    this.showLabModal = true;
+  }
+
+  toggleTest(test: string): void {
+    const idx = this.selectedTests.indexOf(test);
+    if (idx === -1) {
+      this.selectedTests.push(test);
+    } else {
+      this.selectedTests.splice(idx, 1);
+    }
+  }
+
+  isTestSelected(test: string): boolean {
+    return this.selectedTests.includes(test);
+  }
+
+  submitLabOrder(): void {
+    if (!this.referral?.patient_id || this.submittingLabs) {
+      return;
+    }
+    const tests = [...this.selectedTests];
+    if (this.customTest.trim()) {
+      tests.push(this.customTest.trim());
+    }
+    if (tests.length === 0 || !this.labNote.trim()) {
+      return;
+    }
+    this.submittingLabs = true;
     this.errorMessage = '';
     this.actionNotice = '';
-    const tests = ['CBC', 'Lipid Panel', 'HbA1c'];
-    this.labsApi.createOrder(this.referral.patient_id, tests).subscribe({
+    this.labsApi.createOrder(this.referral.patient_id, tests, undefined, this.labNote.trim()).subscribe({
       next: () => {
-        this.orderingTests = false;
-        this.actionNotice = 'Lab orders created successfully.';
+        this.submittingLabs = false;
+        this.showLabModal = false;
+        this.actionNotice = `Lab order submitted: ${tests.join(', ')}.`;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.orderingTests = false;
+        this.submittingLabs = false;
         console.error('[AGENT_SPECIALIST] lab order failed', err);
         this.errorMessage = 'Unable to order tests right now.';
         this.cdr.detectChanges();
       }
     });
+  }
+
+  closeLabModal(): void {
+    this.showLabModal = false;
+    this.selectedTests = [];
+    this.customTest = '';
+    this.labNote = '';
   }
 
   accept(): void {
@@ -262,6 +324,58 @@ export class ReferralDetailsComponent implements OnInit {
     this.showRequestInfoForm = false;
     this.requestInfoText = '';
     this.requestInfoNotice = null;
+  }
+
+  referAnotherSpecialist(): void {
+    if (!this.canReassignReferral || this.loadingSpecialists) {
+      return;
+    }
+
+    this.showReassignModal = true;
+    this.reassignError = '';
+    this.actionNotice = '';
+    this.errorMessage = '';
+    this.selectedSpecialistId = '';
+    this.loadAvailableSpecialists();
+  }
+
+  closeReassignModal(): void {
+    this.showReassignModal = false;
+    this.selectedSpecialistId = '';
+    this.loadingSpecialists = false;
+    this.reassigningReferral = false;
+    this.reassignError = '';
+  }
+
+  saveReassignment(): void {
+    if (!this.referral?.id || !this.selectedSpecialistId || this.reassigningReferral) {
+      return;
+    }
+
+    this.reassigningReferral = true;
+    this.reassignError = '';
+    this.errorMessage = '';
+    this.actionNotice = '';
+
+    this.referralsApi.reassignReferral(this.referral.id, this.selectedSpecialistId).subscribe({
+      next: (response) => {
+        this.reassigningReferral = false;
+        this.referral = response.referral || this.referral;
+        this.closeReassignModal();
+        const specialistName = response.targetSpecialist?.display_name || 'the selected specialist';
+        this.actionNotice = `Referral forwarded to ${specialistName}. Returning to your dashboard...`;
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.router.navigate(['/specialist']);
+        }, 900);
+      },
+      error: (err) => {
+        this.reassigningReferral = false;
+        console.error('[AGENT_SPECIALIST] reassign referral failed', err);
+        this.reassignError = err?.error?.error || 'Unable to forward referral right now.';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   openScheduleEditor(): void {
@@ -343,26 +457,51 @@ export class ReferralDetailsComponent implements OnInit {
   }
 
   prescribe(): void {
-    if (!this.referral?.patient_id || this.prescribing || !this.canManageClinicalActions) {
+    if (!this.canManageClinicalActions) {
       return;
     }
-    this.prescribing = true;
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
+    this.showPrescriptionModal = true;
+  }
+
+  addPrescriptionItem(): void {
+    this.prescriptionItems.push({ name: '', dosage: '', frequency: '', duration: '' });
+  }
+
+  removePrescriptionItem(index: number): void {
+    this.prescriptionItems.splice(index, 1);
+  }
+
+  submitPrescription(): void {
+    if (!this.referral?.patient_id || this.submittingPrescription) {
+      return;
+    }
+    const items = this.prescriptionItems.filter(item => item.name.trim());
+    if (items.length === 0) {
+      return;
+    }
+    this.submittingPrescription = true;
     this.errorMessage = '';
     this.actionNotice = '';
-    const items = [{ name: 'Vitamin D', dosage: '1000 IU', frequency: '1x/day', duration: '30 days' }];
     this.prescriptionsApi.create(this.referral.patient_id, items).subscribe({
       next: () => {
-        this.prescribing = false;
+        this.submittingPrescription = false;
+        this.showPrescriptionModal = false;
         this.actionNotice = 'Prescription created successfully.';
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.prescribing = false;
+        this.submittingPrescription = false;
         console.error('[AGENT_SPECIALIST] prescription failed', err);
         this.errorMessage = 'Unable to create prescription right now.';
         this.cdr.detectChanges();
       }
     });
+  }
+
+  closePrescriptionModal(): void {
+    this.showPrescriptionModal = false;
+    this.prescriptionItems = [{ name: '', dosage: '', frequency: '', duration: '' }];
   }
 
   isStepComplete(step: number): boolean {
@@ -378,6 +517,7 @@ export class ReferralDetailsComponent implements OnInit {
     this.referralsApi.getReferral(id).subscribe({
       next: (response) => {
         this.referral = response.referral;
+        this.referralsApi.cacheSpecialistReferral(response.referral);
         this.syncScheduleFormFromReferral();
         this.loading = false;
         this.cdr.detectChanges();
@@ -409,5 +549,35 @@ export class ReferralDetailsComponent implements OnInit {
       consultationMode: this.referral?.consultation_mode === 'offline' ? 'offline' : 'online',
       location: this.referral?.location || ''
     };
+  }
+
+  private loadAvailableSpecialists(): void {
+    this.loadingSpecialists = true;
+    this.reassignError = '';
+
+    this.referralsApi.listAvailableSpecialists().subscribe({
+      next: (response) => {
+        this.availableSpecialists = Array.isArray(response.specialists)
+          ? [...response.specialists].sort((left, right) => {
+              const referralSpecialty = String(this.referral?.specialty || '').trim().toLowerCase();
+              const leftMatch = String(left.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
+              const rightMatch = String(right.specialty || '').trim().toLowerCase() === referralSpecialty ? 1 : 0;
+              if (leftMatch !== rightMatch) {
+                return rightMatch - leftMatch;
+              }
+              return String(left.display_name || '').localeCompare(String(right.display_name || ''));
+            })
+          : [];
+        this.selectedSpecialistId = this.availableSpecialists[0]?.id || '';
+        this.loadingSpecialists = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.loadingSpecialists = false;
+        console.error('[AGENT_SPECIALIST] load specialists failed', err);
+        this.reassignError = 'Unable to load specialists right now.';
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

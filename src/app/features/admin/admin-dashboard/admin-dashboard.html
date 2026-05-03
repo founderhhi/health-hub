@@ -1,8 +1,20 @@
 <section class="admin-dashboard">
   <header class="admin-header">
-    <h1>Admin Dashboard</h1>
+    <div class="admin-header__top">
+      <div class="admin-header__copy">
+        <h1>Admin Dashboard</h1>
+        <p>Manage users, approvals, and service workflows from one place.</p>
+      </div>
+      <button type="button" class="admin-profile-btn" (click)="goToProfile()">Admin Profile</button>
+    </div>
     <div class="tab-bar">
       <button class="tab" [class.active]="activeTab === 'users'" (click)="setTab('users')">Users</button>
+      <button class="tab" [class.active]="activeTab === 'accessRequests'" (click)="setTab('accessRequests')">New User Requests</button>
+      <button class="tab" [class.active]="activeTab === 'pharmacy'" (click)="setTab('pharmacy')">Pharmacy</button>
+      <button class="tab" [class.active]="activeTab === 'requests'" (click)="setTab('requests')">Requests</button>
+      <button class="tab" [class.active]="activeTab === 'referrals'" (click)="setTab('referrals')">Referrals</button>
+      <button class="tab" [class.active]="activeTab === 'diagnostics'" (click)="setTab('diagnostics')">Diagnostics</button>
+      <button class="tab" [class.active]="activeTab === 'grievances'" (click)="setTab('grievances')">Grievances</button>
       <button class="tab" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">Activity</button>
       <button class="tab" [class.active]="activeTab === 'health'" (click)="setTab('health')">System Health</button>
     </div>
@@ -81,13 +93,13 @@
             </select>
           </td>
           <td>
-            <span class="status-badge" [class.active]="user.is_operating" [class.disabled]="!user.is_operating">
-              {{ user.is_operating ? 'Active' : 'Disabled' }}
+            <span class="status-badge" [ngClass]="getUserStatusClass(user)">
+              {{ getUserStatusLabel(user) }}
             </span>
           </td>
           <td>
             <button class="action-btn" (click)="toggleStatus(user)">
-              {{ user.is_operating ? 'Disable' : 'Enable' }}
+              {{ getUserActionLabel(user) }}
             </button>
           </td>
         </tr>
@@ -100,6 +112,284 @@
     <button class="page-btn" [disabled]="currentPage <= 1" (click)="prevPage()">Previous</button>
     <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
     <button class="page-btn" [disabled]="currentPage >= totalPages" (click)="nextPage()">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'accessRequests') {
+  @if (accessRequestsLoading) {
+  <div class="loading">Loading access requests...</div>
+  } @else if (accessRequests.length === 0) {
+  <div class="loading">No pending provider, pharmacy, or diagnostics requests yet.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Submitted</th>
+          <th>Requester</th>
+          <th>Requested Access</th>
+          <th>Contacted</th>
+          <th>Review Status</th>
+          <th>Account</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of accessRequests; track request.id) {
+        <tr>
+          <td>{{ request.created_at | date:'short' }}</td>
+          <td>
+            <div class="request-primary">{{ request.display_name || 'Unnamed request' }}</div>
+            <div class="request-secondary">{{ request.phone }}</div>
+          </td>
+          <td>
+            <div class="request-primary">
+              {{ formatRequestedRole(request.requested_role) }}
+              @if (request.requested_specialty) {
+              · {{ request.requested_specialty }}
+              }
+            </div>
+            <div class="request-secondary">{{ request.organization_name || 'No organization provided' }}</div>
+          </td>
+          <td>
+            <div class="select-with-action">
+              <select #accessContactSelect class="inline-select" [ngModel]="request.contacted ? 'true' : 'false'">
+                <option value="false">Not Contacted</option>
+                <option value="true">Contacted</option>
+              </select>
+              <button class="action-btn" (click)="confirmAndUpdateAccessRequestContactStatus(request, accessContactSelect.value)">Confirm</button>
+            </div>
+            @if (request.contacted_at || request.contacted_by_name) {
+            <div class="request-secondary">
+              @if (request.contacted_by_name) {
+              {{ request.contacted_by_name }}
+              }
+              @if (request.contacted_at) {
+              · {{ request.contacted_at | date:'short' }}
+              }
+            </div>
+            }
+          </td>
+          <td>
+            <div class="select-with-action">
+              <select #accessReviewSelect class="inline-select" [ngModel]="request.review_status">
+                @for (status of accessReviewStatuses; track status) {
+                <option [value]="status">{{ formatAccessRequestReviewStatus(status) }}</option>
+                }
+              </select>
+              <button class="action-btn" (click)="confirmAndUpdateAccessRequestReviewStatus(request, accessReviewSelect.value)">Confirm</button>
+            </div>
+            <div class="request-secondary">
+              {{ formatAccessRequestReviewStatus(request.review_status) }}
+              @if (request.reviewed_by_name) {
+              · {{ request.reviewed_by_name }}
+              }
+            </div>
+          </td>
+          <td>
+            <span class="status-badge" [class.pending]="request.account_status === 'pending_review'" [class.active]="request.account_status === 'active'" [class.disabled]="request.account_status === 'disabled'">
+              {{ request.account_status === 'pending_review' ? 'Pending Review' : (request.account_status === 'active' ? 'Active' : 'Disabled') }}
+            </span>
+            @if (request.approved_by_name || request.approved_at) {
+            <div class="request-secondary">
+              @if (request.approved_by_name) {
+              {{ request.approved_by_name }}
+              }
+              @if (request.approved_at) {
+              · {{ request.approved_at | date:'short' }}
+              }
+            </div>
+            }
+          </td>
+          <td>
+            <button class="action-btn action-btn--primary" [disabled]="request.account_status === 'active'" (click)="approveAccessRequest(request)">
+              {{ request.account_status === 'active' ? 'Approved' : 'Approve & Enable' }}
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'pharmacy') {
+  @if (pharmacyLoading) {
+  <div class="loading">Loading prescriptions...</div>
+  } @else if (prescriptions.length === 0) {
+  <div class="loading">No prescriptions found.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Phone</th>
+          <th>Rx Code</th>
+          <th>Items</th>
+          <th>Status</th>
+          <th>Patient Contact</th>
+          <th>Workflow</th>
+          <th>Actions</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (rx of prescriptions; track rx.id) {
+        <tr>
+          <td class="name-cell">{{ rx.patient_name || 'Unknown' }}</td>
+          <td>{{ rx.patient_phone || '—' }}</td>
+          <td><code class="rx-code">{{ rx.code }}</code></td>
+          <td>{{ formatRxItems(rx.items) }}</td>
+          <td>
+            <span class="status-badge"
+              [class.active]="rx.status === 'active'"
+              [class.claimed]="rx.status === 'claimed'"
+              [class.fulfilled]="rx.status === 'fulfilled'">
+              {{ rx.status }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class.active]="rx.patient_contacted" [class.disabled]="!rx.patient_contacted">
+              {{ rx.patient_contacted ? 'Contacted' : 'Not Contacted' }}
+            </span>
+            @if (rx.patient_contacted_by_name) {
+            <div class="request-secondary">By {{ rx.patient_contacted_by_name }}</div>
+            }
+          </td>
+          <td>
+            <div class="request-primary">{{ formatWorkflowStatus(rx.admin_workflow_status) }}</div>
+            @if (rx.admin_workflow_updated_by_name) {
+            <div class="request-secondary">By {{ rx.admin_workflow_updated_by_name }}</div>
+            }
+          </td>
+          <td>
+            <div class="action-stack">
+              <button class="action-btn" [disabled]="rx.patient_contacted" (click)="confirmAndUpdatePrescriptionContactStatus(rx, true)">
+                Mark Contacted
+              </button>
+              <button class="action-btn" [disabled]="!rx.patient_contacted" (click)="confirmAndUpdatePrescriptionContactStatus(rx, false)">
+                Clear Contact
+              </button>
+            </div>
+          </td>
+          <td>{{ rx.created_at | date:'short' }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="page-btn" [disabled]="pharmacyPage <= 1" (click)="prevPharmacyPage()">Previous</button>
+    <span class="page-info">Page {{ pharmacyPage }} of {{ pharmacyTotalPages }}</span>
+    <button class="page-btn" [disabled]="pharmacyPage >= pharmacyTotalPages" (click)="nextPharmacyPage()">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'diagnostics') {
+  @if (diagnosticsLoading) {
+  <div class="loading">Loading diagnostic orders...</div>
+  } @else if (diagnosticsOrders.length === 0) {
+  <div class="loading">No diagnostic orders found.</div>
+  } @else {
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Patient</th>
+        <th>Tests</th>
+        <th>Source</th>
+        <th>Status</th>
+        <th>Clinical Note</th>
+        <th>Centre</th>
+        <th>Workflow</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (order of diagnosticsOrders; track order.id) {
+      <tr>
+        <td class="mono">{{ order.id | slice:0:8 }}…</td>
+        <td>
+          <div>{{ order.patient_name || '—' }}</div>
+          <div class="sub">{{ order.patient_phone }}</div>
+        </td>
+        <td>{{ (order.tests || []).join(', ') }}</td>
+        <td>
+          <span class="status-badge" [class.status-badge--info]="order.order_source === 'gp'" [class.status-badge--neutral]="order.order_source === 'specialist'">
+            {{ order.order_source === 'gp' ? 'GP' : 'Specialist' }}
+          </span>
+        </td>
+        <td><span class="status-badge">{{ order.status }}</span></td>
+        <td class="note-cell">{{ order.notes }}</td>
+        <td>{{ order.centre_name || '—' }}</td>
+        <td>
+          <select class="role-select" [ngModel]="order.admin_workflow_status || ''"
+            (ngModelChange)="updateDiagnosticsWorkflow(order, $event)">
+            <option value="">— Select —</option>
+            @for (ws of workflowStatuses; track ws) {
+            <option [value]="ws">{{ formatWorkflowStatus(ws) }}</option>
+            }
+          </select>
+        </td>
+        <td>{{ order.created_at | date:'mediumDate' }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="pagination">
+    <button class="page-btn" [disabled]="diagnosticsPage <= 1" (click)="diagnosticsPageChange(-1)">Prev</button>
+    <span>Page {{ diagnosticsPage }} of {{ diagnosticsTotalPages }}</span>
+    <button class="page-btn" [disabled]="diagnosticsPage >= diagnosticsTotalPages" (click)="diagnosticsPageChange(1)">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'grievances') {
+  @if (grievancesLoading) {
+  <div class="loading">Loading grievances...</div>
+  } @else if (grievances.length === 0) {
+  <div class="loading">No grievances submitted yet.</div>
+  } @else {
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Patient</th>
+        <th>Message</th>
+        <th>Status</th>
+        <th>Submitted</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (g of grievances; track g.id) {
+      <tr>
+        <td>
+          <div>{{ g.patient_name || '—' }}</div>
+          <div class="sub">{{ g.patient_phone }}</div>
+        </td>
+        <td class="note-cell">{{ g.message }}</td>
+        <td><span class="status-badge" [class.status-badge--success]="g.status === 'resolved'" [class.status-badge--info]="g.status === 'reviewed'">{{ g.status }}</span></td>
+        <td>{{ g.created_at | date:'mediumDate' }}</td>
+        <td>
+          <select class="role-select" [ngModel]="g.status" (ngModelChange)="updateGrievanceStatus(g, $event)">
+            <option value="new">New</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="pagination">
+    <button class="page-btn" [disabled]="grievancesPage <= 1" (click)="grievancesPageChange(-1)">Prev</button>
+    <span>Page {{ grievancesPage }} of {{ grievancesTotalPages }}</span>
+    <button class="page-btn" [disabled]="grievancesPage >= grievancesTotalPages" (click)="grievancesPageChange(1)">Next</button>
   </div>
   }
   }
@@ -137,6 +427,144 @@
     <button class="page-btn" [disabled]="activityPage <= 1" (click)="prevActivityPage()">Previous</button>
     <span class="page-info">Page {{ activityPage }} of {{ activityTotalPages }}</span>
     <button class="page-btn" [disabled]="activityPage >= activityTotalPages" (click)="nextActivityPage()">Next</button>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'requests') {
+  @if (requestsLoading) {
+  <div class="loading">Loading requests...</div>
+  } @else if (requests.length === 0) {
+  <div class="loading">No service requests yet.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Submitted</th>
+          <th>Request</th>
+          <th>Patient</th>
+          <th>Destination</th>
+          <th>Status</th>
+          <th>Workflow</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of requests; track request.id) {
+        <tr>
+          <td>{{ request.created_at | date:'short' }}</td>
+          <td>
+            <div class="request-primary">{{ formatRequestType(request.type) }}</div>
+            @if (request.handled_by_name) {
+            <div class="request-secondary">Handled by {{ request.handled_by_name }}</div>
+            }
+          </td>
+          <td>
+            <div class="request-primary">{{ request.patient_name || 'Unknown patient' }}</div>
+            <div class="request-secondary">{{ request.patient_phone || 'No phone' }}</div>
+          </td>
+          <td>{{ getRequestDestination(request) }}</td>
+          <td>
+            <div class="select-with-action">
+              <select #requestStatusSelect class="inline-select" [ngModel]="request.status">
+                @for (status of requestStatuses; track status) {
+                <option [value]="status">{{ status }}</option>
+                }
+              </select>
+              <button class="action-btn" (click)="confirmAndUpdateRequestStatus(request, requestStatusSelect.value)">Confirm</button>
+            </div>
+          </td>
+          <td>
+            <div class="select-with-action">
+              <select #requestWorkflowSelect class="inline-select" [ngModel]="request.admin_workflow_status || ''">
+                <option value="">Select workflow</option>
+                @for (status of workflowStatuses; track status) {
+                <option [value]="status">{{ formatWorkflowStatus(status) }}</option>
+                }
+              </select>
+              <button class="action-btn" [disabled]="!requestWorkflowSelect.value" (click)="confirmAndUpdateRequestWorkflowStatus(request, requestWorkflowSelect.value)">
+                Confirm
+              </button>
+            </div>
+            @if (request.admin_workflow_status) {
+            <div class="request-secondary">
+              {{ formatWorkflowStatus(request.admin_workflow_status) }}
+              @if (request.admin_workflow_updated_by_name) {
+              · {{ request.admin_workflow_updated_by_name }}
+              }
+            </div>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+  }
+
+  @if (activeTab === 'referrals') {
+  @if (referralsLoading) {
+  <div class="loading">Loading referrals...</div>
+  } @else if (referrals.length === 0) {
+  <div class="loading">No referrals found.</div>
+  } @else {
+  <div class="user-table-wrap">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Submitted</th>
+          <th>Patient</th>
+          <th>Specialty</th>
+          <th>Referral Status</th>
+          <th>Admin Workflow</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (referral of referrals; track referral.id) {
+        <tr>
+          <td>{{ referral.created_at | date:'short' }}</td>
+          <td>
+            <div class="request-primary">{{ referral.patient_name || 'Unknown patient' }}</div>
+            <div class="request-secondary">{{ referral.patient_phone || 'No phone' }}</div>
+          </td>
+          <td>
+            <div class="request-primary">{{ referral.specialty || 'General' }}</div>
+            <div class="request-secondary">{{ referral.specialist_name || 'Unassigned specialist' }}</div>
+          </td>
+          <td>
+            <span class="status-badge"
+              [class.active]="referral.status === 'accepted' || referral.status === 'confirmed'"
+              [class.claimed]="referral.status === 'new'"
+              [class.disabled]="referral.status === 'declined'">
+              {{ referral.status }}
+            </span>
+          </td>
+          <td>
+            <div class="select-with-action">
+              <select #referralWorkflowSelect class="inline-select" [ngModel]="referral.admin_workflow_status || ''">
+                <option value="">Select workflow</option>
+                @for (status of workflowStatuses; track status) {
+                <option [value]="status">{{ formatWorkflowStatus(status) }}</option>
+                }
+              </select>
+              <button class="action-btn" [disabled]="!referralWorkflowSelect.value" (click)="confirmAndUpdateReferralWorkflowStatus(referral, referralWorkflowSelect.value)">
+                Confirm
+              </button>
+            </div>
+            @if (referral.admin_workflow_status) {
+            <div class="request-secondary">
+              {{ formatWorkflowStatus(referral.admin_workflow_status) }}
+              @if (referral.admin_workflow_updated_by_name) {
+              · {{ referral.admin_workflow_updated_by_name }}
+              }
+            </div>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
   </div>
   }
   }

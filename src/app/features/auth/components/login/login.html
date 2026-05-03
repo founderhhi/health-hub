@@ -3,6 +3,13 @@
   </div>
   <div class="hhi-auth-layout__form-panel">
     <div class="hhi-auth-card">
+      <button class="auth-back-link" type="button" (click)="goToLanding()" aria-label="Go back to landing page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"></path>
+          <path d="m12 19-7-7 7-7"></path>
+        </svg>
+        Back to landing
+      </button>
       <button class="hhi-auth-card__logo" type="button" (click)="goToLanding()" aria-label="Return to landing page">
         @if (!logoLoadFailed) {
         <img src="images/logo-tree.svg" alt="Health Hub International" width="68" height="68"
@@ -22,6 +29,29 @@
         }
         account
       </p>
+
+      <div class="account-switch" role="tablist" aria-label="Choose login type">
+        <button
+          type="button"
+          class="account-switch__option"
+          [class.active]="loginRole === 'patient'"
+          (click)="switchLoginRole('patient')">
+          Patient
+        </button>
+        <button
+          type="button"
+          class="account-switch__option"
+          [class.active]="loginRole === 'provider'"
+          (click)="switchLoginRole('provider')">
+          Providers
+        </button>
+      </div>
+
+      @if (loginRole === 'provider') {
+      <div class="provider-note">
+        GP, specialist, pharmacy, and diagnostics accounts are enabled only after admin verification.
+      </div>
+      }
 
       <form [formGroup]="form" class="auth-form" novalidate>
         <div class="form-group">

@@ -1,0 +1,94 @@
+<section class="specialist-page">
+  <header class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
+    </button>
+    <div>
+      <h1 class="page-title">Specialists</h1>
+      <p class="page-subtitle">Find available specialists by specialty and facility.</p>
+    </div>
+  </header>
+
+  @if (showAvailabilityNotice) {
+  <aside class="feature-notice" role="dialog" aria-live="polite" aria-label="Specialist consultation notice">
+    <div class="feature-notice__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 8h.01" />
+        <path d="M11 12h1v4h1" />
+        <circle cx="12" cy="12" r="9" />
+      </svg>
+    </div>
+    <div class="feature-notice__content">
+      <p class="feature-notice__eyebrow">Coming soon</p>
+      <p class="feature-notice__text">{{ availabilityNotice }}</p>
+    </div>
+    <button type="button" class="feature-notice__dismiss" (click)="dismissAvailabilityNotice()">Got it</button>
+  </aside>
+  }
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by name or specialty..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearch()"
+      aria-label="Search specialists"
+    />
+  </div>
+
+  @if (loading) {
+  <div class="specialist-list">
+    @for (i of [1, 2, 3]; track i) {
+    <div class="specialist-card specialist-card--skeleton">
+      <span class="skeleton avatar-skeleton"></span>
+      <div class="skeleton-lines">
+        <span class="skeleton line-skeleton line-skeleton--primary"></span>
+        <span class="skeleton line-skeleton line-skeleton--secondary"></span>
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  @if (loadError) {
+  <p class="data-source-note">{{ loadError }}</p>
+  }
+
+  <div class="specialist-list">
+    @for (specialist of filteredSpecialists; track specialist.id || specialist.display_name) {
+    <div class="specialist-card">
+      <div class="specialist-avatar">{{ getInitials(specialist.display_name) }}</div>
+      <div class="specialist-info">
+        <h3 class="specialist-name">{{ specialist.display_name }}</h3>
+        <span class="specialist-specialty">{{ specialist.specialty }}</span>
+        @if (specialist.bio) {
+        <p class="specialist-bio">{{ specialist.bio }}</p>
+        }
+        @if (specialist.facility_name) {
+        <span class="specialist-facility">{{ specialist.facility_name }}</span>
+        }
+      </div>
+    </div>
+    }
+
+    @if (filteredSpecialists.length === 0) {
+    <div class="state-card">
+      @if (searchQuery.trim()) {
+      <p class="state-card__title">No specialists found for "{{ searchQuery }}"</p>
+      <p class="state-card__text">Try a different name, specialty, or facility.</p>
+      } @else {
+      <p class="state-card__title">No specialists are listed yet.</p>
+      <p class="state-card__text">Please check back soon as more profiles become available.</p>
+      }
+    </div>
+    }
+  </div>
+  }
+
+  <app-bottom-nav [tabs]="PATIENT_TABS" activeTab="home"></app-bottom-nav>
+</section>

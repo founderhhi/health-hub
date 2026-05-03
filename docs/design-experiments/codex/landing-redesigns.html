@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Hub Landing Redesign Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg:
+        radial-gradient(circle at top left, rgba(46, 204, 113, 0.16), transparent 24%),
+        linear-gradient(180deg, #f6faf8 0%, #eef4f7 100%);
+      --text: #142219;
+      --muted: #65766d;
+      --line: rgba(15, 23, 42, 0.08);
+      --panel: rgba(255, 255, 255, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #f4f8f7;
+      color: var(--text);
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    body {
+      background-image: var(--bg);
+    }
+
+    .page {
+      width: min(calc(100% - 48px), 1640px);
+      margin: 0 auto;
+      padding: 32px 0 60px;
+      display: grid;
+      gap: 28px;
+    }
+
+    .concept-artboard {
+      display: grid;
+      gap: 18px;
+      padding: 22px;
+      border-radius: 30px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(18px);
+    }
+
+    .concept-meta {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .concept-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.84);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge--source {
+      color: #1e3a8a;
+      background: rgba(29, 78, 216, 0.1);
+    }
+
+    .badge--direction {
+      color: #166534;
+      background: rgba(46, 204, 113, 0.12);
+    }
+
+    .concept-copy h1 {
+      margin: 0;
+      font-family: "Fraunces", serif;
+      font-size: 42px;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+
+    .concept-copy p,
+    .concept-notes p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .concept-notes {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    .concept-notes strong {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #0f6c43;
+    }
+
+    .mock-surface {
+      overflow: hidden;
+      border-radius: 26px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: var(--surface-bg, #fbfdfc);
+    }
+
+    .landing-frame {
+      min-height: 1240px;
+      padding: 28px;
+      display: grid;
+      gap: 22px;
+      background:
+        radial-gradient(circle at 82% 12%, var(--glow, rgba(46, 204, 113, 0.12)), transparent 28%),
+        linear-gradient(180deg, var(--surface-bg, #ffffff), var(--surface-alt, #f7fbf9));
+    }
+
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 20px;
+      border-radius: 22px;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent, #2ecc71), color-mix(in srgb, var(--accent, #2ecc71) 72%, #0f172a));
+      box-shadow: 0 10px 18px color-mix(in srgb, var(--accent, #2ecc71) 26%, transparent);
+    }
+
+    .nav-links,
+    .nav-actions,
+    .cta-row,
+    .proof-row,
+    .mini-stats,
+    .cta-band__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .nav-link,
+    .ghost-btn,
+    .solid-btn,
+    .proof-pill,
+    .mode-pill {
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .nav-link,
+    .ghost-btn,
+    .proof-pill,
+    .mode-pill {
+      background: rgba(255, 255, 255, 0.78);
+      color: #20382d;
+    }
+
+    .solid-btn {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent, #2ecc71), var(--accent-strong, #1f8a56));
+      box-shadow: 0 12px 26px color-mix(in srgb, var(--accent, #2ecc71) 26%, transparent);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .hero-copy-panel,
+    .hero-side-panel,
+    .section-panel,
+    .cta-band {
+      border-radius: 28px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+    }
+
+    .hero-copy-panel {
+      display: grid;
+      gap: 18px;
+      padding: 34px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent, #2ecc71) 10%, white);
+      color: var(--accent-strong, #1f8a56);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hero-copy-panel h2 {
+      margin: 0;
+      max-width: 12ch;
+      font-family: "Fraunces", serif;
+      font-size: clamp(50px, 5vw, 74px);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-copy-panel p {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .proof-pill {
+      min-height: 34px;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-side-panel {
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--accent, #2ecc71) 8%, white), rgba(255, 255, 255, 0.98)),
+        rgba(255, 255, 255, 0.92);
+    }
+
+    .lane-grid,
+    .step-grid,
+    .feature-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .lane-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lane-card,
+    .step-card,
+    .feature-card,
+    .mini-card {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .lane-card strong,
+    .step-card strong,
+    .feature-card strong,
+    .mini-card strong,
+    .section-title strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .lane-card p,
+    .step-card p,
+    .feature-card p,
+    .mini-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mini-stats {
+      gap: 12px;
+    }
+
+    .mini-card {
+      min-width: 0;
+      flex: 1 1 0;
+    }
+
+    .section-panel {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .step-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .feature-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cta-band {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 24px 26px;
+      background:
+        linear-gradient(120deg, color-mix(in srgb, var(--accent, #2ecc71) 18%, white), color-mix(in srgb, var(--accent-alt, #1d4ed8) 12%, white)),
+        rgba(255, 255, 255, 0.94);
+    }
+
+    .cta-band h3 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      line-height: 1.1;
+    }
+
+    .cta-band p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .theme-practo {
+      --accent: #2ecc71;
+      --accent-strong: #1d8f55;
+      --accent-alt: #1d4ed8;
+      --surface-bg: #f6fbf8;
+      --surface-alt: #eef4fb;
+      --glow: rgba(46, 204, 113, 0.16);
+    }
+
+    .theme-practo .hero-copy-panel {
+      background:
+        radial-gradient(circle at 82% 14%, rgba(29, 78, 216, 0.12), transparent 26%),
+        linear-gradient(145deg, rgba(244, 252, 247, 0.98), rgba(255, 255, 255, 0.95));
+    }
+
+    .theme-practo .step-card:nth-child(odd),
+    .theme-practo .feature-card:nth-child(3n + 1) {
+      background: rgba(244, 253, 247, 0.96);
+    }
+
+    .theme-market {
+      --accent: #0d9488;
+      --accent-strong: #0f766e;
+      --accent-alt: #f59e0b;
+      --surface-bg: #f5fcfb;
+      --surface-alt: #eef8f7;
+      --glow: rgba(13, 148, 136, 0.16);
+    }
+
+    .theme-market .hero-copy-panel {
+      background:
+        radial-gradient(circle at 88% 14%, rgba(245, 158, 11, 0.16), transparent 28%),
+        linear-gradient(145deg, rgba(241, 252, 250, 0.98), rgba(255, 255, 255, 0.95));
+    }
+
+    .theme-market .lane-card:first-child,
+    .theme-market .step-card:nth-child(2),
+    .theme-market .feature-card:nth-child(2),
+    .theme-market .feature-card:nth-child(5) {
+      background: rgba(241, 252, 250, 0.98);
+    }
+
+    .theme-premium {
+      --accent: #239e67;
+      --accent-strong: #13724a;
+      --accent-alt: #c48d3d;
+      --surface-bg: #fcfaf5;
+      --surface-alt: #f5eddc;
+      --glow: rgba(196, 141, 61, 0.16);
+    }
+
+    .theme-premium .hero-copy-panel,
+    .theme-premium .hero-side-panel,
+    .theme-premium .section-panel,
+    .theme-premium .cta-band {
+      background:
+        linear-gradient(145deg, rgba(255, 250, 242, 0.98), rgba(255, 255, 255, 0.94));
+    }
+
+    .theme-premium .step-card:nth-child(1),
+    .theme-premium .step-card:nth-child(4),
+    .theme-premium .feature-card:nth-child(2),
+    .theme-premium .feature-card:nth-child(6) {
+      background: rgba(251, 244, 233, 0.96);
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="concept-artboard theme-practo" data-artboard="landing-practo">
+      <div class="concept-meta">
+        <div class="concept-copy">
+          <div class="badge-row">
+            <span class="badge badge--source">Source: Practo consult</span>
+            <span class="badge badge--source">Grounded in Health Hub live</span>
+            <span class="badge badge--direction">Landing direction 1</span>
+          </div>
+          <h1>Conversion consult landing.</h1>
+          <p>
+            This direction keeps Health Hub's current single-column story but sharpens the top of the page around the
+            consult outcome: fast access, verified experts, clear service modes, and a more conversion-led feature grid.
+          </p>
+        </div>
+        <aside class="concept-notes">
+          <strong>Implementation focus</strong>
+          <p>Retheme <code>landing-page.html</code> and <code>landing-page.scss</code> by tightening the hero, compressing the steps, and making feature cards feel more transactional than informational.</p>
+        </aside>
+      </div>
+      <div class="mock-surface">
+        <div class="landing-frame">
+          <nav class="landing-nav">
+            <div class="brand">
+              <div class="brand-mark">H</div>
+              <span>Health Hub</span>
+            </div>
+            <div class="nav-links">
+              <span class="nav-link">How it works</span>
+              <span class="nav-link">Care lanes</span>
+              <span class="nav-link">Plans</span>
+              <span class="nav-link">Trust</span>
+            </div>
+            <div class="nav-actions">
+              <span class="ghost-btn">Provider Login</span>
+              <span class="solid-btn">Patient Login</span>
+            </div>
+          </nav>
+
+          <section class="hero-grid">
+            <div class="hero-copy-panel">
+              <span class="eyebrow">Talk to a Health Expert in minutes</span>
+              <h2>Trusted care that starts with the next right action.</h2>
+              <p>
+                Book consultation, continue into pharmacy or diagnostics, and keep every prescription and follow-up in
+                one calm system. The page leads with access, proof, and momentum instead of only breadth.
+              </p>
+              <div class="cta-row">
+                <span class="solid-btn">Start consultation</span>
+                <span class="ghost-btn">See plans</span>
+              </div>
+              <div class="proof-row">
+                <span class="proof-pill">24/7 access</span>
+                <span class="proof-pill">Verified Health Experts</span>
+                <span class="proof-pill">Prescription and referral ready</span>
+              </div>
+            </div>
+
+            <aside class="hero-side-panel">
+              <div class="lane-grid">
+                <div class="lane-card">
+                  <strong>Video consultation</strong>
+                  <p>Fastest path for symptoms, follow-ups, and referrals.</p>
+                </div>
+                <div class="lane-card">
+                  <strong>Audio call</strong>
+                  <p>Lower-friction care when bandwidth or privacy is limited.</p>
+                </div>
+                <div class="lane-card">
+                  <strong>Diagnostics next</strong>
+                  <p>Book tests from the same care flow with digital results.</p>
+                </div>
+                <div class="lane-card">
+                  <strong>Pharmacy pickup</strong>
+                  <p>Scan prescription QR and continue medicines without friction.</p>
+                </div>
+              </div>
+              <div class="mini-stats">
+                <div class="mini-card">
+                  <strong>12,000+</strong>
+                  <p>patients already using Health Hub</p>
+                </div>
+                <div class="mini-card">
+                  <strong>5 mins</strong>
+                  <p>target response window for urgent consult starts</p>
+                </div>
+                <div class="mini-card">
+                  <strong>1 app</strong>
+                  <p>for consults, prescriptions, labs, and records</p>
+                </div>
+              </div>
+            </aside>
+          </section>
+
+          <section class="section-panel">
+            <div class="section-title">
+              <div>
+                <strong>How the journey works</strong>
+                <p>Same story modules as the current landing page, but with more decision clarity.</p>
+              </div>
+              <div class="badge-row">
+                <span class="mode-pill">Choose lane</span>
+                <span class="mode-pill">Consult</span>
+                <span class="mode-pill">Complete care</span>
+              </div>
+            </div>
+            <div class="step-grid">
+              <div class="step-card">
+                <strong>Join and choose your plan</strong>
+                <p>Clear patient-first onboarding with family and premium plan comparison up front.</p>
+              </div>
+              <div class="step-card">
+                <strong>Pick your consult mode</strong>
+                <p>Video, audio, or chat gets promoted as an immediate healthcare action.</p>
+              </div>
+              <div class="step-card">
+                <strong>Receive a plan, not just advice</strong>
+                <p>Prescriptions, labs, and referrals are framed as the same care thread.</p>
+              </div>
+              <div class="step-card">
+                <strong>Track everything afterward</strong>
+                <p>Records and reminders stay visible as an outcome of the consult.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-panel">
+            <div class="section-title">
+              <div>
+                <strong>Complete ecosystem</strong>
+                <p>The same feature inventory becomes more proof-driven and easier to scan.</p>
+              </div>
+            </div>
+            <div class="feature-grid">
+              <div class="feature-card">
+                <strong>Health Expert consults</strong>
+                <p>Lead card with response-time promise, availability, and pricing cue.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Specialist referrals</strong>
+                <p>Shown as the continuation of primary care instead of a separate offer.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Smart pharmacy</strong>
+                <p>QR prescription pickup and medication continuity called out clearly.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Diagnostics and labs</strong>
+                <p>Results return directly to Health Hub for cleaner record continuity.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Digital records</strong>
+                <p>Records are framed as a default outcome, not just a storage feature.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Travel and insurance</strong>
+                <p>Coming-soon services are lighter so they do not compete with active care lanes.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="cta-band">
+            <div>
+              <h3>Ready to start care from the clearest possible first step?</h3>
+              <p>This version turns the landing page from a general overview into a more decisive care-entry surface.</p>
+            </div>
+            <div class="cta-band__actions">
+              <span class="solid-btn">Get started</span>
+              <span class="ghost-btn">Compare plans</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="concept-artboard theme-market" data-artboard="landing-marketplace">
+      <div class="concept-meta">
+        <div class="concept-copy">
+          <div class="badge-row">
+            <span class="badge badge--source">Source: mode-marketplace pattern</span>
+            <span class="badge badge--source">Health Hub ecosystem retained</span>
+            <span class="badge badge--direction">Landing direction 2</span>
+          </div>
+          <h1>Care mode marketplace landing.</h1>
+          <p>
+            This variation keeps the same sections but changes the hero from a centered brand statement into a guided
+            care-mode chooser. It is stronger for users who need to decide quickly whether they need consultation, labs,
+            prescriptions, or specialist escalation.
+          </p>
+        </div>
+        <aside class="concept-notes">
+          <strong>Implementation focus</strong>
+          <p>Use the existing hero, steps, and feature modules, but recast the hero content as segmented modes and let category cards do more of the hierarchy work.</p>
+        </aside>
+      </div>
+      <div class="mock-surface">
+        <div class="landing-frame">
+          <nav class="landing-nav">
+            <div class="brand">
+              <div class="brand-mark">H</div>
+              <span>Health Hub</span>
+            </div>
+            <div class="nav-links">
+              <span class="nav-link">Patients</span>
+              <span class="nav-link">Doctors</span>
+              <span class="nav-link">Diagnostics</span>
+              <span class="nav-link">Records</span>
+            </div>
+            <div class="nav-actions">
+              <span class="ghost-btn">Login</span>
+              <span class="solid-btn">Sign Up</span>
+            </div>
+          </nav>
+
+          <section class="hero-grid">
+            <div class="hero-copy-panel">
+              <span class="eyebrow">Choose how you want to start care</span>
+              <h2>One front door for consultations, prescriptions, labs, and follow-up.</h2>
+              <p>
+                Instead of asking patients to decode the ecosystem, this version lets them select the job they want
+                done first. It is still the current Health Hub product, just explained in more practical language.
+              </p>
+              <div class="badge-row">
+                <span class="mode-pill">See a Health Expert</span>
+                <span class="mode-pill">Find a specialist</span>
+                <span class="mode-pill">Order diagnostics</span>
+                <span class="mode-pill">Use prescription QR</span>
+              </div>
+              <div class="cta-row">
+                <span class="solid-btn">Start with consultation</span>
+                <span class="ghost-btn">Browse services</span>
+              </div>
+            </div>
+
+            <aside class="hero-side-panel">
+              <div class="lane-grid">
+                <div class="lane-card">
+                  <strong>Consult now</strong>
+                  <p>Start with symptoms, follow-up, or general medical advice.</p>
+                </div>
+                <div class="lane-card">
+                  <strong>Need a specialist</strong>
+                  <p>Move directly into cardiology, dermatology, pediatrics, and more.</p>
+                </div>
+                <div class="lane-card">
+                  <strong>Need tests</strong>
+                  <p>Order diagnostics or continue from a doctor-recommended panel.</p>
+                </div>
+                <div class="lane-card">
+                  <strong>Need medicines</strong>
+                  <p>Continue care with partner pharmacies and refill support.</p>
+                </div>
+              </div>
+              <div class="mini-stats">
+                <div class="mini-card">
+                  <strong>24/7</strong>
+                  <p>remote primary-care availability</p>
+                </div>
+                <div class="mini-card">
+                  <strong>500+</strong>
+                  <p>provider network participants</p>
+                </div>
+                <div class="mini-card">
+                  <strong>Digital</strong>
+                  <p>records visible from every lane</p>
+                </div>
+              </div>
+            </aside>
+          </section>
+
+          <section class="section-panel">
+            <div class="section-title">
+              <div>
+                <strong>How It Works</strong>
+                <p>Steps stay in place, but each card becomes more directional and less purely descriptive.</p>
+              </div>
+            </div>
+            <div class="step-grid">
+              <div class="step-card">
+                <strong>Create account</strong>
+                <p>Role-aware signup remains, but is framed as entry into a care lane.</p>
+              </div>
+              <div class="step-card">
+                <strong>Choose your lane</strong>
+                <p>The first decision becomes consultation, specialist, pharmacy, or diagnostics.</p>
+              </div>
+              <div class="step-card">
+                <strong>Complete the task</strong>
+                <p>Every lane feeds prescriptions, results, and referrals back into the same record system.</p>
+              </div>
+              <div class="step-card">
+                <strong>Return anytime</strong>
+                <p>Patients come back to a dashboard that remembers the journey, not just the account.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-panel">
+            <div class="section-title">
+              <div>
+                <strong>Service landscape</strong>
+                <p>Features feel more like navigable care categories and less like a static wall of explanation.</p>
+              </div>
+            </div>
+            <div class="feature-grid">
+              <div class="feature-card">
+                <strong>Primary care</strong>
+                <p>Immediate route into Health Expert consultation.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Specialists</strong>
+                <p>Referral-ready specialty support with clearer segmentation.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Diagnostics</strong>
+                <p>Testing workflows surfaced as a first-class route.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Pharmacy</strong>
+                <p>Medicines and refill continuity framed as part of the same care system.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Digital records</strong>
+                <p>Every journey leaves a usable, shareable record trail.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Travel and insurance</strong>
+                <p>Secondary pathways remain visible without overpowering the active lanes.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="cta-band">
+            <div>
+              <h3>Stronger for users who arrive with intent, not curiosity.</h3>
+              <p>This is the most direct path if Health Hub wants the landing page to behave more like a care marketplace.</p>
+            </div>
+            <div class="cta-band__actions">
+              <span class="solid-btn">Choose a care lane</span>
+              <span class="ghost-btn">Explore the ecosystem</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="concept-artboard theme-premium" data-artboard="landing-premium">
+      <div class="concept-meta">
+        <div class="concept-copy">
+          <div class="badge-row">
+            <span class="badge badge--source">Source: One Medical tone</span>
+            <span class="badge badge--source">Health Hub brand retained</span>
+            <span class="badge badge--direction">Landing direction 3</span>
+          </div>
+          <h1>Guided premium landing.</h1>
+          <p>
+            This is the most refined and brand-forward version. It keeps the exact same landing architecture but pushes
+            it toward a quieter, more premium, care-led feel with stronger typography, softer creams, and higher trust
+            framing around ongoing support instead of one-off transactions.
+          </p>
+        </div>
+        <aside class="concept-notes">
+          <strong>Implementation focus</strong>
+          <p>Shift the page from app-marketing to service-quality storytelling through typography, surface treatment, and more curated contrast between primary and secondary actions.</p>
+        </aside>
+      </div>
+      <div class="mock-surface">
+        <div class="landing-frame">
+          <nav class="landing-nav">
+            <div class="brand">
+              <div class="brand-mark">H</div>
+              <span>Health Hub International</span>
+            </div>
+            <div class="nav-links">
+              <span class="nav-link">Membership</span>
+              <span class="nav-link">Primary care</span>
+              <span class="nav-link">Specialists</span>
+              <span class="nav-link">Records</span>
+            </div>
+            <div class="nav-actions">
+              <span class="ghost-btn">Log in</span>
+              <span class="solid-btn">Start care</span>
+            </div>
+          </nav>
+
+          <section class="hero-grid">
+            <div class="hero-copy-panel">
+              <span class="eyebrow">Trusted care, anywhere</span>
+              <h2>Healthcare that feels guided from the first click to the next step.</h2>
+              <p>
+                This version leans into confidence, continuity, and reassurance. It still presents the full Health Hub
+                ecosystem, but through a calmer editorial hierarchy that feels more premium than promotional.
+              </p>
+              <div class="proof-row">
+                <span class="proof-pill">Same-day consultation options</span>
+                <span class="proof-pill">Digital records from every visit</span>
+                <span class="proof-pill">Referral and follow-up continuity</span>
+              </div>
+              <div class="cta-row">
+                <span class="solid-btn">Begin with a Health Expert</span>
+                <span class="ghost-btn">Explore membership</span>
+              </div>
+            </div>
+
+            <aside class="hero-side-panel">
+              <div class="lane-card">
+                <strong>Your care lane</strong>
+                <p>Consultation, specialist support, diagnostics, and pharmacy all sit in one guided flow instead of separate products.</p>
+              </div>
+              <div class="lane-card">
+                <strong>Built for continuity</strong>
+                <p>Records, reminders, and next actions remain visible after each interaction so the relationship does not reset every time.</p>
+              </div>
+              <div class="mini-stats">
+                <div class="mini-card">
+                  <strong>Premium plans</strong>
+                  <p>More guidance and continuity for ongoing care needs.</p>
+                </div>
+                <div class="mini-card">
+                  <strong>Family-ready</strong>
+                  <p>Shared healthcare support without a fragmented account experience.</p>
+                </div>
+              </div>
+            </aside>
+          </section>
+
+          <section class="section-panel">
+            <div class="section-title">
+              <div>
+                <strong>How it works</strong>
+                <p>The existing steps become more reassuring and less instructional.</p>
+              </div>
+            </div>
+            <div class="step-grid">
+              <div class="step-card">
+                <strong>Create a care-ready account</strong>
+                <p>Plans are framed around peace of mind and continuity.</p>
+              </div>
+              <div class="step-card">
+                <strong>Meet a Health Expert</strong>
+                <p>Consultation becomes the warm start to a longer care relationship.</p>
+              </div>
+              <div class="step-card">
+                <strong>Continue into services</strong>
+                <p>Labs, pharmacy, and specialists feel like support branches of the same path.</p>
+              </div>
+              <div class="step-card">
+                <strong>Return to one record</strong>
+                <p>Every update and follow-up remains visible from your Health Hub home.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-panel">
+            <div class="section-title">
+              <div>
+                <strong>Health Hub ecosystem</strong>
+                <p>Features are curated and polished rather than presented as equal-weight marketing blocks.</p>
+              </div>
+            </div>
+            <div class="feature-grid">
+              <div class="feature-card">
+                <strong>Health Expert consultation</strong>
+                <p>The most visible promise on the page, because it is the most universal entry point.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Specialist care</strong>
+                <p>Escalation path shown as a trusted extension of primary support.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Digital records</strong>
+                <p>Positioned as a confidence feature, not just a convenience feature.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Pharmacy and diagnostics</strong>
+                <p>Service completion remains integrated into the same care language.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Membership value</strong>
+                <p>Subscription options feel reassuring and service-led rather than sales-led.</p>
+              </div>
+              <div class="feature-card">
+                <strong>Future ecosystem lanes</strong>
+                <p>Travel, insurance, and community health stay visible but visually quieter.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="cta-band">
+            <div>
+              <h3>The calmest and most premium version of the current landing architecture.</h3>
+              <p>If the homepage should feel more refined and less like a broad-feature marketplace, this is the strongest direction.</p>
+            </div>
+            <div class="cta-band__actions">
+              <span class="solid-btn">Start your care</span>
+              <span class="ghost-btn">Compare plans</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

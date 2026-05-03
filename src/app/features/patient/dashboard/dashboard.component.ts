@@ -1,14 +1,16 @@
-import { Component, OnDestroy, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, ChangeDetectorRef, ElementRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { PatientApiService } from '../../../core/api/patient.service';
 import { PrescriptionsApiService } from '../../../core/api/prescriptions.service';
 import { NotificationsApiService } from '../../../core/api/notifications.service';
+import { ApiClientService } from '../../../core/api/api-client.service';
 import { WsService } from '../../../core/realtime/ws.service';
 import { BottomNavComponent, PATIENT_TABS } from '../../../shared/components/bottom-nav/bottom-nav.component';
-import { AiChatBubbleComponent } from '../../../shared/components/ai-chat-bubble/ai-chat-bubble.component';
 import { ThemeService, ThemeMode } from '../../../shared/services/theme.service';
-import { Subscription, catchError, forkJoin, map, of, timeout } from 'rxjs';
+import { ConsultationService } from '../../../shared/services/consultation.service';
+import { Subscription, catchError, filter, forkJoin, map, of, timeout } from 'rxjs';
 
 interface HealthStats {
   consultations: number;
@@ -16,15 +18,57 @@ interface HealthStats {
   records: number;
 }
 
+interface ServiceCard {
+  id: string;
+  title: string;
+  icon: string;
+  description: string;
+  tone: 'emerald' | 'indigo' | 'amber';
+  comingSoon?: boolean;
+}
+
+const GP_CONSULT_PRICE_USD = 5;
+
+const DASHBOARD_SERVICES: ServiceCard[] = [
+  { id: 'gp', title: 'Talk to a Health Expert', icon: 'pulse', description: 'Start your first guided care conversation.', tone: 'emerald' },
+  { id: 'healwell', title: 'HealWell at Home', icon: 'video', description: 'Short self-care videos for common symptoms.', tone: 'indigo' },
+  { id: 'specialist', title: 'Specialist', icon: 'user-md', description: 'Move into specialty care when you need it.', tone: 'amber' },
+  { id: 'pharmacy', title: 'Pharmacy', icon: 'pharmacy', description: 'Track medicine support and pharmacy updates.', tone: 'emerald' },
+  { id: 'diagnostics', title: 'Diagnostics', icon: 'lab', description: 'View lab orders and test progress clearly.', tone: 'indigo' },
+  { id: 'travel', title: 'Travel & Care', icon: 'globe', description: 'Plan treatment travel and compare budgets.', tone: 'amber' },
+  { id: 'healwell-africa', title: 'HealWell in Africa', icon: 'africa', description: 'Explore care hubs across key African cities.', tone: 'emerald' },
+  { id: 'healwell-india', title: 'HealWell in India', icon: 'india', description: 'Discover specialty hospitals across India.', tone: 'indigo' },
+  { id: 'coming-soon', title: 'Coming Soon', icon: 'sparkle', description: 'Discover what\'s next on Health Hub.', tone: 'amber' },
+];
+
+interface WalkthroughStep {
+  targetId: string;
+  title: string;
+  body: string;
+}
+
+const WALKTHROUGH_STEPS: WalkthroughStep[] = [
+  { targetId: 'wt-bottom-nav', title: 'Your Navigation', body: 'Tap these icons to move between Home, Appointments, AI Chat, Records, and Profile.' },
+  { targetId: 'wt-services-grid', title: 'Your Health Services', body: 'Tap any card to access GP, Specialist, Pharmacy, Diagnostics, and more.' },
+  { targetId: 'wt-gp-tile', title: 'See a Health Expert Now', body: 'Get a video, audio, or chat consultation with a Health Expert in minutes.' },
+  { targetId: 'wt-healwell-tile', title: 'Expert Health Guidance On Demand', body: 'Browse curated videos from doctors, specialists, and health experts to understand symptoms and manage minor conditions confidently at home.' },
+  { targetId: 'wt-africa-tile', title: 'Healthcare Across Africa', body: 'Access verified clinics and specialists across the continent.' },
+  { targetId: 'wt-india-tile', title: 'Healthcare Across India', body: 'Connect with hospital networks and specialists across India.' },
+  { targetId: 'wt-stats', title: 'Your Health at a Glance', body: 'Track your consultations, active prescriptions, and lab records here.' },
+  { targetId: 'wt-notification-btn', title: 'Your Notifications', body: 'Stay updated on consultations, prescriptions, and lab results.' },
+  { targetId: 'wt-help-btn', title: 'Need Help?', body: 'Tap here anytime to restart this tour or send us feedback.' }
+];
+
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, BottomNavComponent, AiChatBubbleComponent],
+  imports: [CommonModule, FormsModule, RouterModule, BottomNavComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   PATIENT_TABS = PATIENT_TABS;
+  services = DASHBOARD_SERVICES;
 
   // User data
   userName: string = '';
@@ -32,13 +76,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
   requestingConsult = false;
   requestError = '';
   showModeSelector = false;
+  showPaymentConfirm = false;
+
+  // Emergency SOS
+  showSosModal = false;
+
+  // Help dialogue
+  showHelpDialog = false;
+  grievanceMessage = '';
+  grievanceSubmitting = false;
+  grievanceSubmitted = false;
+
+  // Walkthrough
+  walkthroughActive = false;
+  walkthroughStepIndex = 0;
+  walkthroughSteps = WALKTHROUGH_STEPS;
+  spotlightRect: DOMRect | null = null;
+  tooltipPlacement: 'above' | 'below' = 'below';
+  consultationCost = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(GP_CONSULT_PRICE_USD);
   selectedMode: 'video' | 'audio' | 'chat' = 'video';
   recentPrescriptions: any[] = [];
   statsLoading = true;
   prescriptionsLoading = true;
   statsNotice = '';
   showPaymentModal = false;
+  comingSoonMessage = '';
   private wsSubscription?: Subscription;
+  private routerSub?: Subscription;
 
   // Health statistics
   stats: HealthStats = {
@@ -48,6 +116,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
 
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   currentTheme: ThemeMode = 'light';
   private themeSubscription?: Subscription;
@@ -57,8 +126,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private patientApi: PatientApiService,
     private prescriptionsApi: PrescriptionsApiService,
     private notificationsApi: NotificationsApiService,
+    private api: ApiClientService,
     private ws: WsService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private consultationService: ConsultationService
   ) {}
 
   ngOnInit(): void {
@@ -77,6 +148,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadNotifications();
     this.prefetchPatientNavigationData();
 
+    // Reload data when navigating back to dashboard (component reuse)
+    this.routerSub = this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      filter((e) => e.urlAfterRedirects.includes('/patient/dashboard'))
+    ).subscribe(() => {
+      if (this.statsLoading) return;
+      this.loadStats();
+      this.loadPrescriptions();
+      this.loadNotifications();
+    });
+
     // SSR safety: only connect WebSocket in browser
     if (isPlatformBrowser(this.platformId)) {
       const userId = localStorage.getItem('hhi_user_id') || '';
@@ -93,7 +175,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ) {
           this.loadNotifications();
           this.loadPrescriptions();
-          this.loadStats();
+          if (!this.statsLoading) {
+            this.loadStats();
+          }
         }
       });
     }
@@ -102,6 +186,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.wsSubscription?.unsubscribe();
     this.themeSubscription?.unsubscribe();
+    this.routerSub?.unsubscribe();
   }
 
   toggleTheme(): void {
@@ -116,36 +201,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return 'Good Evening';
   }
 
-  /**
-   * Navigate to specific service
-   */
-  navigateToService(service: string): void {
-    switch(service) {
+  openGpConsult(): void {
+    const gpService = this.services.find((service) => service.id === 'gp');
+    if (gpService) {
+      this.navigateToService(gpService);
+    }
+  }
+
+  navigateToService(service: ServiceCard): void {
+    switch (service.id) {
       case 'gp':
-        this.showModeSelector = true;
+        this.showPaymentConfirm = true;
         break;
       case 'healwell':
         this.router.navigate(['/heal-well/videos']);
         break;
       case 'specialist':
-        this.router.navigate(['/patient/appointments']);
+        this.router.navigate(['/patient/specialist']);
         break;
       case 'pharmacy':
-        this.router.navigate(['/patient/records'], {
-          queryParams: { tab: 'prescriptions' }
-        });
+        this.router.navigate(['/patient/pharmacy']);
         break;
       case 'diagnostics':
-        // Coming soon - disabled
+        this.router.navigate(['/patient/records'], {
+          queryParams: { tab: 'lab-results' }
+        });
+        break;
+      case 'travel':
+        this.router.navigate(['/patient/travel']);
+        break;
+      case 'healwell-africa':
+        this.router.navigate(['/patient/healwell-africa']);
+        break;
+      case 'healwell-india':
+        this.router.navigate(['/patient/healwell-india']);
+        break;
+      case 'coming-soon':
+        this.router.navigate(['/patient/coming-soon']);
         break;
     }
-  }
-
-  /**
-   * Show coming soon notification
-   */
-  showComingSoon(): void {
-    // No-op for disabled cards
   }
 
   /**
@@ -187,23 +281,205 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     this.showModeSelector = false;
-    this.requestingConsult = true;
     this.requestError = '';
+
+    // Clear any stale session so the pre-consultation form is never skipped
+    this.consultationService.resetForNewConsultation();
 
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('hhi_consult_mode', this.selectedMode);
     }
 
-    this.patientApi.requestConsult(this.selectedMode, { complaint: 'General consult' }).subscribe({
+    this.router.navigate(['/pre-consultation/form'], {
+      queryParams: { mode: this.selectedMode }
+    });
+  }
+
+  confirmPayment(): void {
+    this.showPaymentConfirm = false;
+    this.showModeSelector = true;
+  }
+
+  cancelPayment(): void {
+    this.showPaymentConfirm = false;
+    this.selectedMode = 'video';
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.checkAndStartTutorial();
+    }
+  }
+
+  // ── Emergency SOS ──────────────────────────────────────────────────────────
+
+  openSos(): void {
+    this.showSosModal = true;
+  }
+
+  closeSos(): void {
+    this.showSosModal = false;
+  }
+
+  // ── Help Dialogue ───────────────────────────────────────────────────────────
+
+  openHelp(): void {
+    this.grievanceMessage = '';
+    this.grievanceSubmitted = false;
+    this.showHelpDialog = true;
+  }
+
+  closeHelp(): void {
+    this.showHelpDialog = false;
+  }
+
+  submitGrievance(): void {
+    if (!this.grievanceMessage.trim() || this.grievanceSubmitting) {
+      return;
+    }
+    this.grievanceSubmitting = true;
+    this.api.post<{ ok: boolean }>('/patient/grievance', { message: this.grievanceMessage.trim() }).subscribe({
       next: () => {
-        this.requestingConsult = false;
-        this.router.navigate(['/patient/waiting']);
+        this.grievanceSubmitting = false;
+        this.grievanceSubmitted = true;
+        this.cdr.detectChanges();
       },
       error: () => {
-        this.requestingConsult = false;
-        this.requestError = 'Unable to request a GP right now.';
+        this.grievanceSubmitting = false;
+        this.grievanceSubmitted = true;
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  restartTutorial(): void {
+    this.showHelpDialog = false;
+    this.startWalkthrough();
+  }
+
+  // ── Walkthrough ─────────────────────────────────────────────────────────────
+
+  private checkAndStartTutorial(): void {
+    this.api.get<{ tutorialCompleted: boolean }>('/patient/tutorial-status').subscribe({
+      next: (res) => {
+        if (!res.tutorialCompleted) {
+          setTimeout(() => this.startWalkthrough(), 600);
+        }
+      },
+      error: () => { /* fail silently */ }
+    });
+  }
+
+  startWalkthrough(): void {
+    this.walkthroughStepIndex = 0;
+    this.walkthroughActive = true;
+    this.cdr.detectChanges();
+    // Small delay ensures the overlay is rendered before we measure target elements
+    setTimeout(() => this.updateSpotlight(), 80);
+  }
+
+  get currentStep(): WalkthroughStep {
+    return this.walkthroughSteps[this.walkthroughStepIndex];
+  }
+
+  walkthroughNext(): void {
+    if (this.walkthroughStepIndex < this.walkthroughSteps.length - 1) {
+      this.walkthroughStepIndex++;
+      this.updateSpotlight();
+    } else {
+      this.completeWalkthrough();
+    }
+  }
+
+  walkthroughBack(): void {
+    if (this.walkthroughStepIndex > 0) {
+      this.walkthroughStepIndex--;
+      this.updateSpotlight();
+    }
+  }
+
+  walkthroughSkip(): void {
+    this.completeWalkthrough();
+  }
+
+  private completeWalkthrough(): void {
+    this.walkthroughActive = false;
+    this.spotlightRect = null;
+    this.api.patch<{ ok: boolean }>('/patient/tutorial-complete', {}).subscribe({
+      error: () => { /* tutorial flag will retry on next dashboard load */ },
+    });
+    this.cdr.detectChanges();
+  }
+
+  private updateSpotlight(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const step = this.walkthroughSteps[this.walkthroughStepIndex];
+
+    // Bottom nav renders as position:fixed inside BottomNavComponent — the wrapper
+    // div (#wt-bottom-nav) is in document flow and gives wrong coords when scrolled.
+    const findEl = (): HTMLElement | null =>
+      step.targetId === 'wt-bottom-nav'
+        ? document.querySelector('.hhi-bottom-nav')
+        : document.getElementById(step.targetId);
+
+    // Scroll non-fixed elements into view if they're outside the viewport
+    const el = findEl();
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const isFixed = window.getComputedStyle(el).position === 'fixed';
+      if (!isFixed && (r.top > window.innerHeight || r.bottom < 0)) {
+        el.scrollIntoView({ behavior: 'instant', block: 'center' } as ScrollIntoViewOptions);
+      }
+    }
+
+    // Measure after layout has settled (instant scroll is synchronous; one RAF is enough)
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        const target = findEl();
+        this.spotlightRect = target ? target.getBoundingClientRect() : null;
+
+        if (this.spotlightRect) {
+          const centerY = (this.spotlightRect.top + this.spotlightRect.bottom) / 2;
+          this.tooltipPlacement = centerY > window.innerHeight / 2 ? 'above' : 'below';
+        } else {
+          this.tooltipPlacement = 'below';
+        }
+        this.cdr.detectChanges();
+      });
+    }, 80);
+  }
+
+  // Returns top or bottom CSS for the tooltip card so it avoids the spotlight
+  get tooltipPositionStyle(): Record<string, string> {
+    const bottomNavHeight = 80; // px — approximate bottom nav height
+    const gap = 16;             // px — space between spotlight edge and tooltip
+
+    if (!this.spotlightRect) {
+      // No spotlight found → sit above bottom nav
+      return { top: '', bottom: `${bottomNavHeight + gap}px` };
+    }
+
+    if (this.tooltipPlacement === 'above') {
+      // Tooltip's bottom edge sits gap px above the spotlight's top edge
+      const distFromTop = Math.max(this.spotlightRect.top - gap, gap);
+      return { top: '', bottom: `${window.innerHeight - distFromTop}px` };
+    }
+
+    // Tooltip's top edge sits gap px below the spotlight's bottom edge
+    const tooltipTop = this.spotlightRect.bottom + gap;
+    return { top: `${tooltipTop}px`, bottom: '' };
+  }
+
+  get spotlightStyle(): Record<string, string> {
+    if (!this.spotlightRect) return {};
+    const pad = 10;
+    return {
+      top: `${this.spotlightRect.top - pad}px`,
+      left: `${this.spotlightRect.left - pad}px`,
+      width: `${this.spotlightRect.width + pad * 2}px`,
+      height: `${this.spotlightRect.height + pad * 2}px`,
+    };
   }
 
   private loadStats(): void {
@@ -277,10 +553,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.stats = nextStats;
         this.statsLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.statsNotice = 'Unable to refresh dashboard stats right now.';
         this.statsLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -292,10 +570,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const prescriptions = Array.isArray(response?.prescriptions) ? response.prescriptions : [];
         this.recentPrescriptions = prescriptions.slice(0, 3);
         this.prescriptionsLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.recentPrescriptions = [];
         this.prescriptionsLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -304,9 +584,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.notificationsApi.list().subscribe({
       next: (response) => {
         this.notificationCount = (response?.notifications || []).filter((item: any) => !item.read).length;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.notificationCount = 0;
+        this.cdr.detectChanges();
       }
     });
   }

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Hub | Clinical Care ecosystem</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300..600,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#9b4600",
+                        "primary-container": "#ff7700",
+                        "on-primary": "#ffffff",
+                        "secondary": "#006e22",
+                        "secondary-container": "#80fd88",
+                        "tertiary": "#4b6700",
+                        "surface": "#f8f9ff",
+                        "on-surface": "#0d1c2e",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#d5e3fc",
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .vitality-gradient {
+            background: linear-gradient(135deg, #9b4600 0%, #ff7700 100%);
+        }
+        
+        /* Orbit Animation Styles */
+        .orbit-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .orbit-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            border-radius: 50%;
+            border: 1px dashed rgba(155, 70, 0, 0.25);
+        }
+        .ring-1 {
+            width: 220px; height: 220px;
+            margin-top: -110px; margin-left: -110px;
+            animation: spin 25s linear infinite;
+        }
+        .ring-2 {
+            width: 360px; height: 360px;
+            margin-top: -180px; margin-left: -180px;
+            animation: spin-reverse 35s linear infinite;
+        }
+        .ring-3 {
+            width: 500px; height: 500px;
+            margin-top: -250px; margin-left: -250px;
+            animation: spin 45s linear infinite;
+        }
+        
+        .orbit-item {
+            position: absolute;
+            width: 0; height: 0;
+            z-index: 10;
+        }
+        .orbit-content {
+            position: absolute;
+            top: -24px; left: -24px; /* Centers 48x48 roughly */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            white-space: nowrap;
+        }
+        
+        /* Counter rotations to keep text upright */
+        .ring-1 .orbit-content { animation: spin-reverse 25s linear infinite; }
+        .ring-2 .orbit-content { animation: spin 35s linear infinite; }
+        .ring-3 .orbit-content { animation: spin-reverse 45s linear infinite; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-primary-container selection:text-white overflow-x-hidden">
+    <!-- Top Nav -->
+    <nav class="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-surface-container-highest">
+        <div class="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
+            <div class="flex items-center gap-2 text-2xl font-black text-primary font-headline tracking-tighter">
+                <span class="material-symbols-outlined icon-fill">park</span>
+                Health Hub
+            </div>
+            <!-- Desktop Actions -->
+            <div class="hidden md:flex items-center gap-4">
+                <button class="px-5 py-2 text-sm font-bold text-slate-700 hover:text-primary transition-colors">Login</button>
+                <button class="px-6 py-2.5 text-sm font-bold bg-primary-container text-white rounded-full hover:shadow-lg transition-transform active:scale-95">Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative pt-16 pb-24 md:pt-24 md:pb-32 overflow-visible bg-surface">
+            <!-- Decorative Background Blur -->
+            <div class="absolute top-0 right-0 w-1/2 h-full bg-primary-container/5 blur-3xl pointer-events-none rounded-full transform translate-x-1/2"></div>
+            
+            <div class="px-6 md:px-8 max-w-7xl mx-auto relative z-10 w-full">
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    
+                    <!-- Left: Copy & Single CTA -->
+                    <div class="relative z-20">
+                        <span class="inline-block px-4 py-1.5 rounded-full bg-secondary-container text-secondary-dark font-headline text-xs font-extrabold tracking-widest mb-6">AVAILABLE 24/7</span>
+                        
+                        <h1 class="font-headline text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-on-surface mb-6 leading-[1.05]">
+                            Welcome to <br/><span class="text-primary italic">Health Hub.</span>
+                        </h1>
+                        <p class="text-xl text-slate-600 mb-10 max-w-md leading-relaxed">
+                            Trusted Care, Anywhere. We provide immediate access to qualified health experts and completely manage your healthcare journey in one unified ecosystem.
+                        </p>
+
+                        <!-- Single CTA Button -->
+                        <div class="mb-12">
+                            <button class="px-10 py-4 vitality-gradient text-white rounded-full font-headline font-black text-lg shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 flex items-center gap-2">
+                                Get Started
+                                <span class="material-symbols-outlined">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Concentric Orbiting Showcase -->
+                    <div class="relative h-[500px] md:h-[600px] w-full mt-10 lg:mt-0 flex justify-center lg:justify-end scale-75 md:scale-90 lg:scale-100 origin-center lg:origin-right pointer-events-none">
+                        <div class="orbit-container">
+                            
+                            <!-- Central Node: Health Hub Logo with Neon Pulse -->
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                                <!-- Faint Neon Green Pulse Rings Behind -->
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#00ff44]/10 rounded-full blur-2xl animate-pulse z-0" style="animation-duration: 4s;"></div>
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-4 border-[#00ff44]/20 rounded-full blur-md animate-ping z-0" style="animation-duration: 3s;"></div>
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border-2 border-[#00ff44]/10 rounded-full blur-sm animate-ping z-0" style="animation-duration: 4.5s; animation-delay: 1s;"></div>
+
+                                <!-- The Logo Itself -->
+                                <div class="w-28 h-28 rounded-full bg-white shadow-[0_0_30px_rgba(0,255,68,0.2)] flex flex-col items-center justify-center text-secondary border-4 border-surface relative z-10">
+                                    <span class="material-symbols-outlined icon-fill text-4xl mb-0.5">park</span>
+                                    <span class="font-headline font-black text-[11px] tracking-widest uppercase text-on-surface text-center leading-tight">Health<br/>Hub</span>
+                                </div>
+                            </div>
+
+                            <!-- RING 1: Inner Orbit (Forward) -->
+                            <div class="orbit-ring ring-1">
+                                <!-- 0deg (Top) -->
+                                <div class="orbit-item" style="top: 0%; left: 50%;">
+                                    <div class="orbit-content">
+                                        <div class="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-primary mb-1 border-2 border-primary/10"><span class="material-symbols-outlined text-[20px]">video_camera_front</span></div>
+                                        <span class="text-[10px] uppercase tracking-widest font-black text-primary bg-white/90 backdrop-blur px-2 py-0.5 rounded shadow-sm">24/7 Care</span>
+                                    </div>
+                                </div>
+                                <!-- 120deg (Bottom Right) -->
+                                <div class="orbit-item" style="top: 75%; left: 93.3%;">
+                                    <div class="orbit-content">
+                                        <div class="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-secondary mb-1 border-2 border-secondary/10"><span class="material-symbols-outlined text-[20px]">local_pharmacy</span></div>
+                                        <span class="text-[10px] uppercase tracking-widest font-black text-secondary bg-white/90 backdrop-blur px-2 py-0.5 rounded shadow-sm">E Pharmacy</span>
+                                    </div>
+                                </div>
+                                <!-- 240deg (Bottom Left) -->
+                                <div class="orbit-item" style="top: 75%; left: 6.7%;">
+                                    <div class="orbit-content">
+                                        <div class="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-tertiary mb-1 border-2 border-tertiary/10"><span class="material-symbols-outlined text-[20px]">science</span></div>
+                                        <span class="text-[10px] uppercase tracking-widest font-black text-tertiary bg-white/90 backdrop-blur px-2 py-0.5 rounded shadow-sm">E Diagnostics</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RING 2: Middle Orbit (Reverse) -->
+                            <div class="orbit-ring ring-2">
+                                <!-- 0deg (Right) -->
+                                <div class="orbit-item" style="top: 50%; left: 100%;">
+                                    <div class="orbit-content">
+                                        <div class="w-12 h-12 rounded-full bg-primary text-white shadow-xl flex items-center justify-center border-2 border-white mb-1"><span class="material-symbols-outlined text-[22px]">folder_managed</span></div>
+                                        <span class="text-[11px] uppercase tracking-widest font-black bg-white/90 text-on-surface backdrop-blur px-2 py-0.5 rounded shadow-sm">Electronic Health Records</span>
+                                    </div>
+                                </div>
+                                <!-- 120deg (Top Left) -->
+                                <div class="orbit-item" style="top: 93.3%; left: 25%;">
+                                    <div class="orbit-content">
+                                        <div class="w-12 h-12 rounded-full bg-secondary text-white shadow-xl flex items-center justify-center border-2 border-white mb-1"><span class="material-symbols-outlined text-[22px]">health_and_safety</span></div>
+                                        <span class="text-[11px] uppercase tracking-widest font-black bg-white/90 text-on-surface backdrop-blur px-2 py-0.5 rounded shadow-sm">Insurance</span>
+                                    </div>
+                                </div>
+                                <!-- 240deg (Bottom Left) -->
+                                <div class="orbit-item" style="top: 6.7%; left: 25%;">
+                                    <div class="orbit-content">
+                                        <div class="w-12 h-12 rounded-full bg-tertiary text-white shadow-xl flex items-center justify-center border-2 border-white mb-1"><span class="material-symbols-outlined text-[22px]">stethoscope</span></div>
+                                        <span class="text-[11px] uppercase tracking-widest font-black bg-white/90 text-on-surface backdrop-blur px-2 py-0.5 rounded shadow-sm">Specialist Consultations</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RING 3: Outer Orbit (Forward) -->
+                            <div class="orbit-ring ring-3">
+                                <!-- 60deg (Bottom Right) -->
+                                <div class="orbit-item" style="top: 93.3%; left: 75%;">
+                                    <div class="orbit-content">
+                                        <div class="w-14 h-14 rounded-full bg-white shadow-xl flex items-center justify-center text-primary border-4 border-primary/20 mb-1"><span class="material-symbols-outlined text-[26px]">self_improvement</span></div>
+                                        <span class="text-[11px] uppercase tracking-widest font-black text-on-surface bg-white/90 backdrop-blur px-2.5 py-1 rounded shadow-md">Heal Well At Home</span>
+                                    </div>
+                                </div>
+                                <!-- 180deg (Left) -->
+                                <div class="orbit-item" style="top: 50%; left: 0%;">
+                                    <div class="orbit-content">
+                                        <div class="w-14 h-14 rounded-full bg-white shadow-xl flex items-center justify-center text-secondary border-4 border-secondary/20 mb-1"><span class="material-symbols-outlined text-[26px]">flight_takeoff</span></div>
+                                        <span class="text-[11px] uppercase tracking-widest font-black text-on-surface bg-white/90 backdrop-blur px-2.5 py-1 rounded shadow-md">Travel Services</span>
+                                    </div>
+                                </div>
+                                <!-- 300deg (Top Right) -->
+                                <div class="orbit-item" style="top: 6.7%; left: 75%;">
+                                    <div class="orbit-content">
+                                        <div class="w-14 h-14 rounded-full bg-white shadow-xl flex items-center justify-center text-tertiary border-4 border-tertiary/20 mb-1"><span class="material-symbols-outlined text-[26px]">medical_services</span></div>
+                                        <span class="text-[11px] uppercase tracking-widest font-black text-on-surface bg-white/90 backdrop-blur px-2.5 py-1 rounded shadow-md">Patient Services</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works (Restored Vibrant Colors) -->
+        <section class="py-24 px-6 md:px-8 bg-surface-container-low" id="how-it-works">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="font-headline text-4xl md:text-5xl font-extrabold text-on-surface mb-4 tracking-tighter">Your healthcare journey in 4 simple steps</h2>
+                    <p class="text-slate-600 text-lg max-w-2xl mx-auto">Experience frictionless care from symptom to recovery.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Step 1 (Primary Container) -->
+                    <div class="bg-primary-container text-white p-8 rounded-2xl shadow-lg hover:-translate-y-2 transition-transform duration-300">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center font-headline font-black text-xl mb-6 shadow-inner">1</div>
+                        <h3 class="font-headline text-2xl font-bold mb-3">Sign Up & Subscribe</h3>
+                        <p class="text-white/90 text-sm leading-relaxed">Create your free account in minutes. Choose from our flexible plans - Basic, Premium, or Family subscriptions.</p>
+                    </div>
+                    
+                    <!-- Step 2 (Tertiary Array) -->
+                    <div class="bg-tertiary text-white p-8 rounded-2xl shadow-lg hover:-translate-y-2 transition-transform duration-300">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center font-headline font-black text-xl mb-6 shadow-inner">2</div>
+                        <h3 class="font-headline text-2xl font-bold mb-3">Consult an Expert</h3>
+                        <p class="text-white/90 text-sm leading-relaxed">Talk to a qualified Health Expert anytime via video or audio call. Get diagnosed and referred right from your phone.</p>
+                    </div>
+                    
+                    <!-- Step 3 (Secondary Array) -->
+                    <div class="bg-secondary text-white p-8 rounded-2xl shadow-lg hover:-translate-y-2 transition-transform duration-300">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center font-headline font-black text-xl mb-6 shadow-inner">3</div>
+                        <h3 class="font-headline text-2xl font-bold mb-3">Care & Prescriptions</h3>
+                        <p class="text-white/90 text-sm leading-relaxed">Receive e-prescriptions instantly. Pick up medications at verified pharmacies or get lab test samples collected.</p>
+                    </div>
+                    
+                    <!-- Step 4 (Primary Array) -->
+                    <div class="bg-primary text-white p-8 rounded-2xl shadow-lg hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden">
+                        <div class="absolute right-0 bottom-0 opacity-10">
+                            <span class="material-symbols-outlined text-[12rem] translate-x-1/4 translate-y-1/4">health_metrics</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center font-headline font-black text-xl mb-6 shadow-inner">4</div>
+                            <h3 class="font-headline text-2xl font-bold mb-3">Manage Health</h3>
+                            <p class="text-white/90 text-sm leading-relaxed">Access complete health records anytime. Track appointments, view test results, and manage your family.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Services / Ecosystem (Bento Grid) -->
+        <section class="py-24 px-6 md:px-8 bg-surface">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-16">
+                    <h2 class="font-headline text-4xl md:text-5xl font-extrabold text-on-surface mb-4 tracking-tighter">Complete Healthcare Ecosystem</h2>
+                    <p class="text-slate-600 text-lg max-w-2xl">A detailed look at the services available to you on the Health Hub platform.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    
+                    <!-- Very Large Card -->
+                    <div class="md:col-span-8 bg-surface-container-low p-10 rounded-2xl shadow-sm border border-surface-container-highest hover:bg-white transition-colors">
+                        <span class="material-symbols-outlined text-5xl text-primary mb-6 icon-fill">medical_services</span>
+                        <h3 class="font-headline text-3xl font-extrabold mb-4">Health Expert Consultations</h3>
+                        <p class="text-slate-600 max-w-lg leading-relaxed text-lg">Connect with experienced Health Experts 24/7 via video or audio calls. Get expert medical advice, prescriptions, and referrals. Starting at ₹299 per consultation or free with Premium.</p>
+                    </div>
+
+                    <!-- Vibrant Small Card 1 -->
+                    <div class="md:col-span-4 bg-tertiary text-white p-10 rounded-2xl shadow-lg relative overflow-hidden">
+                        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                        <div class="relative z-10">
+                            <span class="material-symbols-outlined text-5xl mb-6 icon-fill">stethoscope</span>
+                            <h3 class="font-headline text-2xl font-bold mb-3">Specialist Consultations</h3>
+                            <p class="text-white/80 text-sm">Access verified specialists across cardiology, dermatology, and pediatrics.</p>
+                        </div>
+                    </div>
+
+                    <!-- Vibrant Small Card 2 -->
+                    <div class="md:col-span-4 bg-secondary text-white p-10 rounded-2xl shadow-lg">
+                        <span class="material-symbols-outlined text-5xl mb-6 icon-fill">local_pharmacy</span>
+                        <h3 class="font-headline text-2xl font-bold mb-3">Smart Pharmacy</h3>
+                        <p class="text-white/80 text-sm">Scan your e-prescription QR code at verified pharmacies for instant pickup.</p>
+                    </div>
+
+                    <!-- Clean Card -->
+                    <div class="md:col-span-4 bg-surface-container-lowest border-2 border-primary/20 p-10 rounded-2xl">
+                        <span class="material-symbols-outlined text-5xl text-primary mb-6 icon-fill">science</span>
+                        <h3 class="font-headline text-2xl font-bold mb-3">Diagnostics & Lab Tests</h3>
+                        <p class="text-slate-600 text-sm">Book lab tests recommended by your doctor with verified partners.</p>
+                    </div>
+
+                    <!-- Travel & Medical Tourism (Now in active capabilities) -->
+                    <div class="md:col-span-4 vitality-gradient text-white p-10 rounded-2xl shadow-xl">
+                        <span class="material-symbols-outlined text-5xl mb-6 icon-fill">flight_takeoff</span>
+                        <h3 class="font-headline text-2xl font-bold mb-3">Travel & Medical Tourism</h3>
+                        <p class="text-white/90 text-sm">Book medical travel packages, specialist consultations, and accommodations seamlessly.</p>
+                    </div>
+
+                    <div class="md:col-span-6 bg-surface-container-highest p-10 rounded-2xl">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-4 icon-fill">folder_managed</span>
+                        <h3 class="font-headline text-xl font-bold mb-2">Digital Health Records</h3>
+                        <p class="text-slate-600 text-sm">Your complete medical history in one secure place.</p>
+                    </div>
+
+                    <div class="md:col-span-6 bg-surface-container-highest p-10 rounded-2xl">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-4 icon-fill">self_improvement</span>
+                        <h3 class="font-headline text-xl font-bold mb-2">Heal Well at Home</h3>
+                        <p class="text-slate-600 text-sm">Library of expert-created wellness content and guided routines.</p>
+                    </div>
+                </div>
+
+                <!-- Coming Soon Section -->
+                <div class="mt-20">
+                    <h3 class="font-headline text-2xl font-bold tracking-tight text-slate-400 mb-8 uppercase">Coming Soon</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                        <div class="p-6 rounded-xl border-2 border-dashed border-slate-300 bg-surface">
+                            <h4 class="font-bold text-lg mb-2 text-on-surface">Outpatient Services</h4>
+                            <p class="text-sm text-slate-500">Manage clinical appointments.</p>
+                        </div>
+                        <div class="p-6 rounded-xl border-2 border-dashed border-slate-300 bg-surface">
+                            <h4 class="font-bold text-lg mb-2 text-on-surface">Insurance Services</h4>
+                            <p class="text-sm text-slate-500">Coverage & claims assistance.</p>
+                        </div>
+                        <div class="p-6 rounded-xl border-2 border-dashed border-slate-300 bg-surface">
+                            <h4 class="font-bold text-lg mb-2 text-on-surface">Inpatient Care</h4>
+                            <p class="text-sm text-slate-500">Admissions & procedures.</p>
+                        </div>
+                        <div class="p-6 rounded-xl border-2 border-dashed border-slate-300 bg-surface">
+                            <h4 class="font-bold text-lg mb-2 text-on-surface">Emergency</h4>
+                            <p class="text-sm text-slate-500">Quick ambulance access.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

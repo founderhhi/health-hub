@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostics Orders -- Design Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F0F2F5; color: #0B0F14; padding: 40px 24px; }
+  h1.page-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .page-subtitle { text-align: center; color: #64748B; font-size: 15px; margin-bottom: 48px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1440px; margin: 0 auto; }
+  .column { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .column h2 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .column .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-bottom: 20px; }
+  .v1 .tag { background: #DCFCE7; color: #166534; }
+  .v2 .tag { background: #EFF6FF; color: #1E40AF; }
+  .v3 .tag { background: #FEF3C7; color: #92400E; }
+
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; margin: 28px 0 12px; }
+  .section-label:first-of-type { margin-top: 0; }
+
+  /* Swatch rows */
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { width: 48px; height: 48px; border-radius: 8px; border: 1px solid #E2E8F0; position: relative; }
+  .swatch-label { font-size: 9px; color: #64748B; text-align: center; margin-top: 4px; word-break: break-all; }
+  .swatch-wrap { display: flex; flex-direction: column; align-items: center; width: 56px; }
+
+  /* Typography samples */
+  .type-sample { margin-bottom: 12px; }
+  .type-sample .label { font-size: 10px; color: #94A3B8; margin-bottom: 2px; }
+
+  /* Order card mockups */
+  .mock-card { border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; margin-bottom: 10px; background: #fff; transition: all 0.2s; }
+  .mock-card:hover { box-shadow: 0 2px 8px rgba(15,23,42,0.06); }
+  .mock-card .order-id { font-weight: 700; letter-spacing: 0.04em; color: #0B0F14; }
+  .mock-card .patient-name { font-weight: 600; }
+  .mock-card .meta { font-size: 12px; color: #64748B; margin-top: 4px; }
+  .mock-card .tests { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding: 10px 0; border-top: 1px solid #EDF2F7; border-bottom: 1px solid #EDF2F7; }
+  .mock-card .test-chip { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 4px; background: #F1F5F9; color: #334155; }
+  .mock-card .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .mock-card .status-chip { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+  .mock-card .btn-view { font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; }
+  .mock-card .progress-bar { height: 4px; background: #E2E8F0; border-radius: 9999px; margin-top: 8px; overflow: hidden; }
+  .mock-card .progress-fill { height: 100%; border-radius: 9999px; }
+
+  /* V1 specifics */
+  .v1 .mock-card { box-shadow: none; border-color: #CBD5E1; }
+  .v1 .mock-card:hover { border-color: #2ECC71; }
+  .v1 .mock-card.pending { border-top: 3px solid #F59E0B; }
+  .v1 .mock-card.in-progress { border-left: 4px solid #2ECC71; }
+  .v1 .mock-card.completed { border-top: 3px solid #94A3B8; }
+  .v1 .mock-card.urgent { border-right: 3px solid #DC2626; }
+  .v1 .mock-card .order-id { font-size: 13px; }
+  .v1 .mock-card .patient-name { font-size: 15px; }
+  .v1 .mock-card .test-chip { font-size: 12px; font-weight: 500; }
+  .v1 .mock-card .status-chip { font-size: 10px; font-weight: 700; border-radius: 4px; }
+  .v1 .mock-card .progress-bar { height: 6px; }
+  .v1 .status-chip.pending { background: #FEF3C7; color: #92400E; }
+  .v1 .status-chip.in-progress { background: #DCFCE7; color: #166534; }
+  .v1 .status-chip.completed { background: #F1F5F9; color: #475569; }
+  .v1 .btn-view { background: #2ECC71; color: #fff; }
+  .v1 .filters-demo { background: #fff; border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+  .v1 .filters-helper { background: #EFF6FF; color: #1D4ED8; font-size: 12px; padding: 8px 12px; border-radius: 6px; margin-top: 8px; }
+  .v1 .coming-soon { border: 1px dashed #CBD5E1; border-radius: 4px; padding: 2px 8px; font-size: 10px; color: #94A3B8; font-weight: 600; }
+
+  /* V2 specifics */
+  .v2 .mock-card { border-color: #EDF2F7; border-radius: 10px; padding: 20px; box-shadow: 0 1px 2px rgba(15,23,42,0.02); }
+  .v2 .mock-card:hover { border-color: #D7E3F1; box-shadow: 0 2px 4px rgba(15,23,42,0.04); }
+  .v2 .mock-card .patient-name { font-weight: 500; }
+  .v2 .mock-card .tests { gap: 6px; border-top-color: #EDF2F7; border-bottom-color: #EDF2F7; }
+  .v2 .mock-card .test-chip { line-height: 1.6; }
+  .v2 .mock-card .progress-bar { background: #EAF2EC; }
+  .v2 .status-chip.pending { background: #FEF9EE; color: #92400E; }
+  .v2 .status-chip.in-progress { background: #ECFDF3; color: #166534; }
+  .v2 .status-chip.completed { background: #EFF6FF; color: #1E40AF; }
+  .v2 .btn-view { background: #2ECC71; color: #fff; }
+  .v2 .page-bg { background: #FAFBFD; }
+  .v2 .filters-demo { background: #fff; border: 1px solid #EDF2F7; border-radius: 10px; padding: 14px; margin-bottom: 20px; }
+  .v2 .filters-helper { background: #F7FAFC; color: #475569; font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-top: 8px; }
+  .v2 .coming-soon { opacity: 0.8; border: 1px solid #E2E8F0; border-radius: 9999px; padding: 2px 8px; font-size: 10px; color: #94A3B8; }
+
+  /* V3 specifics */
+  .v3 .mock-card { border-radius: 8px; box-shadow: none; position: relative; }
+  .v3 .mock-card:hover { box-shadow: 0 4px 10px rgba(15,23,42,0.06); }
+  .v3 .mock-card.pending { border-top: 3px solid #F59E0B; }
+  .v3 .mock-card.in-progress { border-top: 3px solid #2ECC71; }
+  .v3 .mock-card.completed { border-top: 3px solid #1D4ED8; }
+  .v3 .mock-card .order-id { font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+  .v3 .mock-card .patient-name { font-size: 15px; font-weight: 600; }
+  .v3 .mock-card .tests { gap: 8px; border-top-style: dashed; border-bottom-style: dashed; }
+  .v3 .mock-card .test-chip { display: inline-flex; align-items: center; padding: 4px 10px 4px 18px; border-radius: 9999px; background: #F4FBF6; color: #166534; font-size: 11px; font-weight: 600; position: relative; }
+  .v3 .mock-card .test-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #2ECC71; position: absolute; left: 7px; }
+  .v3 .status-chip.pending { background: #FEF3C7; color: #92400E; }
+  .v3 .status-chip.in-progress { background: #DCFCE7; color: #166534; }
+  .v3 .status-chip.completed { background: #DBEAFE; color: #1E40AF; }
+  .v3 .status-chip { border-radius: 4px; text-transform: uppercase; }
+  .v3 .btn-view { background: #2ECC71; color: #fff; }
+  .v3 .mock-card .progress-bar { height: 6px; }
+  .v3 .demo-badge { border-radius: 4px; background: #F1F5F9; color: #64748B; font-size: 10px; padding: 2px 6px; font-weight: 600; }
+  .v3 .filters-demo { background: #FAFBFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+
+  .progress-fill.emerald { background: #2ECC71; }
+  .progress-fill.blue { background: #3B82F6; }
+
+  /* Spacing demo */
+  .spacing-demo { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
+  .spacing-block { background: #DBEAFE; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #1E40AF; font-weight: 600; }
+
+  /* Border demo */
+  .border-demo { display: flex; gap: 12px; flex-wrap: wrap; }
+  .border-sample { width: 64px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #64748B; }
+
+  @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Diagnostics Orders</h1>
+<p class="page-subtitle">Three design variations compared side by side</p>
+
+<div class="grid">
+
+  <!-- ==================== V1: Operational Clarity ==================== -->
+  <div class="column v1">
+    <h2>V1: Operational Clarity</h2>
+    <span class="tag">Operational</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#CBD5E1"></div><div class="swatch-label">#CBD5E1<br>Card Border</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#F59E0B"></div><div class="swatch-label">#F59E0B<br>Pending</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>In Progress</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#94A3B8"></div><div class="swatch-label">#94A3B8<br>Completed</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#DC2626"></div><div class="swatch-label">#DC2626<br>Urgent</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EFF6FF"></div><div class="swatch-label">#EFF6FF<br>Filter Help</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#1D4ED8"></div><div class="swatch-label">#1D4ED8<br>Filter Text</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Page Title -- 24px / 700</div><div style="font-size:24px;font-weight:700">Lab Orders</div></div>
+    <div class="type-sample"><div class="label">Order ID -- 13px / 700 / 0.04em</div><div style="font-size:13px;font-weight:700;letter-spacing:0.04em">ORD-2024-00847</div></div>
+    <div class="type-sample"><div class="label">Patient Name -- 15px / 600</div><div style="font-size:15px;font-weight:600">Abebe Kebede</div></div>
+    <div class="type-sample"><div class="label">Test Item -- 12px / 500</div><div style="font-size:12px;font-weight:500">Complete Blood Count</div></div>
+    <div class="type-sample"><div class="label">Badge -- 10px / 700</div><div style="font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;background:#DCFCE7;color:#166534;display:inline-block;padding:2px 6px;border-radius:4px">IN PROGRESS</div></div>
+
+    <div class="section-label">Filters Panel</div>
+    <div class="filters-demo">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <select style="padding:6px 10px;border:1px solid #CBD5E1;border-radius:6px;font-size:12px"><option>All Statuses</option></select>
+        <select style="padding:6px 10px;border:1px solid #CBD5E1;border-radius:6px;font-size:12px"><option>Date Range</option></select>
+        <span class="coming-soon">Priority &middot; Coming Soon</span>
+      </div>
+      <div class="filters-helper">Tip: Use status filters to focus on actionable orders first</div>
+    </div>
+
+    <div class="section-label">Order Cards</div>
+
+    <div class="mock-card pending">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="order-id">ORD-2024-00847</span>
+        <span style="font-size:10px;background:#F1F5F9;padding:2px 6px;border-radius:4px;color:#64748B;font-weight:600">Demo Data</span>
+      </div>
+      <div class="patient-name" style="margin-top:6px">Abebe Kebede</div>
+      <div class="meta">DOB: ****-**-12 &middot; 2 hours ago</div>
+      <div class="tests">
+        <span class="test-chip">CBC</span>
+        <span class="test-chip">Lipid Panel</span>
+      </div>
+      <div class="footer">
+        <span class="status-chip pending">Pending</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="mock-card in-progress">
+      <div class="order-id">ORD-2024-00846</div>
+      <div class="patient-name" style="margin-top:6px">Tigist Hailu</div>
+      <div class="meta">DOB: ****-**-05 &middot; 4 hours ago</div>
+      <div class="tests">
+        <span class="test-chip">Urinalysis</span>
+        <span class="test-chip">HbA1c</span>
+        <span class="test-chip">Glucose</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill emerald" style="width:60%"></div></div>
+      <div class="footer">
+        <span class="status-chip in-progress">In Progress</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="mock-card completed">
+      <div class="order-id">ORD-2024-00845</div>
+      <div class="patient-name" style="margin-top:6px">Dawit Tadesse</div>
+      <div class="meta">DOB: ****-**-20 &middot; 1 day ago</div>
+      <div class="tests"><span class="test-chip">Thyroid Panel</span></div>
+      <div class="footer">
+        <span class="status-chip completed">Completed</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="section-label">Spacing & Borders</div>
+    <div class="spacing-demo">
+      <div class="spacing-block" style="width:40px;height:6px">6</div><span style="font-size:10px;color:#94A3B8">filter gap</span>
+      <div class="spacing-block" style="width:40px;height:10px">10</div><span style="font-size:10px;color:#94A3B8">list gap</span>
+      <div class="spacing-block" style="width:40px;height:14px">14</div><span style="font-size:10px;color:#94A3B8">card pad</span>
+    </div>
+    <div class="border-demo">
+      <div class="border-sample" style="border:1px solid #CBD5E1">8px r</div>
+      <div class="border-sample" style="border-top:3px solid #F59E0B;border:1px solid #CBD5E1;border-top:3px solid #F59E0B">top 3px</div>
+      <div class="border-sample" style="border-left:4px solid #2ECC71;border:1px solid #CBD5E1;border-left:4px solid #2ECC71">left 4px</div>
+    </div>
+
+    <div class="section-label">Surface Treatment</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">No resting shadow. Stronger borders (#CBD5E1). Hover shifts border color to emerald before any shadow. Filters read as a utility toolbar. Coming Soon pills use dashed outlines.</p>
+  </div>
+
+  <!-- ==================== V2: Calm Clinical ==================== -->
+  <div class="column v2">
+    <h2>V2: Calm Clinical</h2>
+    <span class="tag">Calm</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#FAFBFD"></div><div class="swatch-label">#FAFBFD<br>Page BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EDF2F7"></div><div class="swatch-label">#EDF2F7<br>Card Border</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#FEF9EE"></div><div class="swatch-label">#FEF9EE<br>Pending</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#ECFDF3"></div><div class="swatch-label">#ECFDF3<br>In Progress</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#EFF6FF"></div><div class="swatch-label">#EFF6FF<br>Completed</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#F7FAFC"></div><div class="swatch-label">#F7FAFC<br>Filter Help</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#94A3B8"></div><div class="swatch-label">#94A3B8<br>Muted Text</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Page Title -- 24px / 600</div><div style="font-size:24px;font-weight:600">Lab Orders</div></div>
+    <div class="type-sample"><div class="label">Patient Name -- 15px / 500 (medium)</div><div style="font-size:15px;font-weight:500">Abebe Kebede</div></div>
+    <div class="type-sample"><div class="label">Test Item -- 12px / 500 / lh 1.6</div><div style="font-size:12px;font-weight:500;line-height:1.6">Complete Blood Count</div></div>
+    <div class="type-sample"><div class="label">Helper Copy -- 13px / lh 1.6</div><div style="font-size:13px;line-height:1.6;color:#94A3B8">Filter by status to focus on actionable orders</div></div>
+
+    <div class="section-label">Filters Panel</div>
+    <div class="filters-demo">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select style="padding:6px 10px;border:1px solid #EDF2F7;border-radius:8px;font-size:12px"><option>All Statuses</option></select>
+        <select style="padding:6px 10px;border:1px solid #EDF2F7;border-radius:8px;font-size:12px"><option>Date Range</option></select>
+        <span class="coming-soon">Priority</span>
+      </div>
+      <div class="filters-helper">Filter by status to focus on actionable orders</div>
+    </div>
+
+    <div class="section-label">Order Cards</div>
+
+    <div class="mock-card" style="background:#FAFBFD">
+      <div class="order-id" style="font-size:13px;font-weight:600">ORD-2024-00847</div>
+      <div class="patient-name" style="margin-top:6px">Abebe Kebede</div>
+      <div class="meta" style="color:#94A3B8">DOB: ****-**-12 &middot; 2 hours ago</div>
+      <div class="tests">
+        <span class="test-chip">CBC</span>
+        <span class="test-chip">Lipid Panel</span>
+      </div>
+      <div class="footer">
+        <span class="status-chip pending">Pending</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="mock-card" style="background:#FAFBFD">
+      <div class="order-id" style="font-size:13px;font-weight:600">ORD-2024-00846</div>
+      <div class="patient-name" style="margin-top:6px">Tigist Hailu</div>
+      <div class="meta" style="color:#94A3B8">DOB: ****-**-05 &middot; 4 hours ago</div>
+      <div class="tests">
+        <span class="test-chip">Urinalysis</span>
+        <span class="test-chip">HbA1c</span>
+        <span class="test-chip">Glucose</span>
+      </div>
+      <div class="progress-bar" style="background:#EAF2EC"><div class="progress-fill emerald" style="width:60%"></div></div>
+      <div class="footer">
+        <span class="status-chip in-progress">In Progress</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="mock-card" style="background:#FAFBFD">
+      <div class="order-id" style="font-size:13px;font-weight:600">ORD-2024-00845</div>
+      <div class="patient-name" style="margin-top:6px">Dawit Tadesse</div>
+      <div class="meta" style="color:#94A3B8">DOB: ****-**-20 &middot; 1 day ago</div>
+      <div class="tests"><span class="test-chip">Thyroid Panel</span></div>
+      <div class="footer">
+        <span class="status-chip completed">Completed</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="section-label">Spacing & Borders</div>
+    <div class="spacing-demo">
+      <div class="spacing-block" style="width:40px;height:16px">16</div><span style="font-size:10px;color:#94A3B8">list gap</span>
+      <div class="spacing-block" style="width:40px;height:20px">20</div><span style="font-size:10px;color:#94A3B8">card pad</span>
+      <div class="spacing-block" style="width:40px;height:28px">28</div><span style="font-size:10px;color:#94A3B8">filter mb</span>
+    </div>
+    <div class="border-demo">
+      <div class="border-sample" style="border:1px solid #EDF2F7;border-radius:10px">10px r</div>
+      <div class="border-sample" style="border:1px solid #EDF2F7;border-radius:10px;box-shadow:0 1px 2px rgba(15,23,42,0.02)">shadow</div>
+    </div>
+
+    <div class="section-label">Surface Treatment</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">Almost imperceptible shadows. Hover favors subtle border emphasis. Calm panel feel for filters. Roadmap controls washed back. Page bg: #FAFBFD. Borders: #EDF2F7. More breathing room everywhere.</p>
+  </div>
+
+  <!-- ==================== V3: Tenadoc-Inspired ==================== -->
+  <div class="column v3">
+    <h2>V3: Tenadoc-Inspired</h2>
+    <span class="tag">Competitor</span>
+
+    <div class="section-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch-wrap"><div class="swatch" style="background:#FFFFFF;border:1px solid #ccc"></div><div class="swatch-label">#FFFFFF<br>Page BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#FAFBFC"></div><div class="swatch-label">#FAFBFC<br>Filter BG</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#F59E0B"></div><div class="swatch-label">#F59E0B<br>Pending Rail</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#2ECC71"></div><div class="swatch-label">#2ECC71<br>Progress Rail</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#1D4ED8"></div><div class="swatch-label">#1D4ED8<br>Complete Rail</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#F4FBF6"></div><div class="swatch-label">#F4FBF6<br>Test Capsule</div></div>
+      <div class="swatch-wrap"><div class="swatch" style="background:#166534"></div><div class="swatch-label">#166534<br>Test Text</div></div>
+    </div>
+
+    <div class="section-label">Typography</div>
+    <div class="type-sample"><div class="label">Order ID -- mono / 12px / 700 / 0.08em</div><div style="font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:0.08em">ORD-2024-00847</div></div>
+    <div class="type-sample"><div class="label">Patient Name -- 15px / 600</div><div style="font-size:15px;font-weight:600">Abebe Kebede</div></div>
+    <div class="type-sample"><div class="label">Patient Masked -- 12px / 0.03em tracking</div><div style="font-size:12px;letter-spacing:0.03em;color:#64748B">DOB: ****-**-12</div></div>
+    <div class="type-sample"><div class="label">Test Item -- 11px / 600 / capsule</div><div style="display:inline-flex;align-items:center;padding:4px 10px 4px 18px;border-radius:9999px;background:#F4FBF6;color:#166534;font-size:11px;font-weight:600;position:relative"><span style="width:6px;height:6px;border-radius:50%;background:#2ECC71;position:absolute;left:7px"></span>Complete Blood Count</div></div>
+    <div class="type-sample"><div class="label">Status Chip -- 10px / 700 / uppercase</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;background:#DCFCE7;color:#166534;display:inline-block;padding:2px 8px;border-radius:4px">IN PROGRESS</div></div>
+
+    <div class="section-label">Filters (Intake Toolbar)</div>
+    <div class="filters-demo">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <select style="padding:6px 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;background:#FAFBFC"><option>All Statuses</option></select>
+        <select style="padding:6px 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;background:#FAFBFC"><option>Date Range</option></select>
+      </div>
+    </div>
+
+    <div class="section-label">Order Cards (Top Rail Status)</div>
+
+    <div class="mock-card pending">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="order-id" style="font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:0.08em">ORD-2024-00847</span>
+        <span class="demo-badge">DEMO</span>
+      </div>
+      <div class="patient-name" style="margin-top:6px;font-size:15px;font-weight:600">Abebe Kebede</div>
+      <div class="meta" style="letter-spacing:0.03em">DOB: ****-**-12 &middot; 2 hours ago</div>
+      <div class="tests">
+        <span class="test-chip">CBC</span>
+        <span class="test-chip">Lipid Panel</span>
+      </div>
+      <div class="footer">
+        <span class="status-chip pending">Pending</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="mock-card in-progress">
+      <div class="order-id" style="font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:0.08em">ORD-2024-00846</div>
+      <div class="patient-name" style="margin-top:6px;font-size:15px;font-weight:600">Tigist Hailu</div>
+      <div class="meta" style="letter-spacing:0.03em">DOB: ****-**-05 &middot; 4 hours ago</div>
+      <div class="tests">
+        <span class="test-chip">Urinalysis</span>
+        <span class="test-chip">HbA1c</span>
+        <span class="test-chip">Glucose</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill emerald" style="width:60%"></div></div>
+      <div class="footer">
+        <span class="status-chip in-progress">In Progress</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="mock-card completed">
+      <div class="order-id" style="font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:0.08em">ORD-2024-00845</div>
+      <div class="patient-name" style="margin-top:6px;font-size:15px;font-weight:600">Dawit Tadesse</div>
+      <div class="meta" style="letter-spacing:0.03em">DOB: ****-**-20 &middot; 1 day ago</div>
+      <div class="tests"><span class="test-chip">Thyroid Panel</span></div>
+      <div class="footer">
+        <span class="status-chip completed">Completed</span>
+        <button class="btn-view">View Order</button>
+      </div>
+    </div>
+
+    <div class="section-label">Spacing & Borders</div>
+    <div class="spacing-demo">
+      <div class="spacing-block" style="width:40px;height:6px">6</div><span style="font-size:10px;color:#94A3B8">filter gap</span>
+      <div class="spacing-block" style="width:40px;height:16px">16</div><span style="font-size:10px;color:#94A3B8">card pad</span>
+    </div>
+    <div class="border-demo">
+      <div class="border-sample" style="border:1px solid #E2E8F0;border-top:3px solid #F59E0B;border-radius:8px">top rail</div>
+      <div class="border-sample" style="border-radius:9999px;background:#F4FBF6;font-size:9px;color:#166534;padding:0 8px">pill</div>
+      <div class="border-sample" style="border:1px solid #E2E8F0;border-radius:4px">4px chip</div>
+    </div>
+
+    <div class="section-label">Surface Treatment</div>
+    <p style="font-size:12px;color:#64748B;line-height:1.6">White page background. Cards are border-led, shadow only on hover. Test capsules use pill radius (#F4FBF6 bg, #166534 text). Dashed borders on test section. Monospace order IDs. Filter section reads as an intake tray (#FAFBFC).</p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 import { getE2EEnvironment } from '../config/env';
-import { loginProvider, signupPatient } from '../helpers/api-auth';
 import {
   createReferral,
   getConsultationJoinLink,
-  getReferral
+  getReferral,
+  loginProviderWithRetry,
+  signupPatientWithRetry
 } from '../helpers/api-flow-setup';
 
 const env = getE2EEnvironment();
@@ -14,9 +15,9 @@ test.describe('Flow 8: specialist schedule editor and ready consultation lifecyc
   test.setTimeout(env.timeoutMs * 2);
 
   test('keeps specialist scheduling and patient join state in sync', async ({ browser, request }) => {
-    const { auth: patientAuth, patient } = await signupPatient(request, env);
-    const gpAuth = await loginProvider(request, env, 'gp');
-    const specialistAuth = await loginProvider(request, env, 'specialist');
+    const { auth: patientAuth, patient } = await signupPatientWithRetry(request, env);
+    const gpAuth = await loginProviderWithRetry(request, env, 'gp');
+    const specialistAuth = await loginProviderWithRetry(request, env, 'specialist');
 
     const reason = `Schedule regression ${patient.runTag}`;
     const referral = await createReferral(request, gpAuth, patientAuth.user.id, reason, {

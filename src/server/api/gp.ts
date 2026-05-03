@@ -155,7 +155,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
   try {
     const { id } = req.params;
     const user = (req as any).user;
-    let gpName = 'GP';
+    let gpName = 'Health Expert';
 
     const client = await db.connect();
     let request: any = null;
@@ -196,7 +196,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
 
           if (existingConsultation.gp_id !== user.userId) {
             await client.query('ROLLBACK');
-            return res.status(409).json({ error: 'Request has already been accepted by another GP' });
+            return res.status(409).json({ error: 'Request has already been accepted by another Health Expert' });
           }
 
           consultation = existingConsultation;
@@ -231,7 +231,7 @@ gpRouter.post('/queue/:id/accept', requireAuth, requireRole(['gp', 'doctor']), a
           [
             request.patient_id,
             'consult.accepted',
-            'A GP accepted your request. Join the consultation.',
+            'A Health Expert accepted your request. Join the consultation.',
             JSON.stringify({ consultationId: consultation.id })
           ]
         );
@@ -346,7 +346,7 @@ gpRouter.post('/queue/:id/delete', requireAuth, requireRole(['gp', 'doctor']), a
       request = removedRequest;
       const message = normalizedReason === 'timeout'
         ? 'Your consultation request has timed out after 15 minutes. Please request again.'
-        : 'A GP has declined your consultation request. You can try again.';
+        : 'A Health Expert has declined your consultation request. You can try again.';
 
       await client.query(
         `insert into notifications (user_id, type, message, data)
@@ -469,13 +469,13 @@ gpRouter.post('/status', requireAuth, requireRole(['gp', 'doctor']), async (req,
   }
 });
 
-// Get consultation history
+// History must be registered before /:id so Express doesn't match 'history' as a UUID param
 gpRouter.get('/consultations/history', requireAuth, requireRole(['gp', 'doctor']), async (req, res) => {
   try {
     const user = (req as any).user;
 
     const result = await db.query(
-      `select c.*, 
+      `select c.*,
         u.display_name as patient_name,
         u.first_name as patient_first_name,
         u.last_name as patient_last_name,
@@ -519,6 +519,37 @@ gpRouter.get('/consultations/history', requireAuth, requireRole(['gp', 'doctor']
   }
 });
 
+// Get a specific consultation
+gpRouter.get('/consultations/:id', requireAuth, requireRole(['gp', 'doctor']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+
+    const result = await db.query(
+      `select c.*,
+        u.display_name as patient_name,
+        u.first_name as patient_first_name,
+        u.last_name as patient_last_name,
+        u.phone as patient_phone,
+        cr.symptoms as triage_context
+       from consultations c
+       join users u on u.id = c.patient_id
+       left join consult_requests cr on cr.id = c.request_id
+       where c.id = $1 and c.gp_id = $2
+       limit 1`,
+      [id, user.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Consultation not found or access denied' });
+    }
+    
+    return res.json({ consultation: result.rows[0] });
+  } catch (error) {
+    console.error('Get consultation detail error', error);
+    return res.status(500).json({ error: 'Unable to fetch consultation details' });
+  }
+});
 // API-09: Complete a consultation
 gpRouter.post('/consultations/:id/complete', requireAuth, requireRole(['gp', 'doctor']), async (req, res) => {
   try {

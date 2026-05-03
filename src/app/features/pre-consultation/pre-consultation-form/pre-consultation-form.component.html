@@ -1,0 +1,198 @@
+<div class="wizard-page">
+
+  <!-- Top bar -->
+  <div class="wizard-topbar">
+    <button class="back-btn" type="button" routerLink="/patient/dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Dashboard
+    </button>
+    <span class="topbar-brand">Health Hub</span>
+  </div>
+
+  <div class="wizard-card">
+
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="progressPercent"></div>
+    </div>
+
+    <!-- Step dots -->
+    <div class="step-dots">
+      <button
+        *ngFor="let step of steps"
+        class="step-dot"
+        [class.step-dot--active]="step.id === currentStep"
+        [class.step-dot--done]="answered[step.id] && step.id !== currentStep"
+        (click)="goToStep(step.id)"
+        [disabled]="step.id > currentStep"
+        [attr.aria-label]="'Step ' + step.id"
+      >
+        <svg *ngIf="answered[step.id] && step.id !== currentStep" viewBox="0 0 12 12" fill="currentColor">
+          <path d="M10 3L5 8.5 2 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span *ngIf="!answered[step.id] || step.id === currentStep">{{ step.id }}</span>
+      </button>
+    </div>
+
+    <!-- Step counter -->
+    <p class="step-counter">Step {{ currentStep }} of {{ totalSteps }}</p>
+
+    <!-- Question -->
+    <div class="question-area">
+      <h2 class="question-text">{{ currentStepData.question }}</h2>
+      <p class="question-hint" *ngIf="currentStepData.hint">{{ currentStepData.hint }}</p>
+    </div>
+
+    <!-- ── STEP 1: Symptoms ── -->
+    <div class="step-content" *ngIf="currentStep === 1">
+      <div class="chips-grid">
+        <button
+          *ngFor="let symptom of symptomOptions"
+          type="button"
+          class="chip"
+          [class.chip--selected]="isSelected(symptom)"
+          (click)="toggleSymptom(symptom)"
+        >
+          <svg *ngIf="isSelected(symptom)" class="chip-check" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z"/>
+          </svg>
+          {{ symptom }}
+        </button>
+
+        <!-- Other toggle chip -->
+        <button
+          type="button"
+          class="chip"
+          [class.chip--selected]="showOtherInput"
+          (click)="toggleOther()"
+        >
+          <svg *ngIf="showOtherInput" class="chip-check" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z"/>
+          </svg>
+          Other
+        </button>
+      </div>
+
+      <!-- Other free text input -->
+      <div class="other-input-wrap" *ngIf="showOtherInput">
+        <input
+          type="text"
+          class="other-input"
+          placeholder="Describe your symptom..."
+          [(ngModel)]="otherSymptom"
+          (ngModelChange)="onOtherInput()"
+          maxlength="100"
+          autofocus
+        />
+      </div>
+
+      <p class="step-error" *ngIf="!canProceed && selectedSymptoms.length === 0 && !showOtherInput">
+        Please select at least one symptom
+      </p>
+    </div>
+
+    <!-- ── STEP 2: Duration ── -->
+    <div class="step-content" *ngIf="currentStep === 2">
+      <div class="duration-options">
+        <button
+          *ngFor="let d of durationOptions"
+          type="button"
+          class="duration-btn"
+          [class.duration-btn--selected]="selectedDuration === d"
+          (click)="selectedDuration = d; onDurationChange()"
+        >
+          {{ d }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: Severity ── -->
+    <div class="step-content" *ngIf="currentStep === 3">
+      <div class="severity-display">
+        <span class="severity-number" [style.color]="severityColor">{{ severity }}</span>
+        <span class="severity-out">/10</span>
+        <span class="severity-badge" [style.background]="severityColor + '20'" [style.color]="severityColor">
+          {{ severityLabel }}
+        </span>
+      </div>
+
+      <div class="slider-wrapper">
+        <span class="slider-label">1</span>
+        <input
+          type="range"
+          class="slider"
+          min="1" max="10" step="1"
+          [(ngModel)]="severity"
+          name="severity"
+          [style.--thumb-color]="severityColor"
+        />
+        <span class="slider-label">10</span>
+      </div>
+
+      <div class="slider-track-labels">
+        <span>Mild</span>
+        <span>Moderate</span>
+        <span>Severe</span>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: Notes ── -->
+    <div class="step-content" *ngIf="currentStep === 4">
+      <textarea
+        class="textarea-input"
+        [(ngModel)]="notes"
+        name="notes"
+        rows="4"
+        placeholder="e.g. Started after a cold last week, worse in the mornings..."
+        maxlength="500"
+      ></textarea>
+      <div class="char-count">{{ notes.length }}/500</div>
+      <p class="skip-note">This is optional — you can leave it blank and submit.</p>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="nav-buttons">
+      <button
+        type="button"
+        class="btn-back"
+        (click)="prevStep()"
+        *ngIf="currentStep > 1"
+      >
+        ← Back
+      </button>
+
+      <button
+        type="button"
+        class="btn-next"
+        (click)="nextStep()"
+        *ngIf="!isLastStep"
+        [disabled]="!canProceed"
+      >
+        Next →
+      </button>
+
+      <button
+        type="button"
+        class="btn-submit"
+        (click)="onSubmit()"
+        *ngIf="isLastStep"
+        [disabled]="isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">
+          Connect with a Health Expert
+          <svg viewBox="0 0 20 20" fill="currentColor" class="btn-arrow">
+            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        <span *ngIf="isSubmitting" class="spinner-row">
+          <span class="spinner"></span> Finding your Health Expert...
+        </span>
+      </button>
+    </div>
+
+    <p class="privacy-note">🔒 Shared only with your assigned Health Expert</p>
+
+  </div>
+</div>

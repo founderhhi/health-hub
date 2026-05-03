@@ -1,47 +1,84 @@
 <section class="chat-panel">
   <header class="chat-panel__header">
-    <h3 class="chat-panel__title">{{ title }}</h3>
+    <div class="chat-panel__heading">
+      <p class="chat-panel__eyebrow">Private consultation thread</p>
+      <h3 class="chat-panel__title">{{ title }}</h3>
+      <p class="chat-panel__presence" [class.chat-panel__presence--live]="connectionState === 'connected'">
+        {{ connectionState === 'connected' ? 'Live conversation connected' : 'Syncing updates' }}
+      </p>
+    </div>
     <button type="button" class="chat-panel__refresh" (click)="loadMessages()" [disabled]="loading || disabled">
-      Refresh
+      Sync
     </button>
   </header>
 
-  <div class="chat-panel__status" *ngIf="loading">Loading messages...</div>
+  <div class="chat-panel__status" *ngIf="loading && messages.length === 0">Loading your consultation thread...</div>
   <div class="chat-panel__status chat-panel__status--error" *ngIf="!loading && error">{{ error }}</div>
 
-  <div #messagesContainer class="chat-panel__messages" *ngIf="!loading">
-    <div class="chat-panel__empty" *ngIf="messages.length === 0">No messages yet.</div>
+  <div #messagesContainer class="chat-panel__messages" aria-live="polite">
+    <div class="chat-panel__empty" *ngIf="messages.length === 0">
+      <p class="chat-panel__empty-title">No messages yet</p>
+      <p class="chat-panel__empty-copy">Use this thread to share symptoms, updates, and follow-up questions during your consultation.</p>
+    </div>
+    <p class="chat-panel__timeline" *ngIf="messages.length > 0">Consultation notes</p>
 
     <article
       class="chat-panel__message"
       *ngFor="let item of messages; trackBy: trackMessage"
       [class.chat-panel__message--mine]="item.mine"
+      [class.chat-panel__message--pending]="item.pending"
     >
-      <p class="chat-panel__meta">
-        <span class="chat-panel__sender">{{ item.senderLabel || 'Participant' }}</span>
-        <time class="chat-panel__time">{{ item.created_at | date: 'shortTime' }}</time>
-      </p>
-      <p class="chat-panel__text">{{ item.message }}</p>
+      <div class="chat-panel__avatar" aria-hidden="true">{{ (item.senderLabel || 'P').slice(0, 1) }}</div>
+      <div class="chat-panel__bubble">
+        <p class="chat-panel__meta">
+          <span class="chat-panel__sender-group">
+            <span class="chat-panel__sender">{{ item.senderLabel || 'Participant' }}</span>
+            <span class="chat-panel__role" *ngIf="item.senderRoleLabel">{{ item.senderRoleLabel }}</span>
+          </span>
+          <time class="chat-panel__time">{{ item.pending ? 'Sending...' : (item.created_at | date: 'shortTime') }}</time>
+        </p>
+        <img *ngIf="item.image_data && item.image_mime"
+             class="chat-panel__image"
+             [src]="'data:' + item.image_mime + ';base64,' + item.image_data"
+             alt="Shared image"
+             (click)="openImage(item)">
+        <p class="chat-panel__text" *ngIf="item.message">{{ item.message }}</p>
+      </div>
     </article>
   </div>
 
   <form class="chat-panel__composer" (ngSubmit)="sendMessage()">
-    <input
-      type="text"
-      class="chat-panel__input"
-      [placeholder]="placeholder"
-      [(ngModel)]="draft"
-      name="chatMessage"
-      [disabled]="disabled || sending"
-      autocomplete="off"
-      maxlength="1000"
-    />
-    <button
-      type="submit"
-      class="chat-panel__send"
-      [disabled]="disabled || sending || !draft.trim()"
-    >
-      {{ sending ? 'Sending...' : sendButtonLabel }}
-    </button>
+    <label class="chat-panel__composer-label" for="chatMessage">Add a message for your care team</label>
+    <div *ngIf="pendingImage" class="chat-panel__image-preview">
+      <img [src]="'data:' + pendingImage.mime + ';base64,' + pendingImage.data" alt="Preview">
+      <span class="chat-panel__image-preview-name">{{ pendingImage.name }}</span>
+      <button type="button" class="chat-panel__image-preview-remove" (click)="removeImage()">&times;</button>
+    </div>
+    <div class="chat-panel__composer-row">
+      <input type="file" accept="image/*" #fileInput (change)="onFileSelected($event)" style="display:none">
+      <button type="button" class="chat-panel__attach-btn" (click)="fileInput.click()" title="Attach image" [disabled]="disabled || sending">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+        </svg>
+      </button>
+      <input
+        type="text"
+        id="chatMessage"
+        class="chat-panel__input"
+        [placeholder]="placeholder"
+        [(ngModel)]="draft"
+        name="chatMessage"
+        [disabled]="disabled || sending"
+        autocomplete="off"
+        maxlength="1000"
+      />
+      <button
+        type="submit"
+        class="chat-panel__send"
+        [disabled]="disabled || sending || (!draft.trim() && !pendingImage)"
+      >
+        {{ sending ? 'Sending...' : sendButtonLabel }}
+      </button>
+    </div>
   </form>
 </section>

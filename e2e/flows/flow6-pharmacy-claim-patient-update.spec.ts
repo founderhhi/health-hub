@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 import { getE2EEnvironment } from '../config/env';
-import { loginProvider, signupPatient } from '../helpers/api-auth';
 import {
   claimPrescription,
   createPrescription,
+  loginProviderWithRetry,
   listNotifications,
+  signupPatientWithRetry,
   lookupPrescriptionByCode
 } from '../helpers/api-flow-setup';
 import { retry } from '../helpers/retry';
@@ -17,9 +18,9 @@ test.describe('Flow 6: pharmacy claim and patient update', () => {
   test.setTimeout(env.timeoutMs);
 
   test('claims prescription and validates patient notification', async ({ page, request }) => {
-    const { auth: patientAuth } = await signupPatient(request, env);
-    const gpAuth = await loginProvider(request, env, 'gp');
-    const pharmacyAuth = await loginProvider(request, env, 'pharmacy');
+    const { auth: patientAuth } = await signupPatientWithRetry(request, env);
+    const gpAuth = await loginProviderWithRetry(request, env, 'gp');
+    const pharmacyAuth = await loginProviderWithRetry(request, env, 'pharmacy');
 
     const prescription = await createPrescription(request, gpAuth, patientAuth.user.id, [
       {

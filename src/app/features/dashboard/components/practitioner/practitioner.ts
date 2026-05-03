@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -8,7 +8,9 @@ import { GpApiService } from '../../../../core/api/gp.service';
 import { ProviderProfileService } from '../../../../core/services/provider-profile.service';
 import { PrescriptionsApiService } from '../../../../core/api/prescriptions.service';
 import { ReferralsApiService } from '../../../../core/api/referrals.service';
+import { LabsApiService, DiagnosticCentre } from '../../../../core/api/labs.service';
 import { WsService } from '../../../../core/realtime/ws.service';
+import { formatTriageSourceLabel, normalizeTriageHandoff } from './triage-handoff';
 import { ConsultShellComponent, ConsultMode } from '../../../../shared/components/consult-shell/consult-shell';
 
 interface QueuePatient {
@@ -27,6 +29,9 @@ interface QueuePatient {
   createdAt: string;
   status?: 'waiting' | 'active' | 'completed' | 'paused';
   symptoms?: string;
+  triageSource?: string;
+  triageAnswers?: string[];
+  recommendedNextStep?: string;
 }
 
 interface DashboardStats {
@@ -45,6 +50,7 @@ interface PrescriptionItem {
 
 interface ReferralFormData {
   specialty: string;
+  specialistName?: string;
   urgency: string;
   reason: string;
   appointmentDate: string;
@@ -69,19 +75,11 @@ interface ConsultationHistory {
   styleUrl: './practitioner.scss'
 })
 export class Practitioner implements OnInit, OnDestroy {
-  @ViewChild(ConsultShellComponent) consultShellRef?: ConsultShellComponent;
-
   today = new Date();
   private readonly autoRefreshIntervalSeconds = 5;
   isRefreshing = false;
   refreshCountdown = this.autoRefreshIntervalSeconds;
   unavailableNotice = '';
-  activeConsultRoomUrl = '';
-  activeConsultationId = '';
-  activeConsultPatientId = '';
-  activeConsultMode: ConsultMode = 'video';
-  activeConsultPatientName = '';
-  showConsultShell = false;
   private countdownInterval: any;
   private wsSubscription?: Subscription;
   private platformId = inject(PLATFORM_ID);
@@ -130,8 +128,10 @@ export class Practitioner implements OnInit, OnDestroy {
   // ── Referral Modal State ──
   showReferralModal = false;
   referralPatientId = '';
+  referralSubmitError = '';
   referralForm: ReferralFormData = {
     specialty: '',
+    specialistName: '',
     urgency: 'routine',
     reason: '',
     appointmentDate: '',
@@ -151,12 +151,33 @@ export class Practitioner implements OnInit, OnDestroy {
     'Ophthalmology'
   ];
 
+  // ── Inline Consult Shell State ──
+  showConsultShell = false;
+  activeConsultationId = '';
+  activeConsultRoomUrl = '';
+  activeConsultPatientId = '';
+  activeConsultMode: ConsultMode = 'video';
+  activeConsultPatientName = '';
+
+  // ── Lab Order Modal State ──
+  showLabModal = false;
+  labOrderPatientId = '';
+  labTestOptions = ['CBC', 'CRP', 'Lipid Panel', 'HbA1c', 'Urinalysis', 'Blood Culture', 'X-Ray', 'ECG'];
+  selectedTests: string[] = [];
+  labNote = '';
+  submittingLabs = false;
+  diagnosticCentres: DiagnosticCentre[] = [];
+  selectedCentre = '';
+  loadingCentres = false;
+  labOrderNotice = '';
+
   constructor(
     private router: Router,
     private gpApi: GpApiService,
     private providerProfileService: ProviderProfileService,
     private prescriptionsApi: PrescriptionsApiService,
     private referralsApi: ReferralsApiService,
+    private labsApi: LabsApiService,
     private ws: WsService
   ) { }
 
@@ -169,18 +190,7 @@ export class Practitioner implements OnInit, OnDestroy {
       if (event.event === 'queue.updated') {
         this.refreshDashboard();
       } else if (event.event === 'consult.completed') {
-        const data = event.data as any;
-        const completedId = data?.consultationId || data?.consultation?.id || '';
-
-        if (completedId && completedId === this.activeConsultationId) {
-          this.showConsultShell = false;
-          this.activeConsultRoomUrl = '';
-          this.activeConsultationId = '';
-          this.activeConsultPatientId = '';
-          this.showUnavailableNotice('Consultation has ended.');
-          this.syncStats();
-        }
-
+        // the consultation is completed, refresh the dashboard to update history and stats
         this.refreshDashboard();
       }
     });
@@ -353,6 +363,7 @@ export class Practitioner implements OnInit, OnDestroy {
           item.last_name,
           item.display_name
         );
+        const triage = normalizeTriageHandoff(item.symptoms);
 
         return {
           id: item.id,
@@ -365,10 +376,13 @@ export class Practitioner implements OnInit, OnDestroy {
           waitTime: `${minutes} min`,
           waitMinutes: minutes,
           mode: item.mode || 'video',
-          aiSummary: item.symptoms?.complaint || item.ai_summary || 'Consultation request',
+          aiSummary: triage.triageSummary || triage.complaint || item.ai_summary || 'Consultation request',
           status: item.status || 'waiting',
           createdAt: item.created_at,
-          symptoms: item.symptoms?.description || item.symptoms
+          symptoms: triage.symptomsText,
+          triageSource: triage.source,
+          triageAnswers: triage.triageAnswers,
+          recommendedNextStep: triage.recommendedNextStep,
         } as QueuePatient;
       });
 
@@ -466,11 +480,10 @@ export class Practitioner implements OnInit, OnDestroy {
   private syncStats(): void {
     const waiting = this.queue.filter((patient) => patient.status !== 'active').length;
     const queuedActive = this.queue.filter((patient) => patient.status === 'active').length;
-    const liveConsultActive = this.showConsultShell && this.activeConsultationId ? 1 : 0;
 
     this.stats = {
       waiting,
-      active: Math.max(queuedActive, liveConsultActive),
+      active: queuedActive,
       completed: this.completedToday,
       avgTime: this.averageSessionToday
     };
@@ -495,7 +508,7 @@ export class Practitioner implements OnInit, OnDestroy {
   }
 
   /**
-   * Accept a patient from the queue
+   * Accept a patient from the queue — opens inline ConsultShell directly.
    */
   acceptPatient(patientId: string): void {
     if (this.deletingPatientIds.has(patientId) || this.acceptingPatientIds.has(patientId)) {
@@ -504,36 +517,39 @@ export class Practitioner implements OnInit, OnDestroy {
 
     this.acceptingPatientIds.add(patientId);
     const selected = this.queue.find((item) => item.id === patientId);
-    const snapshot = selected ? { ...selected } : null;
 
     this.gpApi.acceptRequest(patientId).subscribe({
       next: (response) => {
-        this.activeConsultRoomUrl =
-          response.roomUrl || response.consultation?.daily_room_url || response.consultation?.roomUrl || '';
-        this.activeConsultationId =
+        const consultationId =
           response.consultation?.consultation_id ||
           response.consultation?.consultationId ||
           response.consultation?.id ||
           response.consultationId ||
           '';
-        this.activeConsultPatientId =
-          response.consultation?.patient_id ||
-          snapshot?.patientId ||
-          '';
+
+        const roomUrl = response.roomUrl || response.consultation?.daily_room_url || response.consultation?.roomUrl || '';
 
         const item = this.queue.find((p) => p.id === patientId);
-        const consultSource = item || snapshot;
         if (item) {
           item.accepted = true;
           item.status = 'active';
         }
 
-        this.activeConsultMode = consultSource?.mode || 'video';
-        this.activeConsultPatientName = consultSource?.displayName || 'Patient';
-        this.showConsultShell = true;
         this.applyFilters();
         this.syncStats();
         this.acceptingPatientIds.delete(patientId);
+
+        if (consultationId) {
+          this.activeConsultationId = consultationId;
+          this.activeConsultRoomUrl = roomUrl;
+          this.activeConsultPatientId = selected?.patientId || '';
+          this.activeConsultPatientName = selected?.displayName || '';
+          this.activeConsultMode = selected?.mode || 'video';
+          this.showConsultShell = true;
+          this.renderNow();
+        } else {
+          this.showUnavailableNotice('Consultation created but no ID returned. Please refresh and try again.');
+        }
       },
       error: (err) => {
         console.error('Failed to accept patient:', err);
@@ -544,49 +560,116 @@ export class Practitioner implements OnInit, OnDestroy {
     });
   }
 
-  onEndConsultation(event: { notes: string }): void {
-    if (!this.activeConsultationId) return;
+  onConsultEnd(event: { notes: string }): void {
+    if (!this.activeConsultationId) {
+      return;
+    }
     this.gpApi.completeConsultation(this.activeConsultationId, event.notes).subscribe({
       next: () => {
-        this.showConsultShell = false;
-        this.activeConsultRoomUrl = '';
-        this.activeConsultationId = '';
-        this.activeConsultPatientId = '';
-        this.showUnavailableNotice(event.notes?.trim()
-          ? 'Consultation ended. Notes saved.'
-          : 'Consultation ended successfully.');
-        this.syncStats();
+        this.closeConsultShell();
+        this.showUnavailableNotice('Consultation completed successfully.');
         this.refreshDashboard();
       },
       error: (err) => {
-        console.error('Failed to end consultation:', err);
         const message = this.resolveCompleteConsultationError(err);
         this.showUnavailableNotice(message);
-        // Issue 5: Reset consult shell "ending" state so the button becomes usable again
-        this.consultShellRef?.onEndError(message);
+        // Signal the shell to reset its ending state so the GP can retry
+        this.renderNow();
       }
     });
   }
 
   onConsultPrescribe(): void {
-    if (!this.activeConsultPatientId) {
-      this.showUnavailableNotice('Patient context is unavailable for prescription.');
-      return;
-    }
     this.prescribe(this.activeConsultPatientId);
   }
 
   onConsultRefer(): void {
-    if (!this.activeConsultPatientId) {
-      this.showUnavailableNotice('Patient context is unavailable for referral.');
-      return;
-    }
     this.referToSpecialist(this.activeConsultPatientId);
   }
 
-  onLeaveConsultShell(): void {
+  onConsultLabs(): void {
+    this.orderLabs(this.activeConsultPatientId);
+  }
+
+  onConsultLeave(): void {
+    this.closeConsultShell();
+  }
+
+  private closeConsultShell(): void {
     this.showConsultShell = false;
-    this.syncStats();
+    this.activeConsultationId = '';
+    this.activeConsultRoomUrl = '';
+    this.activeConsultPatientId = '';
+    this.activeConsultPatientName = '';
+    this.activeConsultMode = 'video';
+    this.renderNow();
+  }
+
+  // ── Lab Order Methods ──
+
+  orderLabs(patientId?: string): void {
+    if (!patientId) {
+      return;
+    }
+    this.labOrderPatientId = patientId;
+    this.selectedTests = [];
+    this.labNote = '';
+    this.selectedCentre = '';
+    this.labOrderNotice = '';
+    this.showLabModal = true;
+    this.loadingCentres = true;
+    this.labsApi.getCentres().subscribe({
+      next: (res) => {
+        this.diagnosticCentres = res.centres || [];
+        this.loadingCentres = false;
+        this.renderNow();
+      },
+      error: () => {
+        this.diagnosticCentres = [];
+        this.loadingCentres = false;
+      }
+    });
+  }
+
+  toggleLabTest(test: string): void {
+    const idx = this.selectedTests.indexOf(test);
+    if (idx === -1) {
+      this.selectedTests = [...this.selectedTests, test];
+    } else {
+      this.selectedTests = this.selectedTests.filter(t => t !== test);
+    }
+    this.renderNow();
+  }
+
+  isLabTestSelected(test: string): boolean {
+    return this.selectedTests.includes(test);
+  }
+
+  submitLabOrder(): void {
+    if (!this.labOrderPatientId || this.submittingLabs || this.selectedTests.length === 0 || !this.labNote.trim()) {
+      return;
+    }
+    this.submittingLabs = true;
+    this.labsApi.createOrder(this.labOrderPatientId, this.selectedTests, this.selectedCentre || undefined, this.labNote.trim()).subscribe({
+      next: () => {
+        this.submittingLabs = false;
+        this.showLabModal = false;
+        this.labOrderNotice = `Lab order submitted: ${this.selectedTests.join(', ')}.`;
+        this.renderNow();
+      },
+      error: () => {
+        this.submittingLabs = false;
+        this.showUnavailableNotice('Unable to submit lab order right now.');
+      }
+    });
+  }
+
+  closeLabModal(): void {
+    this.showLabModal = false;
+    this.labOrderPatientId = '';
+    this.selectedTests = [];
+    this.labNote = '';
+    this.selectedCentre = '';
   }
 
   /**
@@ -595,6 +678,10 @@ export class Practitioner implements OnInit, OnDestroy {
   viewDetails(patient: QueuePatient): void {
     this.selectedPatient = patient;
     this.showPatientDetailsModal = true;
+  }
+
+  getTriageSourceLabel(source: string | undefined): string {
+    return formatTriageSourceLabel(source);
   }
 
   /**
@@ -655,11 +742,13 @@ export class Practitioner implements OnInit, OnDestroy {
 
   referToSpecialist(patientId?: string): void {
     if (!patientId) {
+      this.showUnavailableNotice('Patient context is unavailable. Please accept a patient first.');
       return;
     }
     this.referralPatientId = patientId;
     this.referralForm = {
       specialty: '',
+      specialistName: '',
       urgency: 'routine',
       reason: '',
       appointmentDate: '',
@@ -671,15 +760,22 @@ export class Practitioner implements OnInit, OnDestroy {
   }
 
   submitReferral(): void {
-    if (!this.referralForm.specialty || !this.referralForm.reason.trim()) {
+    if (!this.referralForm.specialty) {
+      this.referralSubmitError = 'Please select a specialty.';
       return;
     }
+    if (!this.referralForm.reason.trim()) {
+      this.referralSubmitError = 'Please provide a reason for the referral.';
+      return;
+    }
+    this.referralSubmitError = '';
     this.referralsApi.createReferral(
       this.referralPatientId,
       this.referralForm.urgency,
       this.referralForm.reason,
       {
         specialty: this.referralForm.specialty,
+        specialistName: this.referralForm.specialistName || undefined,
         appointmentDate: this.referralForm.appointmentDate || undefined,
         appointmentTime: this.referralForm.appointmentTime || undefined,
         consultationMode: this.referralForm.consultationMode,
@@ -702,8 +798,10 @@ export class Practitioner implements OnInit, OnDestroy {
   closeReferralModal(): void {
     this.showReferralModal = false;
     this.referralPatientId = '';
+    this.referralSubmitError = '';
     this.referralForm = {
       specialty: '',
+      specialistName: '',
       urgency: 'routine',
       reason: '',
       appointmentDate: '',
@@ -719,8 +817,6 @@ export class Practitioner implements OnInit, OnDestroy {
    * Skip a patient in the queue
    */
   skipPatient(patientId: string): void {
-    console.log('Skipping patient:', patientId);
-    // Move patient to end of queue
     const index = this.queue.findIndex(p => p.id === patientId);
     if (index > -1) {
       const patient = this.queue.splice(index, 1)[0];
@@ -827,18 +923,6 @@ export class Practitioner implements OnInit, OnDestroy {
     this.unavailableNotice = '';
   }
 
-  closeEmbeddedConsultation(): void {
-    this.activeConsultRoomUrl = '';
-    this.activeConsultationId = '';
-    this.activeConsultPatientId = '';
-  }
-
-  openConsultationInNewTab(): void {
-    if (!this.activeConsultRoomUrl || !isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    window.open(this.activeConsultRoomUrl, '_blank');
-  }
 
   private showUnavailableNotice(message: string): void {
     this.unavailableNotice = message;

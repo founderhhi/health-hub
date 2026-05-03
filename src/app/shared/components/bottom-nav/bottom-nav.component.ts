@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { AiChatBubbleComponent } from '../ai-chat-bubble/ai-chat-bubble.component';
 
 /**
  * Tab interface for bottom navigation
@@ -35,7 +36,7 @@ export interface BottomNavTab {
 @Component({
   selector: 'app-bottom-nav',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AiChatBubbleComponent],
   templateUrl: './bottom-nav.component.html',
   styleUrl: './bottom-nav.component.scss'
 })
@@ -54,6 +55,11 @@ export class BottomNavComponent {
   isActive(tab: BottomNavTab): boolean {
     return this.activeTab === tab.id || this.router.url.startsWith(tab.route);
   }
+
+  shouldShowAiChatBubble(): boolean {
+    // Disabled old floating bubble in favor of central prominent nav tab
+    return false;
+  }
 }
 
 /**
@@ -61,28 +67,28 @@ export class BottomNavComponent {
  */
 export const PATIENT_TABS: BottomNavTab[] = [
   {
-    id: 'appointments',
-    route: '/patient/appointments',
-    label: 'Appointments',
-    icon: 'calendar'
-  },
-  {
     id: 'home',
     route: '/patient/dashboard',
     label: 'Home',
     icon: 'home'
   },
   {
-    id: 'records',
-    route: '/patient/records',
-    label: 'Health Records',
-    icon: 'folder'
+    id: 'appointments',
+    route: '/patient/appointments',
+    label: 'Appointments',
+    icon: 'calendar'
   },
   {
     id: 'ai-chat',
     route: '/patient/ai-chat',
-    label: 'HealthHub AI',
+    label: 'AI Chat',
     icon: 'robot'
+  },
+  {
+    id: 'records',
+    route: '/patient/records',
+    label: 'Health Records',
+    icon: 'folder'
   },
   {
     id: 'profile',

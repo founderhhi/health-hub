@@ -144,6 +144,10 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
     return this.role === 'specialist';
   }
 
+  get canRequestLabs(): boolean { // [AGENT_ROLES] allow GP + specialist to request labs; patients excluded
+    return this.role === 'gp' || this.role === 'specialist';
+  }
+
   startCall(): void {
     void this.openCallWindow();
   }
@@ -241,18 +245,10 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
       this.fallbackRoomUrl = resolvedRoomUrl;
       this.roomUrl = resolvedRoomUrl;
 
-      // Step 2: Now open the popup with the URL ready.
-      const popup = window.open(resolvedRoomUrl, '_blank', 'noopener,noreferrer');
-
-      if (!popup) {
-        // Popup was blocked — show user-friendly error with fallback options.
-        this.errorMessage = 'Popup blocked. Use "Open Here" or "Copy Link" to continue.';
-        this.callActive = false;
-        return;
-      }
-
+      // Navigate in a new tab — keeps the shell open for notes, prescriptions, etc.
       this.callActive = true;
       this.startElapsedTimer();
+      window.open(resolvedRoomUrl, '_blank');
     } finally {
       this.joiningCall = false;
     }
@@ -276,14 +272,14 @@ export class ConsultShellComponent implements OnInit, OnDestroy {
   }
 
 
-  openCallInSameTab(): void {
+  openCallInNewTab(): void {
     if (!isPlatformBrowser(this.platformId) || !this.fallbackRoomUrl) {
       return;
     }
 
     this.callActive = true;
     this.startElapsedTimer();
-    window.location.href = this.fallbackRoomUrl;
+    window.open(this.fallbackRoomUrl, '_blank');
   }
 
   copyCallLink(): void {
